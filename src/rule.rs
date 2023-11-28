@@ -1,5 +1,3 @@
-use crate::css::CSSDecls;
-
 #[macro_export]
 macro_rules! static_rules {
   (

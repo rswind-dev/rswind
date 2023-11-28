@@ -1,8 +1,8 @@
 use std::{collections::HashMap, rc::Rc};
 
-use crate::{css::CSSDecls, theme::Theme};
+use crate::{css::{CSSDecls, CSSRule}, theme::Theme};
 
-type RuleMatchingFn<'a> = Box<dyn Fn(&'a str) -> Option<CSSDecls>>;
+type RuleMatchingFn<'a> = Box<dyn Fn(&'a str) -> Option<CSSDecls> + 'static>;
 
 pub struct Context<'a> {
   pub static_rules: HashMap<String, CSSDecls>,
@@ -10,6 +10,21 @@ pub struct Context<'a> {
   pub rules: HashMap<String, RuleMatchingFn<'a>>,
   pub theme: Rc<Theme>,
   pub config: String,
+  pub tokens: HashMap<&'a str, Option<CSSRule>>
+}
+
+pub struct ThemeValue<S: Into<String>> {
+  pub key: S,
+  pub decl_key: Vec<String>
+}
+
+impl<S: Into<String>> ThemeValue<S> {
+    pub fn new(key: S, decl_key: Vec<String>) -> Self {
+        Self {
+            key,
+            decl_key
+        }
+    }
 }
 
 impl<'a> Context<'a> {
@@ -22,13 +37,43 @@ impl<'a> Context<'a> {
     self.rules.insert(key.into(), Box::new(move |input| func(input, theme_clone.clone())));
     self
   }
-  pub fn add_static<S>(&mut self, key: S, decls: CSSDecls) -> &mut Self
+  pub fn add_static<S>(&mut self, pair: (S, CSSDecls)) -> &mut Self
   where
       S: Into<String>,
   {
-    self.static_rules.insert(key.into(), decls);
+    self.static_rules.insert(pair.0.into(), pair.1);
     self
   }
+  pub fn add_theme_rule<S, T>(&mut self, _theme_key: T, values: Vec<ThemeValue<S>>) -> &mut Self
+  where
+      S: Into<String>,
+      T: Into<String>,
+  {
+    for value in values {
+      // TODO: use theme_key
+      let theme_clone = Rc::clone(&self.theme);
+
+      self.rules.insert(
+        value.key.into(),
+        Box::new(move |input| {
+          theme_clone.spacing.get(input).and_then(|theme_val| {
+            Some(theme_rule_handler(value.decl_key.clone(), theme_val.into()))
+          })
+      })
+      );
+    }
+    self
+  }
+}
+
+
+fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
+  CSSDecls::multi(
+    decl_keys
+      .into_iter()
+      .map(|decl_key| (decl_key, value.to_owned()))
+      .collect::<Vec<(_, _)>>()
+  )
 }
 
 #[macro_export]
@@ -39,9 +84,24 @@ macro_rules! add_static {
     })+
   }) => {
     $(
-      $ctx.add_static($key, CSSDecls::multi([
+      $ctx.add_static(($key, CSSDecls::multi([
         $(($name, $value),)+
-      ]));
+      ])));
+    )+
+  };
+}
+
+#[macro_export]
+macro_rules! add_theme_rule {
+  ($ctx:ident, {
+    $($theme_key:literal => {
+      $($key:literal => [$($decl_key:literal),+])+
+    })+
+  }) => {
+    $(
+      $ctx.add_theme_rule($theme_key, vec![
+        $(ThemeValue::new($key, vec![$($decl_key.into()),+]),)+
+      ]);
     )+
   };
 }

@@ -1,21 +1,27 @@
 use std::collections::HashMap;
+use std::fs::{self, read_to_string};
 use std::rc::Rc;
 
 use ::config::{Config, File};
 
 use crate::config::ArrowConfig;
-use crate::context::Context;
-use crate::css::{Rule, ToCss, ToCssRule, CSSDecls};
+use crate::context::{Context, ThemeValue};
+use crate::css::{CSSDecls, ToCss};
+use crate::parser::parse;
+use crate::rules::statics::STATIC_RULES;
 use crate::writer::{Writer, WriterConfig};
 
 mod config;
 mod context;
 mod css;
+mod parser;
+mod rule;
+mod rules;
 mod theme;
 mod writer;
-mod rules;
-mod rule;
-mod parser;
+
+#[macro_use]
+extern crate lazy_static;
 
 fn main() {
     let config = Config::builder()
@@ -25,37 +31,11 @@ fn main() {
         .try_deserialize::<ArrowConfig>()
         .unwrap();
 
-    let rules = vec![
-        Rule {
-            raw: "dark:text-red-500",
-            rule: "text-red-500",
-            modifier: vec!["dark"],
-        },
-        Rule {
-            raw: "text-blue-500",
-            rule: "text-blue-500",
-            modifier: vec![],
-        },
-        Rule {
-            raw: "inset-1",
-            rule: "inset-1",
-            modifier: vec![],
-        },
-        Rule {
-            raw: "flex",
-            rule: "flex",
-            modifier: vec![],
-        },
-        Rule {
-            raw: "block",
-            rule: "block",
-            modifier: vec![],
-        },
-    ];
-
     let theme = Rc::new(config.theme);
 
+    let input: &'static String = Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
     let mut ctx = Context {
+        tokens: HashMap::new(),
         static_rules: HashMap::new(),
         arbitrary_rules: HashMap::new(),
         rules: HashMap::new(),
@@ -64,58 +44,63 @@ fn main() {
     };
 
     ctx.add_rule("text", |value, theme| {
-        theme.colors.get(value).map(|color|
-            CSSDecls::one("color", color)
-        )
-    }).add_rule("inset", |value, theme| {
-        theme.spacing.get(value).map(|space|
-            CSSDecls::multi([
-                ("top", space),
-                ("right", space),
-                ("bottom", space),
-                ("left", space),
-            ])
-        )
+        theme
+            .colors
+            .get(value)
+            .map(|color| CSSDecls::one("color", color))
     });
 
-    add_static!(ctx, {
-        "block" => { "display": "block"; }
-        "inline-block" => { "display": "inline-block"; }
-        "flex" => { "display": "flex"; }
-        "inline-flex" => { "display": "inline-flex"; }
-        "table" => { "display": "table"; }
-        "inline-table" => { "display": "inline-table"; }
-        "table-caption" => { "display": "table-caption"; }
-        "table-cell" => { "display": "table-cell"; }
-        "table-column" => { "display": "table-column"; }
-        "table-column-group" => { "display": "table-column-group"; }
-        "table-footer-group" => { "display": "table-footer-group"; }
-        "table-header-group" => { "display": "table-header-group"; }
-        "table-row-group" => { "display": "table-row-group"; }
-        "table-row" => { "display": "table-row"; }
-        "flow-root" => { "display": "flow-root"; }
-        "grid" => { "display": "grid"; }
-        "inline-grid" => { "display": "inline-grid"; }
-        "contents" => { "display": "contents"; }
-        "list-item" => { "display": "list-item"; }
-        "hidden" => { "display": "none"; }
+    STATIC_RULES.iter().for_each(|(key, value)| {
+        ctx.add_static((*key, value.clone()));
+    });
+
+    add_theme_rule!(ctx, {
+        "spacing" => {
+            "m" => ["margin"]
+            "mx" => ["margin-left", "margin-right"]
+            "my" => ["margin-top", "margin-bottom"]
+            "mt" => ["margin-top"]
+            "mr" => ["margin-right"]
+            "mb" => ["margin-bottom"]
+            "ml" => ["margin-left"]
+            "ms" => ["margin-inline-start"]
+            "me" => ["margin-inline-end"]
+
+            "inset" => ["top", "right", "bottom", "left"]
+            "inset-x" => ["left", "right"]
+            "inset-y" => ["top", "bottom"]
+
+            "top" => ["top"]
+            "right" => ["right"]
+            "bottom" => ["bottom"]
+            "left" => ["left"]
+
+            "gap" => ["gap"]
+        }
     });
 
     let mut w = String::new();
-    let mut writer = Writer::new(&mut w, WriterConfig {
-        minify: false,
-        linefeed: writer::LineFeed::LF,
-        indent_width: 2,
-        indent_type: writer::IndentType::Space,
-    });
+    let mut writer = Writer::new(
+        &mut w,
+        WriterConfig {
+            minify: false,
+            linefeed: writer::LineFeed::LF,
+            indent_width: 2,
+            indent_type: writer::IndentType::Space,
+        },
+    );
 
-    rules
-    .iter()
-    .map(|it| it.to_css_rule(&ctx))
-    .filter_map(|it| it.is_some().then(|| it.unwrap()))
-    .for_each(|it| {
-        let _ = it.to_css(&mut writer);
+    // open test.html
+    parse(&input, &mut ctx);
+
+    ctx.tokens.values().into_iter().for_each(|it| {
+        if let Some(rule) = it {
+            let _ = rule.to_css(&mut writer);
+        }
     });
 
     println!("{}", w);
+
+    // write to test.css
+    fs::write("examples/test.css", w).unwrap();
 }

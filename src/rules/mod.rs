@@ -1,1 +1,1 @@
-mod r#static;
+pub mod statics;

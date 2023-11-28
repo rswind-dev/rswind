@@ -14,6 +14,18 @@ pub struct Rule<'a> {
     pub raw: &'a str,
     pub rule: &'a str,
     pub modifier: Vec<&'a str>,
+    pub css_cache: Option<String>,
+}
+
+impl Default for Rule<'_> {
+    fn default() -> Self {
+        Self {
+            raw: "",
+            rule: "",
+            modifier: vec![],
+            css_cache: None,
+        }
+    }
 }
 
 impl<'a> ToCssRule<'a> for Rule<'a> {
@@ -50,8 +62,8 @@ pub trait ToCss {
 
 #[derive(Debug)]
 pub struct CSSRule {
-    selector: String,
-    nodes: Vec<CSSDecl>,
+    pub selector: String,
+    pub nodes: Vec<CSSDecl>,
 }
 
 #[derive(Debug, Clone)]
@@ -76,6 +88,7 @@ impl<A: Into<String>, B: Into<String>> Into<CSSDecl> for (A, B) {
 }
 
 // one or multiple CSS
+#[derive(Clone)]
 pub enum CSSDecls {
     One(CSSDecl),
     Multi(Vec<CSSDecl>),
