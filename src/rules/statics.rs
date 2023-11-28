@@ -1,6 +1,6 @@
 use crate::{css::CSSDecls, static_rules};
 
-fn accessibility() -> Vec<(&'static str, CSSDecls)> {
+pub fn accessibility() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "sr-only" => {
             "position": "absolute";
@@ -26,14 +26,14 @@ fn accessibility() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn pointer_events() -> Vec<(&'static str, CSSDecls)> {
+pub fn pointer_events() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "pointer-events-none" => { "pointer-events": "none"; }
         "pointer-events-auto" => { "pointer-events": "auto"; }
     };
 }
 
-fn visibility() -> Vec<(&'static str, CSSDecls)> {
+pub fn visibility() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "visible" => { "visibility": "visible"; }
         "invisible" => { "visibility": "hidden"; }
@@ -41,7 +41,7 @@ fn visibility() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn position() -> Vec<(&'static str, CSSDecls)> {
+pub fn position() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "static" => { "position": "static"; }
         "fixed" => { "position": "fixed"; }
@@ -51,14 +51,14 @@ fn position() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn isolation() -> Vec<(&'static str, CSSDecls)> {
+pub fn isolation() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "isolate" => { "isolation": "isolate"; }
         "isolation-auto" => { "isolation": "auto"; }
     };
 }
 
-fn float() -> Vec<(&'static str, CSSDecls)> {
+pub fn float() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "float-right" => { "float": "right"; }
         "float-left" => { "float": "left"; }
@@ -66,7 +66,7 @@ fn float() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn clear() -> Vec<(&'static str, CSSDecls)> {
+pub fn clear() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "clear-start" => { "clear": "inline-start"; }
         "clear-end" => { "clear": "inline-end"; }
@@ -77,14 +77,14 @@ fn clear() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn box_sizing() -> Vec<(&'static str, CSSDecls)> {
+pub fn box_sizing() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "box-border" => { "box-sizing": "border-box"; }
         "box-content" => { "box-sizing": "content-box"; }
     };
 }
 
-fn display() -> Vec<(&'static str, CSSDecls)> {
+pub fn display() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "block" => { "display": "block"; }
         "inline-block" => { "display": "inline-block"; }
@@ -109,28 +109,28 @@ fn display() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn table_layout() -> Vec<(&'static str, CSSDecls)> {
+pub fn table_layout() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "table-auto" => { "table-layout": "auto"; }
         "table-fixed" => { "table-layout": "fixed"; }
     };
 }
 
-fn caption_side() -> Vec<(&'static str, CSSDecls)> {
+pub fn caption_side() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "caption-top" => { "caption-side": "top"; }
         "caption-bottom" => { "caption-side": "bottom"; }
     };
 }
 
-fn border_collapse() -> Vec<(&'static str, CSSDecls)> {
+pub fn border_collapse() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "border-collapse" => { "border-collapse": "collapse"; }
         "border-separate" => { "border-collapse": "separate"; }
     };
 }
 
-fn user_select() -> Vec<(&'static str, CSSDecls)> {
+pub fn user_select() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "select-none" => { "user-select": "none"; }
         "select-text" => { "user-select": "text"; }
@@ -139,7 +139,7 @@ fn user_select() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn resize() -> Vec<(&'static str, CSSDecls)> {
+pub fn resize() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "resize-none" => { "resize": "none"; }
         "resize-y" => { "resize": "vertical"; }
@@ -148,7 +148,7 @@ fn resize() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn scroll_snap_align() -> Vec<(&'static str, CSSDecls)> {
+pub fn scroll_snap_align() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "snap-start" => { "scroll-snap-align": "start"; }
         "snap-end" => { "scroll-snap-align": "end"; }
@@ -157,28 +157,28 @@ fn scroll_snap_align() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn scroll_snap_stop() -> Vec<(&'static str, CSSDecls)> {
+pub fn scroll_snap_stop() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "snap-normal" => { "scroll-snap-stop": "normal"; }
         "snap-always" => { "scroll-snap-stop": "always"; }
     };
 }
 
-fn list_style_position() -> Vec<(&'static str, CSSDecls)> {
+pub fn list_style_position() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "list-inside" => { "list-style-position": "inside"; }
         "list-outside" => { "list-style-position": "outside"; }
     };
 }
 
-fn appearance() -> Vec<(&'static str, CSSDecls)> {
+pub fn appearance() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "appearance-none" => { "appearance": "none"; }
         "appearance-auto" => { "appearance": "auto"; }
     };
 }
 
-fn break_before() -> Vec<(&'static str, CSSDecls)> {
+pub fn break_before() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "break-before-auto" => { "break-before": "auto"; }
         "break-before-avoid" => { "break-before": "avoid"; }
@@ -197,7 +197,7 @@ fn break_before() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn break_inside() -> Vec<(&'static str, CSSDecls)> {
+pub fn break_inside() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "break-inside-auto" => { "break-inside": "auto"; }
         "break-inside-avoid" => { "break-inside": "avoid"; }
@@ -209,7 +209,7 @@ fn break_inside() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn break_after() -> Vec<(&'static str, CSSDecls)> {
+pub fn break_after() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "break-after-auto" => { "break-after": "auto"; }
         "break-after-avoid" => { "break-after": "avoid"; }
@@ -230,7 +230,7 @@ fn break_after() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
-fn grid_auto_flow() -> Vec<(&'static str, CSSDecls)> {
+pub fn grid_auto_flow() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {
         "grid-flow-row" => { "grid-auto-flow": "row"; }
         "grid-flow-col" => { "grid-auto-flow": "column"; }
@@ -240,6 +240,37 @@ fn grid_auto_flow() -> Vec<(&'static str, CSSDecls)> {
     };
 }
 
+pub fn get_all() -> Vec<(&'static str, CSSDecls)> {
+    vec![]
+        .into_iter()
+        .chain(accessibility())
+        .chain(pointer_events())
+        .chain(visibility())
+        .chain(position())
+        .chain(isolation())
+        .chain(float())
+        .chain(clear())
+        .chain(box_sizing())
+        .chain(display())
+        .chain(table_layout())
+        .chain(caption_side())
+        .chain(border_collapse())
+        .chain(user_select())
+        .chain(resize())
+        .chain(scroll_snap_align())
+        .chain(scroll_snap_stop())
+        .chain(list_style_position())
+        .chain(appearance())
+        .chain(break_before())
+        .chain(break_inside())
+        .chain(break_after())
+        .chain(grid_auto_flow())
+        .collect()
+}
+
+lazy_static! {
+    pub static ref STATIC_RULES: Vec<(&'static str, CSSDecls)> = get_all();
+}
 
 // unit tests
 #[cfg(test)]
