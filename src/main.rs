@@ -15,6 +15,7 @@ mod theme;
 mod writer;
 mod rules;
 mod rule;
+mod parser;
 
 fn main() {
     let config = Config::builder()
@@ -99,6 +100,7 @@ fn main() {
         "list-item" => { "display": "list-item"; }
         "hidden" => { "display": "none"; }
     });
+
     let mut w = String::new();
     let mut writer = Writer::new(&mut w, WriterConfig {
         minify: false,
