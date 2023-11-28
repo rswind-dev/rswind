@@ -31,31 +31,6 @@ impl<'a> Context<'a> {
   }
 }
 
-// usage:
-// add_static!(ctx, {
-//   block => {
-//     display: block;
-//   }
-//   flex => display: flex;
-//   xxx => {
-//     display: flex; color: red;
-//   }
-// });
-// #[macro_export]
-// macro_rules! add_static {
-//   ($ctx:ident, {
-//     $($key:ident => {
-//       $($name:ident: $value:ident;)+
-//     })+
-//   }) => {
-//     $(
-//       $ctx.add_static(stringify!($key), CSSDecls::multi([
-//         $((stringify!($name), stringify!($value)),)+
-//       ]));
-//     )+
-//   };
-// }
-
 #[macro_export]
 macro_rules! add_static {
   ($ctx:ident, {
