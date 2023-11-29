@@ -1,4 +1,5 @@
 use crate::{css::CSSDecls, static_rules};
+use lazy_static::lazy_static;
 
 pub fn accessibility() -> Vec<(&'static str, CSSDecls)> {
     return static_rules! {

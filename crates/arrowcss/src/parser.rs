@@ -1,7 +1,6 @@
 use std::ops::Not;
-
+use lazy_static::lazy_static;
 use regex::Regex;
-
 use crate::{
     context::Context,
     css::{CSSDecl, CSSRule},

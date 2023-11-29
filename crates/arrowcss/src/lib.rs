@@ -1,30 +1,21 @@
-use std::collections::HashMap;
-use std::fs::{self, read_to_string};
-use std::rc::Rc;
+use std::{rc::Rc, collections::HashMap, fs};
 
 use ::config::{Config, File};
 
-use crate::config::ArrowConfig;
-use crate::context::{Context, ThemeValue};
-use crate::css::{CSSDecls, ToCss};
-use crate::parser::parse;
-use crate::rules::statics::STATIC_RULES;
-use crate::writer::{Writer, WriterConfig};
+use crate::context::ThemeValue;
+use crate::{config::ArrowConfig, context::Context, css::{CSSDecls, ToCss}, rules::statics::STATIC_RULES, writer::{WriterConfig, Writer}, parser::parse};
 
-mod config;
-mod context;
-mod css;
-mod parser;
-mod rule;
-mod rules;
-mod theme;
-mod writer;
+pub mod config;
+pub mod context;
+pub mod css;
+pub mod parser;
+pub mod rule;
+pub mod rules;
+pub mod theme;
+pub mod writer;
 
-#[macro_use]
-extern crate lazy_static;
-
-fn main() {
-    let config = Config::builder()
+pub fn generate(input: String) -> String {
+  let config = Config::builder()
         .add_source(File::with_name("examples/arrow.config"))
         .build()
         .unwrap()
@@ -33,7 +24,6 @@ fn main() {
 
     let theme = Rc::new(config.theme);
 
-    let input: &'static String = Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
     let mut ctx = Context {
         tokens: HashMap::new(),
         static_rules: HashMap::new(),
@@ -102,5 +92,7 @@ fn main() {
     println!("{}", w);
 
     // write to test.css
-    fs::write("examples/test.css", w).unwrap();
+    // fs::write("examples/test.css", w).unwrap();
+
+    w
 }
