@@ -1,9 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::theme::Theme;
 
-
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArrowConfig {
   pub dark_mode: String,

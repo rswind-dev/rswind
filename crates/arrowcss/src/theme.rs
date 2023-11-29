@@ -1,15 +1,15 @@
-use serde::{Deserialize, Deserializer, de::{self, Visitor, MapAccess}, Serialize};
+use serde::{Deserialize, Deserializer, de::{self, Visitor, MapAccess}};
 use std::{collections::HashMap, ops::{Deref, DerefMut}};
 use std::fmt;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Theme {
-    pub colors: HashMap<String, String>,
+    pub colors: FlattenedColors,
     pub spacing: HashMap<String, String>,
 }
 
 #[derive(Debug)]
-struct FlattenedColors(HashMap<String, String>);
+pub struct FlattenedColors(pub HashMap<String, String>);
 
 impl Deref for FlattenedColors {
   type Target = HashMap<String, String>;
