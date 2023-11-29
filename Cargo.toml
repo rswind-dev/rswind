@@ -1,14 +1,22 @@
-[package]
-name = "arrowcss"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+  "bindings/binding_core_node",
+  "crates/arrowcss",
+]
+resolver = "2"
+[profile.release]
+# lto = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# debug = true
+# opt-level = 'z'
 
-[dependencies]
-anyhow = "1.0.75"
-config = "0.13.4"
-cssparser = "0.33.0"
-lazy_static = "1.4.0"
-regex = "1.10.2"
-serde = "1.0.193"
+[profile.bench]
+debug = true
+# lto = true
+
+# Optimize for iteration
+[profile.dev.build-override]
+opt-level = 3
+
+[profile.dev.package."*"]
+opt-level = 3
