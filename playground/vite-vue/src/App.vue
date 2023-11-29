@@ -1,5 +1,3 @@
 <template>
-  <div class="flex text-black block">
-    hello1
-  </div>
+  <div class="flex text-blue-500">hello</div>
 </template>

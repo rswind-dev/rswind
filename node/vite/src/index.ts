@@ -2,21 +2,25 @@ import type { Plugin, ViteDevServer } from 'vite'
 import { gen } from 'arrowcss'
 
 
-function sendUpdate(server: ViteDevServer, id: string) {
-  console.log('sendUpdate', id)
+function sendUpdate(server: ViteDevServer) {
+  const id = '/__arrow.css';
   const mod = server.moduleGraph.getModuleById(id);
   if (!mod) {
     return;
   }
-  server.ws.send({
-    type: "update",
-    updates: [{
-      acceptedPath: mod.url,
-      path: mod.url,
-      type: "js-update",
-      timestamp: Date.now(),
-    }]
-  });
+  console.log('sendUpdate', id)
+  server.moduleGraph.invalidateModule(mod);
+  setTimeout(() => {
+    server.ws.send({
+      type: "update",
+      updates: [{
+        acceptedPath: mod.url,
+        path: mod.url,
+        type: "js-update",
+        timestamp: Date.now(),
+      }]
+    });
+  }, 10)
 }
 
 export default function arrowCSSPlugin(): Plugin[] {
@@ -28,17 +32,19 @@ export default function arrowCSSPlugin(): Plugin[] {
       name: "arrowcss:pre",
       enforce: 'pre',
       transform(code, id) {
-        modules.set(id, code);
-        if (server) {
-          sendUpdate(server, entry)
+        if (id.includes("arrow.css")) {
+          return null
+        }
+        if (modules.get(id) !== code) {
+          modules.set(id, code);
+          console.log(modules.keys())
+          server && sendUpdate(server);
         }
       },
       load(id) {
         if (id.includes("arrow.css")) {
           entry = id;
-          server && sendUpdate(server, id);
-          const res = gen([...modules.values()].join('\n') + '<div class="flex">');
-          console.log(res)
+          const res = gen([...modules.values()].join('\n'));
           return res
         }
       },
@@ -56,14 +62,13 @@ export default function arrowCSSPlugin(): Plugin[] {
       resolveId(id) {
         if (id.endsWith("arrow.css")) {
           console.log({ id })
-          return id;
+          return '/__arrow.css'
         }
       },
       transform(code, id) {
-        modules.set(id, code);
         if (id.includes("arrow.css")) {
           const hmr = `
-        import.meta.hot.send('arrow:hmr', ['hello']);
+        // import.meta.hot.send('arrow:hmr', ['hello']);
         `
           return {
             code: code + hmr,

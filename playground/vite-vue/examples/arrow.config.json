@@ -22,17 +22,16 @@
       "64": "16rem"
     },
     "colors": {
-      "inherit": "inherit",
-      "current": "currentColor",
-      "transparent": "transparent",
       "black": "#000",
-      "white": "#fff",
-      "blue-100": "#ebf8ff",
-      "blue-200": "#bee3f8",
-      "blue-300": "#90cdf4",
-      "blue-400": "#63b3ed",
-      "blue-500": "#4299e1",
-      "red-500": "#f56565"
+      "blue": {
+        "50": "#eff6ff",
+        "100": "#dbeafe",
+        "200": "#bfdbfe",
+        "300": "#93c5fd",
+        "400": "#60a5fa",
+        "500": "#3b82f6",
+        "600": "#2563eb"
+      }
     }
   }
 }
