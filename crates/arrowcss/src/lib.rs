@@ -89,10 +89,5 @@ pub fn generate(input: String) -> String {
         }
     });
 
-    println!("{}", w);
-
-    // write to test.css
-    // fs::write("examples/test.css", w).unwrap();
-
     w
 }
