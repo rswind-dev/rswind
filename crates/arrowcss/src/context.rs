@@ -31,8 +31,8 @@ impl Variant {
 
 pub struct Context<'a> {
     pub static_rules: HashMap<String, CSSDecls>,
-    pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
     pub rules: HashMap<String, RuleMatchingFn<'a>>,
+    pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
 
     pub variants: HashMap<String, Variant>,
 
