@@ -94,9 +94,7 @@ impl<'a> Context<'a> {
       self.rules.insert(
         value.key.into(),
         Box::new(move |input| {
-          theme_clone.spacing.get(&input).and_then(|theme_val| {
-            Some(theme_rule_handler(value.decl_key.clone(), theme_val.into()))
-          })
+          theme_clone.spacing.get(&input).map(|theme_val| theme_rule_handler(value.decl_key.clone(), theme_val.into()))
       })
       );
     }

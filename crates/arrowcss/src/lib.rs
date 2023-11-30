@@ -1,7 +1,7 @@
 #![feature(trait_alias)]
 #![feature(fn_traits)]
 
-use std::{rc::Rc, collections::HashMap};
+use std::{rc::Rc};
 
 use ::config::{Config, File};
 
@@ -79,7 +79,7 @@ pub fn generate(input: String) -> String {
     // open test.html
     parse(&input, &mut ctx);
 
-    ctx.tokens.values().into_iter().for_each(|it| {
+    ctx.tokens.values().for_each(|it| {
         if let Some(rule) = it {
             let _ = rule.to_css(&mut writer);
         }

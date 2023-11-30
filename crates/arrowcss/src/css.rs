@@ -10,6 +10,7 @@ pub trait ToCssRule<'a> {
 }
 
 // dark:text-red -> modifier=[dark],
+#[derive(Default)]
 pub struct Rule<'a> {
     pub raw: &'a str,
     pub rule: &'a str,
@@ -17,16 +18,7 @@ pub struct Rule<'a> {
     pub css_cache: Option<String>,
 }
 
-impl Default for Rule<'_> {
-    fn default() -> Self {
-        Self {
-            raw: "",
-            rule: "",
-            modifier: vec![],
-            css_cache: None,
-        }
-    }
-}
+
 
 impl<'a> ToCssRule<'a> for Rule<'a> {
     fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule> {
@@ -34,21 +26,21 @@ impl<'a> ToCssRule<'a> for Rule<'a> {
         // Step 2: try static match
         let mut decls: Vec<CSSRule> = vec![];
         if let Some(static_rule) = ctx.static_rules.get(self.rule) {
-            decls = static_rule.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect();
+            decls = static_rule.to_vec().into_iter().map(CSSRule::Decl).collect();
         } else {
             // Step 3: get all index of `-`
-            for (i, _) in self.rule.match_indices("-") {
+            for (i, _) in self.rule.match_indices('-') {
                 let key = self.rule.get(..i).unwrap();
                 if let Some(func) = ctx.rules.get(key) {
                     if let Some(v) = func(self.rule.get((i + 1)..).unwrap().to_string()) {
-                        decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
+                        decls.append(&mut v.to_vec().into_iter().map(CSSRule::Decl).collect());
                     }
                     break;
                 }
             }
         }
         decls.is_empty().not().then(|| CSSStyleRule {
-            selector: format!("{}", self.raw),
+            selector: self.raw.to_string(),
             nodes: decls,
         })
     }
@@ -132,9 +124,9 @@ impl CSSDecl {
     }
 }
 
-impl<A: Into<String>, B: Into<String>> Into<CSSDecl> for (A, B) {
-    fn into(self) -> CSSDecl {
-        CSSDecl::new(self.0.into(), self.1.into())
+impl<A: Into<String>, B: Into<String>> From<(A, B)> for CSSDecl {
+    fn from(val: (A, B)) -> Self {
+        CSSDecl::new(val.0.into(), val.1.into())
     }
 }
 

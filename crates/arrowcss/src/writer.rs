@@ -95,7 +95,7 @@ impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
         self.dest.write_char(c)
     }
 
-    fn write_fmt(self: &mut Self, args: std::fmt::Arguments<'_>) -> std::fmt::Result {
+    fn write_fmt(&mut self, args: std::fmt::Arguments<'_>) -> std::fmt::Result {
         self.dest.write_fmt(args)
     }
 }

@@ -14,14 +14,14 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     // Step 2: try static match
     let mut decls: Vec<CSSRule> = vec![];
     if let Some(static_rule) = ctx.static_rules.get(&rule) {
-        decls = static_rule.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect();
+        decls = static_rule.to_vec().into_iter().map(CSSRule::Decl).collect();
     } else {
         // Step 3: get all index of `-`
-        for (i, _) in rule.match_indices("-") {
+        for (i, _) in rule.match_indices('-') {
             let key = rule.get(..i).unwrap();
             if let Some(func) = ctx.rules.get(key) {
                 if let Some(v) = func(rule.get((i + 1)..).unwrap().to_string()) {
-                    decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
+                    decls.append(&mut v.to_vec().into_iter().map(CSSRule::Decl).collect());
                 }
                 break;
             }
@@ -33,7 +33,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     }
 
     let mut rule = CSSRule::Style(CSSStyleRule {
-        selector: format!("{}", rule),
+        selector: rule.to_string(),
         nodes: decls,
     });
 
@@ -49,7 +49,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
 
 pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {
     // Step 1(todo): split the rules by `:`, get [...modifier, rule]
-    let mut modifiers = value.split(":")
+    let mut modifiers = value.split(':')
         .map(String::from)
         .collect::<Vec<String>>();
 
@@ -58,7 +58,7 @@ pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {
     (modifiers, value)
 }
 
-pub fn parse<'a, 'b>(input: &'b str, ctx: &'a mut Context<'b>) {
+pub fn parse<'b>(input: &'b str, ctx: &mut Context<'b>) {
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {
