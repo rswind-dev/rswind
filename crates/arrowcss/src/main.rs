@@ -6,7 +6,7 @@ use ::config::{Config, File};
 
 use crate::config::ArrowConfig;
 use crate::context::{Context, ThemeValue};
-use crate::css::{CSSDecls, ToCss};
+use crate::css::{CSSDecls, ToCss, CSSRule, CSSAtRule};
 use crate::parser::parse;
 use crate::rules::statics::STATIC_RULES;
 use crate::writer::{Writer, WriterConfig};
@@ -31,20 +31,33 @@ fn main() {
   let theme = Rc::new(config.theme);
 
   let input: &'static String = Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
-  let mut ctx = Context {
-    tokens: HashMap::new(),
-    static_rules: HashMap::new(),
-    arbitrary_rules: HashMap::new(),
-    rules: HashMap::new(),
-    theme: Rc::clone(&theme),
-    config: "config".into(),
-  };
+  let mut ctx = Context::new(theme.clone());
 
   ctx.add_rule("text", |value, theme| {
     theme
       .colors
       .get(value)
       .map(|color| CSSDecls::one("color", color))
+  }).add_variant("disabled", |a| {
+    match a {
+      CSSRule::Style(mut it) => {
+        it.selector += ":disabled";
+        Some(CSSRule::Style(it))
+      },
+      _ => None
+    }
+  }).add_variant("motion-safe", |a| {
+    match a {
+      CSSRule::Style(it) => {
+        let rule = CSSAtRule {
+            name: "media".into(),
+            params: "(prefers-reduced-motion: no-preference)".into(),
+            nodes: vec![CSSRule::Style(it)],
+        };
+        Some(CSSRule::AtRule(rule))
+      },
+      _ => None
+    }
   });
 
   STATIC_RULES.iter().for_each(|(key, value)| {

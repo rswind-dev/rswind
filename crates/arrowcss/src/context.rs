@@ -1,13 +1,18 @@
 use std::{collections::HashMap, rc::Rc};
 
-use crate::{css::{CSSDecls, CSSStyleRule}, theme::Theme};
+use crate::{css::{CSSDecls, CSSStyleRule, CSSRule}, theme::Theme};
 
 type RuleMatchingFn<'a> = Box<dyn Fn(&'a str) -> Option<CSSDecls> + 'static>;
+
+type VariantMatchingFn = dyn Fn(CSSRule) -> Option<CSSRule> + 'static;
 
 pub struct Context<'a> {
   pub static_rules: HashMap<String, CSSDecls>,
   pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
   pub rules: HashMap<String, RuleMatchingFn<'a>>,
+
+  pub variants: HashMap<String, Box<VariantMatchingFn>>,
+
   pub theme: Rc<Theme>,
   pub config: String,
   pub tokens: HashMap<&'a str, Option<CSSStyleRule>>
@@ -28,6 +33,19 @@ impl<S: Into<String>> ThemeValue<S> {
 }
 
 impl<'a> Context<'a> {
+
+  pub fn new(theme: Rc<Theme>) -> Self {
+    Self {
+      tokens: HashMap::new(),
+      static_rules: HashMap::new(),
+      arbitrary_rules: HashMap::new(),
+      variants: HashMap::new(),
+      rules: HashMap::new(),
+      theme: Rc::clone(&theme),
+      config: "config".into(),
+    }
+  }
+
   pub fn add_rule<F, S>(&mut self, key: S, func: F) -> &mut Self
   where
       F: Fn(&str, Rc<Theme>) -> Option<CSSDecls> + 'static,
@@ -62,6 +80,14 @@ impl<'a> Context<'a> {
       })
       );
     }
+    self
+  }
+  pub fn add_variant<S, F>(&mut self, key: S, func: F) -> &mut Self
+  where
+      S: Into<String>,
+      F: Fn(CSSRule) -> Option<CSSRule> + 'static,
+  {
+    self.variants.insert(key.into(), Box::new(func));
     self
   }
 }

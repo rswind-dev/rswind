@@ -24,14 +24,7 @@ pub fn generate(input: String) -> String {
 
     let theme = Rc::new(config.theme);
 
-    let mut ctx = Context {
-        tokens: HashMap::new(),
-        static_rules: HashMap::new(),
-        arbitrary_rules: HashMap::new(),
-        rules: HashMap::new(),
-        theme: Rc::clone(&theme),
-        config: "config".into(),
-    };
+    let mut ctx = Context::new(theme.clone());
 
     ctx.add_rule("text", |value, theme| {
         theme

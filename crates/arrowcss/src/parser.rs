@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use crate::{
     context::Context,
-    css::{CSSDecl, CSSStyleRule},
+    css::{CSSStyleRule, CSSRule},
 };
 
 lazy_static! {
@@ -11,27 +11,38 @@ lazy_static! {
 }
 
 fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSStyleRule> {
-    // Step 1(todo): split the rules by `:`, get [...modifier, rule]
+    let (modifiers, rule) = extract_modifiers(value);
     // Step 2: try static match
-    let mut decls: Vec<CSSDecl> = vec![];
-    if let Some(static_rule) = ctx.static_rules.get(value) {
-        decls = static_rule.to_vec();
+    let mut decls: Vec<CSSRule> = vec![];
+    if let Some(static_rule) = ctx.static_rules.get(&rule) {
+        decls = static_rule.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect();
     } else {
         // Step 3: get all index of `-`
-        for (i, _) in value.match_indices("-") {
-            let key = value.get(..i).unwrap();
+        for (i, _) in rule.match_indices("-") {
+            let key = rule.get(..i).unwrap();
             if let Some(func) = ctx.rules.get(key) {
                 if let Some(v) = func(value.get((i + 1)..).unwrap()) {
-                    decls.append(&mut v.to_vec());
+                    decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
                 }
                 break;
             }
         }
     }
     decls.is_empty().not().then(|| CSSStyleRule {
-        selector: format!("{}", value),
+        selector: format!("{}", rule),
         nodes: decls,
     })
+}
+
+pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {
+    // Step 1(todo): split the rules by `:`, get [...modifier, rule]
+    let mut modifiers = value.split(":")
+        .map(String::from)
+        .collect::<Vec<String>>();
+
+    let value = modifiers.pop().unwrap();
+
+    (modifiers, value)
 }
 
 pub fn parse<'a, 'b>(input: &'b str, ctx: &'a mut Context<'b>) {
@@ -44,5 +55,31 @@ pub fn parse<'a, 'b>(input: &'b str, ctx: &'a mut Context<'b>) {
             continue;
         }
         ctx.tokens.insert(token, to_css_rule(token, ctx));
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_modifiers() {
+        assert_eq!(
+            extract_modifiers("md:opacity-50"),
+            (vec!["md".into()], "opacity-50".into())
+        );
+        assert_eq!(
+            extract_modifiers("opacity-50"),
+            (vec![], "opacity-50".into())
+        );
+        assert_eq!(
+            extract_modifiers("md:disabled:hover:opacity-50"),
+            (vec!["md".into(), "disabled".into(), "hover".into()], "opacity-50".into())
+        );
+        assert_eq!(
+            extract_modifiers(""),
+            (vec![], "".into())
+        );
     }
 }
