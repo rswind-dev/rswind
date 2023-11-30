@@ -110,7 +110,7 @@ impl ToCss for CSSRule {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CSSDecl {
     pub name: String,
     pub value: String,
@@ -132,10 +132,16 @@ impl<A: Into<String>, B: Into<String>> From<(A, B)> for CSSDecl {
 }
 
 // one or multiple CSS
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CSSDecls {
     One(CSSDecl),
     Multi(Vec<CSSDecl>),
+}
+
+impl FromIterator<CSSDecl> for CSSDecls {
+    fn from_iter<T: IntoIterator<Item = CSSDecl>>(iter: T) -> Self {
+        Self::Multi(iter.into_iter().collect())
+    }
 }
 
 impl CSSDecls {

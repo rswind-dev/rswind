@@ -8,13 +8,13 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct Theme {
     pub colors: FlattenedColors,
     pub spacing: HashMap<String, String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FlattenedColors(pub HashMap<String, String>);
 
 impl Deref for FlattenedColors {
