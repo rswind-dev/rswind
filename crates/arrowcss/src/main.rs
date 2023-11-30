@@ -21,6 +21,8 @@ mod rule;
 mod rules;
 mod theme;
 mod writer;
+mod utility;
+mod utils;
 
 fn main() {
     let config = Config::builder()

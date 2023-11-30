@@ -23,6 +23,8 @@ pub mod rule;
 pub mod rules;
 pub mod theme;
 pub mod writer;
+mod utility;
+mod utils;
 
 pub fn generate(input: String) -> String {
     let config = Config::builder()
