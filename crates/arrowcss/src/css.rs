@@ -40,7 +40,7 @@ impl<'a> ToCssRule<'a> for Rule<'a> {
             for (i, _) in self.rule.match_indices("-") {
                 let key = self.rule.get(..i).unwrap();
                 if let Some(func) = ctx.rules.get(key) {
-                    if let Some(v) = func(self.rule.get((i + 1)..).unwrap()) {
+                    if let Some(v) = func(self.rule.get((i + 1)..).unwrap().to_string()) {
                         decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
                     }
                     break;

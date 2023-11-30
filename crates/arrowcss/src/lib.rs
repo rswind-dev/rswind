@@ -29,7 +29,7 @@ pub fn generate(input: String) -> String {
     ctx.add_rule("text", |value, theme| {
         theme
             .colors
-            .get(value)
+            .get(&value)
             .map(|color| CSSDecls::one("color", color))
     });
 

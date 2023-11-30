@@ -10,7 +10,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSStyleRule> {
+fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     let (modifiers, rule) = extract_modifiers(value);
     // Step 2: try static match
     let mut decls: Vec<CSSRule> = vec![];
@@ -21,17 +21,41 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSStyleRule> {
         for (i, _) in rule.match_indices("-") {
             let key = rule.get(..i).unwrap();
             if let Some(func) = ctx.rules.get(key) {
-                if let Some(v) = func(value.get((i + 1)..).unwrap()) {
+                if let Some(v) = func(rule.get((i + 1)..).unwrap().to_string()) {
                     decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
                 }
                 break;
             }
         }
     }
-    decls.is_empty().not().then(|| CSSStyleRule {
+
+    if decls.is_empty() {
+        return None
+    }
+
+    let mut rule = CSSRule::Style(CSSStyleRule {
         selector: format!("{}", rule),
         nodes: decls,
-    })
+    });
+
+    // Step 4: apply modifiers
+    for modifier in modifiers {
+        if let Some(variant_fn) = ctx.variants.get(&modifier) {
+            if let Some(new_rule) = variant_fn(rule) {
+                rule = new_rule
+            } else {
+                return None
+            }
+        } else {
+            return None
+        }
+    }
+
+    Some(rule)
+    // decls.is_empty().not().then(|| CSSStyleRule {
+    //     selector: format!("{}", rule),
+    //     nodes: decls,
+    // })
 }
 
 pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {
