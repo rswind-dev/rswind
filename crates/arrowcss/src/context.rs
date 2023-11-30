@@ -1,123 +1,126 @@
 use std::{collections::HashMap, rc::Rc};
 
-use crate::{css::{CSSDecls, CSSRule}, theme::Theme};
+use crate::{
+    css::{CSSDecls, CSSRule},
+    theme::Theme,
+};
 
 type RuleMatchingFn<'a> = Box<dyn Fn(String) -> Option<CSSDecls> + 'static>;
 
 type VariantMatchingFn = dyn Fn(CSSRule) -> Option<CSSRule> + 'static;
 
 pub struct Variant {
-  pub needs_nesting: bool,
-  pub handler: Box<VariantMatchingFn>
+    pub needs_nesting: bool,
+    pub handler: Box<VariantMatchingFn>,
 }
 
 impl Variant {
     pub fn plain(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
-      Self {
-        needs_nesting: false,
-        handler: Box::new(handler)
-      }
+        Self {
+            needs_nesting: false,
+            handler: Box::new(handler),
+        }
     }
     pub fn at_rule(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
-      Self {
-        needs_nesting: true,
-        handler: Box::new(handler)
-      }
-    }
-}
-
-pub struct Context<'a> {
-  pub static_rules: HashMap<String, CSSDecls>,
-  pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
-  pub rules: HashMap<String, RuleMatchingFn<'a>>,
-
-  pub variants: HashMap<String, Variant>,
-
-  pub theme: Rc<Theme>,
-  pub config: String,
-  pub tokens: HashMap<&'a str, Option<CSSRule>>
-}
-
-pub struct ThemeValue<S: Into<String>> {
-  pub key: S,
-  pub decl_key: Vec<String>
-}
-
-impl<S: Into<String>> ThemeValue<S> {
-    pub fn new(key: S, decl_key: Vec<String>) -> Self {
         Self {
-            key,
-            decl_key
+            needs_nesting: true,
+            handler: Box::new(handler),
         }
     }
 }
 
-impl<'a> Context<'a> {
+pub struct Context<'a> {
+    pub static_rules: HashMap<String, CSSDecls>,
+    pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
+    pub rules: HashMap<String, RuleMatchingFn<'a>>,
 
-  pub fn new(theme: Rc<Theme>) -> Self {
-    Self {
-      tokens: HashMap::new(),
-      static_rules: HashMap::new(),
-      arbitrary_rules: HashMap::new(),
-      variants: HashMap::new(),
-      rules: HashMap::new(),
-      theme: Rc::clone(&theme),
-      config: "config".into(),
-    }
-  }
+    pub variants: HashMap<String, Variant>,
 
-  pub fn add_rule<F, S>(&mut self, key: S, func: F) -> &mut Self
-  where
-      F: Fn(String, Rc<Theme>) -> Option<CSSDecls> + 'static,
-      S: Into<String>,
-  {
-    let theme_clone = Rc::clone(&self.theme);
-    self.rules.insert(key.into(), Box::new(move |input| func(input, theme_clone.clone())));
-    self
-  }
-  pub fn add_static<S>(&mut self, pair: (S, CSSDecls)) -> &mut Self
-  where
-      S: Into<String>,
-  {
-    self.static_rules.insert(pair.0.into(), pair.1);
-    self
-  }
-  pub fn add_theme_rule<S, T>(&mut self, _theme_key: T, values: Vec<ThemeValue<S>>) -> &mut Self
-  where
-      S: Into<String>,
-      T: Into<String>,
-  {
-    for value in values {
-      // TODO: use theme_key
-      let theme_clone = Rc::clone(&self.theme);
-
-      self.rules.insert(
-        value.key.into(),
-        Box::new(move |input| {
-          theme_clone.spacing.get(&input).map(|theme_val| theme_rule_handler(value.decl_key.clone(), theme_val.into()))
-      })
-      );
-    }
-    self
-  }
-  pub fn add_variant<S, F>(&mut self, key: S, func: F) -> &mut Self
-  where
-      S: Into<String>,
-      F: Fn(CSSRule) -> Option<CSSRule> + 'static,
-  {
-    self.variants.insert(key.into(), Variant::plain(func));
-    self
-  }
+    pub theme: Rc<Theme>,
+    pub config: String,
+    pub tokens: HashMap<&'a str, Option<CSSRule>>,
 }
 
+pub struct ThemeValue<S: Into<String>> {
+    pub key: S,
+    pub decl_key: Vec<String>,
+}
+
+impl<S: Into<String>> ThemeValue<S> {
+    pub fn new(key: S, decl_key: Vec<String>) -> Self {
+        Self { key, decl_key }
+    }
+}
+
+impl<'a> Context<'a> {
+    pub fn new(theme: Rc<Theme>) -> Self {
+        Self {
+            tokens: HashMap::new(),
+            static_rules: HashMap::new(),
+            arbitrary_rules: HashMap::new(),
+            variants: HashMap::new(),
+            rules: HashMap::new(),
+            theme: Rc::clone(&theme),
+            config: "config".into(),
+        }
+    }
+
+    pub fn add_rule<F, S>(&mut self, key: S, func: F) -> &mut Self
+    where
+        F: Fn(String, Rc<Theme>) -> Option<CSSDecls> + 'static,
+        S: Into<String>,
+    {
+        let theme_clone = Rc::clone(&self.theme);
+        self.rules.insert(
+            key.into(),
+            Box::new(move |input| func(input, theme_clone.clone())),
+        );
+        self
+    }
+    pub fn add_static<S>(&mut self, pair: (S, CSSDecls)) -> &mut Self
+    where
+        S: Into<String>,
+    {
+        self.static_rules.insert(pair.0.into(), pair.1);
+        self
+    }
+    pub fn add_theme_rule<S, T>(&mut self, _theme_key: T, values: Vec<ThemeValue<S>>) -> &mut Self
+    where
+        S: Into<String>,
+        T: Into<String>,
+    {
+        for value in values {
+            // TODO: use theme_key
+            let theme_clone = Rc::clone(&self.theme);
+
+            self.rules.insert(
+                value.key.into(),
+                Box::new(move |input| {
+                    theme_clone.spacing.get(&input).map(|theme_val| {
+                        theme_rule_handler(value.decl_key.clone(), theme_val.into())
+                    })
+                }),
+            );
+        }
+        self
+    }
+    pub fn add_variant<S, F>(&mut self, key: S, func: F) -> &mut Self
+    where
+        S: Into<String>,
+        F: Fn(CSSRule) -> Option<CSSRule> + 'static,
+    {
+        self.variants.insert(key.into(), Variant::plain(func));
+        self
+    }
+}
 
 fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
-  CSSDecls::multi(
-    decl_keys
-      .into_iter()
-      .map(|decl_key| (decl_key, value.to_owned()))
-      .collect::<Vec<(_, _)>>()
-  )
+    CSSDecls::multi(
+        decl_keys
+            .into_iter()
+            .map(|decl_key| (decl_key, value.to_owned()))
+            .collect::<Vec<(_, _)>>(),
+    )
 }
 
 #[macro_export]

@@ -1,12 +1,19 @@
 #![feature(trait_alias)]
 #![feature(fn_traits)]
 
-use std::{rc::Rc};
+use std::rc::Rc;
 
 use ::config::{Config, File};
 
 use crate::context::ThemeValue;
-use crate::{config::ArrowConfig, context::Context, css::{CSSDecls, ToCss}, rules::statics::STATIC_RULES, writer::{WriterConfig, Writer}, parser::parse};
+use crate::{
+    config::ArrowConfig,
+    context::Context,
+    css::{CSSDecls, ToCss},
+    parser::parse,
+    rules::statics::STATIC_RULES,
+    writer::{Writer, WriterConfig},
+};
 
 pub mod config;
 pub mod context;
@@ -18,7 +25,7 @@ pub mod theme;
 pub mod writer;
 
 pub fn generate(input: String) -> String {
-  let config = Config::builder()
+    let config = Config::builder()
         .add_source(File::with_name("examples/arrow.config"))
         .build()
         .unwrap()

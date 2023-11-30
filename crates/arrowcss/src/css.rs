@@ -18,15 +18,17 @@ pub struct Rule<'a> {
     pub css_cache: Option<String>,
 }
 
-
-
 impl<'a> ToCssRule<'a> for Rule<'a> {
     fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule> {
         // Step 1(todo): split the rules by `:`, get [...modifier, rule]
         // Step 2: try static match
         let mut decls: Vec<CSSRule> = vec![];
         if let Some(static_rule) = ctx.static_rules.get(self.rule) {
-            decls = static_rule.to_vec().into_iter().map(CSSRule::Decl).collect();
+            decls = static_rule
+                .to_vec()
+                .into_iter()
+                .map(CSSRule::Decl)
+                .collect();
         } else {
             // Step 3: get all index of `-`
             for (i, _) in self.rule.match_indices('-') {
@@ -87,7 +89,6 @@ impl ToCss for CSSAtRule {
         Ok(())
     }
 }
-
 
 #[derive(Debug)]
 pub enum CSSRule {

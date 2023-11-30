@@ -1,9 +1,9 @@
-use lazy_static::lazy_static;
-use regex::Regex;
 use crate::{
     context::Context,
-    css::{CSSStyleRule, CSSRule},
+    css::{CSSRule, CSSStyleRule},
 };
+use lazy_static::lazy_static;
+use regex::Regex;
 
 lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
@@ -14,7 +14,11 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     // Step 2: try static match
     let mut decls: Vec<CSSRule> = vec![];
     if let Some(static_rule) = ctx.static_rules.get(&rule) {
-        decls = static_rule.to_vec().into_iter().map(CSSRule::Decl).collect();
+        decls = static_rule
+            .to_vec()
+            .into_iter()
+            .map(CSSRule::Decl)
+            .collect();
     } else {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
@@ -29,7 +33,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     }
 
     if decls.is_empty() {
-        return None
+        return None;
     }
 
     let mut rule = CSSRule::Style(CSSStyleRule {
@@ -49,9 +53,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
 
 pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {
     // Step 1(todo): split the rules by `:`, get [...modifier, rule]
-    let mut modifiers = value.split(':')
-        .map(String::from)
-        .collect::<Vec<String>>();
+    let mut modifiers = value.split(':').map(String::from).collect::<Vec<String>>();
 
     let value = modifiers.pop().unwrap();
 
@@ -71,7 +73,6 @@ pub fn parse<'b>(input: &'b str, ctx: &mut Context<'b>) {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -88,11 +89,11 @@ mod tests {
         );
         assert_eq!(
             extract_modifiers("md:disabled:hover:opacity-50"),
-            (vec!["md".into(), "disabled".into(), "hover".into()], "opacity-50".into())
+            (
+                vec!["md".into(), "disabled".into(), "hover".into()],
+                "opacity-50".into()
+            )
         );
-        assert_eq!(
-            extract_modifiers(""),
-            (vec![], "".into())
-        );
+        assert_eq!(extract_modifiers(""), (vec![], "".into()));
     }
 }

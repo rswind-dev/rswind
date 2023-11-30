@@ -1,5 +1,5 @@
-use std::fmt::Write;
 use anyhow::Error;
+use std::fmt::Write;
 
 pub enum LineFeed {
     LF,

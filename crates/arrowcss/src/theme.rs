@@ -1,6 +1,12 @@
-use serde::{Deserialize, Deserializer, de::{self, Visitor, MapAccess}};
-use std::{collections::HashMap, ops::{Deref, DerefMut}};
+use serde::{
+    de::{self, MapAccess, Visitor},
+    Deserialize, Deserializer,
+};
 use std::fmt;
+use std::{
+    collections::HashMap,
+    ops::{Deref, DerefMut},
+};
 
 #[derive(Debug, Deserialize)]
 pub struct Theme {
@@ -12,17 +18,17 @@ pub struct Theme {
 pub struct FlattenedColors(pub HashMap<String, String>);
 
 impl Deref for FlattenedColors {
-  type Target = HashMap<String, String>;
+    type Target = HashMap<String, String>;
 
-  fn deref(&self) -> &Self::Target {
-      &self.0
-  }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl DerefMut for FlattenedColors {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-      &mut self.0
-  }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
 struct FlattenedColorsVisitor;
@@ -43,7 +49,7 @@ impl<'de> Visitor<'de> for FlattenedColorsVisitor {
             match map.next_value::<serde_json::Value>()? {
                 serde_json::Value::String(s) => {
                     colors.insert(key, s);
-                },
+                }
                 serde_json::Value::Object(nested) => {
                     for (nested_key, nested_value) in nested {
                         let flat_key = format!("{}-{}", key, nested_key);
@@ -51,7 +57,7 @@ impl<'de> Visitor<'de> for FlattenedColorsVisitor {
                             colors.insert(flat_key, color);
                         }
                     }
-                },
+                }
                 _ => return Err(de::Error::custom("unexpected color format")),
             }
         }
@@ -82,7 +88,13 @@ mod tests {
 
         let flattened_colors: FlattenedColors = serde_json::from_str(json_str).unwrap();
 
-        assert_eq!(flattened_colors.get("inherit"), Some(&"inherit".to_string()));
-        assert_eq!(flattened_colors.get("slate-50"), Some(&"#f8fafc".to_string()));
+        assert_eq!(
+            flattened_colors.get("inherit"),
+            Some(&"inherit".to_string())
+        );
+        assert_eq!(
+            flattened_colors.get("slate-50"),
+            Some(&"#f8fafc".to_string())
+        );
     }
 }
