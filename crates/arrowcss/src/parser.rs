@@ -1,5 +1,5 @@
 use crate::{
-    context::Context,
+    context::{Context, Variant},
     css::{CSSRule, CSSStyleRule},
 };
 use lazy_static::lazy_static;
@@ -42,8 +42,12 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     });
 
     // Step 4: apply modifiers
-    for modifier in modifiers {
-        let variant = ctx.variants.get(&modifier)?;
+    let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = modifiers
+        .iter()
+        .filter_map(|modifier| ctx.variants.get(modifier))
+        .partition(|variant| variant.needs_nesting);
+
+    for variant in plain_variants.iter().chain(at_rules_variants.iter()) {
         let new_rule = (variant.handler)(rule)?;
         rule = new_rule;
     }

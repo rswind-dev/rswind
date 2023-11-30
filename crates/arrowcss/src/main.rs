@@ -48,7 +48,7 @@ fn main() {
         }
         _ => None,
     })
-    .add_variant("motion-safe", |a| match a {
+    .add_at_rule_variant("motion-safe", |a| match a {
         CSSRule::Style(it) => {
             let rule = CSSAtRule {
                 name: "media".into(),

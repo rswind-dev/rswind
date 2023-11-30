@@ -77,6 +77,7 @@ impl<'a> Context<'a> {
         );
         self
     }
+
     pub fn add_static<S>(&mut self, pair: (S, CSSDecls)) -> &mut Self
     where
         S: Into<String>,
@@ -84,6 +85,7 @@ impl<'a> Context<'a> {
         self.static_rules.insert(pair.0.into(), pair.1);
         self
     }
+
     pub fn add_theme_rule<S, T>(&mut self, _theme_key: T, values: Vec<ThemeValue<S>>) -> &mut Self
     where
         S: Into<String>,
@@ -104,12 +106,22 @@ impl<'a> Context<'a> {
         }
         self
     }
+
     pub fn add_variant<S, F>(&mut self, key: S, func: F) -> &mut Self
     where
         S: Into<String>,
         F: Fn(CSSRule) -> Option<CSSRule> + 'static,
     {
         self.variants.insert(key.into(), Variant::plain(func));
+        self
+    }
+
+    pub fn add_at_rule_variant<S, F>(&mut self, key: S, func: F) -> &mut Self
+    where
+        S: Into<String>,
+        F: Fn(CSSRule) -> Option<CSSRule> + 'static,
+    {
+        self.variants.insert(key.into(), Variant::at_rule(func));
         self
     }
 }
