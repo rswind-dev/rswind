@@ -1,0 +1,1798 @@
+<html lang="en" class="[--scroll-mt:9.875rem] lg:[--scroll-mt:6.3125rem] js-focus-visible beobbnew idc0_349"
+  data-js-focus-visible="" style="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Utilities for controlling how elements are sized and placed across grid rows.">
+  <meta property="og:description"
+    content="Utilities for controlling how elements are sized and placed across grid rows.">
+  <meta name="twitter:description"
+    content="Utilities for controlling how elements are sized and placed across grid rows.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@tailwindcss">
+  <meta name="twitter:image" content="https://tailwindcss.com/api/og?path=/docs/grid-row">
+  <meta name="twitter:creator" content="@tailwindcss">
+  <meta property="og:url" content="https://tailwindcss.com/docs/grid-row">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://tailwindcss.com/api/og?path=/docs/grid-row">
+  <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feeds/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/feeds/atom.xml">
+  <link rel="alternate" type="application/json" title="JSON Feed" href="/feeds/feed.json">
+  <link rel="preconnect" href="https://KNPXZI5B0M-dsn.algolia.net" crossorigin="true">
+  <title>Grid Row Start / End - Tailwind CSS</title>
+  <meta name="twitter:title" content="Grid Row Start / End - Tailwind CSS">
+  <meta property="og:title" content="Grid Row Start / End - Tailwind CSS">
+  <meta name="next-head-count" content="19">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png?v=3">
+  <link rel="manifest" href="/favicons/site.webmanifest?v=3">
+  <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=3" color="#38bdf8">
+  <link rel="shortcut icon" href="/favicons/favicon.ico?v=3">
+  <meta name="apple-mobile-web-app-title" content="Tailwind CSS">
+  <meta name="application-name" content="Tailwind CSS">
+  <meta name="msapplication-TileColor" content="#38bdf8">
+  <meta name="msapplication-config" content="/favicons/browserconfig.xml?v=3">
+  <meta name="theme-color" content="#f8fafc">
+  <script>
+    try {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0B1120')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    } catch (_) { }
+  </script>
+  <link data-next-font="size-adjust" rel="preconnect" href="/" crossorigin="anonymous">
+  <link rel="preload" href="/_next/static/css/a047d627638f9b33.css" as="style">
+  <link rel="stylesheet" href="/_next/static/css/a047d627638f9b33.css" data-n-g=""><noscript data-n-css=""></noscript>
+  <script defer="" nomodule="" src="/_next/static/chunks/polyfills-c67a75d1b6f99dc8.js"></script>
+  <script src="/_next/static/chunks/webpack-cefddfb7403e4fd5.js" defer=""></script>
+  <script src="/_next/static/chunks/framework-ce84985cd166733a.js" defer=""></script>
+  <script src="/_next/static/chunks/main-78bff94cbf1c228a.js" defer=""></script>
+  <script src="/_next/static/chunks/pages/_app-bf2dbae01eab5e12.js" defer=""></script>
+  <script src="/_next/static/chunks/05d954cf-9bebeacef59c9a68.js" defer=""></script>
+  <script src="/_next/static/chunks/847-4bc22a8a9edc7d66.js" defer=""></script>
+  <script src="/_next/static/chunks/9495-7de5cc10bf1373b0.js" defer=""></script>
+  <script src="/_next/static/chunks/224-fe495397bc15bcb9.js" defer=""></script>
+  <script src="/_next/static/chunks/7308-02433551753f3156.js" defer=""></script>
+  <script src="/_next/static/chunks/5387-84847b988cdf2004.js" defer=""></script>
+  <script src="/_next/static/chunks/pages/docs/grid-row-481b2f3848cc1223.js" defer=""></script>
+  <script src="/_next/static/TYWr8JPaRZMOjXP7SuwOn/_buildManifest.js" defer=""></script>
+  <script src="/_next/static/TYWr8JPaRZMOjXP7SuwOn/_ssgManifest.js" defer=""></script>
+  <link as="script" rel="prefetch" href="/_next/static/chunks/4794-a9c4d3a3e2cfcd1b.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/9994-62565e9a86e9d753.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/280-bebc2f7a06885312.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/6612-1ac3cae4a3a4f422.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/index-df1f98e5f5a9723b.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/7667-da43ee4a335055b2.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/5104-ba5cfe29cc36fa0f.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/installation-8adb6694154d47f2.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/blog-218489da1b1ac382.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/5675-e454bcf55fd814aa.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/4085-cc1966a3c2f014fd.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/showcase-a183824d8f777265.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/z-index-9178da8cf416b137.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-basis-4e1808797e8859dd.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-direction-7d19d3f20d78787f.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-wrap-d73e40898c66d382.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-f2138d040e4b0b20.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-grow-602650caa2885456.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/flex-shrink-48c3ca034f52b100.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/order-80684ba7514e06cb.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-template-columns-59e6728c60a50615.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-column-8ce8f773d5e1679a.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-template-rows-7bcf6fe8afbcdd2b.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-auto-flow-b3ce9bced026129a.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-auto-columns-dc779edc39f0fe67.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/grid-auto-rows-a2feb61c4410bf63.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/gap-97a422c2ef827319.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/justify-content-8015417bc9058e25.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/justify-items-12088bff19daf91e.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/justify-self-56f834190eb11a35.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/align-content-9239e684600c7c30.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/align-items-420c6a45d7193c26.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/align-self-35c6ac47a04a2386.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/place-content-63112b2051d44a8e.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/place-items-f9ecc31815ff4c18.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/place-self-f4d6660a67f2f273.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/text-decoration-thickness-aee40da00d18d333.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/text-decoration-color-1cde2c09358315d5.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/text-decoration-6ed88adc10c4c926.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/font-weight-136ac72edc0afcfe.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/font-variant-numeric-7d8c33c16905d901.js">
+  <link as="script" rel="prefetch" href="/_next/static/chunks/pages/docs/text-align-9e375aa3a1a427d9.js">
+</head>
+
+<body class="antialiased text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900">
+  <div id="__next">
+    <div class="absolute z-20 top-0 inset-x-0 flex justify-center overflow-hidden pointer-events-none">
+      <div class="w-[108rem] flex-none flex justify-end">
+        <picture>
+          <source srcset="/_next/static/media/docs@30.8b9a76a2.avif" type="image/avif"><img
+            src="/_next/static/media/docs@tinypng.d9e4dcdc.png" alt=""
+            class="w-[71.75rem] flex-none max-w-none dark:hidden" decoding="async">
+        </picture>
+        <picture>
+          <source srcset="/_next/static/media/docs-dark@30.1a9f8cbf.avif" type="image/avif"><img
+            src="/_next/static/media/docs-dark@tinypng.1bbe175e.png" alt=""
+            class="w-[90rem] flex-none max-w-none hidden dark:block" decoding="async">
+        </picture>
+      </div>
+    </div>
+    <div
+      class="sticky top-0 z-40 w-full backdrop-blur flex-none transition-colors duration-500 lg:z-50 lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06] bg-white supports-backdrop-blur:bg-white/95 dark:bg-slate-900/75">
+      <div class="max-w-8xl mx-auto">
+        <div class="py-4 border-b border-slate-900/10 lg:px-8 lg:border-0 dark:border-slate-300/10 mx-4 lg:mx-0">
+          <div class="relative flex items-center"><a class="mr-3 flex-none w-[2.0625rem] overflow-hidden md:w-auto"
+              href="/"><span class="sr-only">Tailwind CSS home page</span><svg viewBox="0 0 248 31"
+                class="text-slate-900 dark:text-white w-auto h-5">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M25.517 0C18.712 0 14.46 3.382 12.758 10.146c2.552-3.382 5.529-4.65 8.931-3.805 1.941.482 3.329 1.882 4.864 3.432 2.502 2.524 5.398 5.445 11.722 5.445 6.804 0 11.057-3.382 12.758-10.145-2.551 3.382-5.528 4.65-8.93 3.804-1.942-.482-3.33-1.882-4.865-3.431C34.736 2.92 31.841 0 25.517 0zM12.758 15.218C5.954 15.218 1.701 18.6 0 25.364c2.552-3.382 5.529-4.65 8.93-3.805 1.942.482 3.33 1.882 4.865 3.432 2.502 2.524 5.397 5.445 11.722 5.445 6.804 0 11.057-3.381 12.758-10.145-2.552 3.382-5.529 4.65-8.931 3.805-1.941-.483-3.329-1.883-4.864-3.432-2.502-2.524-5.398-5.446-11.722-5.446z"
+                  fill="#38bdf8"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M76.546 12.825h-4.453v8.567c0 2.285 1.508 2.249 4.453 2.106v3.463c-5.962.714-8.332-.928-8.332-5.569v-8.567H64.91V9.112h3.304V4.318l3.879-1.143v5.937h4.453v3.713zM93.52 9.112h3.878v17.849h-3.878v-2.57c-1.365 1.891-3.484 3.034-6.285 3.034-4.884 0-8.942-4.105-8.942-9.389 0-5.318 4.058-9.388 8.942-9.388 2.801 0 4.92 1.142 6.285 2.999V9.112zm-5.674 14.636c3.232 0 5.674-2.392 5.674-5.712s-2.442-5.711-5.674-5.711-5.674 2.392-5.674 5.711c0 3.32 2.442 5.712 5.674 5.712zm16.016-17.313c-1.364 0-2.477-1.142-2.477-2.463a2.475 2.475 0 012.477-2.463 2.475 2.475 0 012.478 2.463c0 1.32-1.113 2.463-2.478 2.463zm-1.939 20.526V9.112h3.879v17.849h-3.879zm8.368 0V.9h3.878v26.06h-3.878zm29.053-17.849h4.094l-5.638 17.849h-3.807l-3.735-12.03-3.771 12.03h-3.806l-5.639-17.849h4.094l3.484 12.315 3.771-12.315h3.699l3.734 12.315 3.52-12.315zm8.906-2.677c-1.365 0-2.478-1.142-2.478-2.463a2.475 2.475 0 012.478-2.463 2.475 2.475 0 012.478 2.463c0 1.32-1.113 2.463-2.478 2.463zm-1.939 20.526V9.112h3.878v17.849h-3.878zm17.812-18.313c4.022 0 6.895 2.713 6.895 7.354V26.96h-3.878V16.394c0-2.713-1.58-4.14-4.022-4.14-2.55 0-4.561 1.499-4.561 5.14v9.567h-3.879V9.112h3.879v2.285c1.185-1.856 3.124-2.749 5.566-2.749zm25.282-6.675h3.879V26.96h-3.879v-2.57c-1.364 1.892-3.483 3.034-6.284 3.034-4.884 0-8.942-4.105-8.942-9.389 0-5.318 4.058-9.388 8.942-9.388 2.801 0 4.92 1.142 6.284 2.999V1.973zm-5.674 21.775c3.232 0 5.674-2.392 5.674-5.712s-2.442-5.711-5.674-5.711-5.674 2.392-5.674 5.711c0 3.32 2.442 5.712 5.674 5.712zm22.553 3.677c-5.423 0-9.481-4.105-9.481-9.389 0-5.318 4.058-9.388 9.481-9.388 3.519 0 6.572 1.82 8.008 4.605l-3.34 1.928c-.79-1.678-2.549-2.749-4.704-2.749-3.16 0-5.566 2.392-5.566 5.604 0 3.213 2.406 5.605 5.566 5.605 2.155 0 3.914-1.107 4.776-2.749l3.34 1.892c-1.508 2.82-4.561 4.64-8.08 4.64zm14.472-13.387c0 3.249 9.661 1.285 9.661 7.89 0 3.57-3.125 5.497-7.003 5.497-3.591 0-6.177-1.607-7.326-4.177l3.34-1.927c.574 1.606 2.011 2.57 3.986 2.57 1.724 0 3.052-.571 3.052-2 0-3.176-9.66-1.391-9.66-7.781 0-3.356 2.909-5.462 6.572-5.462 2.945 0 5.387 1.357 6.644 3.713l-3.268 1.82c-.647-1.392-1.904-2.035-3.376-2.035-1.401 0-2.622.607-2.622 1.892zm16.556 0c0 3.249 9.66 1.285 9.66 7.89 0 3.57-3.124 5.497-7.003 5.497-3.591 0-6.176-1.607-7.326-4.177l3.34-1.927c.575 1.606 2.011 2.57 3.986 2.57 1.724 0 3.053-.571 3.053-2 0-3.176-9.66-1.391-9.66-7.781 0-3.356 2.908-5.462 6.572-5.462 2.944 0 5.386 1.357 6.643 3.713l-3.268 1.82c-.646-1.392-1.903-2.035-3.375-2.035-1.401 0-2.622.607-2.622 1.892z"
+                  fill="currentColor"></path>
+              </svg></a>
+            <div class="relative" data-headlessui-state=""><button
+                class="text-xs leading-5 font-semibold bg-slate-400/10 rounded-full py-1 px-3 flex items-center space-x-2 hover:bg-slate-400/20 dark:highlight-white/5"
+                id="headlessui-menu-button-:Racr6:" type="button" aria-haspopup="true" aria-expanded="false"
+                data-headlessui-state="">v3.3.5<svg width="6" height="3" class="ml-2 overflow-visible"
+                  aria-hidden="true">
+                  <path d="M0 0L3 3L6 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  </path>
+                </svg></button></div><a href="/blog/2023-07-18-tailwind-connect-2023-recap"
+              class="ml-3 text-xs leading-5 font-medium text-sky-600 dark:text-sky-400 bg-sky-400/10 rounded-full py-1 px-3 hidden xl:flex items-center hover:bg-sky-400/20"><strong
+                class="font-semibold">Connect 2023 Recap</strong><svg width="2" height="2" fill="currentColor"
+                aria-hidden="true" class="ml-2 text-sky-600 dark:text-sky-400/70">
+                <circle cx="1" cy="1" r="1"></circle>
+              </svg><span class="ml-2">Everything that was announced at our special event</span><svg width="3"
+                height="6" class="ml-3 overflow-visible text-sky-300 dark:text-sky-400" aria-hidden="true">
+                <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg></a>
+            <div class="relative hidden lg:flex items-center ml-auto">
+              <nav class="text-sm leading-6 font-semibold text-slate-700 dark:text-slate-200">
+                <ul class="flex space-x-8">
+                  <li><a class="hover:text-sky-500 dark:hover:text-sky-400" href="/docs/installation">Docs</a></li>
+                  <li><a href="https://tailwindui.com/?ref=top"
+                      class="hover:text-sky-500 dark:hover:text-sky-400">Components</a></li>
+                  <li><a class="hover:text-sky-500 dark:hover:text-sky-400" href="/blog">Blog</a></li>
+                  <li><a class="hover:text-sky-500 dark:hover:text-sky-400" href="/showcase">Showcase</a></li>
+                </ul>
+              </nav>
+              <div class="flex items-center border-l border-slate-200 ml-6 pl-6 dark:border-slate-800"><label
+                  class="sr-only" id="headlessui-listbox-label-:Rpkcr6:" data-headlessui-state="">Theme</label><button
+                  type="button" id="headlessui-listbox-button-:R19kcr6:" aria-haspopup="true" aria-expanded="false"
+                  data-headlessui-state=""
+                  aria-labelledby="headlessui-listbox-label-:Rpkcr6: headlessui-listbox-button-:R19kcr6:"><span
+                    class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" class="w-6 h-6">
+                      <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" class="stroke-slate-400 dark:stroke-slate-500">
+                      </path>
+                      <path
+                        d="M12 4v1M17.66 6.344l-.828.828M20.005 12.004h-1M17.66 17.664l-.828-.828M12 20.01V19M6.34 17.664l.835-.836M3.995 12.004h1.01M6 6l.835.836"
+                        class="stroke-slate-400 dark:stroke-slate-500"></path>
+                    </svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" class="w-6 h-6">
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M17.715 15.15A6.5 6.5 0 0 1 9 6.035C6.106 6.922 4 9.645 4 12.867c0 3.94 3.153 7.136 7.042 7.136 3.101 0 5.734-2.032 6.673-4.853Z"
+                        class="fill-transparent"></path>
+                      <path
+                        d="m17.715 15.15.95.316a1 1 0 0 0-1.445-1.185l.495.869ZM9 6.035l.846.534a1 1 0 0 0-1.14-1.49L9 6.035Zm8.221 8.246a5.47 5.47 0 0 1-2.72.718v2a7.47 7.47 0 0 0 3.71-.98l-.99-1.738Zm-2.72.718A5.5 5.5 0 0 1 9 9.5H7a7.5 7.5 0 0 0 7.5 7.5v-2ZM9 9.5c0-1.079.31-2.082.845-2.93L8.153 5.5A7.47 7.47 0 0 0 7 9.5h2Zm-4 3.368C5 10.089 6.815 7.75 9.292 6.99L8.706 5.08C5.397 6.094 3 9.201 3 12.867h2Zm6.042 6.136C7.718 19.003 5 16.268 5 12.867H3c0 4.48 3.588 8.136 8.042 8.136v-2Zm5.725-4.17c-.81 2.433-3.074 4.17-5.725 4.17v2c3.552 0 6.553-2.327 7.622-5.537l-1.897-.632Z"
+                        class="fill-slate-400 dark:fill-slate-500"></path>
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M17 3a1 1 0 0 1 1 1 2 2 0 0 0 2 2 1 1 0 1 1 0 2 2 2 0 0 0-2 2 1 1 0 1 1-2 0 2 2 0 0 0-2-2 1 1 0 1 1 0-2 2 2 0 0 0 2-2 1 1 0 0 1 1-1Z"
+                        class="fill-slate-400 dark:fill-slate-500"></path>
+                    </svg></span></button><a href="https://github.com/tailwindlabs/tailwindcss"
+                  class="ml-6 block text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"><span
+                    class="sr-only">Tailwind CSS on GitHub</span><svg viewBox="0 0 16 16" class="w-5 h-5"
+                    fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                    </path>
+                  </svg></a></div>
+            </div><button type="button"
+              class="ml-auto text-slate-500 w-8 h-8 -my-1 flex items-center justify-center hover:text-slate-600 lg:hidden dark:text-slate-400 dark:hover:text-slate-300"><span
+                class="sr-only">Search</span><svg width="24" height="24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m19 19-3.5-3.5"></path>
+                <circle cx="11" cy="11" r="6"></circle>
+              </svg></button>
+            <div class="ml-2 -my-1 lg:hidden"><button type="button"
+                class="text-slate-500 w-8 h-8 flex items-center justify-center hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"><span
+                  class="sr-only">Navigation</span><svg width="24" height="24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 6v.01M12 12v.01M12 18v.01M12 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg></button>
+              <div
+                style="position:fixed;top:1px;left:1px;width:1px;height:0;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;display:none">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center p-4 border-b border-slate-900/10 lg:hidden dark:border-slate-50/[0.06]"><button
+            type="button"
+            class="text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"><span
+              class="sr-only">Navigation</span><svg width="24" height="24">
+              <path d="M5 6h14M5 12h14M5 18h14" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round"></path>
+            </svg></button>
+          <ol class="ml-4 flex text-sm leading-6 whitespace-nowrap min-w-0">
+            <li class="flex items-center">Flexbox &amp; Grid<svg width="3" height="6" aria-hidden="true"
+                class="mx-3 overflow-visible text-slate-400">
+                <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                </path>
+              </svg></li>
+            <li class="font-semibold text-slate-900 truncate dark:text-slate-200">Grid Row Start / End</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="max-w-8xl mx-auto px-4 sm:px-6 md:px-8">
+        <div
+          class="hidden lg:block fixed z-20 inset-0 top-[3.8125rem] left-[max(0px,calc(50%-45rem))] right-auto w-[19rem] pb-10 pl-8 pr-6 overflow-y-auto">
+          <nav id="nav" class="lg:text-sm lg:leading-6 relative">
+            <div class="sticky top-0 -ml-0.5 pointer-events-none">
+              <div class="h-10 bg-white dark:bg-slate-900"></div>
+              <div class="bg-white dark:bg-slate-900 relative pointer-events-auto"><button type="button"
+                  class="hidden w-full lg:flex items-center text-sm leading-6 text-slate-400 rounded-md ring-1 ring-slate-900/10 shadow-sm py-1.5 pl-2 pr-3 hover:ring-slate-300 dark:bg-slate-800 dark:highlight-white/5 dark:hover:bg-slate-700"><svg
+                    width="24" height="24" fill="none" aria-hidden="true" class="mr-3 flex-none">
+                    <path d="m19 19-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                    <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round"></circle>
+                  </svg>Quick search...<span class="ml-auto pl-3 flex-none text-xs font-semibold">⌘K</span></button>
+              </div>
+              <div class="h-8 bg-gradient-to-b from-white dark:from-slate-900"></div>
+            </div>
+            <ul>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-semibold text-sky-500 dark:text-sky-400"
+                  href="/docs/installation">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 dark:bg-sky-500 dark:highlight-white/10">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M8.5 7c1.093 0 2.117.27 3 .743V17a6.345 6.345 0 0 0-3-.743c-1.093 0-2.617.27-3.5.743V7.743C5.883 7.27 7.407 7 8.5 7Z"
+                        class="fill-sky-200 group-hover:fill-sky-500 dark:fill-sky-300 dark:group-hover:fill-sky-300">
+                      </path>
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M15.5 7c1.093 0 2.617.27 3.5.743V17c-.883-.473-2.407-.743-3.5-.743s-2.117.27-3 .743V7.743a6.344 6.344 0 0 1 3-.743Z"
+                        class="fill-sky-400 group-hover:fill-sky-500 dark:fill-sky-200 dark:group-hover:fill-sky-200">
+                      </path>
+                    </svg></div>Documentation
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="https://tailwindui.com/components?ref=sidebar">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-indigo-200 dark:group-hover:bg-indigo-500 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path d="m6 9 6-3 6 3v6l-6 3-6-3V9Z"
+                        class="fill-indigo-100 group-hover:fill-indigo-200 dark:fill-slate-400"></path>
+                      <path d="m6 9 6 3v7l-6-3V9Z"
+                        class="fill-indigo-300 group-hover:fill-indigo-400 dark:group-hover:fill-indigo-300 dark:fill-slate-500">
+                      </path>
+                      <path d="m18 9-6 3v7l6-3V9Z"
+                        class="fill-indigo-400 group-hover:fill-indigo-500 dark:group-hover:fill-indigo-400 dark:fill-slate-600">
+                      </path>
+                    </svg></div>Components
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="https://tailwindui.com/templates?ref=sidebar">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-fuchsia-200 dark:group-hover:bg-fuchsia-600 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M8 6C6.89543 6 6 6.89543 6 8V16C6 17.1046 6.89543 18 8 18H10.5C11.0523 18 11.5 17.5523 11.5 17V12C11.5 10.6193 12.6193 9.5 14 9.5H18V8C18 6.89543 17.1046 6 16 6H8ZM7.25 8C7.25 7.58579 7.58579 7.25 8 7.25H8.01C8.42421 7.25 8.76 7.58579 8.76 8C8.76 8.41421 8.42421 8.75 8.01 8.75H8C7.58579 8.75 7.25 8.41421 7.25 8ZM10 7.25C9.58579 7.25 9.25 7.58579 9.25 8C9.25 8.41421 9.58579 8.75 10 8.75H10.01C10.4242 8.75 10.76 8.41421 10.76 8C10.76 7.58579 10.4242 7.25 10.01 7.25H10Z"
+                        fill="#E879F9"
+                        class="fill-fuchsia-400 group-hover:fill-fuchsia-500 dark:group-hover:fill-fuchsia-300 dark:fill-slate-400">
+                      </path>
+                      <path
+                        d="M13 12C13 11.4477 13.4477 11 14 11H17C17.5523 11 18 11.4477 18 12V17C18 17.5523 17.5523 18 17 18H14C13.4477 18 13 17.5523 13 17V12Z"
+                        fill="#F0ABFC" class="fill-fuchsia-300 group-hover:fill-fuchsia-400 dark:fill-slate-500"></path>
+                    </svg></div>Templates
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="https://www.youtube.com/tailwindlabs">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-pink-200 dark:group-hover:bg-pink-500 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+                        class="fill-pink-400 group-hover:fill-pink-500 dark:group-hover:fill-pink-300 dark:fill-slate-600">
+                      </path>
+                      <path
+                        d="M11.082 9.107a.685.685 0 0 0-.72-.01.757.757 0 0 0-.362.653v4.5c0 .27.138.52.362.653.224.133.5.13.72-.01l3.571-2.25A.758.758 0 0 0 15 12a.758.758 0 0 0-.347-.643l-3.571-2.25Z"
+                        class="fill-pink-50 group-hover:fill-pink-100 dark:group-hover:fill-white dark:fill-slate-400">
+                      </path>
+                    </svg></div>Screencasts
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="https://play.tailwindcss.com">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 12a7 7 0 0 1 7-7h2a7 7 0 1 1 0 14h-2a7 7 0 0 1-7-7Z"
+                        class="fill-blue-400 group-hover:fill-blue-500 dark:group-hover:fill-blue-400 dark:fill-slate-600">
+                      </path>
+                      <path d="M10.25 9.75 7.75 12l2.5 2.25" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="stroke-blue-50 dark:stroke-slate-400 dark:group-hover:stroke-white dark:stroke-slate-400">
+                      </path>
+                      <path d="m13.75 9.75 2.5 2.25-2.5 2.25" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="stroke-blue-200 dark:group-hover:stroke-white dark:stroke-slate-400"></path>
+                    </svg></div>Playground
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="/resources">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-purple-200 dark:group-hover:bg-purple-400 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M6 8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8ZM6 15a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1Z"
+                        class="fill-purple-400 group-hover:fill-purple-500 dark:group-hover:fill-purple-300 dark:fill-slate-600">
+                      </path>
+                      <path d="M13 8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8Z"
+                        class="fill-purple-200 group-hover:fill-purple-300 dark:group-hover:fill-white dark:fill-slate-400">
+                      </path>
+                      <path d="M13 15a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-1Z"
+                        class="fill-purple-400 group-hover:fill-purple-500 dark:group-hover:fill-purple-300 dark:fill-slate-600">
+                      </path>
+                    </svg></div><span class="">Resources</span>
+                </a></li>
+              <li><a
+                  class="group flex items-center lg:text-sm lg:leading-6 mb-4 font-medium text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                  href="https://github.com/tailwindlabs/tailwindcss/discussions">
+                  <div
+                    class="mr-4 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 dark:bg-slate-800 dark:highlight-white/5">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M11 5a6 6 0 0 0-4.687 9.746c.215.27.315.62.231.954l-.514 2.058a1 1 0 0 0 1.485 1.1l2.848-1.71c.174-.104.374-.15.576-.148H13a6 6 0 0 0 0-12h-2Z"
+                        class="fill-violet-400 group-hover:fill-violet-500 dark:group-hover:fill-violet-300 dark:fill-slate-600">
+                      </path>
+                      <circle cx="12" cy="11" r="1" class="fill-white dark:group-hover:fill-white dark:fill-slate-400">
+                      </circle>
+                      <circle cx="9" cy="11" r="1"
+                        class="fill-violet-200 dark:group-hover:fill-white dark:fill-slate-400"></circle>
+                      <circle cx="15" cy="11" r="1"
+                        class="fill-violet-200 dark:fill-slate-400 dark:group-hover:fill-white"></circle>
+                    </svg></div>Community
+                </a></li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Getting Started</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/installation">Installation</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/editor-setup">Editor Setup</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/using-with-preprocessors">Using with Preprocessors</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/optimizing-for-production">Optimizing for Production</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/browser-support">Browser Support</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/upgrade-guide">Upgrade Guide</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Core Concepts</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/utility-first">Utility-First Fundamentals</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/hover-focus-and-other-states">Hover, Focus, and Other States</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/responsive-design">Responsive Design</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/dark-mode">Dark Mode</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/reusing-styles">Reusing Styles</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/adding-custom-styles">Adding Custom Styles</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/functions-and-directives">Functions &amp; Directives</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Customization</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/configuration">Configuration</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/content-configuration">Content</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/theme">Theme</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/screens">Screens</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/customizing-colors">Colors</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/customizing-spacing">Spacing</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/plugins">Plugins</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/presets">Presets</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Base Styles</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/preflight">Preflight</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Layout</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/aspect-ratio">Aspect Ratio</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/container">Container</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/columns">Columns</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/break-after">Break After</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/break-before">Break Before</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/break-inside">Break Inside</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/box-decoration-break">Box Decoration Break</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/box-sizing">Box Sizing</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/display">Display</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/float">Floats</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/clear">Clear</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/isolation">Isolation</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/object-fit">Object Fit</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/object-position">Object Position</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/overflow">Overflow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/overscroll-behavior">Overscroll Behavior</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/position">Position</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/top-right-bottom-left">Top / Right / Bottom / Left</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/visibility">Visibility</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/z-index">Z-Index</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Flexbox &amp; Grid</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex-basis">Flex Basis</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex-direction">Flex Direction</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex-wrap">Flex Wrap</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex">Flex</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex-grow">Flex Grow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/flex-shrink">Flex Shrink</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/order">Order</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-template-columns">Grid Template Columns</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-column">Grid Column Start / End</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-template-rows">Grid Template Rows</a></li>
+                  <li data-active="true"><a
+                      class="block border-l pl-4 -ml-px text-sky-500 border-current font-semibold dark:text-sky-400"
+                      href="/docs/grid-row">Grid Row Start / End</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-auto-flow">Grid Auto Flow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-auto-columns">Grid Auto Columns</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grid-auto-rows">Grid Auto Rows</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/gap">Gap</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/justify-content">Justify Content</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/justify-items">Justify Items</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/justify-self">Justify Self</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/align-content">Align Content</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/align-items">Align Items</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/align-self">Align Self</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/place-content">Place Content</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/place-items">Place Items</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/place-self">Place Self</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Spacing</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/padding">Padding</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/margin">Margin</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/space">Space Between</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Sizing</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/width">Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/min-width">Min-Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/max-width">Max-Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/height">Height</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/min-height">Min-Height</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/max-height">Max-Height</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Typography</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-family">Font Family</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-size">Font Size</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-smoothing">Font Smoothing</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-style">Font Style</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-weight">Font Weight</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/font-variant-numeric">Font Variant Numeric</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/letter-spacing">Letter Spacing</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/line-clamp">Line Clamp</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/line-height">Line Height</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/list-style-image">List Style Image</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/list-style-position">List Style Position</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/list-style-type">List Style Type</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-align">Text Align</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-color">Text Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-decoration">Text Decoration</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-decoration-color">Text Decoration Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-decoration-style">Text Decoration Style</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-decoration-thickness">Text Decoration Thickness</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-underline-offset">Text Underline Offset</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-transform">Text Transform</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-overflow">Text Overflow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/text-indent">Text Indent</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/vertical-align">Vertical Align</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/whitespace">Whitespace</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/word-break">Word Break</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/hyphens">Hyphens</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/content">Content</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Backgrounds</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-attachment">Background Attachment</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-clip">Background Clip</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-color">Background Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-origin">Background Origin</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-position">Background Position</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-repeat">Background Repeat</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-size">Background Size</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-image">Background Image</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/gradient-color-stops">Gradient Color Stops</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Borders</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-radius">Border Radius</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-width">Border Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-color">Border Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-style">Border Style</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/divide-width">Divide Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/divide-color">Divide Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/divide-style">Divide Style</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/outline-width">Outline Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/outline-color">Outline Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/outline-style">Outline Style</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/outline-offset">Outline Offset</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/ring-width">Ring Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/ring-color">Ring Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/ring-offset-width">Ring Offset Width</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/ring-offset-color">Ring Offset Color</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Effects</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/box-shadow">Box Shadow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/box-shadow-color">Box Shadow Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/opacity">Opacity</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/mix-blend-mode">Mix Blend Mode</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/background-blend-mode">Background Blend Mode</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Filters</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/blur">Blur</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/brightness">Brightness</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/contrast">Contrast</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/drop-shadow">Drop Shadow</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/grayscale">Grayscale</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/hue-rotate">Hue Rotate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/invert">Invert</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/saturate">Saturate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/sepia">Sepia</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-blur">Backdrop Blur</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-brightness">Backdrop Brightness</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-contrast">Backdrop Contrast</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-grayscale">Backdrop Grayscale</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-hue-rotate">Backdrop Hue Rotate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-invert">Backdrop Invert</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-opacity">Backdrop Opacity</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-saturate">Backdrop Saturate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/backdrop-sepia">Backdrop Sepia</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Tables</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-collapse">Border Collapse</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/border-spacing">Border Spacing</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/table-layout">Table Layout</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/caption-side">Caption Side</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Transitions &amp; Animation
+                </h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/transition-property">Transition Property</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/transition-duration">Transition Duration</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/transition-timing-function">Transition Timing Function</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/transition-delay">Transition Delay</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/animation">Animation</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Transforms</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scale">Scale</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/rotate">Rotate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/translate">Translate</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/skew">Skew</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/transform-origin">Transform Origin</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Interactivity</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/accent-color">Accent Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/appearance">Appearance</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/cursor">Cursor</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/caret-color">Caret Color</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/pointer-events">Pointer Events</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/resize">Resize</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-behavior">Scroll Behavior</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-margin">Scroll Margin</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-padding">Scroll Padding</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-snap-align">Scroll Snap Align</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-snap-stop">Scroll Snap Stop</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/scroll-snap-type">Scroll Snap Type</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/touch-action">Touch Action</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/user-select">User Select</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/will-change">Will Change</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">SVG</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/fill">Fill</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/stroke">Stroke</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/stroke-width">Stroke Width</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Accessibility</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/screen-readers">Screen Readers</a></li>
+                </ul>
+              </li>
+              <li class="mt-12 lg:mt-8">
+                <h5 class="mb-8 lg:mb-3 font-semibold text-slate-900 dark:text-slate-200">Official Plugins</h5>
+                <ul class="space-y-6 lg:space-y-2 border-l border-slate-100 dark:border-slate-800">
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="/docs/typography-plugin">Typography</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="https://github.com/tailwindlabs/tailwindcss-forms">Forms</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="https://github.com/tailwindlabs/tailwindcss-aspect-ratio">Aspect Ratio</a></li>
+                  <li><a
+                      class="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
+                      href="https://github.com/tailwindlabs/tailwindcss-container-queries">Container Queries</a></li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="lg:pl-[19.5rem]">
+          <div class="max-w-3xl mx-auto pt-10 xl:max-w-none xl:ml-0 xl:mr-[15.5rem] xl:pr-16">
+            <header id="header" class="relative z-20">
+              <div>
+                <p class="mb-2 text-sm leading-6 font-semibold text-sky-500 dark:text-sky-400">Flexbox &amp; Grid</p>
+                <div class="flex items-center">
+                  <h1
+                    class="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">
+                    Grid Row Start / End</h1>
+                </div>
+              </div>
+              <p class="mt-2 text-lg text-slate-700 dark:text-slate-400">Utilities for controlling how elements are
+                sized and placed across grid rows.</p>
+            </header>
+            <div class="mt-10 relative">
+              <h2 class="flex whitespace-pre-wrap not-prose relative scroll-mt-[var(--scroll-mt)]" id="class-reference">
+                <a class="group relative border-none lg:-ml-2 lg:pl-2" href="#class-reference">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div><span class="sr-only">Quick reference</span>
+                </a></h2>
+              <div class="overflow-x-auto flex -mx-4 sm:-mx-6 md:mx-0">
+                <div id="class-table"
+                  class="flex-none min-w-full px-4 sm:px-6 md:px-0 overflow-hidden lg:overflow-auto scrollbar:!w-1.5 scrollbar:!h-1.5 scrollbar:bg-transparent scrollbar-track:!bg-slate-100 scrollbar-thumb:!rounded scrollbar-thumb:!bg-slate-300 scrollbar-track:!rounded dark:scrollbar-track:!bg-slate-500/[0.16] dark:scrollbar-thumb:!bg-slate-500/50 max-h-96 lg:supports-scrollbars:pr-2 lg:max-h-96">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr>
+                        <th
+                          class="sticky z-10 top-0 text-sm leading-6 font-semibold text-slate-700 bg-white p-0 dark:bg-slate-900 dark:text-slate-300">
+                          <div class="py-2 pr-2 border-b border-slate-200 dark:border-slate-400/20">Class</div>
+                        </th>
+                        <th
+                          class="sticky z-10 top-0 text-sm leading-6 font-semibold text-slate-700 bg-white p-0 dark:bg-slate-900 dark:text-slate-300">
+                          <div class="py-2 pl-2 border-b border-slate-200 dark:border-slate-400/20">Properties</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="align-baseline">
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400">
+                          row-auto</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300">
+                          grid-row<!-- -->: <!-- -->auto<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-1</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 1 / span 1<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-2</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 2 / span 2<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-3</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 3 / span 3<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-4</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 4 / span 4<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-5</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 5 / span 5<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-6</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->span 6 / span 6<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-span-full</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row<!-- -->: <!-- -->1 / -1<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-1</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->1<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-2</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->2<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-3</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->3<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-4</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->4<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-5</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->5<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-6</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->6<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-7</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->7<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-start-auto</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-start<!-- -->: <!-- -->auto<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-1</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->1<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-2</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->2<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-3</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->3<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-4</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->4<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-5</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->5<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-6</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->6<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-7</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->7<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td translate="no"
+                          class="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400 border-t border-slate-100 dark:border-slate-400/10">
+                          row-end-auto</td>
+                        <td translate="no"
+                          class="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 border-t border-slate-100 dark:border-slate-400/10">
+                          grid-row-end<!-- -->: <!-- -->auto<!-- -->;<!-- -->
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="sticky bottom-0 h-px -mt-px bg-slate-200 dark:bg-slate-400/20"></div>
+                </div>
+              </div>
+              <div class="inset-x-0 flex justify-center pointer-events-none lg:hidden -mt-9 relative">
+                <div class="absolute inset-x-0 bg-gradient-to-t from-white dark:from-slate-900 -top-8 bottom-0"></div>
+                <button type="button"
+                  class="pointer-events-auto relative text-sm font-semibold text-slate-900 bg-white py-2 px-4 rounded-full ring-1 ring-slate-900/10 shadow-sm dark:bg-slate-800 dark:text-slate-200 dark:highlight-white/5">Show
+                  all classes</button>
+              </div>
+            </div>
+            <div id="content-wrapper" class="relative z-20 prose prose-slate mt-12 dark:prose-dark">
+              <h2
+                class="flex whitespace-pre-wrap not-prose mb-2 text-sm leading-6 text-sky-500 font-semibold tracking-normal dark:text-sky-400"
+                id="basic-usage"><a class="group relative border-none lg:-ml-2 lg:pl-2" href="#basic-usage">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Basic usage
+                </a></h2>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="spanning-rows"><a
+                  class="group relative border-none lg:-ml-2 lg:pl-2" href="#spanning-rows">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Spanning rows
+                </a></h3>
+              <p>Use the <code>row-span-{n}</code> utilities to make an element span <em>n</em> rows.</p>
+              <div class="mt-4 -mb-3">
+                <div class="not-prose relative bg-slate-50 rounded-xl overflow-hidden dark:bg-slate-800/25">
+                  <div style="background-position:10px 10px"
+                    class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]">
+                  </div>
+                  <div class="relative rounded-xl overflow-auto p-8">
+                    <div
+                      class="grid grid-rows-3 grid-flow-col gap-4 font-mono text-white text-sm text-center font-bold leading-6 bg-stripes-fuchsia rounded-lg">
+                      <div class="p-4 rounded-lg shadow-lg bg-fuchsia-500 grid place-content-center row-span-3">01</div>
+                      <div
+                        class="p-4 rounded-lg bg-fuchsia-300 grid place-content-center col-span-2 dark:bg-fuchsia-800 dark:text-fuchsia-400">
+                        02</div>
+                      <div
+                        class="p-4 rounded-lg shadow-lg bg-fuchsia-500 grid place-content-center row-span-2 col-span-2">
+                        03</div>
+                    </div>
+                  </div>
+                  <div
+                    class="absolute inset-0 pointer-events-none border border-black/5 rounded-xl dark:border-white/5">
+                  </div>
+                </div>
+              </div>
+              <pre
+                class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>grid grid-rows-3 grid-flow-col gap-4<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-span-3</span> ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>01<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>col-span-2 ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>02<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-span-2</span> col-span-2 ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>03<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span></code></pre>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="starting-and-ending-lines"><a
+                  class="group relative border-none lg:-ml-2 lg:pl-2" href="#starting-and-ending-lines">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Starting and ending lines
+                </a></h3>
+              <p>Use the <code>row-start-{n}</code> and <code>row-end-{n}</code> utilities to make an element start or
+                end at the <em>nth</em> grid line. These can also be combined with the <code>row-span-{n}</code>
+                utilities to span a specific number of rows.</p>
+              <p>Note that CSS grid lines start at 1, not 0, so a full-height element in a 3-row grid would start at
+                line 1 and end at line 4.</p>
+              <div class="mt-4 -mb-3">
+                <div class="not-prose relative bg-slate-50 rounded-xl overflow-hidden dark:bg-slate-800/25">
+                  <div style="background-position:10px 10px"
+                    class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]">
+                  </div>
+                  <div class="relative rounded-xl overflow-auto p-8">
+                    <div
+                      class="grid grid-rows-3 grid-flow-col gap-4 font-mono text-white text-sm text-center font-bold leading-6 bg-stripes-sky rounded-lg">
+                      <div
+                        class="p-4 sm:p-12 rounded-lg shadow-lg bg-blue-500 grid place-content-center row-start-2 row-span-2">
+                        01</div>
+                      <div
+                        class="p-4 sm:p-12 rounded-lg shadow-lg bg-blue-500 grid place-content-center row-end-3 row-span-2">
+                        02</div>
+                      <div
+                        class="p-4 sm:p-12 rounded-lg shadow-lg bg-blue-500 grid place-content-center row-start-1 row-end-4">
+                        03</div>
+                    </div>
+                  </div>
+                  <div
+                    class="absolute inset-0 pointer-events-none border border-black/5 rounded-xl dark:border-white/5">
+                  </div>
+                </div>
+              </div>
+              <pre
+                class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>grid grid-rows-3 grid-flow-col gap-4<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-start-2</span> row-span-2 ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>01<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-end-3</span> row-span-2 ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>02<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-start-1 row-end-4</span> ...<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>03<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span></code></pre>
+              <hr>
+              <h2
+                class="flex whitespace-pre-wrap not-prose mb-2 text-sm leading-6 text-sky-500 font-semibold tracking-normal dark:text-sky-400"
+                id="applying-conditionally" data-docsearch-ignore=""><a
+                  class="group relative border-none lg:-ml-2 lg:pl-2" href="#applying-conditionally">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Applying conditionally
+                </a></h2>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="hover-focus-and-other-states" data-docsearch-ignore="">
+                <a class="group relative border-none lg:-ml-2 lg:pl-2" href="#hover-focus-and-other-states">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Hover, focus, and other states
+                </a></h3>
+              <p>Tailwind lets you conditionally apply utility classes in different states using variant modifiers. For
+                example, use<!-- --> <code>hover<!-- -->:<!-- -->row-span-4</code> <!-- -->to only apply the
+                <code>row-span-4</code> utility on <!-- -->hover<!-- -->.</p>
+              <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>row-span-3 <span class="code-highlight bg-code-highlight">hover:row-span-4</span><span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token comment">&lt;!-- ... --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+              <p>For a complete list of all available state modifiers, check out the<!-- --> <a
+                  href="/docs/hover-focus-and-other-states">Hover, Focus, &amp; Other States</a> documentation.</p>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="breakpoints-and-media-queries"
+                data-docsearch-ignore=""><a class="group relative border-none lg:-ml-2 lg:pl-2"
+                  href="#breakpoints-and-media-queries">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Breakpoints and media queries
+                </a></h3>
+              <p>You can also use variant modifiers to target media queries like responsive breakpoints, dark mode,
+                prefers-reduced-motion, and more. For example, use <code>md:<!-- -->row-span-4</code> to apply the
+                <code>row-span-4</code> utility at only medium screen sizes and above.</p>
+              <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>row-span-3 <span class="code-highlight bg-code-highlight">md:row-span-4</span><span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token comment">&lt;!-- ... --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+              <p>To learn more, check out the documentation on<!-- --> <a href="/docs/responsive-design">Responsive
+                  Design</a>,<!-- --> <a href="/docs/dark-mode">Dark Mode</a> and<!-- --> <a
+                  href="/docs/hover-focus-and-other-states#media-and-feature-queries">other media query modifiers</a>.
+              </p>
+              <hr>
+              <h2
+                class="flex whitespace-pre-wrap not-prose mb-2 text-sm leading-6 text-sky-500 font-semibold tracking-normal dark:text-sky-400"
+                id="using-custom-values"><a class="group relative border-none lg:-ml-2 lg:pl-2"
+                  href="#using-custom-values">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Using custom values
+                </a></h2>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="customizing-your-theme"><a
+                  class="group relative border-none lg:-ml-2 lg:pl-2" href="#customizing-your-theme">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Customizing your theme
+                </a></h3>
+              <p>By default, Tailwind includes grid-row utilities for working with grids with up to 6 explicit rows. You
+                can customize these values by editing <code>theme.gridRow</code>, <code>theme.extend.gridRow</code>,
+                <code>theme.gridRowStart</code>, <code>theme.extend.gridRowStart</code>, <code>theme.gridRowEnd</code>,
+                and <code>theme.extend.gridRowEnd</code> in your <code>tailwind.config.js</code> file.</p>
+              <p>For creating more <code>row-{value}</code> utilities that control the <code>grid-row</code> shorthand
+                property directly, customize the <code>gridRow</code> section of your Tailwind theme config:</p>
+              <div class="mt-5 mb-8 first:mt-0 last:mb-0 relative overflow-hidden rounded-2xl">
+                <div class="pt-2 bg-slate-800 shadow-lg group">
+                  <div class="flex text-slate-400 text-xs leading-6">
+                    <div
+                      class="flex-none text-sky-300 border-t border-b border-t-transparent border-b-sky-300 px-4 py-1 flex items-center">
+                      tailwind.config.js</div>
+                    <div class="flex-auto flex items-center bg-slate-700/50 border border-slate-500/30 rounded-tl">
+                    </div>
+                  </div>
+                  <div class="children:my-0 children:!shadow-none children:bg-transparent">
+                    <pre class="language-diff-js"><code class="language-diff-js"><span class="token language-js unchanged"><span class="token plain">module</span><span class="token punctuation">.</span><span class="token property-access">exports</span><span class="token plain"> </span><span class="token operator">=</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token literal-property property">theme</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token literal-property property">extend</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token literal-property property">gridRow</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'span-16'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'span 16 / span 16'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain"></span><span class="token punctuation">}</span>
+</span></code></pre>
+                  </div>
+                </div>
+                <div
+                  class="pointer-events-none absolute inset-0 rounded-2xl dark:ring-1 dark:ring-white/10 dark:ring-inset"
+                  aria-hidden="true"></div>
+              </div>
+              <p>We use this internally for our <code>row-span-{n}</code> utilities. Note that since this configures the
+                <code>grid-row</code> shorthand property directly, we include the word <code>span</code> directly in the
+                value name, it’s <em>not</em> baked into the class name automatically. That means you are free to add
+                entries that do whatever you want here — they don’t just have to be <code>span</code> utilities.</p>
+              <p>To add new <code>row-start-{n}</code> utilities, use the <code>gridRowStart</code> section of your
+                Tailwind theme config:</p>
+              <div class="mt-5 mb-8 first:mt-0 last:mb-0 relative overflow-hidden rounded-2xl">
+                <div class="pt-2 bg-slate-800 shadow-lg group">
+                  <div class="flex text-slate-400 text-xs leading-6">
+                    <div
+                      class="flex-none text-sky-300 border-t border-b border-t-transparent border-b-sky-300 px-4 py-1 flex items-center">
+                      tailwind.config.js</div>
+                    <div class="flex-auto flex items-center bg-slate-700/50 border border-slate-500/30 rounded-tl">
+                    </div>
+                  </div>
+                  <div class="children:my-0 children:!shadow-none children:bg-transparent">
+                    <pre class="language-diff-js"><code class="language-diff-js"><span class="token language-js unchanged"><span class="token plain">module</span><span class="token punctuation">.</span><span class="token property-access">exports</span><span class="token plain"> </span><span class="token operator">=</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token literal-property property">theme</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token literal-property property">extend</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token literal-property property">gridRowStart</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'8'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'8'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'9'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'9'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'10'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'10'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'11'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'11'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'12'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'12'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'13'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'13'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain"></span><span class="token punctuation">}</span>
+</span></code></pre>
+                  </div>
+                </div>
+                <div
+                  class="pointer-events-none absolute inset-0 rounded-2xl dark:ring-1 dark:ring-white/10 dark:ring-inset"
+                  aria-hidden="true"></div>
+              </div>
+              <p>To add new <code>row-end-{n}</code> utilities, use the <code>gridRowEnd</code> section of your Tailwind
+                theme config:</p>
+              <div class="mt-5 mb-8 first:mt-0 last:mb-0 relative overflow-hidden rounded-2xl">
+                <div class="pt-2 bg-slate-800 shadow-lg group">
+                  <div class="flex text-slate-400 text-xs leading-6">
+                    <div
+                      class="flex-none text-sky-300 border-t border-b border-t-transparent border-b-sky-300 px-4 py-1 flex items-center">
+                      tailwind.config.js</div>
+                    <div class="flex-auto flex items-center bg-slate-700/50 border border-slate-500/30 rounded-tl">
+                    </div>
+                  </div>
+                  <div class="children:my-0 children:!shadow-none children:bg-transparent">
+                    <pre class="language-diff-js"><code class="language-diff-js"><span class="token language-js unchanged"><span class="token plain">module</span><span class="token punctuation">.</span><span class="token property-access">exports</span><span class="token plain"> </span><span class="token operator">=</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token literal-property property">theme</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token literal-property property">extend</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token literal-property property">gridRowEnd</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation">{</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'8'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'8'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'9'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'9'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'10'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'10'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'11'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'11'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'12'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'12'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">        </span><span class="token string-property property">'13'</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string">'13'</span><span class="token punctuation">,</span><span class="token plain"></span>
+</span><span class="token language-js inserted"><span class="token plain">      </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">    </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain">  </span><span class="token punctuation">}</span><span class="token plain"></span>
+</span><span class="token language-js unchanged"><span class="token plain"></span><span class="token punctuation">}</span>
+</span></code></pre>
+                  </div>
+                </div>
+                <div
+                  class="pointer-events-none absolute inset-0 rounded-2xl dark:ring-1 dark:ring-white/10 dark:ring-inset"
+                  aria-hidden="true"></div>
+              </div>
+              <p>Learn more about customizing the default theme in the <a
+                  href="/docs/theme#customizing-the-default-theme">theme customization</a> documentation.</p>
+              <h3 class="flex whitespace-pre-wrap not-prose" id="arbitrary-values"><a
+                  class="group relative border-none lg:-ml-2 lg:pl-2" href="#arbitrary-values">
+                  <div
+                    class="absolute -ml-8 hidden items-center border-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 lg:flex">
+                    ​<div
+                      class="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 shadow-sm ring-1 ring-slate-900/5 hover:text-slate-700 hover:shadow hover:ring-slate-900/10 dark:bg-slate-700 dark:text-slate-300 dark:shadow-none dark:ring-0">
+                      <svg width="12" height="12" fill="none" aria-hidden="true">
+                        <path d="M3.75 1v10M8.25 1v10M1 3.75h10M1 8.25h10" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg></div>
+                  </div>Arbitrary values
+                </a></h3>
+              <p>If you need to use a one-off <code>grid-row/grid-row-start/grid-row-end</code> value<!-- --> that
+                doesn’t make sense to include in your theme, use square brackets to generate a property on the fly using
+                any arbitrary value.</p>
+              <pre class="language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="code-highlight bg-code-highlight">row-[span_16_/_span_16]</span><span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token comment">&lt;!-- ... --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+              <p>Learn more about arbitrary value support in the<!-- --> <a
+                  href="/docs/adding-custom-styles#using-arbitrary-values">arbitrary values</a> <!-- -->documentation.
+              </p>
+            </div>
+            <footer class="text-sm leading-6 mt-12">
+              <div class="mb-10 text-slate-700 font-semibold flex items-center dark:text-slate-200"><a
+                  class="group flex items-center hover:text-slate-900 dark:hover:text-white"
+                  href="/docs/grid-template-rows"><svg viewBox="0 0 3 6"
+                    class="mr-3 w-auto h-1.5 text-slate-400 overflow-visible group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                    <path d="M3 0L0 3L3 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>Grid Template Rows</a><a
+                  class="group ml-auto flex items-center hover:text-slate-900 dark:hover:text-white"
+                  href="/docs/grid-auto-flow">Grid Auto Flow<svg viewBox="0 0 3 6"
+                    class="ml-3 w-auto h-1.5 text-slate-400 overflow-visible group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                    <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg></a></div>
+              <div
+                class="pt-10 pb-28 border-t border-slate-200 sm:flex justify-between text-slate-500 dark:border-slate-200/5">
+                <div class="mb-6 sm:mb-0 sm:flex">
+                  <p>Copyright © <!-- -->2023<!-- --> Tailwind Labs Inc.</p>
+                  <p class="sm:ml-4 sm:pl-4 sm:border-l sm:border-slate-200 dark:sm:border-slate-200/5"><a
+                      class="hover:text-slate-900 dark:hover:text-slate-400" href="/brand">Trademark Policy</a></p>
+                </div><a class="hover:text-slate-900 dark:hover:text-slate-400"
+                  href="https://github.com/tailwindlabs/tailwindcss.com/edit/master/src/pages/docs/grid-row.mdx">Edit
+                  this page on GitHub</a>
+              </div>
+            </footer>
+            <div
+              class="fixed z-20 top-[3.8125rem] bottom-0 right-[max(0px,calc(50%-45rem))] w-[19.5rem] py-10 overflow-y-auto hidden xl:block">
+              <div class="px-8">
+                <h5 class="text-slate-900 font-semibold mb-4 text-sm leading-6 dark:text-slate-100">On this page</h5>
+                <ul class="text-slate-700 text-sm leading-6">
+                  <li><a href="#class-reference"
+                      class="block py-1 font-medium hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300">Quick
+                      reference</a></li>
+                  <li><a href="#basic-usage"
+                      class="block py-1 font-medium font-medium text-sky-500 dark:text-sky-400">Basic usage</a></li>
+                  <li class="ml-4"><a href="#spanning-rows"
+                      class="group flex items-start py-1 text-sky-500 dark:text-sky-400"><svg width="3" height="24"
+                        viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Spanning rows</a></li>
+                  <li class="ml-4"><a href="#starting-and-ending-lines"
+                      class="group flex items-start py-1 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"><svg
+                        width="3" height="24" viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Starting and ending lines</a></li>
+                  <li><a href="#applying-conditionally"
+                      class="block py-1 font-medium hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300">Applying
+                      conditionally</a></li>
+                  <li class="ml-4"><a href="#hover-focus-and-other-states"
+                      class="group flex items-start py-1 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"><svg
+                        width="3" height="24" viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Hover, focus, and other states</a></li>
+                  <li class="ml-4"><a href="#breakpoints-and-media-queries"
+                      class="group flex items-start py-1 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"><svg
+                        width="3" height="24" viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Breakpoints and media queries</a></li>
+                  <li><a href="#using-custom-values"
+                      class="block py-1 font-medium hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300">Using
+                      custom values</a></li>
+                  <li class="ml-4"><a href="#customizing-your-theme"
+                      class="group flex items-start py-1 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"><svg
+                        width="3" height="24" viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Customizing your theme</a></li>
+                  <li class="ml-4"><a href="#arbitrary-values"
+                      class="group flex items-start py-1 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"><svg
+                        width="3" height="24" viewBox="0 -9 3 24"
+                        class="mr-2 text-slate-400 overflow-visible group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-500">
+                        <path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="1.5"
+                          stroke-linecap="round"></path>
+                      </svg>Arbitrary values</a></li>
+                </ul>
+              </div>
+              <div class="mt-8 overflow-hidden">
+                <div class="p-8"><a href="https://www.refactoringui.com/?ref=sidebar"
+                    class="relative block pt-80 -m-6 p-6 rounded-lg focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-800/25"><img
+                      class="pointer-events-none h-[673px] w-[536px] max-w-none absolute -top-[112px] -right-6"
+                      src="/img/refactoring-ui-sidebar.png" alt="Refactoring UI by Adam Wathan and Steve Schoger"
+                      decoding="async">
+                    <div>
+                      <p class="text-[0.8125rem] font-semibold leading-5 text-sky-500 dark:text-sky-400">From the
+                        creators of Tailwind CSS</p>
+                      <p
+                        class="mt-1 text-base font-bold tracking-tight leading-[1.375] text-slate-900 dark:text-slate-200">
+                        Make your ideas look awesome, without relying on a designer.</p>
+                      <figure class="mt-6 pl-4 border-l border-slate-100 dark:border-slate-700">
+                        <blockquote class="text-sm leading-5 text-slate-600 dark:text-slate-400">“This is the survival
+                          kit I wish I had when I started building apps.”</blockquote>
+                        <figcaption class="mt-3 text-xs leading-5 text-slate-500">Derrick Reimer, <span
+                            class="">SavvyCal</span></figcaption>
+                      </figure>
+                    </div>
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      style="position:fixed;top:1px;left:1px;width:1px;height:0;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;display:none">
+    </div>
+  </div>
+  <script id="__NEXT_DATA__"
+    type="application/json">{"props":{"pageProps":{}},"page":"/docs/grid-row","query":{},"buildId":"TYWr8JPaRZMOjXP7SuwOn","nextExport":true,"autoExport":true,"isFallback":false,"scriptLoader":[]}</script>
+  <script> </script>
+  <div id="headlessui-portal-root">
+    <div data-headlessui-portal="">
+      <div></div>
+    </div>
+    <div data-headlessui-portal="">
+      <div></div>
+    </div>
+  </div><next-route-announcer>
+    <p aria-live="assertive" id="__next-route-announcer__" role="alert"
+      style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; top: 0px; width: 1px; white-space: nowrap; overflow-wrap: normal;">
+    </p>
+  </next-route-announcer>
+  <script src="/_next/static/chunks/4794-a9c4d3a3e2cfcd1b.js"></script>
+  <script src="/_next/static/chunks/9994-62565e9a86e9d753.js"></script>
+  <script src="/_next/static/chunks/280-bebc2f7a06885312.js"></script>
+  <script src="/_next/static/chunks/6612-1ac3cae4a3a4f422.js"></script>
+  <script src="/_next/static/chunks/pages/index-df1f98e5f5a9723b.js"></script>
+  <script src="/_next/static/chunks/7667-da43ee4a335055b2.js"></script>
+  <script src="/_next/static/chunks/5104-ba5cfe29cc36fa0f.js"></script>
+  <script src="/_next/static/chunks/pages/docs/installation-8adb6694154d47f2.js"></script>
+  <script src="/_next/static/chunks/pages/blog-218489da1b1ac382.js"></script>
+  <script src="/_next/static/chunks/pages/docs/font-variant-numeric-7d8c33c16905d901.js"></script>
+  <script src="/_next/static/chunks/5675-e454bcf55fd814aa.js"></script>
+  <script src="/_next/static/chunks/4085-cc1966a3c2f014fd.js"></script>
+  <script src="/_next/static/chunks/pages/showcase-a183824d8f777265.js"></script>
+  <script src="/_next/static/chunks/pages/docs/z-index-9178da8cf416b137.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-basis-4e1808797e8859dd.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-direction-7d19d3f20d78787f.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-wrap-d73e40898c66d382.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-f2138d040e4b0b20.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-grow-602650caa2885456.js"></script>
+  <script src="/_next/static/chunks/pages/docs/flex-shrink-48c3ca034f52b100.js"></script>
+  <script src="/_next/static/chunks/pages/docs/order-80684ba7514e06cb.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-template-columns-59e6728c60a50615.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-template-rows-7bcf6fe8afbcdd2b.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-column-8ce8f773d5e1679a.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-auto-flow-b3ce9bced026129a.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-auto-columns-dc779edc39f0fe67.js"></script>
+  <script src="/_next/static/chunks/pages/docs/gap-97a422c2ef827319.js"></script>
+  <script src="/_next/static/chunks/pages/docs/grid-auto-rows-a2feb61c4410bf63.js"></script>
+  <script src="/_next/static/chunks/pages/docs/justify-content-8015417bc9058e25.js"></script>
+  <script src="/_next/static/chunks/pages/docs/justify-items-12088bff19daf91e.js"></script>
+  <script src="/_next/static/chunks/pages/docs/align-items-420c6a45d7193c26.js"></script>
+  <script src="/_next/static/chunks/pages/docs/justify-self-56f834190eb11a35.js"></script>
+  <script src="/_next/static/chunks/pages/docs/align-content-9239e684600c7c30.js"></script>
+  <script src="/_next/static/chunks/pages/docs/align-self-35c6ac47a04a2386.js"></script>
+  <script src="/_next/static/chunks/pages/docs/place-content-63112b2051d44a8e.js"></script>
+  <script src="/_next/static/chunks/pages/docs/place-items-f9ecc31815ff4c18.js"></script>
+  <script src="/_next/static/chunks/pages/docs/place-self-f4d6660a67f2f273.js"></script>
+  <script src="/_next/static/chunks/pages/docs/text-decoration-thickness-aee40da00d18d333.js"></script>
+  <script src="/_next/static/chunks/pages/docs/text-decoration-color-1cde2c09358315d5.js"></script>
+  <script src="/_next/static/chunks/pages/docs/text-decoration-6ed88adc10c4c926.js"></script>
+  <script src="/_next/static/chunks/pages/docs/font-weight-136ac72edc0afcfe.js"></script>
+  <script src="/_next/static/chunks/pages/docs/text-align-9e375aa3a1a427d9.js"></script>
+  <div class="bar-of-progress finished"
+    style="position: fixed; top: 0px; left: 0px; margin: 0px; padding: 0px; border: none; border-radius: 0px; background-color: currentcolor; z-index: 10000; height: 2px; color: rgb(56, 189, 248); opacity: 0; width: 100%; transition: width 0.1s ease-out 0s, opacity 0.5s ease 0.2s;">
+    <div class="glow" style="opacity: 0.4; box-shadow: 3px 0px 8px; height: 100%;"></div>
+  </div>
+</body>
+
+</html>
