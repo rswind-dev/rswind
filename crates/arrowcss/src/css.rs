@@ -6,7 +6,7 @@ use cssparser::serialize_identifier;
 use crate::{context::Context, writer::Writer};
 
 pub trait ToCssRule<'a> {
-    fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSRule>;
+    fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule>;
 }
 
 // dark:text-red -> modifier=[dark],
@@ -29,7 +29,7 @@ impl Default for Rule<'_> {
 }
 
 impl<'a> ToCssRule<'a> for Rule<'a> {
-    fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSRule> {
+    fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule> {
         // Step 1(todo): split the rules by `:`, get [...modifier, rule]
         // Step 2: try static match
         let mut decls: Vec<CSSDecl> = vec![];
@@ -47,7 +47,7 @@ impl<'a> ToCssRule<'a> for Rule<'a> {
                 }
             }
         }
-        decls.is_empty().not().then(|| CSSRule {
+        decls.is_empty().not().then(|| CSSStyleRule {
             selector: format!("{}", self.raw),
             nodes: decls,
         })
@@ -61,7 +61,7 @@ pub trait ToCss {
 }
 
 #[derive(Debug)]
-pub struct CSSRule {
+pub struct CSSStyleRule {
     pub selector: String,
     pub nodes: Vec<CSSDecl>,
 }
@@ -127,7 +127,7 @@ impl ToCss for CSSDecl {
     }
 }
 
-impl ToCss for CSSRule {
+impl ToCss for CSSStyleRule {
     fn to_css<W: std::fmt::Write>(&self, writer: &mut Writer<W>) -> Result<(), Error> {
         writer.write_char('.')?;
         serialize_identifier(&self.selector, writer)?;

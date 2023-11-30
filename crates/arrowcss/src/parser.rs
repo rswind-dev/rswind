@@ -3,14 +3,14 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use crate::{
     context::Context,
-    css::{CSSDecl, CSSRule},
+    css::{CSSDecl, CSSStyleRule},
 };
 
 lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
+fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSStyleRule> {
     // Step 1(todo): split the rules by `:`, get [...modifier, rule]
     // Step 2: try static match
     let mut decls: Vec<CSSDecl> = vec![];
@@ -28,7 +28,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
             }
         }
     }
-    decls.is_empty().not().then(|| CSSRule {
+    decls.is_empty().not().then(|| CSSStyleRule {
         selector: format!("{}", value),
         nodes: decls,
     })

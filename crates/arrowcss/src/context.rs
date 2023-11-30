@@ -1,6 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
-use crate::{css::{CSSDecls, CSSRule}, theme::Theme};
+use crate::{css::{CSSDecls, CSSStyleRule}, theme::Theme};
 
 type RuleMatchingFn<'a> = Box<dyn Fn(&'a str) -> Option<CSSDecls> + 'static>;
 
@@ -10,7 +10,7 @@ pub struct Context<'a> {
   pub rules: HashMap<String, RuleMatchingFn<'a>>,
   pub theme: Rc<Theme>,
   pub config: String,
-  pub tokens: HashMap<&'a str, Option<CSSRule>>
+  pub tokens: HashMap<&'a str, Option<CSSStyleRule>>
 }
 
 pub struct ThemeValue<S: Into<String>> {
