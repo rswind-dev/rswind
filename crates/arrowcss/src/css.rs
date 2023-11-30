@@ -32,16 +32,16 @@ impl<'a> ToCssRule<'a> for Rule<'a> {
     fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule> {
         // Step 1(todo): split the rules by `:`, get [...modifier, rule]
         // Step 2: try static match
-        let mut decls: Vec<CSSDecl> = vec![];
+        let mut decls: Vec<CSSRule> = vec![];
         if let Some(static_rule) = ctx.static_rules.get(self.rule) {
-            decls = static_rule.to_vec();
+            decls = static_rule.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect();
         } else {
             // Step 3: get all index of `-`
             for (i, _) in self.rule.match_indices("-") {
                 let key = self.rule.get(..i).unwrap();
                 if let Some(func) = ctx.rules.get(key) {
                     if let Some(v) = func(self.rule.get((i + 1)..).unwrap()) {
-                        decls.append(&mut v.to_vec());
+                        decls.append(&mut v.to_vec().into_iter().map(|it| CSSRule::Decl(it)).collect());
                     }
                     break;
                 }
@@ -63,7 +63,58 @@ pub trait ToCss {
 #[derive(Debug)]
 pub struct CSSStyleRule {
     pub selector: String,
-    pub nodes: Vec<CSSDecl>,
+    pub nodes: Vec<CSSRule>,
+}
+
+#[derive(Debug)]
+pub struct CSSAtRule {
+    pub name: String,
+    pub params: String,
+    pub nodes: Vec<CSSRule>,
+}
+
+impl ToCss for CSSAtRule {
+    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        writer.write_str("@")?;
+        writer.write_str(&self.name)?;
+        writer.write_str(" ")?;
+        writer.write_str(&self.params)?;
+        writer.write_str(" {")?;
+        writer.indent();
+        for node in &self.nodes {
+            writer.newline()?;
+            node.to_css(writer)?;
+        }
+        writer.dedent();
+        writer.newline()?;
+        writer.write_str("}")?;
+        writer.newline()?;
+        Ok(())
+    }
+}
+
+
+#[derive(Debug)]
+pub enum CSSRule {
+    Style(CSSStyleRule),
+    AtRule(CSSAtRule),
+    Decl(CSSDecl),
+}
+
+impl ToCss for CSSRule {
+    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        match self {
+            Self::Style(rule) => rule.to_css(writer),
+            Self::AtRule(rule) => rule.to_css(writer),
+            Self::Decl(decl) => decl.to_css(writer),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
