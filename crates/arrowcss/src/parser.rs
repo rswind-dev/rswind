@@ -1,4 +1,3 @@
-use std::ops::Not;
 use lazy_static::lazy_static;
 use regex::Regex;
 use crate::{
@@ -40,22 +39,12 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
 
     // Step 4: apply modifiers
     for modifier in modifiers {
-        if let Some(variant_fn) = ctx.variants.get(&modifier) {
-            if let Some(new_rule) = variant_fn(rule) {
-                rule = new_rule
-            } else {
-                return None
-            }
-        } else {
-            return None
-        }
+        let variant = ctx.variants.get(&modifier)?;
+        let new_rule = (variant.handler)(rule)?;
+        rule = new_rule;
     }
 
     Some(rule)
-    // decls.is_empty().not().then(|| CSSStyleRule {
-    //     selector: format!("{}", rule),
-    //     nodes: decls,
-    // })
 }
 
 pub fn extract_modifiers(value: &str) -> (Vec<String>, String) {

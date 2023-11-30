@@ -1,3 +1,6 @@
+#![feature(trait_alias)]
+#![feature(fn_traits)]
+
 use std::{rc::Rc, collections::HashMap};
 
 use ::config::{Config, File};

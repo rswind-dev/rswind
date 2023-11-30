@@ -1,17 +1,37 @@
 use std::{collections::HashMap, rc::Rc};
 
-use crate::{css::{CSSDecls, CSSStyleRule, CSSRule}, theme::Theme};
+use crate::{css::{CSSDecls, CSSRule}, theme::Theme};
 
 type RuleMatchingFn<'a> = Box<dyn Fn(String) -> Option<CSSDecls> + 'static>;
 
 type VariantMatchingFn = dyn Fn(CSSRule) -> Option<CSSRule> + 'static;
+
+pub struct Variant {
+  pub needs_nesting: bool,
+  pub handler: Box<VariantMatchingFn>
+}
+
+impl Variant {
+    pub fn plain(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
+      Self {
+        needs_nesting: false,
+        handler: Box::new(handler)
+      }
+    }
+    pub fn at_rule(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
+      Self {
+        needs_nesting: true,
+        handler: Box::new(handler)
+      }
+    }
+}
 
 pub struct Context<'a> {
   pub static_rules: HashMap<String, CSSDecls>,
   pub arbitrary_rules: HashMap<String, RuleMatchingFn<'a>>,
   pub rules: HashMap<String, RuleMatchingFn<'a>>,
 
-  pub variants: HashMap<String, Box<VariantMatchingFn>>,
+  pub variants: HashMap<String, Variant>,
 
   pub theme: Rc<Theme>,
   pub config: String,
@@ -87,7 +107,7 @@ impl<'a> Context<'a> {
       S: Into<String>,
       F: Fn(CSSRule) -> Option<CSSRule> + 'static,
   {
-    self.variants.insert(key.into(), Box::new(func));
+    self.variants.insert(key.into(), Variant::plain(func));
     self
   }
 }

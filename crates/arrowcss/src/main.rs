@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+#![feature(trait_alias)]
+#![feature(fn_traits)]
+
 use std::fs::{self, read_to_string};
 use std::rc::Rc;
 
@@ -101,9 +103,9 @@ fn main() {
   );
 
   // open test.html
-  parse(&input, &mut ctx);
+  parse(input, &mut ctx);
 
-  ctx.tokens.values().into_iter().for_each(|it| {
+  ctx.tokens.values().for_each(|it| {
     if let Some(rule) = it {
       let _ = rule.to_css(&mut writer);
     }
