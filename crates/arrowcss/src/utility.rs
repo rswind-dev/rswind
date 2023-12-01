@@ -11,7 +11,7 @@ use crate::parser::Parse;
 use crate::utils::StripArbitrary;
 use crate::{context::Context, css::CSSDecls};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Utility {
     Literal(LiteralUtility),
     Arbitrary(ArbitraryUtility),
@@ -19,7 +19,7 @@ pub enum Utility {
 
 // static rule / arbitrary declaration
 // E.g. `[text:red]` or `flex`(defined in config.theme)
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct LiteralUtility {
     pub raw: String,
     pub important: bool,
@@ -29,7 +29,7 @@ struct LiteralUtility {
 
 // dynamic rule
 // E.g. `text-[#123]` or `!-text-[12px]`
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct ArbitraryUtility {
     pub raw: String,
     pub value: String,
