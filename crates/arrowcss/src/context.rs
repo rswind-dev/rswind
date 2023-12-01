@@ -15,13 +15,17 @@ pub struct Variant {
 }
 
 impl Variant {
-    pub fn plain(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
+    pub fn plain(
+        handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static,
+    ) -> Self {
         Self {
             needs_nesting: false,
             handler: Box::new(handler),
         }
     }
-    pub fn at_rule(handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static) -> Self {
+    pub fn at_rule(
+        handler: impl Fn(CSSRule) -> Option<CSSRule> + 'static,
+    ) -> Self {
         Self {
             needs_nesting: true,
             handler: Box::new(handler),
@@ -29,6 +33,7 @@ impl Variant {
     }
 }
 
+#[derive(Default)]
 pub struct Context<'a> {
     pub static_rules: HashMap<String, CSSDecls>,
     pub rules: HashMap<String, RuleMatchingFn<'a>>,
@@ -86,7 +91,11 @@ impl<'a> Context<'a> {
         self
     }
 
-    pub fn add_theme_rule<S, T>(&mut self, _theme_key: T, values: Vec<ThemeValue<S>>) -> &mut Self
+    pub fn add_theme_rule<S, T>(
+        &mut self,
+        _theme_key: T,
+        values: Vec<ThemeValue<S>>,
+    ) -> &mut Self
     where
         S: Into<String>,
         T: Into<String>,
@@ -99,7 +108,10 @@ impl<'a> Context<'a> {
                 value.key.into(),
                 Box::new(move |input| {
                     theme_clone.spacing.get(&input).map(|theme_val| {
-                        theme_rule_handler(value.decl_key.clone(), theme_val.into())
+                        theme_rule_handler(
+                            value.decl_key.clone(),
+                            theme_val.into(),
+                        )
                     })
                 }),
             );

@@ -7,11 +7,12 @@ use std::fmt::Write;
 use cssparser::{Parser, ParserInput};
 
 use crate::css::CSSDecl;
+use crate::parser::Parse;
 use crate::utils::StripArbitrary;
 use crate::{context::Context, css::CSSDecls};
 
 #[derive(Debug)]
-enum Utility {
+pub enum Utility {
     Literal(LiteralUtility),
     Arbitrary(ArbitraryUtility),
 }
@@ -62,8 +63,10 @@ impl Utility {
             modifier,
         })
     }
+}
 
-    pub fn parse(ctx: &Context, value: &str) -> Option<Self> {
+impl Parse<&str> for Utility {
+    fn parse(ctx: &Context, value: &str) -> Option<Self> {
         let mut unprefixed = value;
         let mut important = false;
 

@@ -19,12 +19,14 @@ pub mod config;
 pub mod context;
 pub mod css;
 pub mod parser;
+pub mod macros;
 pub mod rule;
 pub mod rules;
 pub mod theme;
 pub mod writer;
-mod utility;
-mod utils;
+pub mod utility;
+pub mod utils;
+pub mod variant;
 
 pub fn generate(input: String) -> String {
     let config = Config::builder()
