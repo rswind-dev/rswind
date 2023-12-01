@@ -26,3 +26,32 @@ impl Parse<&str> for Rule {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::css::{CSSRule, CSSDecls};
+
+    use super::*;
+
+    #[test]
+    fn test_rule() {
+        let mut ctx = Context::default();
+
+        ctx.add_static(("flex", CSSDecls::one("display", "flex")));
+
+        ctx.add_variant("disabled", |a| {
+            match a {
+                CSSRule::Style(mut it) => {
+                    it.selector += ":disabled";
+                    Some(CSSRule::Style(it))
+                }
+                _ => None,
+            }
+        });
+        let rule = Rule::parse(&ctx, "[@media(min-width200px)]:flex").unwrap();
+        assert_eq!(
+            rule.utility,
+            Utility::lit("flex".into(), false, false, CSSDecls::one("display", "flex"))
+        );
+    }
+}
