@@ -182,7 +182,12 @@ impl<'i> Variant<'i> {
             }
             is_first_token = false;
         }
-        let _ = ident.strip_suffix('-');
+
+        // remove the last `-` if it exists
+        if ident.ends_with('-') {
+            ident.pop();
+        }
+
         Ok(Self {
             raw: parser
                 .slice(start_state.position()..parser.position())
@@ -201,31 +206,66 @@ mod tests {
     use super::*;
     use cssparser::{Parser, ParserInput};
 
-    #[test]
-    fn test_variant_parse() {
-        let mut input =
-            ParserInput::new("group-[&:hover]/[sidebar]:@md:[@media(min-width:200px)]:text-blue-500");
+    fn create_variant(input: &str) -> Variant {
+        let mut input = ParserInput::new(input);
         let mut parser = Parser::new(&mut input);
-        let mut list = vec![];
-        while let Ok(variant) = parser.try_parse(Variant::parse) {
-            list.push(variant);
-        }
-
-        println!("{:#?}", list);
+        Variant::parse(&mut parser).unwrap()
     }
 
     #[test]
     fn test_plain_variant() {
-        let mut input = ParserInput::new("group-hover:");
-        let mut parser = Parser::new(&mut input);
-        let variant = Variant::parse(&mut parser).unwrap();
-
         assert_eq!(
-            variant,
+            create_variant("group-hover:"),
             Variant {
                 raw: "group-hover:".into(),
                 kind: VariantKind::Literal(LiteralVariant {
                     value: "group-hover".into(),
+                    modifier: None,
+                    arbitrary: None,
+                })
+            }
+        );
+    }
+
+    #[test]
+    fn test_arbitrary_variant() {
+        assert_eq!(
+            create_variant("[@media(min-width:200px)]:"),
+            Variant {
+                raw: "[@media(min-width:200px)]:".into(),
+                kind: VariantKind::Arbitrary(ArbitraryVariant {
+                    kind: ArbitraryVariantKind::Nested,
+                    value: "@media(min-width:200px)".into(),
+                })
+            }
+        );
+    }
+
+    // group-[&:hover]
+    #[test]
+    fn test_literal_variant_with_arbitrary() {
+        assert_eq!(
+            create_variant("group-[&:hover]:"),
+            Variant {
+                raw: "group-[&:hover]:".into(),
+                kind: VariantKind::Literal(LiteralVariant {
+                    value: "group".into(),
+                    modifier: None,
+                    arbitrary: Some("&:hover".into()),
+                })
+            }
+        );
+    }
+
+    // @md
+    #[test]
+    fn test_at() {
+        assert_eq!(
+            create_variant("@md:"),
+            Variant {
+                raw: "@md:".into(),
+                kind: VariantKind::Literal(LiteralVariant {
+                    value: "@md".into(),
                     modifier: None,
                     arbitrary: None,
                 })
