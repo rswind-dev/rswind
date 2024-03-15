@@ -2,6 +2,7 @@ use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
+use serde_json::Value;
 use std::fmt;
 use std::{
     collections::HashMap,
@@ -47,10 +48,10 @@ impl<'de> Visitor<'de> for FlattenedColorsVisitor {
         let mut colors = HashMap::new();
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
-                serde_json::Value::String(s) => {
+                Value::String(s) => {
                     colors.insert(key, s);
                 }
-                serde_json::Value::Object(nested) => {
+                Value::Object(nested) => {
                     for (nested_key, nested_value) in nested {
                         let flat_key = format!("{}-{}", key, nested_key);
                         if let serde_json::Value::String(color) = nested_value {
