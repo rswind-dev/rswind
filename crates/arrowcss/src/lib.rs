@@ -27,6 +27,7 @@ pub mod writer;
 pub mod utility;
 pub mod utils;
 pub mod variant;
+pub mod variant_parse;
 
 pub fn generate(input: String) -> String {
     let config = Config::builder()

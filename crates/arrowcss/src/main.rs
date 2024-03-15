@@ -25,6 +25,7 @@ mod writer;
 mod utility;
 mod utils;
 mod variant;
+mod variant_parse;
 
 fn main() {
     let config = Config::builder()

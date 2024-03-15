@@ -11,3 +11,13 @@ impl StripArbitrary for str {
         strip_arbitrary(self)
     }
 }
+
+pub fn extract_variants(value: &str) -> (Vec<String>, String) {
+    // Step 1(todo): split the rules by `:`, get [...modifier, rule]
+    let mut modifiers =
+        value.split(':').map(String::from).collect::<Vec<String>>();
+
+    let value = modifiers.pop().unwrap();
+
+    (modifiers, value)
+}

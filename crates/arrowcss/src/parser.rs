@@ -1,6 +1,7 @@
 use crate::{
     context::{Context, Variant},
     css::{CSSRule, CSSStyleRule},
+    utils::extract_variants,
 };
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -66,16 +67,6 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     }
 
     Some(rule)
-}
-
-pub fn extract_variants(value: &str) -> (Vec<String>, String) {
-    // Step 1(todo): split the rules by `:`, get [...modifier, rule]
-    let mut modifiers =
-        value.split(':').map(String::from).collect::<Vec<String>>();
-
-    let value = modifiers.pop().unwrap();
-
-    (modifiers, value)
 }
 
 pub fn parse<'b>(input: &'b str, ctx: &mut Context<'b>) {

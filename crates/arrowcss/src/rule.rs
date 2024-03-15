@@ -1,8 +1,5 @@
 use crate::{
-    context::Context,
-    parser::{extract_variants, Parse},
-    utility::Utility,
-    variant::Variant,
+    context::Context, parser::Parse, utility::Utility, utils::extract_variants, variant::Variant
 };
 
 struct Rule {
