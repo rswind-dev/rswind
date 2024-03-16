@@ -45,7 +45,7 @@ mod tests {
                 _ => None,
             }
         });
-        let rule = Rule::parse(&ctx, "[@media(min-width200px)]:flex").unwrap();
+        let rule = Rule::parse(&ctx, "[@media(min-width:200px)]:flex").unwrap();
         assert_eq!(
             rule.utility,
             Utility::lit("flex".into(), false, false, CSSDecls::one("display", "flex"))
