@@ -52,7 +52,7 @@ impl MatchVariant for ArbitraryVariant {
             }
             ArbitraryVariantKind::Nested => {
                 Some(CSSRule::AtRule(CSSAtRule {
-                    name: self.value.clone(),
+                    name: self.value.trim_start_matches('@').to_owned(),
                     params: "".into(),
                     nodes: vec![rule],
                 }))
@@ -84,6 +84,7 @@ impl<'i> ArbitraryVariant {
         parser: &mut Parser<'i, 'a>,
     ) -> Result<Self, ParseError<'a, ()>> {
         let start = parser.state();
+        let mut kind = None;
         parser.parse_nested_block(|parser| loop {
             match parser.next() {
                 Err(BasicParseError {
@@ -91,7 +92,8 @@ impl<'i> ArbitraryVariant {
                     ..
                 }) => {
                     return Ok(Self {
-                        kind: ArbitraryVariantKind::Nested,
+                        // return Err when kind is None
+                        kind: kind.ok_or(parser.new_custom_error(()))?,
                         value: parser
                             .slice(start.position()..parser.position())
                             .to_string(),
@@ -99,6 +101,10 @@ impl<'i> ArbitraryVariant {
                 }
                 Ok(Token::AtKeyword(at_rule)) => {
                     println!("at_rule: {at_rule:?}");
+                    kind = Some(ArbitraryVariantKind::Nested);
+                }
+                Ok(Token::Delim('&')) => {
+                    kind = Some(ArbitraryVariantKind::Replacement);
                 }
                 other => {
                     println!("other: {:?}", other);
@@ -148,7 +154,7 @@ impl<'i> Variant {
                         // trait as ArbitraryVariant
                         let arbitrary_variant =
                             parser.try_parse(ArbitraryVariant::parse)?;
-                        parser.expect_colon();
+                        parser.expect_colon()?;
                         return Ok(Self {
                             raw: parser
                                 .slice(
