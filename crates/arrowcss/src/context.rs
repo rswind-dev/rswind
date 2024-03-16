@@ -5,7 +5,7 @@ use crate::{
     theme::Theme,
 };
 
-type RuleMatchingFn<'a> = Box<dyn Fn(String) -> Option<CSSDecls> + 'static>;
+type RuleMatchingFn<'a> = Box<dyn Fn(&str) -> Option<CSSDecls> + 'static>;
 
 type VariantMatchingFn = dyn Fn(CSSRule) -> Option<CSSRule> + 'static;
 
@@ -72,7 +72,7 @@ impl<'a> Context<'a> {
 
     pub fn add_rule<F, S>(&mut self, key: S, func: F) -> &mut Self
     where
-        F: Fn(String, Rc<Theme>) -> Option<CSSDecls> + 'static,
+        F: Fn(&str, Rc<Theme>) -> Option<CSSDecls> + 'static,
         S: Into<String>,
     {
         let theme_clone = Rc::clone(&self.theme);
@@ -107,7 +107,7 @@ impl<'a> Context<'a> {
             self.rules.insert(
                 value.key.into(),
                 Box::new(move |input| {
-                    theme_clone.spacing.get(&input).map(|theme_val| {
+                    theme_clone.spacing.get(input).map(|theme_val| {
                         theme_rule_handler(
                             value.decl_key.clone(),
                             theme_val.into(),

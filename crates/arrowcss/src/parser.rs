@@ -3,7 +3,8 @@ use crate::{
     css::{CSSRule, CSSStyleRule},
     utils::extract_variants,
     variant_parse::{
-        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant, VariantKind
+        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
+        VariantKind,
     },
 };
 use cssparser::{BasicParseError, BasicParseErrorKind, Parser, ParserInput};
@@ -56,8 +57,11 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             let key = rule.get(..i).unwrap();
-            if let Some(func) = ctx.rules.get(key) {
-                if let Some(v) = func(rule.get((i + 1)..).unwrap().to_string())
+            if let Some(v) = ctx
+                .rules
+                .get(key)
+                .and_then(|func| func(rule.get((i + 1)..)?))
+            {
                 {
                     decls.append(
                         &mut v
@@ -81,8 +85,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
         nodes: decls,
     });
 
-    // Step 4: apply modifiers
-
+    // Step 4: apply variants
     let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| match &variant.kind {

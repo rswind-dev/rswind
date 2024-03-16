@@ -121,7 +121,7 @@ impl Parse<&str> for Utility {
             for (i, _) in unprefixed.match_indices('-') {
                 let key = unprefixed.get(..i).unwrap();
                 let func = ctx.rules.get(key)?;
-                let v = func(unprefixed.get((i + 1)..).unwrap().to_string())?;
+                let v = func(unprefixed.get((i + 1)..)?)?;
                 return Some(Utility::lit(value.into(), important, negative, v));
             }
         }
@@ -196,7 +196,7 @@ mod tests {
         let mut ctx = Context::new(theme.into());
 
         ctx.add_rule("text", |a, b| {
-            Some(CSSDecls::one("color", b.colors.get(&a)?))
+            Some(CSSDecls::one("color", b.colors.get(a)?))
         });
 
         let utility = Utility::parse(&ctx, "text-blue-500").unwrap();
