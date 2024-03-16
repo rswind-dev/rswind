@@ -1,8 +1,12 @@
 use crate::{
-    context::{Context, Variant},
+    context::Context,
     css::{CSSRule, CSSStyleRule},
     utils::extract_variants,
+    variant_parse::{
+        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant, VariantKind
+    },
 };
+use cssparser::{BasicParseError, BasicParseErrorKind, Parser, ParserInput};
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -17,7 +21,29 @@ lazy_static! {
 }
 
 fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
-    let (modifiers, rule) = extract_variants(value);
+    let mut input = ParserInput::new(value);
+    let mut parser = Parser::new(&mut input);
+
+    let mut variants = vec![];
+    while let Ok(variant) = parser.try_parse(Variant::parse) {
+        variants.push(variant);
+    }
+
+    let start = parser.position();
+    let rule;
+    loop {
+        match parser.next() {
+            Err(BasicParseError {
+                kind: BasicParseErrorKind::EndOfInput,
+                ..
+            }) => {
+                rule = parser.slice(start..parser.position()).to_owned();
+                break;
+            }
+            _ => {}
+        }
+    }
+
     // Step 2: try static match
     let mut decls: Vec<CSSRule> = vec![];
     if let Some(static_rule) = ctx.static_rules.get(&rule) {
@@ -56,14 +82,37 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     });
 
     // Step 4: apply modifiers
-    let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = modifiers
+
+    let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = variants
         .iter()
-        .filter_map(|modifier| ctx.variants.get(modifier))
-        .partition(|variant| variant.needs_nesting);
+        .filter_map(|variant| match &variant.kind {
+            VariantKind::Arbitrary(_) => Some(variant),
+            VariantKind::Literal(v) => {
+                ctx.variants.contains_key(&v.value).then_some(variant)
+            }
+        })
+        .partition(|variant| match &variant.kind {
+            VariantKind::Arbitrary(ArbitraryVariant {
+                kind: ArbitraryVariantKind::Nested,
+                ..
+            }) => true,
+            VariantKind::Literal(v) => {
+                ctx.variants.get(&v.value).is_some_and(|v| v.needs_nesting)
+            }
+            _ => false,
+        });
 
     for variant in plain_variants.iter().chain(at_rules_variants.iter()) {
-        let new_rule = (variant.handler)(rule)?;
-        rule = new_rule;
+        match &variant.kind {
+            VariantKind::Arbitrary(arbitrary_variant) => {
+                let new_rule = arbitrary_variant.match_variant(rule)?;
+                rule = new_rule;
+            }
+            VariantKind::Literal(v) => {
+                let new_rule = (ctx.variants[&v.value].handler)(rule)?;
+                rule = new_rule;
+            }
+        }
     }
 
     Some(rule)
@@ -79,30 +128,5 @@ pub fn parse<'b>(input: &'b str, ctx: &mut Context<'b>) {
             continue;
         }
         ctx.tokens.insert(token, to_css_rule(token, ctx));
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extract_modifiers() {
-        assert_eq!(
-            extract_variants("md:opacity-50"),
-            (vec!["md".into()], "opacity-50".into())
-        );
-        assert_eq!(
-            extract_variants("opacity-50"),
-            (vec![], "opacity-50".into())
-        );
-        assert_eq!(
-            extract_variants("md:disabled:hover:opacity-50"),
-            (
-                vec!["md".into(), "disabled".into(), "hover".into()],
-                "opacity-50".into()
-            )
-        );
-        assert_eq!(extract_variants(""), (vec![], "".into()));
     }
 }

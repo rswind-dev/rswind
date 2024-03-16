@@ -1,15 +1,18 @@
 use cssparser::{
-    BasicParseError, BasicParseErrorKind, ParseError, Parser, Token,
+    BasicParseError, BasicParseErrorKind, ParseError, Parser, ParserInput,
+    Token,
 };
 
+use crate::css::{CSSAtRule, CSSRule};
+
 #[derive(Debug, PartialEq)]
-struct Variant {
-    raw: String,
-    kind: VariantKind,
+pub struct Variant {
+    pub raw: String,
+    pub kind: VariantKind,
 }
 
 #[derive(Debug, PartialEq)]
-enum VariantKind {
+pub enum VariantKind {
     Arbitrary(ArbitraryVariant),
     Literal(LiteralVariant),
 }
@@ -18,29 +21,57 @@ enum VariantKind {
 // Replacement: &:nth-child(3)
 // Nested: @media
 #[derive(Debug, PartialEq)]
-enum ArbitraryVariantKind {
+pub enum ArbitraryVariantKind {
     Replacement,
     Nested,
 }
 
-// Something like [@media(min-width: 300px)] or [&:nth-child(3)]
+// MatchVariant trait has a VariantMatchingFn function
+pub trait MatchVariant {
+    fn match_variant(&self, rule: CSSRule) -> Option<CSSRule>;
+}
+
+// Something like [@media(min-width:300px)] or [&:nth-child(3)]
 #[derive(Debug, PartialEq)]
-struct ArbitraryVariant {
-    kind: ArbitraryVariantKind,
-    value: String,
+pub struct ArbitraryVariant {
+    pub kind: ArbitraryVariantKind,
+    pub value: String,
+}
+
+impl MatchVariant for ArbitraryVariant {
+    fn match_variant(&self, rule: CSSRule) -> Option<CSSRule> {
+        match self.kind {
+            ArbitraryVariantKind::Replacement => {
+                match rule {
+                    CSSRule::Style(mut it) => {
+                        it.selector = self.value.replace('&', &it.selector);
+                        Some(CSSRule::Style(it))
+                    }
+                    _ => None,
+                }
+            }
+            ArbitraryVariantKind::Nested => {
+                Some(CSSRule::AtRule(CSSAtRule {
+                    name: self.value.clone(),
+                    params: "".into(),
+                    nodes: vec![rule],
+                }))
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
-enum Modifier {
+pub enum Modifier {
     Arbitrary(String),
     Literal(String),
 }
 
 #[derive(Debug, PartialEq)]
-struct LiteralVariant {
-    value: String,
-    modifier: Option<Modifier>,
-    arbitrary: Option<String>,
+pub struct LiteralVariant {
+    pub value: String,
+    pub modifier: Option<Modifier>,
+    pub arbitrary: Option<String>,
 }
 
 enum ParserError {
@@ -98,7 +129,7 @@ fn parse_arbitrary<'i, 'a>(
 }
 
 impl<'i> Variant {
-    fn parse<'a>(
+    pub fn parse<'a>(
         parser: &mut Parser<'i, 'a>,
     ) -> Result<Self, ParseError<'a, ()>> {
         let mut is_first_token = true;
@@ -201,21 +232,20 @@ impl<'i> Variant {
     }
 }
 
+pub fn create_variant(input: &str) -> Option<Variant> {
+    let mut input = ParserInput::new(input);
+    let mut parser = Parser::new(&mut input);
+    Variant::parse(&mut parser).ok()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cssparser::{Parser, ParserInput};
-
-    fn create_variant(input: &str) -> Variant {
-        let mut input = ParserInput::new(input);
-        let mut parser = Parser::new(&mut input);
-        Variant::parse(&mut parser).unwrap()
-    }
 
     #[test]
     fn test_plain_variant() {
         assert_eq!(
-            create_variant("group-hover:"),
+            create_variant("group-hover:").unwrap(),
             Variant {
                 raw: "group-hover:".into(),
                 kind: VariantKind::Literal(LiteralVariant {
@@ -230,7 +260,7 @@ mod tests {
     #[test]
     fn test_arbitrary_variant() {
         assert_eq!(
-            create_variant("[@media(min-width:200px)]:"),
+            create_variant("[@media(min-width:200px)]:").unwrap(),
             Variant {
                 raw: "[@media(min-width:200px)]:".into(),
                 kind: VariantKind::Arbitrary(ArbitraryVariant {
@@ -245,7 +275,7 @@ mod tests {
     #[test]
     fn test_literal_variant_with_arbitrary() {
         assert_eq!(
-            create_variant("group-[&:hover]:"),
+            create_variant("group-[&:hover]:").unwrap(),
             Variant {
                 raw: "group-[&:hover]:".into(),
                 kind: VariantKind::Literal(LiteralVariant {
@@ -262,7 +292,7 @@ mod tests {
     fn test_literal_variant_with_arbitrary_and_literal_modifier() {
         // TODO: fix this
         // assert_eq!(
-        //     create_variant("group-[&:hover]/sidebar:"),
+        //     create_variant("group-[&:hover]/sidebar:").unwrap(),
         //     Variant {
         //         raw: "group-[&:hover]/sidebar:".into(),
         //         kind: VariantKind::Literal(LiteralVariant {
@@ -278,7 +308,7 @@ mod tests {
     #[test]
     fn test_literal_variant_with_arbitrary_and_modifier() {
         assert_eq!(
-            create_variant("group-[&:hover]/[sidebar]:"),
+            create_variant("group-[&:hover]/[sidebar]:").unwrap(),
             Variant {
                 raw: "group-[&:hover]/[sidebar]:".into(),
                 kind: VariantKind::Literal(LiteralVariant {
@@ -294,7 +324,7 @@ mod tests {
     #[test]
     fn test_at() {
         assert_eq!(
-            create_variant("@md:"),
+            create_variant("@md:").unwrap(),
             Variant {
                 raw: "@md:".into(),
                 kind: VariantKind::Literal(LiteralVariant {

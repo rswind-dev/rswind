@@ -21,3 +21,28 @@ pub fn extract_variants(value: &str) -> (Vec<String>, String) {
 
     (modifiers, value)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_modifiers() {
+        assert_eq!(
+            extract_variants("md:opacity-50"),
+            (vec!["md".into()], "opacity-50".into())
+        );
+        assert_eq!(
+            extract_variants("opacity-50"),
+            (vec![], "opacity-50".into())
+        );
+        assert_eq!(
+            extract_variants("md:disabled:hover:opacity-50"),
+            (
+                vec!["md".into(), "disabled".into(), "hover".into()],
+                "opacity-50".into()
+            )
+        );
+        assert_eq!(extract_variants(""), (vec![], "".into()));
+    }
+}
