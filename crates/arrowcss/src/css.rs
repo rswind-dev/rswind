@@ -1,7 +1,8 @@
-use std::{fmt::Write, ops::Not};
+use std::{fmt::Write, ops::{Deref}};
 
 use anyhow::{Error, Ok};
 use cssparser::serialize_identifier;
+use smallvec::{smallvec, SmallVec};
 
 use crate::{context::Context, writer::Writer};
 
@@ -131,34 +132,46 @@ impl<A: Into<String>, B: Into<String>> From<(A, B)> for CSSDecl {
     }
 }
 
-// one or multiple CSS
-#[derive(Clone, Debug, PartialEq)]
-pub enum CSSDecls {
-    One(CSSDecl),
-    Multi(Vec<CSSDecl>),
+impl<A: Into<String>, B: Into<String>> FromIterator<(A, B)> for CSSDecls {
+    fn from_iter<T: IntoIterator<Item = (A, B)>>(iter: T) -> Self {
+        Self(iter.into_iter().map(Into::into).collect())
+    }
 }
 
-impl FromIterator<CSSDecl> for CSSDecls {
-    fn from_iter<T: IntoIterator<Item = CSSDecl>>(iter: T) -> Self {
-        Self::Multi(iter.into_iter().collect())
+#[derive(Clone, Debug, PartialEq)]
+pub struct CSSDecls(SmallVec<[CSSDecl; 1]>);
+
+impl Deref for CSSDecls {
+    type Target = [CSSDecl];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<CSSDecl> for CSSDecls {
+    fn from(decl: CSSDecl) -> Self {
+        Self(smallvec![decl])
+    }
+}
+
+impl From<Vec<CSSDecl>> for CSSDecls {
+    fn from(decl: Vec<CSSDecl>) -> Self {
+        Self(decl.into())
     }
 }
 
 impl CSSDecls {
-    pub fn one<S: Into<String>>(name: S, value: S) -> Self {
-        Self::One(CSSDecl {
-            name: name.into(),
-            value: value.into(),
-        })
+    pub fn new(decl: CSSDecl) -> Self {
+        Self(smallvec![decl])
     }
-    pub fn multi<I: IntoIterator<Item = D>, D: Into<CSSDecl>>(decls: I) -> Self {
-        Self::Multi(decls.into_iter().map(|it| it.into()).collect())
+
+    pub fn multi<D: Into<CSSDecl>, I: IntoIterator<Item = D>>(decls: I) -> Self {
+        Self(decls.into_iter().map(Into::into).collect())
     }
-    pub fn to_vec(&self) -> Vec<CSSDecl> {
-        match self {
-            Self::One(decl) => vec![decl.clone()],
-            Self::Multi(decls) => decls.clone(),
-        }
+
+    pub fn from_pair<S: Into<String>>(pair: (S, S)) -> Self {
+        Self::new(pair.into())
     }
 }
 

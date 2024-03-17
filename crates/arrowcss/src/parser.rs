@@ -1,4 +1,3 @@
-use std::rc::Rc;
 
 use crate::{
     context::Context,
@@ -58,7 +57,11 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
                 .rules
                 .borrow()
                 .get(rule.get(..i)?)
-                .and_then(|func| func(rule.get((i + 1)..)?))
+                .and_then(|func_vec| {
+                    func_vec
+                        .iter()
+                        .find_map(|func| func(rule.get((i + 1)..)?))
+                })
             {
                 decls.append(
                     &mut v.to_vec().into_iter().map(CSSRule::Decl).collect(),

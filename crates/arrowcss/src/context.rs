@@ -1,22 +1,19 @@
-use std::{
-    borrow::BorrowMut,
-    cell::RefCell,
-    collections::HashMap,
-    rc::{Rc, Weak},
-};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+// use crate::rule::VariantMatchingFn;
+// use crate::rule::RuleMatchingFn;
 use crate::{
     css::{CSSDecls, CSSRule},
     theme::Theme,
 };
 
-type RuleMatchingFn<'a> = Box<dyn Fn(&str) -> Option<CSSDecls> + 'static>;
+pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
 
-type VariantMatchingFn = dyn Fn(CSSRule) -> Option<CSSRule> + 'static;
+pub trait VariantMatchingFn = Fn(CSSRule) -> Option<CSSRule> + 'static;
 
 pub struct Variant {
     pub needs_nesting: bool,
-    pub handler: Box<VariantMatchingFn>,
+    pub handler: Box<dyn VariantMatchingFn>,
 }
 
 impl Variant {
@@ -41,8 +38,8 @@ impl Variant {
 #[derive(Default, Clone)]
 pub struct Context<'a> {
     pub static_rules: RefCell<HashMap<String, CSSDecls>>,
-    pub rules: RefCell<HashMap<String, Rc<RuleMatchingFn<'a>>>>,
-    pub arbitrary_rules: Rc<HashMap<String, Rc<RuleMatchingFn<'a>>>>,
+    pub rules: RefCell<HashMap<String, Vec<Rc<dyn RuleMatchingFn>>>>,
+    pub arbitrary_rules: Rc<HashMap<String, Rc<dyn RuleMatchingFn>>>,
 
     pub variants: RefCell<HashMap<String, Rc<Variant>>>,
 
@@ -78,13 +75,22 @@ impl Context<'static> {
     pub fn add_rule<F, S>(&mut self, key: S, func: F) -> &mut Self
     where
         F: Fn(&str, &Self) -> Option<CSSDecls> + 'static,
-        S: Into<String>,
+        S: Into<String> + ToString,
     {
         let self_clone = self.clone();
-        self.rules.borrow_mut().insert(
-            key.into(),
-            Rc::new(Box::new(move |input| func(input, &self_clone))),
-        );
+        let key_clone: String = key.to_string();
+        if self.rules.borrow().contains_key(&key_clone) {
+            self.rules
+                .borrow_mut()
+                .get_mut(&key_clone)
+                .unwrap()
+                .push(Rc::new(move |input| func(input, &self_clone)));
+        } else {
+            self.rules.borrow_mut().insert(
+                key_clone,
+                vec![Rc::new(move |input| func(input, &self_clone))],
+            );
+        }
         self
     }
 
@@ -110,14 +116,14 @@ impl Context<'static> {
             let theme_clone = Rc::clone(&self.theme.borrow());
             self.rules.borrow_mut().insert(
                 value.key.into(),
-                Rc::new(Box::new(move |input| {
+                vec![Rc::new(move |input| {
                     theme_clone.spacing.get(input).map(|theme_val| {
                         theme_rule_handler(
                             value.decl_key.clone(),
                             theme_val.into(),
                         )
                     })
-                })),
+                })],
             );
         }
         self
@@ -147,12 +153,10 @@ impl Context<'static> {
 }
 
 fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
-    CSSDecls::multi(
-        decl_keys
-            .into_iter()
-            .map(|decl_key| (decl_key, value.to_owned()))
-            .collect::<Vec<(_, _)>>(),
-    )
+    decl_keys
+        .into_iter()
+        .map(|decl_key| (decl_key, value.to_owned()))
+        .collect::<CSSDecls>()
 }
 
 #[macro_export]

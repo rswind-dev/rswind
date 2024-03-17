@@ -1,5 +1,4 @@
 #![feature(trait_alias)]
-#![feature(fn_traits)]
 
 use std::fs::{self, read_to_string};
 use std::rc::Rc;
@@ -46,7 +45,7 @@ fn main() {
             .borrow()
             .colors
             .get(value)
-            .map(|color| CSSDecls::one("color", color))
+            .map(|color| CSSDecls::from_pair(("color", color)))
     })
     .add_variant("disabled", |a| {
         if let CSSRule::Style(mut it) = a {

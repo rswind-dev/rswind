@@ -1,15 +1,15 @@
 #![feature(trait_alias)]
-#![feature(fn_traits)]
 
 use std::rc::Rc;
 
 use ::config::{Config, File};
 
 use crate::context::ThemeValue;
+use crate::css::CSSDecl;
 use crate::{
     config::ArrowConfig,
     context::Context,
-    css::{CSSDecls, ToCss},
+    css::{ToCss},
     parser::parse,
     rules::statics::STATIC_RULES,
     writer::{Writer, WriterConfig},
@@ -20,7 +20,7 @@ pub mod context;
 pub mod css;
 pub mod macros;
 pub mod parser;
-// pub mod rule;
+pub mod rule;
 pub mod rules;
 pub mod theme;
 pub mod utility;
@@ -46,7 +46,7 @@ pub fn generate(input: String) -> String {
             .borrow()
             .colors
             .get(value)
-            .map(|color| CSSDecls::one("color", color))
+            .map(|color| CSSDecl::new("color", color).into())
     });
 
     STATIC_RULES.iter().for_each(|(key, value)| {

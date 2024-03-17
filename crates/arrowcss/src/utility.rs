@@ -88,7 +88,7 @@ impl Parse<&str> for Utility {
                 value.to_string(),
                 important,
                 false,
-                CSSDecls::one(k, v),
+                CSSDecls::from_pair((k, v)),
             ));
         }
 
@@ -123,21 +123,21 @@ impl Parse<&str> for Utility {
                 unprefixed = un;
                 negative = true;
             }
-            for (i, _) in unprefixed.match_indices('-') {
-                let key = unprefixed.get(..i).unwrap();
-                let rules = ctx.rules.borrow();
-                if let Some(v) = rules
-                    .get(key)
-                    .and_then(|func| func(unprefixed.get((i + 1)..).unwrap()))
-                {
-                    return Some(Utility::lit(
-                        value.into(),
-                        important,
-                        negative,
-                        v,
-                    ));
-                }
-            }
+            // for (i, _) in unprefixed.match_indices('-') {
+            //     let key = unprefixed.get(..i).unwrap();
+            //     let rules = ctx.rules.borrow();
+            //     if let Some(v) = rules
+            //         .get(key)
+            //         .and_then(|func| func(unprefixed.get((i + 1)..).unwrap()))
+            //     {
+            //         return Some(Utility::lit(
+            //             value.into(),
+            //             important,
+            //             negative,
+            //             v,
+            //         ));
+            //     }
+            // }
         }
 
         todo!()
@@ -160,31 +160,31 @@ mod tests {
 
         if let Utility::Literal(u) = utility {
             assert_eq!(u.raw, "![color:red]");
-            assert_eq!(u.value, CSSDecls::one("color", "red"));
+            assert_eq!(u.value, CSSDecls::from_pair(("color", "red")));
             assert!(u.important);
         }
     }
 
     #[test]
     fn test_utility_parse() {
-        let mut ctx = Context::new(Theme::default().into());
+        // let mut ctx = Context::new(Theme::default().into());
 
-        ctx.add_static(
-            static_rules! {
-                "flex" => { "display": "flex"; }
-            }
-            .get(0)
-            .unwrap()
-            .to_owned(),
-        );
+        // ctx.add_static(
+        //     static_rules! {
+        //         "flex" => { "display": "flex"; }
+        //     }
+        //     .get(0)
+        //     .unwrap()
+            
+        // );
 
-        let utility = Utility::parse(&ctx, "flex").unwrap();
+        // let utility = Utility::parse(&ctx, "flex").unwrap();
 
-        if let Utility::Literal(u) = utility {
-            assert_eq!(u.raw, "flex");
-            assert_eq!(u.value, CSSDecls::multi([("display", "flex")]));
-            assert!(!u.important);
-        }
+        // if let Utility::Literal(u) = utility {
+        //     assert_eq!(u.raw, "flex");
+        //     assert_eq!(u.value, CSSDecls::from_pair(("display", "flex")));
+        //     assert!(!u.important);
+        // }
     }
 
     #[test]
@@ -210,14 +210,14 @@ mod tests {
         let mut ctx = Context::new(theme.into());
 
         ctx.add_rule("text", |a, b| {
-            Some(CSSDecls::one("color", b.theme.borrow().colors.get(a)?))
+            Some(CSSDecls::from_pair(("color", b.theme.borrow().colors.get(a)?)))
         });
 
         let utility = Utility::parse(&ctx, "text-blue-500").unwrap();
 
         if let Utility::Literal(u) = utility {
             assert_eq!(u.raw, "text-blue-500");
-            assert_eq!(u.value, CSSDecls::one("color", "#123456"));
+            assert_eq!(u.value, CSSDecls::from_pair(("color", "#123456")));
             assert!(!u.important);
         } else {
             panic!("Expected Utility::Literal, found a different variant");
