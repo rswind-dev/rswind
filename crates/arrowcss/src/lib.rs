@@ -44,8 +44,8 @@ pub fn generate(input: String) -> String {
     ctx.add_rule("text", |value, ctx| {
         ctx.theme
             .borrow()
-            .colors
-            .get(value)
+            .get("colors")
+            .and_then(|colors| colors.get(value))
             .map(|color| CSSDecl::new("color", color).into())
     });
 

@@ -108,21 +108,26 @@ impl Context<'static> {
         values: Vec<ThemeValue<S>>,
     ) -> &Self
     where
-        S: Into<String>,
-        T: Into<String>,
+        S: Into<String> + 'static,
+        T: Into<String> + 'static,
     {
+        let theme_key: String = _theme_key.into();
         for value in values {
             // TODO: use theme_key
+            let theme_key = theme_key.clone();
             let theme_clone = Rc::clone(&self.theme.borrow());
             self.rules.borrow_mut().insert(
                 value.key.into(),
                 vec![Rc::new(move |input| {
-                    theme_clone.spacing.get(input).map(|theme_val| {
-                        theme_rule_handler(
-                            value.decl_key.clone(),
-                            theme_val.into(),
-                        )
-                    })
+                    theme_clone
+                        .get(theme_key.as_str())
+                        .and_then(|theme| theme.get(input))
+                        .map(|theme_val| {
+                            theme_rule_handler(
+                                value.decl_key.clone(),
+                                theme_val.into(),
+                            )
+                        })
                 })],
             );
         }
