@@ -100,7 +100,6 @@ impl<'i> ArbitraryVariant {
                     });
                 }
                 Ok(Token::AtKeyword(at_rule)) => {
-                    println!("at_rule: {at_rule:?}");
                     kind = Some(ArbitraryVariantKind::Nested);
                 }
                 Ok(Token::Delim('&')) => {
@@ -114,25 +113,25 @@ impl<'i> ArbitraryVariant {
     }
 }
 
-fn parse_arbitrary<'i, 'a>(
-    parser: &mut Parser<'i, 'a>,
-) -> Result<String, ParseError<'a, ()>> {
-    let start = parser.state();
-    while let Err(e) = parser.next() {
-        match e.kind {
-            BasicParseErrorKind::EndOfInput => {
-                let value = parser.slice(start.position()..parser.position());
-                println!("{:?}", value);
-                return Ok(value.get(..value.len() - 1).unwrap().into());
-            }
-            _ => {
-                parser.reset(&start);
-                return Err(parser.new_custom_error(()));
-            }
-        }
-    }
-    Err(parser.new_custom_error(()))
-}
+// fn parse_arbitrary<'i, 'a>(
+//     parser: &mut Parser<'i, 'a>,
+// ) -> Result<String, ParseError<'a, ()>> {
+//     let start = parser.state();
+//     while let Err(e) = parser.next() {
+//         match e.kind {
+//             BasicParseErrorKind::EndOfInput => {
+//                 let value = parser.slice(start.position()..parser.position());
+//                 println!("{:?}", value);
+//                 return Ok(value.get(..value.len() - 1).unwrap().into());
+//             }
+//             _ => {
+//                 parser.reset(&start);
+//                 return Err(parser.new_custom_error(()));
+//             }
+//         }
+//     }
+//     Err(parser.new_custom_error(()))
+// }
 
 impl<'i> Variant {
     pub fn parse<'a>(

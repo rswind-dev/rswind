@@ -16,16 +16,16 @@ use crate::writer::{Writer, WriterConfig};
 mod config;
 mod context;
 mod css;
-mod parser;
 mod macros;
-mod rule;
+mod parser;
+// mod rule;
 mod rules;
 mod theme;
-mod writer;
 mod utility;
 mod utils;
-mod variant;
+// mod variant;
 mod variant_parse;
+mod writer;
 
 fn main() {
     let config = Config::builder()
@@ -37,21 +37,24 @@ fn main() {
 
     let theme = Rc::new(config.theme);
 
-    let input: &'static String = Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
-    let mut ctx = Context::new(theme.clone());
+    let input: &'static String =
+        Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
+    let ctx = Box::leak(Box::new(Context::new(theme.clone())));
 
-    ctx.add_rule("text", |value, theme| {
-        theme
+    ctx.add_rule("text", |value, ctx| {
+        ctx.theme
+            .borrow()
             .colors
             .get(value)
             .map(|color| CSSDecls::one("color", color))
     })
-    .add_variant("disabled", |a| match a {
-        CSSRule::Style(mut it) => {
+    .add_variant("disabled", |a| {
+        if let CSSRule::Style(mut it) = a {
             it.selector += ":disabled";
             Some(CSSRule::Style(it))
+        } else {
+            None
         }
-        _ => None,
     })
     .add_at_rule_variant("motion-safe", |a| match a {
         CSSRule::Style(it) => {
@@ -91,6 +94,10 @@ fn main() {
             "left" => ["left"]
 
             "gap" => ["gap"]
+
+            "w" => ["width"]
+            "h" => ["height"]
+            "size" => ["width", "height"]
         }
     });
 
@@ -106,9 +113,9 @@ fn main() {
     );
 
     // open test.html
-    parse(input, &mut ctx);
+    parse(input, ctx);
 
-    ctx.tokens.values().for_each(|it| {
+    ctx.tokens.borrow().values().for_each(|it| {
         if let Some(rule) = it {
             let _ = rule.to_css(&mut writer);
         }

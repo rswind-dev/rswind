@@ -54,13 +54,13 @@ pub trait ToCss {
         W: std::fmt::Write;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CSSStyleRule {
     pub selector: String,
     pub nodes: Vec<CSSRule>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CSSAtRule {
     pub name: String,
     pub params: String,
@@ -90,7 +90,7 @@ impl ToCss for CSSAtRule {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CSSRule {
     Style(CSSStyleRule),
     AtRule(CSSAtRule),

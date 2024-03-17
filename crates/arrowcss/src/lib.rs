@@ -18,16 +18,16 @@ use crate::{
 pub mod config;
 pub mod context;
 pub mod css;
-pub mod parser;
 pub mod macros;
-pub mod rule;
+pub mod parser;
+// pub mod rule;
 pub mod rules;
 pub mod theme;
-pub mod writer;
 pub mod utility;
 pub mod utils;
-pub mod variant;
+// pub mod variant;
 pub mod variant_parse;
+pub mod writer;
 
 pub fn generate(input: String) -> String {
     let config = Config::builder()
@@ -41,8 +41,9 @@ pub fn generate(input: String) -> String {
 
     let mut ctx = Context::new(theme.clone());
 
-    ctx.add_rule("text", |value, theme| {
-        theme
+    ctx.add_rule("text", |value, ctx| {
+        ctx.theme
+            .borrow()
             .colors
             .get(value)
             .map(|color| CSSDecls::one("color", color))
@@ -89,9 +90,9 @@ pub fn generate(input: String) -> String {
     );
 
     // open test.html
-    parse(&input, &mut ctx);
+    parse("", &mut ctx);
 
-    ctx.tokens.values().for_each(|it| {
+    ctx.tokens.borrow().values().for_each(|it| {
         if let Some(rule) = it {
             let _ = rule.to_css(&mut writer);
         }

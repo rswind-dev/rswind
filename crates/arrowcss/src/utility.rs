@@ -20,7 +20,7 @@ pub enum Utility {
 // static rule / arbitrary declaration
 // E.g. `[text:red]` or `flex`(defined in config.theme)
 #[derive(Debug, PartialEq)]
-struct LiteralUtility {
+pub struct LiteralUtility {
     pub raw: String,
     pub important: bool,
     pub negative: bool,
@@ -30,7 +30,7 @@ struct LiteralUtility {
 // dynamic rule
 // E.g. `text-[#123]` or `!-text-[12px]`
 #[derive(Debug, PartialEq)]
-struct ArbitraryUtility {
+pub struct ArbitraryUtility {
     pub raw: String,
     pub value: String,
     pub important: bool,
@@ -39,7 +39,12 @@ struct ArbitraryUtility {
 }
 
 impl Utility {
-    pub fn lit(raw: String, important: bool, negative: bool, value: CSSDecls) -> Self {
+    pub fn lit(
+        raw: String,
+        important: bool,
+        negative: bool,
+        value: CSSDecls,
+    ) -> Self {
         Self::Literal(LiteralUtility {
             raw,
             important,
@@ -88,7 +93,7 @@ impl Parse<&str> for Utility {
         }
 
         // Step 3: try static match (e.g. `flex`)
-        if let Some(decl) = ctx.static_rules.get(unprefixed) {
+        if let Some(decl) = ctx.static_rules.borrow().get(unprefixed) {
             return Some(Utility::lit(
                 value.to_string(),
                 important,
@@ -120,9 +125,18 @@ impl Parse<&str> for Utility {
             }
             for (i, _) in unprefixed.match_indices('-') {
                 let key = unprefixed.get(..i).unwrap();
-                let func = ctx.rules.get(key)?;
-                let v = func(unprefixed.get((i + 1)..)?)?;
-                return Some(Utility::lit(value.into(), important, negative, v));
+                let rules = ctx.rules.borrow();
+                if let Some(v) = rules
+                    .get(key)
+                    .and_then(|func| func(unprefixed.get((i + 1)..).unwrap()))
+                {
+                    return Some(Utility::lit(
+                        value.into(),
+                        important,
+                        negative,
+                        v,
+                    ));
+                }
             }
         }
 
@@ -196,7 +210,7 @@ mod tests {
         let mut ctx = Context::new(theme.into());
 
         ctx.add_rule("text", |a, b| {
-            Some(CSSDecls::one("color", b.colors.get(a)?))
+            Some(CSSDecls::one("color", b.theme.borrow().colors.get(a)?))
         });
 
         let utility = Utility::parse(&ctx, "text-blue-500").unwrap();

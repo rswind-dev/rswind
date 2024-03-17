@@ -1,7 +1,8 @@
+use std::rc::Rc;
+
 use crate::{
     context::Context,
     css::{CSSRule, CSSStyleRule},
-    utils::extract_variants,
     variant_parse::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
@@ -12,7 +13,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 pub trait Parse<T> {
-    fn parse<'a>(ctx: &'a Context, input: T) -> Option<Self>
+    fn parse(ctx: &Context, input: T) -> Option<Self>
     where
         Self: Sized;
 }
@@ -33,21 +34,18 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     let start = parser.position();
     let rule;
     loop {
-        match parser.next() {
-            Err(BasicParseError {
-                kind: BasicParseErrorKind::EndOfInput,
-                ..
-            }) => {
-                rule = parser.slice(start..parser.position()).to_owned();
-                break;
-            }
-            _ => {}
+        if let Err(BasicParseError {
+            kind: BasicParseErrorKind::EndOfInput,
+            ..
+        }) = parser.next() {
+            rule = parser.slice(start..parser.position()).to_owned();
+            break;
         }
     }
 
     // Step 2: try static match
     let mut decls: Vec<CSSRule> = vec![];
-    if let Some(static_rule) = ctx.static_rules.get(&rule) {
+    if let Some(static_rule) = ctx.static_rules.borrow().get(&rule) {
         decls = static_rule
             .to_vec()
             .into_iter()
@@ -56,21 +54,15 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     } else {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
-            let key = rule.get(..i).unwrap();
             if let Some(v) = ctx
                 .rules
-                .get(key)
+                .borrow()
+                .get(rule.get(..i)?)
                 .and_then(|func| func(rule.get((i + 1)..)?))
             {
-                {
-                    decls.append(
-                        &mut v
-                            .to_vec()
-                            .into_iter()
-                            .map(CSSRule::Decl)
-                            .collect(),
-                    );
-                }
+                decls.append(
+                    &mut v.to_vec().into_iter().map(CSSRule::Decl).collect(),
+                );
                 break;
             }
         }
@@ -91,7 +83,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
         .filter_map(|variant| match &variant.kind {
             VariantKind::Arbitrary(_) => Some(variant),
             VariantKind::Literal(v) => {
-                ctx.variants.contains_key(&v.value).then_some(variant)
+                ctx.variants.borrow().contains_key(&v.value).then_some(variant)
             }
         })
         .partition(|variant| match &variant.kind {
@@ -100,7 +92,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
                 ..
             }) => true,
             VariantKind::Literal(v) => {
-                ctx.variants.get(&v.value).is_some_and(|v| v.needs_nesting)
+                ctx.variants.borrow().get(&v.value).is_some_and(|v| v.needs_nesting)
             }
             _ => false,
         });
@@ -112,7 +104,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
                 rule = new_rule;
             }
             VariantKind::Literal(v) => {
-                let new_rule = (ctx.variants[&v.value].handler)(rule)?;
+                let new_rule = (ctx.variants.borrow()[&v.value].handler)(rule)?;
                 rule = new_rule;
             }
         }
@@ -121,15 +113,18 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     Some(rule)
 }
 
-pub fn parse<'b>(input: &'b str, ctx: &mut Context<'b>) {
+pub fn parse<'b>(input: &'b str, ctx: &Context<'b>) {
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {
             continue;
         }
-        if ctx.tokens.contains_key(token) {
+        if ctx.tokens.borrow().contains_key(token) {
             continue;
         }
-        ctx.tokens.insert(token, to_css_rule(token, ctx));
+        let ctx_clone = ctx.clone();
+        ctx.tokens
+            .borrow_mut()
+            .insert(token, to_css_rule(token, &ctx_clone));
     }
 }
