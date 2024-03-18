@@ -37,7 +37,7 @@ fn create_replacement_variant_fn(matcher: String) -> impl VariantMatchingFn {
     }
 }
 
-fn add_variant(key: &str, matcher: &str) -> Option<Box<dyn VariantMatchingFn>> {
+pub fn create_variant_fn(key: &str, matcher: &str) -> Option<Box<dyn VariantMatchingFn>> {
     // match first char of matcher.
     match matcher.chars().next()? {
         '@' => Some(Box::new(create_nested_variant_fn(
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_add_variant() {
-        let variant: Box<dyn VariantMatchingFn> = add_variant("disabled", "&:disabled").unwrap();
+        let variant: Box<dyn VariantMatchingFn> = create_variant_fn("disabled", "&:disabled").unwrap();
         let rule = CSSRule::Style(CSSStyleRule {
             selector: "flex".into(),
             nodes: vec![

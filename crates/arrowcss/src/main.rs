@@ -47,7 +47,7 @@ fn main() {
             .and_then(|colors| colors.get(value))
             .map(|color| CSSDecls::from_pair(("color", color)))
     })
-    .add_variant("disabled", |a| {
+    .add_variant_fn("disabled", |a| {
         if let CSSRule::Style(mut it) = a {
             it.selector += ":disabled";
             Some(CSSRule::Style(it))
@@ -55,17 +55,9 @@ fn main() {
             None
         }
     })
-    .add_at_rule_variant("motion-safe", |a| match a {
-        CSSRule::Style(it) => {
-            let rule = CSSAtRule {
-                name: "media".into(),
-                params: "(prefers-reduced-motion: no-preference)".into(),
-                nodes: vec![CSSRule::Style(it)],
-            };
-            Some(CSSRule::AtRule(rule))
-        }
-        _ => None,
-    });
+    .add_variant("first", "&:first-child")
+    .add_variant("last", "&:last-child")
+    .add_variant("motion-safe", "@media(prefers-reduced-motion: no-preference)");
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));

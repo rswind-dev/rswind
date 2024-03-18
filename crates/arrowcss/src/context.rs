@@ -4,7 +4,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 // use crate::rule::RuleMatchingFn;
 use crate::{
     css::{CSSDecls, CSSRule},
-    theme::Theme,
+    theme::Theme, utils::create_variant_fn,
 };
 
 pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
@@ -134,7 +134,7 @@ impl<'a> Context {
         self
     }
 
-    pub fn add_variant<S, F>(&mut self, key: S, func: F) -> &Self
+    pub fn add_variant_fn<S, F>(&mut self, key: S, func: F) -> &Self
     where
         S: Into<String>,
         F: Fn(CSSRule) -> Option<CSSRule> + 'static,
@@ -142,6 +142,25 @@ impl<'a> Context {
         self.variants
             .borrow_mut()
             .insert(key.into(), Variant::plain(func).into());
+        self
+    }
+
+    pub fn add_variant<S>(&self, key: S, matcher: S) -> &Self
+    where
+        S: Into<String>,
+    {
+        let key_clone: String = key.into();
+        let matcher_clone: String = matcher.into();
+        create_variant_fn(&key_clone, &matcher_clone)
+            .map(|func| {
+                self.variants
+                    .borrow_mut()
+                    .insert(key_clone.clone(), if matcher_clone.starts_with('@') {
+                        Variant::at_rule(func).into()
+                    } else {
+                        Variant::plain(func).into()
+                    })
+            });
         self
     }
 
