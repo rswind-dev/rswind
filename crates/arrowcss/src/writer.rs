@@ -61,6 +61,7 @@ where
             return Ok(());
         }
         self.write_char(' ')?;
+        self.col += 1;
 
         Ok(())
     }
@@ -71,9 +72,8 @@ where
         }
 
         self.write_char('\n')?;
-        if self.indent_level > 0 {
-            self.write_str(self.indent.repeat(self.indent_level).as_str())?;
-        }
+        self.line += 1;
+        self.col = 0;
 
         Ok(())
     }
@@ -89,14 +89,18 @@ where
 
 impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
     fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        if self.col == 0 && self.indent_level > 0 {
+            self.dest.write_str(self.indent.repeat(self.indent_level).as_str())?;
+        }
+        self.col += s.len();
         self.dest.write_str(s)
     }
 
     fn write_char(&mut self, c: char) -> std::fmt::Result {
+        if self.col == 0 && self.indent_level > 0 {
+            self.dest.write_str(self.indent.repeat(self.indent_level).as_str())?;
+        }
+        self.col += 1;
         self.dest.write_char(c)
-    }
-
-    fn write_fmt(&mut self, args: std::fmt::Arguments<'_>) -> std::fmt::Result {
-        self.dest.write_fmt(args)
     }
 }

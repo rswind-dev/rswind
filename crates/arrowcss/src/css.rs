@@ -1,14 +1,10 @@
-use std::{fmt::Write, ops::{Deref}};
+use std::{fmt::Write, ops::Deref};
 
 use anyhow::{Error, Ok};
 use cssparser::serialize_identifier;
 use smallvec::{smallvec, SmallVec};
 
-use crate::{context::Context, writer::Writer};
-
-pub trait ToCssRule<'a> {
-    fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule>;
-}
+use crate::writer::Writer;
 
 // dark:text-red -> modifier=[dark],
 #[derive(Default)]
@@ -18,36 +14,6 @@ pub struct Rule<'a> {
     pub modifier: Vec<&'a str>,
     pub css_cache: Option<String>,
 }
-
-// impl<'a> ToCssRule<'a> for Rule<'a> {
-//     fn to_css_rule(&self, ctx: &Context<'a>) -> Option<CSSStyleRule> {
-//         // Step 1(todo): split the rules by `:`, get [...modifier, rule]
-//         // Step 2: try static match
-//         let mut decls: Vec<CSSRule> = vec![];
-//         if let Some(static_rule) = ctx.static_rules.get(self.rule) {
-//             decls = static_rule
-//                 .to_vec()
-//                 .into_iter()
-//                 .map(CSSRule::Decl)
-//                 .collect();
-//         } else {
-//             // Step 3: get all index of `-`
-//             for (i, _) in self.rule.match_indices('-') {
-//                 let key = self.rule.get(..i).unwrap();
-//                 if let Some(func) = ctx.rules.get(key) {
-//                     if let Some(v) = func(self.rule.get((i + 1)..).unwrap().to_string()) {
-//                         decls.append(&mut v.to_vec().into_iter().map(CSSRule::Decl).collect());
-//                     }
-//                     break;
-//                 }
-//             }
-//         }
-//         decls.is_empty().not().then(|| CSSStyleRule {
-//             selector: self.raw.to_string(),
-//             nodes: decls,
-//         })
-//     }
-// }
 
 pub trait ToCss {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
@@ -75,7 +41,6 @@ impl ToCss for CSSAtRule {
     {
         writer.write_str("@")?;
         writer.write_str(&self.name)?;
-        writer.write_str(" ")?;
         writer.write_str(&self.params)?;
         writer.write_str(" {")?;
         writer.indent();
@@ -84,7 +49,7 @@ impl ToCss for CSSAtRule {
             node.to_css(writer)?;
         }
         writer.dedent();
-        writer.newline()?;
+        // writer.newline()?;
         writer.write_str("}")?;
         writer.newline()?;
         Ok(())
@@ -166,7 +131,9 @@ impl CSSDecls {
         Self(smallvec![decl])
     }
 
-    pub fn multi<D: Into<CSSDecl>, I: IntoIterator<Item = D>>(decls: I) -> Self {
+    pub fn multi<D: Into<CSSDecl>, I: IntoIterator<Item = D>>(
+        decls: I,
+    ) -> Self {
         Self(decls.into_iter().map(Into::into).collect())
     }
 
@@ -191,7 +158,10 @@ impl ToCss for CSSDecl {
 }
 
 impl ToCss for CSSStyleRule {
-    fn to_css<W: std::fmt::Write>(&self, writer: &mut Writer<W>) -> Result<(), Error> {
+    fn to_css<W: std::fmt::Write>(
+        &self,
+        writer: &mut Writer<W>,
+    ) -> Result<(), Error> {
         writer.write_char('.')?;
         serialize_identifier(&self.selector, writer)?;
         writer.whitespace()?;
