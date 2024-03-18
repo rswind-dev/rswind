@@ -1,3 +1,8 @@
+use crate::{
+    context::VariantMatchingFn,
+    css::{CSSAtRule, CSSRule},
+};
+
 pub fn strip_arbitrary(value: &str) -> Option<&str> {
     value.strip_prefix('[').and_then(|r| r.strip_suffix(']'))
 }
@@ -12,37 +17,56 @@ impl StripArbitrary for str {
     }
 }
 
-pub fn extract_variants(value: &str) -> (Vec<String>, String) {
-    // Step 1(todo): split the rules by `:`, get [...modifier, rule]
-    let mut modifiers =
-        value.split(':').map(String::from).collect::<Vec<String>>();
+fn create_nested_variant_fn(matcher: String) -> impl VariantMatchingFn {
+    move |rule| {
+        Some(CSSRule::AtRule(CSSAtRule {
+            name: matcher.to_owned(),
+            params: "".into(),
+            nodes: vec![rule],
+        }))
+    }
+}
+// 11520 * 1.25 * 1.15
+fn create_replacement_variant_fn(matcher: String) -> impl VariantMatchingFn {
+    move |rule| match rule {
+        CSSRule::Style(mut it) => {
+            it.selector += matcher.as_str();
+            Some(CSSRule::Style(it))
+        }
+        _ => None,
+    }
+}
 
-    let value = modifiers.pop().unwrap();
-
-    (modifiers, value)
+fn add_variant(key: &str, matcher: &str) -> Option<Box<dyn VariantMatchingFn>> {
+    // match first char of matcher.
+    match matcher.chars().next()? {
+        '@' => Some(Box::new(create_nested_variant_fn(
+            matcher.get(1..)?.to_string(),
+        ))),
+        '&' => Some(Box::new(create_replacement_variant_fn(
+            matcher.get(1..)?.to_string(),
+        ))),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::css::CSSStyleRule;
+
     use super::*;
 
     #[test]
-    fn test_extract_modifiers() {
-        assert_eq!(
-            extract_variants("md:opacity-50"),
-            (vec!["md".into()], "opacity-50".into())
-        );
-        assert_eq!(
-            extract_variants("opacity-50"),
-            (vec![], "opacity-50".into())
-        );
-        assert_eq!(
-            extract_variants("md:disabled:hover:opacity-50"),
-            (
-                vec!["md".into(), "disabled".into(), "hover".into()],
-                "opacity-50".into()
-            )
-        );
-        assert_eq!(extract_variants(""), (vec![], "".into()));
+    fn test_add_variant() {
+        let variant: Box<dyn VariantMatchingFn> = add_variant("disabled", "&:disabled").unwrap();
+        let rule = CSSRule::Style(CSSStyleRule {
+            selector: "flex".into(),
+            nodes: vec![
+                CSSRule::Decl(("display", "flex").into()),
+            ],
+        });
+        let new_rule = variant(rule).unwrap();
+
+        println!("{:?}", new_rule);
     }
 }
