@@ -21,7 +21,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
+fn to_css_rule(value: &str, ctx: &Context) -> Option<CSSRule> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -116,7 +116,7 @@ fn to_css_rule<'a>(value: &'a str, ctx: &Context<'a>) -> Option<CSSRule> {
     Some(rule)
 }
 
-pub fn parse<'b>(input: &'b str, ctx: &Context<'b>) {
+pub fn parse(input: &str, ctx: &Context) {
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {
@@ -128,6 +128,6 @@ pub fn parse<'b>(input: &'b str, ctx: &Context<'b>) {
         let ctx_clone = ctx.clone();
         ctx.tokens
             .borrow_mut()
-            .insert(token, to_css_rule(token, &ctx_clone));
+            .insert(token.to_string(), to_css_rule(token, &ctx_clone));
     }
 }

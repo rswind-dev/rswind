@@ -36,7 +36,7 @@ impl Variant {
 }
 
 #[derive(Default, Clone)]
-pub struct Context<'a> {
+pub struct Context {
     pub static_rules: RefCell<HashMap<String, CSSDecls>>,
     pub rules: RefCell<HashMap<String, Vec<Rc<dyn RuleMatchingFn>>>>,
     pub arbitrary_rules: Rc<HashMap<String, Rc<dyn RuleMatchingFn>>>,
@@ -45,7 +45,7 @@ pub struct Context<'a> {
 
     pub theme: RefCell<Rc<Theme>>,
     pub config: String,
-    pub tokens: RefCell<HashMap<&'a str, Option<CSSRule>>>,
+    pub tokens: RefCell<HashMap<String, Option<CSSRule>>>,
 }
 
 pub struct ThemeValue<S: Into<String>> {
@@ -59,7 +59,7 @@ impl<S: Into<String>> ThemeValue<S> {
     }
 }
 
-impl Context<'static> {
+impl<'a> Context {
     pub fn new(theme: Rc<Theme>) -> Self {
         Self {
             tokens: HashMap::new().into(),
@@ -108,8 +108,8 @@ impl Context<'static> {
         values: Vec<ThemeValue<S>>,
     ) -> &Self
     where
-        S: Into<String> + 'static,
-        T: Into<String> + 'static,
+        S: Into<String> + 'a,
+        T: Into<String> + 'a,
     {
         let theme_key: String = _theme_key.into();
         for value in values {
