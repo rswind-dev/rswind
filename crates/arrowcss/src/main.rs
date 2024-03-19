@@ -1,4 +1,6 @@
 #![feature(trait_alias)]
+#![feature(control_flow_enum)]
+#![feature(auto_traits)]
 
 use std::fs::{self, read_to_string};
 use std::rc::Rc;
@@ -57,7 +59,8 @@ fn main() {
     })
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")
-    .add_variant("motion-safe", "@media(prefers-reduced-motion: no-preference)");
+    .add_variant("motion-safe", "@media(prefers-reduced-motion: no-preference)")
+    .add_variant("hover", "@media (hover: hover) and (pointer: fine) | &:hover");
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));
