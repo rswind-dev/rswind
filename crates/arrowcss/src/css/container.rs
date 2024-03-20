@@ -4,9 +4,9 @@ use anyhow::Error;
 use smallvec::smallvec;
 use smallvec::SmallVec;
 
+use crate::css::rule::CSSRule;
 use crate::writer::Writer;
 
-use super::CSSRule;
 use super::ToCss;
 
 #[derive(Debug, Clone)]
