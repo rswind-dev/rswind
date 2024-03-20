@@ -1,10 +1,8 @@
-use std::{iter, ops::ControlFlow, rc::Rc, usize};
-
-use smallvec::SmallVec;
+use std::{iter, ops::ControlFlow, rc::Rc};
 
 use crate::{
     context::VariantMatchingFn,
-    css::{CSSAtRule, CSSRule, Container},
+    css::{container::Container, CSSAtRule, CSSRule},
 };
 
 pub fn strip_arbitrary(value: &str) -> Option<&str> {
@@ -63,9 +61,7 @@ fn create_nested_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
     })
 }
 
-fn create_replacement_variant_fn(
-    matcher: String,
-) -> Rc<dyn VariantMatchingFn> {
+fn create_replacement_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
     Rc::new(move |mut container: Container| {
         for rule in container.nodes.iter_mut() {
             match rule {
@@ -117,7 +113,8 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
         })
         .collect::<Vec<_>>();
     Some(Rc::new(move |mut container: Container| {
-        container = fns.clone()
+        container = fns
+            .clone()
             .into_iter()
             .filter_map(|f| (f.unwrap())(container.clone()))
             .collect::<Container>();

@@ -1,7 +1,7 @@
 
 use crate::{
     context::Context,
-    css::{CSSRule, CSSStyleRule, Container},
+    css::{container::Container, CSSRule, CSSStyleRule},
     variant_parse::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,

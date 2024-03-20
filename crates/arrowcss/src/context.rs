@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 // use crate::rule::VariantMatchingFn;
 // use crate::rule::RuleMatchingFn;
 use crate::{
-    css::{CSSDecls, CSSRule, Container},
+    css::{container::Container, CSSDecls},
     theme::Theme,
     utils::{create_variant_fn, Matcher},
 };
@@ -155,15 +155,18 @@ impl<'a> Context {
                     // if matcher.starts_with('@') {
                     //     Variant::at_rule(func).into()
                     // } else {
-                        Variant::plain(func).into()
-                    // },
+                    Variant::plain(func).into(), // },
                 )
             },
         );
         self
     }
 
-    pub fn get_theme_value<'b>(&'a self, key: &'b str, value: &'b str) -> Option<String> {
+    pub fn get_theme_value<'b>(
+        &'a self,
+        key: &'b str,
+        value: &'b str,
+    ) -> Option<String> {
         self.theme
             .borrow()
             .get(key)

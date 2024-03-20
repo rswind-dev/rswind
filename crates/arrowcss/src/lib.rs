@@ -1,4 +1,6 @@
 #![feature(trait_alias)]
+#![feature(control_flow_enum)]
+#![feature(auto_traits)]
 
 use std::rc::Rc;
 
