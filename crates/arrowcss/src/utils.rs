@@ -2,7 +2,7 @@ use std::{iter, ops::ControlFlow, rc::Rc};
 
 use crate::{
     context::VariantMatchingFn,
-    css::{container::Container, CSSAtRule, CSSRule},
+    css::{Container, CSSAtRule, CSSRule},
 };
 
 pub fn strip_arbitrary(value: &str) -> Option<&str> {

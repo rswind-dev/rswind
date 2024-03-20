@@ -3,7 +3,7 @@ use cssparser::{
     Token,
 };
 
-use crate::css::{container::Container, CSSAtRule, CSSRule};
+use crate::css::{Container, CSSAtRule, CSSRule};
 
 #[derive(Debug, PartialEq)]
 pub struct Variant {

@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 // use crate::rule::VariantMatchingFn;
 // use crate::rule::RuleMatchingFn;
 use crate::{
-    css::{container::Container, CSSDecls},
+    css::{Container, CSSDecls},
     theme::Theme,
     utils::{create_variant_fn, Matcher},
 };
