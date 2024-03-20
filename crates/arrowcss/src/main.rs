@@ -6,6 +6,7 @@ use std::fs::{self, read_to_string};
 use std::rc::Rc;
 
 use ::config::{Config, File};
+use cssparser::color::parse_hash_color;
 
 use crate::config::ArrowConfig;
 use crate::context::{Context, ThemeValue};
@@ -43,24 +44,35 @@ fn main() {
     let ctx = Box::leak(Box::new(Context::new(theme.clone())));
 
     ctx.add_rule("text", |value, ctx| {
-        ctx.theme
-            .borrow()
-            .get("colors")
-            .and_then(|colors| colors.get(value))
-            .map(|color| CSSDecls::from_pair(("color", color)))
+        // --tw-text-opacity: 1;
+        // color: rgb(239 68 68 / var(--tw-text-opacity))
+        ctx.get_theme_value("colors", value)
+            .map(|color| {
+                color.strip_prefix("#").and_then(|color| {
+                    let (r, g, b, _) = parse_hash_color(color.as_bytes()).ok()?;
+                    Some(CSSDecls::from_pair((
+                        "color",
+                        &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b),
+                    )))
+                })
+            })
+            .flatten()
     })
-    .add_variant_fn("disabled", |a| {
-        if let CSSRule::Style(mut it) = a {
-            it.selector += ":disabled";
-            Some(CSSRule::Style(it))
-        } else {
-            None
-        }
+    .add_rule("text", |value, ctx| {
+        ctx.get_theme_value("spacing", value)
+            .map(|spacing| CSSDecls::from_pair(("font-size", &spacing)))
     })
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")
-    .add_variant("motion-safe", "@media(prefers-reduced-motion: no-preference)")
-    .add_variant("hover", "@media (hover: hover) and (pointer: fine) | &:hover");
+    .add_variant(
+        "motion-safe",
+        "@media(prefers-reduced-motion: no-preference)",
+    )
+    .add_variant(
+        "hover",
+        "@media (hover: hover) and (pointer: fine) | &:hover",
+    )
+    .add_variant("marker", vec!["& *::marker", "&::marker"]);
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));

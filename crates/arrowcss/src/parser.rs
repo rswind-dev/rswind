@@ -1,7 +1,7 @@
 
 use crate::{
     context::Context,
-    css::{CSSRule, CSSStyleRule},
+    css::{CSSRule, CSSStyleRule, Container},
     variant_parse::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
@@ -21,7 +21,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule(value: &str, ctx: &Context) -> Option<CSSRule> {
+fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -75,14 +75,14 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<CSSRule> {
         return None;
     }
 
-    let mut rule = CSSRule::Style(CSSStyleRule {
+    let mut rule: Container = CSSRule::Style(CSSStyleRule {
         selector: rule.to_string(),
         nodes: decls,
-    });
+    }).into();
 
     // Step 4: apply variants
     let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = variants
-        .iter()
+        .into_iter()
         .filter_map(|variant| match &variant.kind {
             VariantKind::Arbitrary(_) => Some(variant),
             VariantKind::Literal(v) => {
@@ -100,8 +100,8 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<CSSRule> {
             _ => false,
         });
 
-    for variant in plain_variants.iter().chain(at_rules_variants.iter()) {
-        match &variant.kind {
+    for variant in plain_variants.into_iter().chain(at_rules_variants.into_iter()) {
+        match variant.kind {
             VariantKind::Arbitrary(arbitrary_variant) => {
                 let new_rule = arbitrary_variant.match_variant(rule)?;
                 rule = new_rule;
