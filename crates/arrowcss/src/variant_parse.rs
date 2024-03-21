@@ -3,7 +3,7 @@ use cssparser::{
     Token,
 };
 
-use crate::css::{Container, CSSAtRule, CSSRule};
+use crate::css::{CSSAtRule, CSSRule, Container};
 
 #[derive(Debug, PartialEq)]
 pub struct Variant {
@@ -47,7 +47,7 @@ impl MatchVariant for ArbitraryVariant {
                         CSSRule::Style(ref mut it) => {
                             it.selector = self.value.replace('&', &it.selector);
                         }
-                        _ => {},
+                        _ => {}
                     }
                 }
                 Some(container)

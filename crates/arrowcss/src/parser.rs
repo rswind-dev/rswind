@@ -1,11 +1,7 @@
-
 use crate::{
-    context::Context,
-    css::{Container, CSSRule, CSSStyleRule},
-    variant_parse::{
-        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
-        VariantKind,
-    },
+    context::Context, css::{CSSRule, CSSStyleRule, Container}, utils::VariantHandler, variant_parse::{
+        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant, VariantKind
+    }
 };
 use cssparser::{BasicParseError, BasicParseErrorKind, Parser, ParserInput};
 use lazy_static::lazy_static;
@@ -36,7 +32,8 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
         if let Err(BasicParseError {
             kind: BasicParseErrorKind::EndOfInput,
             ..
-        }) = parser.next() {
+        }) = parser.next()
+        {
             rule = parser.slice(start..parser.position()).to_owned();
             break;
         }
@@ -53,14 +50,9 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
     } else {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
-            if let Some(v) = ctx
-                .rules
-                .borrow()
-                .get(rule.get(..i)?)
-                .and_then(|func_vec| {
-                    func_vec
-                        .iter()
-                        .find_map(|func| func(rule.get((i + 1)..)?))
+            if let Some(v) =
+                ctx.rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
+                    func_vec.iter().find_map(|func| func(rule.get((i + 1)..)?))
                 })
             {
                 decls.append(
@@ -78,36 +70,44 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
     let mut rule: Container = CSSRule::Style(CSSStyleRule {
         selector: rule.to_string(),
         nodes: decls,
-    }).into();
+    })
+    .into();
 
     // Step 4: apply variants
     let (at_rules_variants, plain_variants): (Vec<_>, Vec<_>) = variants
         .into_iter()
         .filter_map(|variant| match &variant.kind {
             VariantKind::Arbitrary(_) => Some(variant),
-            VariantKind::Literal(v) => {
-                ctx.variants.borrow().contains_key(&v.value).then_some(variant)
-            }
+            VariantKind::Literal(v) => ctx
+                .variants
+                .borrow()
+                .contains_key(&v.value)
+                .then_some(variant),
         })
         .partition(|variant| match &variant.kind {
             VariantKind::Arbitrary(ArbitraryVariant {
                 kind: ArbitraryVariantKind::Nested,
                 ..
             }) => true,
-            VariantKind::Literal(v) => {
-                ctx.variants.borrow().get(&v.value).is_some_and(|v| v.needs_nesting)
-            }
+            VariantKind::Literal(v) => ctx
+                .variants
+                .borrow()
+                .get(&v.value)
+                .is_some_and(|v| matches!(v.as_ref(), VariantHandler::Nested(_))),
             _ => false,
         });
 
-    for variant in plain_variants.into_iter().chain(at_rules_variants.into_iter()) {
+    for variant in plain_variants
+        .into_iter()
+        .chain(at_rules_variants.into_iter())
+    {
         match variant.kind {
             VariantKind::Arbitrary(arbitrary_variant) => {
                 let new_rule = arbitrary_variant.match_variant(rule)?;
                 rule = new_rule;
             }
             VariantKind::Literal(v) => {
-                let new_rule = (ctx.variants.borrow()[&v.value].handler)(rule)?;
+                let new_rule = (ctx.variants.borrow()[&v.value])(rule)?;
                 rule = new_rule;
             }
         }
