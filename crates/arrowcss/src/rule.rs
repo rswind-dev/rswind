@@ -1,9 +1,6 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
-use crate::{
-    context::RuleMatchingFn,
-    css::{CSSDecls},
-};
+use crate::{context::RuleMatchingFn, css::CSSDecls};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum DataType {
@@ -18,6 +15,8 @@ pub struct Rule {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
     pub allowed_types: HashSet<DataType>,
+    pub values: Option<HashMap<String, String>>,
+    pub modifiers: Option<HashMap<String, String>>,
 }
 
 impl Rule {
@@ -26,6 +25,8 @@ impl Rule {
             handler: Box::new(handler),
             supports_negative: false,
             allowed_types: HashSet::new(),
+            values: None,
+            modifiers: None,
         }
     }
 
