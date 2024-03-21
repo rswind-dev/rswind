@@ -3,14 +3,13 @@
 #![feature(auto_traits)]
 
 use std::fs::{self, read_to_string};
-use std::rc::Rc;
 
 use ::config::{Config, File};
 use cssparser::color::parse_hash_color;
 
 use crate::config::ArrowConfig;
 use crate::context::{Context, ThemeValue};
-use crate::css::{CSSAtRule, CSSDecls, CSSRule, ToCss};
+use crate::css::ToCss;
 use crate::parser::parse;
 use crate::rules::statics::STATIC_RULES;
 use crate::writer::{Writer, WriterConfig};
@@ -49,7 +48,7 @@ fn main() {
                     "color" => &color
                 });
             }
-            let color = color.strip_prefix("#")?;
+            let color = color.strip_prefix('#')?;
             let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
             Some(decls! {
                 "--tw-text-opacity" => &a.to_string(),
@@ -58,12 +57,9 @@ fn main() {
         })
     })
     .add_rule("text", |value, ctx| {
-        ctx.get_theme_value("spacing", value)
-        .and_then(|spacing| {
-            Some(decls! {
+        ctx.get_theme_value("spacing", value).map(|spacing| decls! {
                 "font-size" => &spacing
             })
-        })
     })
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")

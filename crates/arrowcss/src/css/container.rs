@@ -50,6 +50,12 @@ impl ToCss for Container {
     }
 }
 
+impl Default for Container {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Container {
     pub fn new() -> Self {
         Self { nodes: smallvec![] }
