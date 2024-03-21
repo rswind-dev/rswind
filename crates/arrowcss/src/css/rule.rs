@@ -29,7 +29,7 @@ pub enum CSSRule {
 
 #[macro_export]
 macro_rules! css {
-    ($($selector:expr => { $($name:expr => $value:expr),* $(,)? })* $(,)?) => {
+    ($($selector:expr => { $($name:expr => $value:expr),* })* ) => {
         {
             let mut container = super::Container::new();
             $(
@@ -111,7 +111,8 @@ mod tests {
     fn test_css_macro() {
         let container = css! {
             ".class" => {
-                 "color" => "red"
+                 "color" => "red",
+                 "font-size" => "1rem"
             }
             ".class2" => {
                 "color" => "blue"
