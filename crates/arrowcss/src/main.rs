@@ -37,30 +37,33 @@ fn main() {
         .try_deserialize::<ArrowConfig>()
         .unwrap();
 
-    let theme = Rc::new(config.theme);
-
     let input: &'static String =
         Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
-    let ctx = Box::leak(Box::new(Context::new(theme.clone())));
+    let ctx = Box::leak(Box::new(Context::new(config)));
 
     ctx.add_rule("text", |value, ctx| {
-        // --tw-text-opacity: 1;
-        // color: rgb(239 68 68 / var(--tw-text-opacity))
         ctx.get_theme_value("colors", value)
-            .map(|color| {
-                color.strip_prefix("#").and_then(|color| {
-                    let (r, g, b, _) = parse_hash_color(color.as_bytes()).ok()?;
-                    Some(CSSDecls::from_pair((
-                        "color",
-                        &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b),
-                    )))
-                })
+        .and_then(|color| {
+            if !ctx.config.core_plugins.text_opacity {
+                return Some(decls! {
+                    "color" => &color
+                });
+            }
+            let color = color.strip_prefix("#")?;
+            let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
+            Some(decls! {
+                "--tw-text-opacity" => &a.to_string(),
+                "color" => &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
             })
-            .flatten()
+        })
     })
     .add_rule("text", |value, ctx| {
         ctx.get_theme_value("spacing", value)
-            .map(|spacing| CSSDecls::from_pair(("font-size", &spacing)))
+        .and_then(|spacing| {
+            Some(decls! {
+                "font-size" => &spacing
+            })
+        })
     })
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")
@@ -169,7 +172,7 @@ mod tests {
             .try_deserialize::<ArrowConfig>()
             .unwrap();
 
-        assert_eq!(config.dark_mode, "class");
+        assert_eq!(config.config.dark_mode, "class");
         // assert_eq!(
         //     config.theme.get.get("blue-500"),
         //     Some(&"#3b82f6".to_string())

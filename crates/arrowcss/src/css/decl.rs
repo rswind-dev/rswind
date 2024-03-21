@@ -38,6 +38,17 @@ impl<A: Into<String>, B: Into<String>> FromIterator<(A, B)> for CSSDecls {
 #[derive(Clone, Debug, PartialEq)]
 pub struct CSSDecls(SmallVec<[CSSDecl; 1]>);
 
+#[macro_export]
+macro_rules! decls {
+    ($($name:expr => $value:expr),* $(,)?) => {
+        $crate::css::decl::CSSDecls::multi(
+            [$(
+                $crate::css::decl::CSSDecl::new($name, $value)
+            ),*]
+        )
+    };
+}
+
 impl Deref for CSSDecls {
     type Target = [CSSDecl];
 
@@ -86,5 +97,26 @@ impl ToCss for CSSDecl {
         writer.write_str(";")?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_css_decl_macro() {
+        let decls = decls! {
+            "color" => "red",
+            "background-color" => "blue",
+        };
+
+        assert_eq!(
+            decls,
+            CSSDecls::multi([
+                CSSDecl::new("color", "red"),
+                CSSDecl::new("background-color", "blue"),
+            ])
+        );
     }
 }

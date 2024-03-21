@@ -27,6 +27,26 @@ pub enum CSSRule {
     Decl(CSSDecl),
 }
 
+#[macro_export]
+macro_rules! css {
+    ($($selector:expr => { $($name:expr => $value:expr),* $(,)? })* $(,)?) => {
+        {
+            let mut container = super::Container::new();
+            $(
+                let mut rule = super::CSSStyleRule {
+                    selector: $selector.to_owned(),
+                    nodes: vec![],
+                };
+                $(
+                    rule.nodes.push(super::CSSRule::Decl(super::CSSDecl::new($name, $value)));
+                )*
+                container.nodes.push(super::CSSRule::Style(rule));
+            )*
+            container
+        }
+    };
+}
+
 impl ToCss for CSSAtRule {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
@@ -81,5 +101,22 @@ impl ToCss for CSSStyleRule {
         writer.write_char('}')?;
         writer.newline()?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_css_macro() {
+        let container = css! {
+            ".class" => {
+                 "color" => "red"
+            }
+            ".class2" => {
+                "color" => "blue"
+            }
+        };
+        println!("{:?}", container);
     }
 }

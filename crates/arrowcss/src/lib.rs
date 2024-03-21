@@ -39,9 +39,9 @@ pub fn generate(input: String) -> String {
         .try_deserialize::<ArrowConfig>()
         .unwrap();
 
-    let theme = Rc::new(config.theme);
+    // let theme = Rc::new(config.theme);
 
-    let mut ctx = Context::new(theme.clone());
+    let mut ctx = Context::new(config);
 
     ctx.add_rule("text", |value, ctx| {
         ctx.theme

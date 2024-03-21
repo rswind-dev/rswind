@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_utility() {
-        let ctx = Context::new(Theme::default().into());
+        let ctx = Context::default();
 
         let utility = Utility::parse(&ctx, "![color:red]").unwrap();
 
@@ -189,7 +189,7 @@ mod tests {
 
     #[test]
     fn test_utility_parse_arbitrary() {
-        let ctx = Context::new(Theme::default().into());
+        let ctx = Context::default();
         let utility = Utility::parse(&ctx, "text-[#123456]").unwrap();
 
         if let Utility::Arbitrary(u) = utility {

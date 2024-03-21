@@ -3,9 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 // use crate::rule::VariantMatchingFn;
 // use crate::rule::RuleMatchingFn;
 use crate::{
-    css::{Container, CSSDecls},
-    theme::Theme,
-    utils::{create_variant_fn, Matcher},
+    config::{ArrowConfig, Config}, css::{CSSDecls, Container}, theme::Theme, utils::{create_variant_fn, Matcher}
 };
 
 pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
@@ -41,7 +39,7 @@ pub struct Context {
     pub variants: RefCell<HashMap<String, Rc<Variant>>>,
 
     pub theme: RefCell<Rc<Theme>>,
-    pub config: String,
+    pub config: Config,
     pub tokens: RefCell<HashMap<String, Option<Container>>>,
 }
 
@@ -57,15 +55,15 @@ impl<S: Into<String>> ThemeValue<S> {
 }
 
 impl<'a> Context {
-    pub fn new(theme: Rc<Theme>) -> Self {
+    pub fn new(config: ArrowConfig) -> Self {
         Self {
             tokens: HashMap::new().into(),
             static_rules: HashMap::new().into(),
             arbitrary_rules: HashMap::new().into(),
             variants: HashMap::new().into(),
             rules: HashMap::new().into(),
-            theme: Rc::clone(&theme).into(),
-            config: "config".into(),
+            theme: Rc::clone(&Rc::new(config.theme)).into(),
+            config: config.config,
         }
     }
 
