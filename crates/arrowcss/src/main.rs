@@ -1,6 +1,8 @@
 #![feature(trait_alias)]
 #![feature(control_flow_enum)]
 #![feature(auto_traits)]
+#![feature(unboxed_closures)]
+#![feature(fn_traits)]
 
 use std::fs::{self, read_to_string};
 
@@ -22,6 +24,7 @@ mod parser;
 // mod rule;
 mod rules;
 mod theme;
+mod themes;
 mod utility;
 mod utils;
 // mod variant;
@@ -57,9 +60,12 @@ fn main() {
         })
     })
     .add_rule("text", |value, ctx| {
-        ctx.get_theme_value("spacing", value).map(|spacing| decls! {
-                "font-size" => &spacing
-            })
+        let font_size = ctx.get_theme_value("spacing", value)?;
+        let line_height = ctx.get_theme_value("fontSize:lineHeight", value)?;
+        Some(decls! {
+            "font-size" => &font_size,
+            "line-height" => &line_height
+        })
     })
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")
