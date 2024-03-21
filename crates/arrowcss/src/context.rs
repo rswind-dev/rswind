@@ -3,32 +3,16 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 // use crate::rule::VariantMatchingFn;
 // use crate::rule::RuleMatchingFn;
 use crate::{
-    config::{ArrowConfig, Config}, css::{CSSDecls, Container}, theme::Theme, utils::{create_variant_fn, Matcher}
+    config::{ArrowConfig, Config},
+    css::{CSSDecls, Container},
+    theme::Theme,
+    themes::theme,
+    utils::{create_variant_fn, Matcher, VariantHandler},
 };
 
 pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
 
 pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
-
-pub struct Variant {
-    pub needs_nesting: bool,
-    pub handler: Rc<dyn VariantMatchingFn>,
-}
-
-impl Variant {
-    pub fn plain(handler: Rc<dyn VariantMatchingFn>) -> Self {
-        Self {
-            needs_nesting: false,
-            handler,
-        }
-    }
-    pub fn at_rule(handler: Rc<dyn VariantMatchingFn>) -> Self {
-        Self {
-            needs_nesting: true,
-            handler,
-        }
-    }
-}
 
 #[derive(Default, Clone)]
 pub struct Context {
@@ -36,7 +20,7 @@ pub struct Context {
     pub rules: RefCell<HashMap<String, Vec<Rc<dyn RuleMatchingFn>>>>,
     pub arbitrary_rules: Rc<HashMap<String, Rc<dyn RuleMatchingFn>>>,
 
-    pub variants: RefCell<HashMap<String, Rc<Variant>>>,
+    pub variants: RefCell<HashMap<String, Rc<VariantHandler>>>,
 
     pub theme: RefCell<Rc<Theme>>,
     pub config: Config,
@@ -62,7 +46,7 @@ impl<'a> Context {
             arbitrary_rules: HashMap::new().into(),
             variants: HashMap::new().into(),
             rules: HashMap::new().into(),
-            theme: Rc::clone(&Rc::new(config.theme)).into(),
+            theme: Rc::clone(&Rc::new(theme().merge(config.theme))).into(),
             config: config.config,
         }
     }
@@ -129,34 +113,17 @@ impl<'a> Context {
         self
     }
 
-    pub fn add_variant_fn<S, F>(&mut self, key: S, func: F) -> &Self
-    where
-        S: Into<String>,
-        F: VariantMatchingFn,
-    {
-        self.variants
-            .borrow_mut()
-            .insert(key.into(), Variant::plain(Rc::new(func)).into());
-        self
-    }
-
     pub fn add_variant<S, M>(&self, key: S, matcher: M) -> &Self
     where
         M: Matcher<'a>,
         S: Into<String>,
     {
         let key_clone: String = key.into();
-        create_variant_fn(&key_clone, matcher).map(
-            |func: Rc<dyn VariantMatchingFn>| {
-                self.variants.borrow_mut().insert(
-                    key_clone.clone(),
-                    // if matcher.starts_with('@') {
-                    //     Variant::at_rule(func).into()
-                    // } else {
-                    Variant::plain(func).into(), // },
-                )
-            },
-        );
+        create_variant_fn(&key_clone, matcher).map(|func| {
+            self.variants
+                .borrow_mut()
+                .insert(key_clone.clone(), func.into())
+        });
         self
     }
 

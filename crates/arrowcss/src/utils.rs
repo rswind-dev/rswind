@@ -2,7 +2,7 @@ use std::{iter, ops::ControlFlow, rc::Rc};
 
 use crate::{
     context::VariantMatchingFn,
-    css::{Container, CSSAtRule, CSSRule},
+    css::{CSSAtRule, CSSRule, Container},
 };
 
 pub fn strip_arbitrary(value: &str) -> Option<&str> {
@@ -48,8 +48,43 @@ impl<'a> Matcher<'a> for Vec<&'a str> {
     }
 }
 
-fn create_nested_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
-    Rc::new(move |rule| {
+#[derive(Clone)]
+pub enum VariantHandler {
+    Nested(Rc<dyn VariantMatchingFn>),
+    Replacement(Rc<dyn VariantMatchingFn>),
+}
+
+impl Fn<(Container,)> for VariantHandler {
+    extern "rust-call" fn call(&self, args: (Container,)) -> Option<Container> {
+        match self {
+            VariantHandler::Nested(f) => f(args.0),
+            VariantHandler::Replacement(f) => f(args.0),
+        }
+    }
+}
+
+impl FnOnce<(Container,)> for VariantHandler {
+    type Output = Option<Container>;
+
+    extern "rust-call" fn call_once(self, args: (Container,)) -> Self::Output {
+        match self {
+            VariantHandler::Nested(f) => f(args.0),
+            VariantHandler::Replacement(f) => f(args.0),
+        }
+    }
+}
+
+impl FnMut<(Container,)> for VariantHandler {
+    extern "rust-call" fn call_mut(&mut self, args: (Container,)) -> Option<Container> {
+        match self {
+            VariantHandler::Nested(f) => f(args.0),
+            VariantHandler::Replacement(f) => f(args.0),
+        }
+    }
+}
+
+fn create_nested_variant_fn(matcher: String) -> VariantHandler {
+    VariantHandler::Nested(Rc::new(move |rule| {
         Some(
             CSSRule::AtRule(CSSAtRule {
                 name: matcher.to_owned(),
@@ -58,11 +93,11 @@ fn create_nested_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
             })
             .into(),
         )
-    })
+    }))
 }
 
-fn create_replacement_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
-    Rc::new(move |mut container: Container| {
+fn create_replacement_variant_fn(matcher: String) -> VariantHandler {
+    VariantHandler::Replacement(Rc::new(move |mut container: Container| {
         for rule in container.nodes.iter_mut() {
             match rule {
                 CSSRule::Style(ref mut it) => {
@@ -72,13 +107,13 @@ fn create_replacement_variant_fn(matcher: String) -> Rc<dyn VariantMatchingFn> {
             }
         }
         Some(container)
-    })
+    }))
 }
 
 pub fn create_variant_fn<'a, M: Matcher<'a>>(
     key: &str,
     matcher: M,
-) -> Option<Rc<dyn VariantMatchingFn>> {
+) -> Option<VariantHandler> {
     let fns = matcher
         .into_matcher()
         .into_iter()
@@ -86,40 +121,38 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
             matcher
                 .split('|')
                 .map(|matcher| matcher.trim())
-                .try_fold(
-                    None,
-                    |acc: Option<Rc<dyn VariantMatchingFn>>, item| {
-                        let new_fn: Rc<dyn VariantMatchingFn> =
-                            match item.chars().next() {
-                                Some('@') => create_nested_variant_fn(
-                                    item.get(1..).unwrap().to_string(),
-                                ),
-                                Some('&') => create_replacement_variant_fn(
-                                    item.get(1..).unwrap().to_string(),
-                                ),
-                                _ => return ControlFlow::Break(()),
-                            };
-                        ControlFlow::Continue(match acc {
-                            Some(acc) => Some(Rc::new(move |rule| {
-                                new_fn(rule).and_then(|rule| acc(rule))
-                            })
-                                as Rc<dyn VariantMatchingFn>),
-                            None => Some(new_fn),
-                        })
-                    },
-                )
+                .try_fold(None, |acc: Option<VariantHandler>, item| {
+                    let new_fn: VariantHandler = match item.chars().next() {
+                        Some('@') => create_nested_variant_fn(
+                            item.get(1..).unwrap().to_string(),
+                        ),
+                        Some('&') => create_replacement_variant_fn(
+                            item.get(1..).unwrap().to_string(),
+                        ),
+                        _ => return ControlFlow::Break(()),
+                    };
+                    ControlFlow::Continue(match acc {
+                        Some(acc) => Some(VariantHandler::Nested(Rc::new(
+                            move |container: Container| {
+                                acc(container.clone())
+                                    .and_then(|container| new_fn(container))
+                            },
+                        ))),
+                        None => Some(new_fn),
+                    })
+                })
                 .continue_value()
                 .flatten()
         })
         .collect::<Vec<_>>();
-    Some(Rc::new(move |mut container: Container| {
+    Some(VariantHandler::Nested(Rc::new(move |mut container: Container| {
         container = fns
             .clone()
             .into_iter()
             .filter_map(|f| (f.unwrap())(container.clone()))
             .collect::<Container>();
         Some(container)
-    }) as Rc<dyn VariantMatchingFn>)
+    })))
 }
 
 #[cfg(test)]
@@ -130,7 +163,7 @@ mod tests {
 
     #[test]
     fn test_add_variant() {
-        let variant: Rc<dyn VariantMatchingFn> =
+        let variant: VariantHandler =
             create_variant_fn("disabled", "&:disabled").unwrap();
         let rule = CSSRule::Style(CSSStyleRule {
             selector: "flex".into(),
