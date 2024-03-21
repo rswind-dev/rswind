@@ -1,7 +1,9 @@
 #![feature(trait_alias)]
 #![feature(control_flow_enum)]
 #![feature(auto_traits)]
-
+#![feature(unboxed_closures)]
+#![feature(fn_traits)]
+#![feature(tuple_trait)]
 
 use ::config::{Config, File};
 
@@ -10,7 +12,7 @@ use crate::css::CSSDecl;
 use crate::{
     config::ArrowConfig,
     context::Context,
-    css::{ToCss},
+    css::ToCss,
     parser::parse,
     rules::statics::STATIC_RULES,
     writer::{Writer, WriterConfig},
@@ -24,6 +26,7 @@ pub mod parser;
 pub mod rule;
 pub mod rules;
 pub mod theme;
+pub mod themes;
 pub mod utility;
 pub mod utils;
 // pub mod variant;
@@ -41,14 +44,6 @@ pub fn generate(input: String) -> String {
     // let theme = Rc::new(config.theme);
 
     let mut ctx = Context::new(config);
-
-    ctx.add_rule("text", |value, ctx| {
-        ctx.theme
-            .borrow()
-            .get("colors")
-            .and_then(|colors| colors.get(value))
-            .map(|color| CSSDecl::new("color", color).into())
-    });
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));

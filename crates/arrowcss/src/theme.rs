@@ -3,20 +3,55 @@ use serde::{
     Deserialize, Deserializer,
 };
 use serde_json::Value;
-use std::fmt;
 use std::{
     collections::HashMap,
     ops::{Deref, DerefMut},
 };
+use std::{fmt, sync::Arc};
 
 #[derive(Debug, Default)]
-pub struct Theme(pub HashMap<String, HashMap<String, String>>);
+pub struct Theme(pub HashMap<String, Arc<HashMap<String, String>>>);
 
 impl Deref for Theme {
-    type Target = HashMap<String, HashMap<String, String>>;
+    type Target = HashMap<String, Arc<HashMap<String, String>>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl DerefMut for Theme {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl From<Theme> for HashMap<String, Arc<HashMap<String, String>>> {
+    fn from(map: Theme) -> Self {
+        map.0
+    }
+}
+
+impl From<HashMap<String, Arc<HashMap<String, String>>>> for Theme {
+    fn from(map: HashMap<String, Arc<HashMap<String, String>>>) -> Self {
+        Theme(map)
+    }
+}
+
+impl Theme {
+    pub fn merge(mut self, other: Theme) -> Self {
+        for (key, value) in other.0 {
+            self.0
+                .entry(key.clone())
+                .and_modify(|inner_map| {
+                    let mut_arc = Arc::make_mut(inner_map);
+                    for (inner_key, inner_value) in value.iter() {
+                        mut_arc.insert(inner_key.clone(), inner_value.clone());
+                    }
+                })
+                .or_insert(value.clone());
+        }
+        self
     }
 }
 
@@ -54,7 +89,7 @@ impl<'de> Visitor<'de> for ThemeVisitor {
                             }
                         }
                     }
-                    themes.insert(key, theme_map);
+                    themes.insert(key, Arc::new(theme_map));
                 }
                 _ => {
                     return Err(de::Error::custom(
@@ -90,6 +125,12 @@ impl Deref for FlattenedColors {
 impl DerefMut for FlattenedColors {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+impl From<FlattenedColors> for HashMap<String, String> {
+    fn from(map: FlattenedColors) -> Self {
+        map.0
     }
 }
 
@@ -137,6 +178,8 @@ impl<'de> Deserialize<'de> for FlattenedColors {
 }
 #[cfg(test)]
 mod tests {
+    use crate::map;
+
     use super::*;
 
     #[test]
@@ -188,6 +231,49 @@ mod tests {
         assert_eq!(
             flattened_colors.get("slate-50"),
             Some(&"#f8fafc".to_string())
+        );
+    }
+
+    #[test]
+    fn test_theme_merge() {
+        let mut theme1 = Theme::default();
+        let mut theme2 = Theme::default();
+
+        theme1.insert(
+            "colors".to_string(),
+            Arc::new(map! {
+                "inherit" => "inherit".to_string(),
+                "slate-50" => "#f8fafc".to_string()
+            }),
+        );
+
+        theme2.insert(
+            "spacing".to_string(),
+            Arc::new(map! {
+                "1" => "0.25rem".to_string()
+            }),
+        );
+
+        theme2.insert(
+            "colors".to_string(),
+            Arc::new(map! {
+                "inherit" => "inherit-merged".to_string()
+            }),
+        );
+
+        let theme1 = theme1.merge(theme2);
+
+        assert_eq!(
+            theme1.get("colors").unwrap().get("slate-50"),
+            Some(&"#f8fafc".to_string())
+        );
+        assert_eq!(
+            theme1.get("spacing").unwrap().get("1"),
+            Some(&"0.25rem".to_string())
+        );
+        assert_eq!(
+            theme1.get("colors").unwrap().get("inherit"),
+            Some(&"inherit-merged".to_string())
         );
     }
 }
