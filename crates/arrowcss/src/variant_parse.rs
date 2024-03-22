@@ -211,6 +211,9 @@ impl<'i> Variant {
                     ident += "@";
                     ident += at_rule;
                 }
+                Ok(Token::Delim('*')) => {
+                    ident += "*";
+                }
                 Ok(token) => {
                     println!("{:?}", token);
                 }
