@@ -75,7 +75,10 @@ impl FnOnce<(Container,)> for VariantHandler {
 }
 
 impl FnMut<(Container,)> for VariantHandler {
-    extern "rust-call" fn call_mut(&mut self, args: (Container,)) -> Option<Container> {
+    extern "rust-call" fn call_mut(
+        &mut self,
+        args: (Container,),
+    ) -> Option<Container> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
             VariantHandler::Replacement(f) => f(args.0),
@@ -132,27 +135,51 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
                         _ => return ControlFlow::Break(()),
                     };
                     ControlFlow::Continue(match acc {
-                        Some(acc) => Some(VariantHandler::Nested(Rc::new(
-                            move |container: Container| {
-                                acc(container.clone())
-                                    .and_then(|container| new_fn(container))
-                            },
-                        ))),
+                        Some(VariantHandler::Nested(acc)) => {
+                            Some(VariantHandler::Nested(Rc::new(
+                                move |container: Container| {
+                                    acc(container.clone())
+                                        .and_then(|container| new_fn(container))
+                                },
+                            )))
+                        }
+                        Some(VariantHandler::Replacement(acc)) => {
+                            Some(VariantHandler::Replacement(Rc::new(
+                                move |container: Container| {
+                                    acc(container.clone())
+                                        .and_then(|container| new_fn(container))
+                                },
+                            )))
+                        }
                         None => Some(new_fn),
                     })
                 })
                 .continue_value()
                 .flatten()
         })
-        .collect::<Vec<_>>();
-    Some(VariantHandler::Nested(Rc::new(move |mut container: Container| {
+        .collect::<Option<Vec<_>>>()?;
+
+    // sort fns by VariantHandler type
+    let (nested_fns, replace_fns): (Vec<_>, Vec<_>) = fns
+        .into_iter()
+        .partition(|f| matches!(f, VariantHandler::Nested(_)));
+    let is_nested = !nested_fns.is_empty();
+    let fns = replace_fns.into_iter().chain(nested_fns);
+
+    let handler = Rc::new(move |mut container: Container| {
         container = fns
             .clone()
             .into_iter()
-            .filter_map(|f| (f.unwrap())(container.clone()))
+            .filter_map(|f| f(container.clone()))
             .collect::<Container>();
         Some(container)
-    })))
+    });
+
+    Some(if is_nested {
+        VariantHandler::Nested(handler)
+    } else {
+        VariantHandler::Replacement(handler)
+    })
 }
 
 #[cfg(test)]
