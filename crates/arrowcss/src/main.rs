@@ -77,7 +77,9 @@ fn main() {
         "hover",
         "@media (hover: hover) and (pointer: fine) | &:hover",
     )
-    .add_variant("marker", vec!["& *::marker", "&::marker"]);
+    .add_variant("marker", vec!["& *::marker", "&::marker"])
+    .add_variant("*", "& > *")
+    .add_variant("disabled", "&:disabled");
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));

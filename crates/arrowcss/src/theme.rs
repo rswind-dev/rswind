@@ -9,11 +9,13 @@ use std::{
 };
 use std::{fmt, sync::Arc};
 
+pub type ThemeValue = Arc<HashMap<String, String>>;
+
 #[derive(Debug, Default)]
-pub struct Theme(pub HashMap<String, Arc<HashMap<String, String>>>);
+pub struct Theme(pub HashMap<String, ThemeValue>);
 
 impl Deref for Theme {
-    type Target = HashMap<String, Arc<HashMap<String, String>>>;
+    type Target = HashMap<String, ThemeValue>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -26,14 +28,14 @@ impl DerefMut for Theme {
     }
 }
 
-impl From<Theme> for HashMap<String, Arc<HashMap<String, String>>> {
+impl From<Theme> for HashMap<String, ThemeValue> {
     fn from(map: Theme) -> Self {
         map.0
     }
 }
 
-impl From<HashMap<String, Arc<HashMap<String, String>>>> for Theme {
-    fn from(map: HashMap<String, Arc<HashMap<String, String>>>) -> Self {
+impl From<HashMap<String, ThemeValue>> for Theme {
+    fn from(map: HashMap<String, ThemeValue>) -> Self {
         Theme(map)
     }
 }

@@ -18,7 +18,6 @@ pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
 pub struct Context {
     pub static_rules: RefCell<HashMap<String, CSSDecls>>,
     pub rules: RefCell<HashMap<String, Vec<Rc<dyn RuleMatchingFn>>>>,
-    pub arbitrary_rules: Rc<HashMap<String, Rc<dyn RuleMatchingFn>>>,
 
     pub variants: RefCell<HashMap<String, Rc<VariantHandler>>>,
 
@@ -43,7 +42,6 @@ impl<'a> Context {
         Self {
             tokens: HashMap::new().into(),
             static_rules: HashMap::new().into(),
-            arbitrary_rules: HashMap::new().into(),
             variants: HashMap::new().into(),
             rules: HashMap::new().into(),
             theme: Rc::clone(&Rc::new(theme().merge(config.theme))).into(),
@@ -137,6 +135,10 @@ impl<'a> Context {
             .get(key)
             .and_then(|theme| theme.get(value))
             .map(|s| s.to_owned())
+    }
+
+    pub fn get_theme(&self, key: &str) -> Option<crate::theme::ThemeValue> {
+        self.theme.borrow().get(key).map(Clone::clone)
     }
 }
 
