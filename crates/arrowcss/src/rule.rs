@@ -8,17 +8,17 @@ use crate::{
 
 pub trait RuleMatchingFn = Fn(Arc<Context>, &str) -> Option<CSSDecls> + 'static;
 
-pub struct Rule<'a> {
+pub struct Rule {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
     // a Theme map
     pub allowed_values: Option<ThemeValue>,
     pub allowed_modifiers: Option<ThemeValue>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'a>>,
+    pub infer_property_id: Option<PropertyId<'static>>,
 }
 
-impl<'a> Rule<'a> {
+impl Rule {
     pub fn new<F: RuleMatchingFn>(handler: F) -> Self {
         Self {
             handler: Box::new(handler),
@@ -29,7 +29,7 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn infer_by(mut self, id: PropertyId<'a>) -> Self {
+    pub fn infer_by(mut self, id: PropertyId<'static>) -> Self {
         self.infer_property_id = Some(id);
         self
     }
@@ -49,9 +49,9 @@ impl<'a> Rule<'a> {
         self
     }
 
-    pub fn apply_to<'b, 'ctx>(
+    pub fn apply_to<'b>(
         &self,
-        ctx: Arc<Context<'a, 'ctx>>,
+        ctx: Arc<Context>,
         value: &'b str,
     ) -> Option<CSSDecls> {
         // arbitrary value
@@ -83,7 +83,7 @@ impl<'a> Rule<'a> {
         None
     }
 
-    pub fn bind_context<'ctx>(self, ctx: &Arc<Context<'a, 'ctx>>) -> InContextRule<'a, 'ctx> {
+    pub fn bind_context(self, ctx: &Arc<Context>) -> InContextRule {
         InContextRule {
             rule: self,
             ctx: Arc::downgrade(ctx),
@@ -91,12 +91,12 @@ impl<'a> Rule<'a> {
     }
 }
 
-pub struct InContextRule<'rule, 'ctx> {
-    pub rule: Rule<'rule>,
-    pub ctx: Weak<Context<'rule, 'ctx>>,
+pub struct InContextRule {
+    pub rule: Rule,
+    pub ctx: Weak<Context>,
 }
 
-impl<'rule, 'ctx> InContextRule<'rule, 'ctx> {
+impl<'a> InContextRule {
     pub fn apply_to<'c>(&'c self, value: &'c str) -> Option<CSSDecls> {
         self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
     }
@@ -207,5 +207,20 @@ mod tests {
                 "background-position" => "bottom 10px right 20px",
             })
         );
+
+        // enum Item<'i> {
+        //     Custom(&'i str)
+        // }
+
+        // struct Theme<'i> {
+        //     item: Item<'i>,
+        //     ctx: Weak<Context<'i>>,
+        // }
+
+        // struct Context<'i> {
+        //     theme: Theme<'i>,
+        // }
+
+
     }
 }

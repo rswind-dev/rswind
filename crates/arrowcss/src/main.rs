@@ -46,45 +46,19 @@ fn main() {
         Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
     let ctx = Arc::new(Context::new(config));
 
-    ctx.add_rule(
-        "text", 
-        Rule::new(|ctx, value| {
-            if !ctx.config.core_plugins.text_opacity {
-                return Some(decls! {
-                    "color" => &value
-                });
-            }
-            let color = value.strip_prefix('#')?;
-            let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
-            Some(decls! {
-                "--tw-text-opacity" => &a.to_string(),
-                "color" => &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
-            })
-        }).infer_by(PropertyId::Color)
-    )
-    .add_rule(
-        "text",
-        Rule::new(|ctx, value| {
-            // let line_height = ctx.get_theme_value("fontSize:lineHeight", value)?;
-            Some(decls! {
-                "font-size" => &value,
-                // "line-height" => &line_height
-            })
-        }).infer_by(PropertyId::FontSize)
-    )
-    .add_variant("first", "&:first-child")
-    .add_variant("last", "&:last-child")
-    .add_variant(
-        "motion-safe",
-        "@media(prefers-reduced-motion: no-preference)",
-    )
-    .add_variant(
-        "hover",
-        "@media (hover: hover) and (pointer: fine) | &:hover",
-    )
-    .add_variant("marker", vec!["& *::marker", "&::marker"])
-    .add_variant("*", "& > *")
-    .add_variant("disabled", "&:disabled");
+    ctx.add_variant("first", "&:first-child")
+        .add_variant("last", "&:last-child")
+        .add_variant(
+            "motion-safe",
+            "@media(prefers-reduced-motion: no-preference)",
+        )
+        .add_variant(
+            "hover",
+            "@media (hover: hover) and (pointer: fine) | &:hover",
+        )
+        .add_variant("marker", vec!["& *::marker", "&::marker"])
+        .add_variant("*", "& > *")
+        .add_variant("disabled", "&:disabled");
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));
@@ -118,6 +92,35 @@ fn main() {
             "size" => ["width", "height"]
         }
     });
+
+    // let ctx = Arc::new(ctx);
+
+    ctx.add_rule(
+        "text", 
+        Rule::new(|ctx, value| {
+            if !ctx.config.core_plugins.text_opacity {
+                return Some(decls! {
+                    "color" => &value
+                });
+            }
+            let color = value.strip_prefix('#')?;
+            let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
+            Some(decls! {
+                "--tw-text-opacity" => &a.to_string(),
+                "color" => &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
+            })
+        }).infer_by(PropertyId::Color)
+    )
+    .add_rule(
+        "text",
+        Rule::new(|ctx, value| {
+            let line_height = ctx.get_theme_value("fontSize:lineHeight", value)?;
+            Some(decls! {
+                "font-size" => &value,
+                "line-height" => &line_height
+            })
+        }).infer_by(PropertyId::FontSize)
+    );
 
     let mut w = String::new();
     let mut writer = Writer::new(
