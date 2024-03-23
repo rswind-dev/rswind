@@ -1,51 +1,41 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::{Arc, Weak},
-};
+use std::sync::{Arc, Weak};
 
-use cssparser::{Parser, ParserInput, Token};
+use lightningcss::properties::{Property, PropertyId};
 
 use crate::{
     context::Context, css::CSSDecls, theme::ThemeValue, utils::StripArbitrary,
 };
 
-#[derive(Debug, Eq, Hash, PartialEq)]
-pub enum DataType {
-    Length,
-    Percentage,
-    LengthPercentage,
-    Color,
-    Any,
-}
-
 pub trait RuleMatchingFn = Fn(Arc<Context>, &str) -> Option<CSSDecls> + 'static;
 
-pub struct Rule {
+pub struct Rule<'a> {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
-    pub allowed_types: HashSet<DataType>,
+    // a Theme map
     pub allowed_values: Option<ThemeValue>,
     pub allowed_modifiers: Option<ThemeValue>,
+    // a lightningcss PropertyId
+    pub infer_property_id: Option<PropertyId<'a>>,
 }
 
-impl Rule {
+impl<'a> Rule<'a> {
     pub fn new<F: RuleMatchingFn>(handler: F) -> Self {
         Self {
             handler: Box::new(handler),
             supports_negative: false,
-            allowed_types: HashSet::new(),
             allowed_values: None,
             allowed_modifiers: None,
+            infer_property_id: None,
         }
+    }
+
+    pub fn infer_by(mut self, id: PropertyId<'a>) -> Self {
+        self.infer_property_id = Some(id);
+        self
     }
 
     pub fn support_negative(mut self) -> Self {
         self.supports_negative = true;
-        self
-    }
-
-    pub fn allow_type(mut self, ty: DataType) -> Self {
-        self.allowed_types.insert(ty);
         self
     }
 
@@ -60,30 +50,26 @@ impl Rule {
     }
 
     pub fn apply_to(&self, ctx: Arc<Context>, value: &str) -> Option<CSSDecls> {
+        // arbitrary value
         if let Some(stripped) = value.strip_arbitrary() {
-            if self.allowed_types.is_empty() {
-                return None;
-            }
-            let mut input = ParserInput::new(stripped);
-            let mut parser = Parser::new(&mut input);
-
-            let mut typ = DataType::Any;
-            match parser.next() {
-                Ok(Token::Percentage { .. }) => {
-                    typ = DataType::Percentage;
+            // when infer_property_id is None, default not check it
+            match &self.infer_property_id {
+                Some(id) => {
+                    match Property::parse_string(
+                        id.clone(),
+                        stripped,
+                        Default::default(),
+                    ) {
+                        Ok(Property::Unparsed(_)) => return None,
+                        Err(_) => return None,
+                        Ok(_) => return (self.handler)(ctx, stripped),
+                    }
                 }
-                Ok(Token::Dimension { .. }) => {
-                    typ = DataType::Length;
-                }
-                _ => {}
+                None => return (self.handler)(ctx, stripped),
             }
-
-            if !self.allowed_types.contains(&typ) {
-                return None;
-            }
-            return (self.handler)(ctx, stripped);
         }
 
+        // theme value
         let a = self.allowed_values.as_ref()?.clone();
 
         if let Some(v) = a.get(value) {
@@ -93,7 +79,7 @@ impl Rule {
         None
     }
 
-    pub fn bind_context(self, ctx: Arc<Context>) -> InContextRule {
+    pub fn bind_context(self, ctx: Arc<Context>) -> InContextRule<'a> {
         InContextRule {
             rule: self,
             ctx: Arc::downgrade(&ctx),
@@ -101,12 +87,12 @@ impl Rule {
     }
 }
 
-pub struct InContextRule {
-    pub rule: Rule,
+pub struct InContextRule<'a> {
+    pub rule: Rule<'a>,
     pub ctx: Weak<Context>,
 }
 
-impl InContextRule {
+impl<'a> InContextRule<'a> {
     pub fn apply_to(&self, value: &str) -> Option<CSSDecls> {
         (self.rule.handler)(self.ctx.upgrade().unwrap(), value)
     }
@@ -114,9 +100,7 @@ impl InContextRule {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
-
-    use crate::{decls, themes::theme};
+    use crate::decls;
 
     use super::*;
 
@@ -124,55 +108,100 @@ mod tests {
     fn test_rule_builder() {
         let rule = Rule::new(|_, _| None)
             .support_negative()
-            .allow_type(DataType::Length);
+            .infer_by(PropertyId::FontSize);
 
         assert!(rule.supports_negative);
-        assert!(rule.allowed_types.contains(&DataType::LengthPercentage));
+        assert_eq!(rule.infer_property_id, Some(PropertyId::FontSize));
     }
 
     #[test]
-    fn test_rule_apply() {
-        let mut ctx = Context::default();
-        let themes = theme();
-        ctx.theme = Rc::new(themes).into();
-
-        let rule = Rule::new(|_, v| Some(CSSDecls::from_pair(("width", v))))
-            .support_negative()
-            .allow_values(ctx.get_theme("spacing").unwrap())
-            .allow_type(DataType::Length);
-        let ctx: Arc<Context> = Context::default().into();
-
-        assert_eq!(rule.apply_to(ctx.clone(), "[10px]").unwrap()[0].value, "10px");
-        let a = rule.apply_to(ctx.clone(), "4").unwrap();
-        assert_eq!(a[0].value, "1rem")
-    }
-
-    #[test]
-    fn test_bind_context() {
-        let mut ctx = Context::default();
-        let themes = theme();
-        ctx.theme = Rc::new(themes).into();
-        let ctx: Arc<Context> = Context::default().into();
-
-        let rule = Rule::new(|_ctx, value| {
+    fn test_rule_handler() {
+        let rule = Rule::new(|_, value| {
             Some(decls! {
-                    "--tw-blur" => &format!("blur({})", value),
+                "font-size" => &value,
             })
         })
         .support_negative()
-        .allow_values(ctx.get_theme("blur").unwrap())
-        .allow_type(DataType::LengthPercentage);
+        .infer_by(PropertyId::FontSize);
 
-        let rule = rule.bind_context(ctx.clone());
+        let ctx = Arc::new(Context::default());
 
-        assert!(rule.apply_to("10px").is_some());
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[16px]"),
+            Some(decls! {
+                "font-size" => "16px",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[larger]"),
+            Some(decls! {
+                "font-size" => "larger",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[.5%]"),
+            Some(decls! {
+                "font-size" => ".5%",
+            })
+        );
     }
 
     #[test]
-    fn test_aaa() {
-        let mut input = ParserInput::new("center top 1rem");
-        let mut parser = Parser::new(&mut input);
+    fn test_handle_background_position() {
+        let rule = Rule::new(|_, value| {
+            Some(decls! {
+                "background-position" => &value,
+            })
+        })
+        .support_negative()
+        .infer_by(PropertyId::BackgroundPosition);
 
-        println!("{:?}", parser.next());
+        let ctx = Arc::new(Context::default());
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[top]"),
+            Some(decls! {
+                "background-position" => "top",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[center]"),
+            Some(decls! {
+                "background-position" => "center",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[50% 50%]"),
+            Some(decls! {
+                "background-position" => "50% 50%",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[50% top]"),
+            Some(decls! {
+                "background-position" => "50% top",
+            })
+        );
+
+        assert_eq!(rule.apply_to(ctx.clone(), "[top 50%]"), None);
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[left 50%]"),
+            Some(decls! {
+                "background-position" => "left 50%",
+            })
+        );
+
+        assert_eq!(
+            rule.apply_to(ctx.clone(), "[bottom 10px right 20px]"),
+            Some(decls! {
+                "background-position" => "bottom 10px right 20px",
+            })
+        );
     }
 }
