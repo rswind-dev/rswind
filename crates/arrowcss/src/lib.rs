@@ -5,6 +5,8 @@
 #![feature(fn_traits)]
 #![feature(tuple_trait)]
 
+use std::sync::Arc;
+
 use ::config::{Config, File};
 
 use crate::context::ThemeValue;
@@ -33,7 +35,7 @@ pub mod utils;
 pub mod variant_parse;
 pub mod writer;
 
-pub fn generate(input: String) -> String {
+pub fn generate(_input: String) -> String {
     let config = Config::builder()
         .add_source(File::with_name("examples/arrow.config"))
         .build()
@@ -43,7 +45,7 @@ pub fn generate(input: String) -> String {
 
     // let theme = Rc::new(config.theme);
 
-    let mut ctx = Context::new(config);
+    let ctx = Arc::new(Context::new(config));
 
     STATIC_RULES.iter().for_each(|(key, value)| {
         ctx.add_static((*key, value.clone()));
@@ -86,7 +88,7 @@ pub fn generate(input: String) -> String {
     );
 
     // open test.html
-    parse("", &mut ctx);
+    parse("", ctx.clone());
 
     ctx.tokens.borrow().values().for_each(|it| {
         if let Some(rule) = it {

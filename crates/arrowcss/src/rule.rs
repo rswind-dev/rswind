@@ -8,14 +8,14 @@ use crate::{
 
 pub trait RuleMatchingFn = Fn(Arc<Context>, &str) -> Option<CSSDecls> + 'static;
 
-pub struct Rule<'a> {
+pub struct Rule<'i> {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
     // a Theme map
     pub allowed_values: Option<ThemeValue>,
     pub allowed_modifiers: Option<ThemeValue>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'a>>,
+    pub infer_property_id: Option<PropertyId<'i>>,
 }
 
 impl<'a> Rule<'a> {
@@ -49,7 +49,11 @@ impl<'a> Rule<'a> {
         self
     }
 
-    pub fn apply_to(&self, ctx: Arc<Context>, value: &str) -> Option<CSSDecls> {
+    pub fn apply_to(
+        &self,
+        ctx: Arc<Context<'a>>,
+        value: &str,
+    ) -> Option<CSSDecls> {
         // arbitrary value
         if let Some(stripped) = value.strip_arbitrary() {
             // when infer_property_id is None, default not check it
@@ -62,24 +66,25 @@ impl<'a> Rule<'a> {
                     ) {
                         Ok(Property::Unparsed(_)) => return None,
                         Err(_) => return None,
-                        Ok(_) => return (self.handler)(ctx, stripped),
+                        Ok(_) => return (self.handler)(ctx.clone(), stripped),
                     }
                 }
-                None => return (self.handler)(ctx, stripped),
+                None => return (self.handler)(ctx.clone(), stripped),
             }
         }
 
         // theme value
-        let a = self.allowed_values.as_ref()?.clone();
-
-        if let Some(v) = a.get(value) {
-            return (self.handler)(ctx, v);
+        if let Some(allowed_values) = &self.allowed_values {
+            if let Some(v) = allowed_values.get(value) {
+                return (self.handler)(ctx.clone(), v);
+            }
         }
 
         None
     }
 
-    pub fn bind_context(self, ctx: Arc<Context>) -> InContextRule<'a> {
+    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a>
+    {
         InContextRule {
             rule: self,
             ctx: Arc::downgrade(&ctx),
@@ -89,12 +94,12 @@ impl<'a> Rule<'a> {
 
 pub struct InContextRule<'a> {
     pub rule: Rule<'a>,
-    pub ctx: Weak<Context>,
+    pub ctx: Weak<Context<'a>>,
 }
 
 impl<'a> InContextRule<'a> {
-    pub fn apply_to(&self, value: &str) -> Option<CSSDecls> {
-        (self.rule.handler)(self.ctx.upgrade().unwrap(), value)
+    pub fn apply_to(&'a self, value: &str) -> Option<CSSDecls> {
+        self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
     }
 }
 

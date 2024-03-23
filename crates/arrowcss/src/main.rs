@@ -5,14 +5,17 @@
 #![feature(fn_traits)]
 
 use std::fs::{self, read_to_string};
+use std::sync::Arc;
 
 use ::config::{Config, File};
 use cssparser::color::parse_hash_color;
+use lightningcss::properties::PropertyId;
 
 use crate::config::ArrowConfig;
-use crate::context::{Context, ThemeValue};
+use crate::context::{AddRule, Context, ThemeValue};
 use crate::css::ToCss;
 use crate::parser::parse;
+use crate::rule::Rule;
 use crate::rules::statics::STATIC_RULES;
 use crate::writer::{Writer, WriterConfig};
 
@@ -21,7 +24,7 @@ mod context;
 mod css;
 mod macros;
 mod parser;
-// mod rule;
+mod rule;
 mod rules;
 mod theme;
 mod themes;
@@ -41,32 +44,34 @@ fn main() {
 
     let input: &'static String =
         Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
-    let ctx = Box::leak(Box::new(Context::new(config)));
+    let ctx = Context::new(config);
 
-    ctx.add_rule("text", |value, ctx| {
-        ctx.get_theme_value("colors", value)
-        .and_then(|color| {
+    ctx.add_rule(
+        "text", 
+        Rule::new(|ctx, value| {
             if !ctx.config.core_plugins.text_opacity {
                 return Some(decls! {
-                    "color" => &color
+                    "color" => &value
                 });
             }
-            let color = color.strip_prefix('#')?;
+            let color = value.strip_prefix('#')?;
             let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
             Some(decls! {
                 "--tw-text-opacity" => &a.to_string(),
                 "color" => &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
             })
-        })
-    })
-    .add_rule("text", |value, ctx| {
-        let font_size = ctx.get_theme_value("spacing", value)?;
-        let line_height = ctx.get_theme_value("fontSize:lineHeight", value)?;
-        Some(decls! {
-            "font-size" => &font_size,
-            "line-height" => &line_height
-        })
-    })
+        }).infer_by(PropertyId::Color)
+    )
+    .add_rule(
+        "text",
+        Rule::new(|ctx, value| {
+            // let line_height = ctx.get_theme_value("fontSize:lineHeight", value)?;
+            Some(decls! {
+                "font-size" => &value,
+                // "line-height" => &line_height
+            })
+        }).infer_by(PropertyId::FontSize)
+    )
     .add_variant("first", "&:first-child")
     .add_variant("last", "&:last-child")
     .add_variant(
@@ -125,10 +130,12 @@ fn main() {
         },
     );
 
-    // open test.html
-    parse(input, ctx);
+    let ctx = Arc::new(ctx);
 
-    ctx.tokens.borrow().values().for_each(|it| {
+    // open test.html
+    parse(input, ctx.clone());
+
+    ctx.clone().tokens.borrow().values().for_each(|it| {
         if let Some(rule) = it {
             let _ = rule.to_css(&mut writer);
         }

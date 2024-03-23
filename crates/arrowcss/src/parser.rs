@@ -1,7 +1,13 @@
+use std::sync::Arc;
+
 use crate::{
-    context::Context, css::{CSSRule, CSSStyleRule, Container}, utils::VariantHandler, variant_parse::{
-        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant, VariantKind
-    }
+    context::Context,
+    css::{CSSRule, CSSStyleRule, Container},
+    utils::VariantHandler,
+    variant_parse::{
+        ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
+        VariantKind,
+    },
 };
 use cssparser::{BasicParseError, BasicParseErrorKind, Parser, ParserInput};
 use lazy_static::lazy_static;
@@ -17,7 +23,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
+fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -28,6 +34,7 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
 
     let start = parser.position();
     let rule;
+    let ctx_rules = ctx.rules.clone();
     loop {
         if let Err(BasicParseError {
             kind: BasicParseErrorKind::EndOfInput,
@@ -51,8 +58,10 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             if let Some(v) =
-                ctx.rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
-                    func_vec.iter().find_map(|func| func(rule.get((i + 1)..)?))
+            ctx_rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
+                    func_vec
+                        .iter()
+                        .find_map(|func| func.apply_to(ctx.clone(), rule.get((i + 1)..)?))
                 })
             {
                 decls.append(
@@ -89,11 +98,11 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
                 kind: ArbitraryVariantKind::Nested,
                 ..
             }) => true,
-            VariantKind::Literal(v) => ctx
-                .variants
-                .borrow()
-                .get(&v.value)
-                .is_some_and(|v| matches!(v.as_ref(), VariantHandler::Nested(_))),
+            VariantKind::Literal(v) => {
+                ctx.variants.borrow().get(&v.value).is_some_and(|v| {
+                    matches!(v.as_ref(), VariantHandler::Nested(_))
+                })
+            }
             _ => false,
         });
 
@@ -116,7 +125,7 @@ fn to_css_rule(value: &str, ctx: &Context) -> Option<Container> {
     Some(rule)
 }
 
-pub fn parse(input: &str, ctx: &Context) {
+pub fn parse(input: &str, ctx: Arc<Context>) {
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {
@@ -128,6 +137,6 @@ pub fn parse(input: &str, ctx: &Context) {
         let ctx_clone = ctx.clone();
         ctx.tokens
             .borrow_mut()
-            .insert(token.to_string(), to_css_rule(token, &ctx_clone));
+            .insert(token.to_string(), to_css_rule(token, ctx_clone));
     }
 }

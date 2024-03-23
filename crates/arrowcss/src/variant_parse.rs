@@ -203,7 +203,7 @@ impl<'i> Variant {
                 Ok(Token::Ident(id)) => {
                     ident = id.to_string();
                 }
-                Ok(token @ Token::Delim('@')) => {
+                Ok(_token @ Token::Delim('@')) => {
                     ident += "@";
                 }
                 Ok(Token::AtKeyword(at_rule)) => {
@@ -217,7 +217,7 @@ impl<'i> Variant {
                 Ok(token) => {
                     println!("{:?}", token);
                 }
-                Err(e) => {
+                Err(_e) => {
                     parser.reset(&start_state);
                     return Err(parser.new_custom_error(()));
                 }
