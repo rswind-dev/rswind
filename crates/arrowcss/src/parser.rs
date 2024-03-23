@@ -58,10 +58,10 @@ fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             if let Some(v) =
-            ctx_rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
-                    func_vec
-                        .iter()
-                        .find_map(|func| func.apply_to(ctx.clone(), rule.get((i + 1)..)?))
+                ctx_rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
+                    func_vec.iter().find_map(|func| {
+                        func.apply_to(ctx.clone(), rule.get((i + 1)..)?)
+                    })
                 })
             {
                 decls.append(

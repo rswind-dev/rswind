@@ -120,19 +120,11 @@ impl<'a> Context<'a> {
 }
 
 pub trait AddRule<'a> {
-    fn add_rule<S: Into<String>>(
-        &self,
-        key: S,
-        rule: Rule<'a>,
-    ) -> &Self;
+    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule<'a>) -> &Self;
 }
 
 impl<'a> AddRule<'a> for Context<'a> {
-    fn add_rule<S: Into<String>>(
-        &self,
-        key: S,
-        rule: Rule<'a>,
-    ) -> &Self {
+    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule<'a>) -> &Self {
         // let rule = rule.bind_context(self.clone());
         self.rules
             .borrow_mut()

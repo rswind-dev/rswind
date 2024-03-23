@@ -83,8 +83,7 @@ impl<'a> Rule<'a> {
         None
     }
 
-    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a>
-    {
+    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a> {
         InContextRule {
             rule: self,
             ctx: Arc::downgrade(&ctx),
