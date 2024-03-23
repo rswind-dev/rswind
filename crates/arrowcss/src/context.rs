@@ -14,9 +14,9 @@ pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
 pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
 
 #[derive(Default, Clone)]
-pub struct Context<'a> {
+pub struct Context<'a, 'b> {
     pub static_rules: RefCell<HashMap<String, CSSDecls>>,
-    pub rules: Arc<RefCell<HashMap<String, Vec<Rule<'a>>>>>,
+    pub rules: Arc<RefCell<HashMap<String, Vec<InContextRule<'a, 'b>>>>>,
 
     pub variants: RefCell<HashMap<String, Rc<VariantHandler>>>,
 
@@ -36,7 +36,7 @@ impl<S: Into<String>> ThemeValue<S> {
     }
 }
 
-impl<'a> Context<'a> {
+impl<'rule, 'ctx> Context<'rule, 'ctx> {
     pub fn new(config: ArrowConfig) -> Self {
         Self {
             tokens: HashMap::new().into(),
@@ -62,8 +62,8 @@ impl<'a> Context<'a> {
         values: Vec<ThemeValue<S>>,
     ) -> &Self
     where
-        S: Into<String> + 'a,
-        T: Into<String> + 'a,
+        S: Into<String> + 'rule,
+        T: Into<String> + 'rule,
     {
         // let theme_key: String = _theme_key.into();
         // for value in values {
@@ -90,7 +90,7 @@ impl<'a> Context<'a> {
 
     pub fn add_variant<S, M>(&self, key: S, matcher: M) -> &Self
     where
-        M: Matcher<'a>,
+        M: Matcher<'rule>,
         S: Into<String>,
     {
         let key_clone: String = key.into();
@@ -103,9 +103,9 @@ impl<'a> Context<'a> {
     }
 
     pub fn get_theme_value(
-        &'a self,
-        key: &'a str,
-        value: &'a str,
+        &'ctx self,
+        key: &'rule str,
+        value: &'rule str,
     ) -> Option<String> {
         self.theme
             .borrow()
@@ -119,13 +119,13 @@ impl<'a> Context<'a> {
     }
 }
 
-pub trait AddRule<'a> {
-    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule<'a>) -> &Self;
+pub trait AddRule<'rule, 'ctx> {
+    fn add_rule<S: Into<String>>(&'ctx self, key: S, rule: Rule<'rule>) -> &'ctx Self;
 }
 
-impl<'a> AddRule<'a> for Context<'a> {
-    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule<'a>) -> &Self {
-        // let rule = rule.bind_context(self.clone());
+impl<'rule, 'ctx> AddRule<'rule, 'ctx> for Arc<Context<'rule, 'ctx>> {
+    fn add_rule<S: Into<String>>(&'ctx self, key: S, rule: Rule<'rule>) -> &'ctx Self {
+        let rule = rule.bind_context(&self);
         self.rules
             .borrow_mut()
             .entry(key.into())
@@ -134,6 +134,7 @@ impl<'a> AddRule<'a> for Context<'a> {
         self
     }
 }
+
 fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
     decl_keys
         .into_iter()

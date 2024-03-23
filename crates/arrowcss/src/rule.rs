@@ -8,14 +8,14 @@ use crate::{
 
 pub trait RuleMatchingFn = Fn(Arc<Context>, &str) -> Option<CSSDecls> + 'static;
 
-pub struct Rule<'i> {
+pub struct Rule<'a> {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
     // a Theme map
     pub allowed_values: Option<ThemeValue>,
     pub allowed_modifiers: Option<ThemeValue>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'i>>,
+    pub infer_property_id: Option<PropertyId<'a>>,
 }
 
 impl<'a> Rule<'a> {
@@ -49,10 +49,10 @@ impl<'a> Rule<'a> {
         self
     }
 
-    pub fn apply_to(
+    pub fn apply_to<'b, 'ctx>(
         &self,
-        ctx: Arc<Context<'a>>,
-        value: &str,
+        ctx: Arc<Context<'a, 'ctx>>,
+        value: &'b str,
     ) -> Option<CSSDecls> {
         // arbitrary value
         if let Some(stripped) = value.strip_arbitrary() {
@@ -83,21 +83,21 @@ impl<'a> Rule<'a> {
         None
     }
 
-    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a> {
+    pub fn bind_context<'ctx>(self, ctx: &Arc<Context<'a, 'ctx>>) -> InContextRule<'a, 'ctx> {
         InContextRule {
             rule: self,
-            ctx: Arc::downgrade(&ctx),
+            ctx: Arc::downgrade(ctx),
         }
     }
 }
 
-pub struct InContextRule<'a> {
-    pub rule: Rule<'a>,
-    pub ctx: Weak<Context<'a>>,
+pub struct InContextRule<'rule, 'ctx> {
+    pub rule: Rule<'rule>,
+    pub ctx: Weak<Context<'rule, 'ctx>>,
 }
 
-impl<'a> InContextRule<'a> {
-    pub fn apply_to(&'a self, value: &str) -> Option<CSSDecls> {
+impl<'rule, 'ctx> InContextRule<'rule, 'ctx> {
+    pub fn apply_to<'c>(&'c self, value: &'c str) -> Option<CSSDecls> {
         self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
     }
 }

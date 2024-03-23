@@ -23,7 +23,10 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
+fn to_css_rule<'a, 'b, 'c>(
+    value: &'a str,
+    ctx: Arc<Context<'b, 'c>>,
+) -> Option<Container> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -34,7 +37,7 @@ fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
 
     let start = parser.position();
     let rule;
-    let ctx_rules = ctx.rules.clone();
+
     loop {
         if let Err(BasicParseError {
             kind: BasicParseErrorKind::EndOfInput,
@@ -58,11 +61,13 @@ fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             if let Some(v) =
-                ctx_rules.borrow().get(rule.get(..i)?).and_then(|func_vec| {
-                    func_vec.iter().find_map(|func| {
-                        func.apply_to(ctx.clone(), rule.get((i + 1)..)?)
-                    })
-                })
+                ctx.rules.clone().borrow().get(rule.get(..i)?).and_then(
+                    |func_vec| {
+                        func_vec.iter().find_map(|func| {
+                            func.apply_to(rule.get((i + 1)..)?)
+                        })
+                    },
+                )
             {
                 decls.append(
                     &mut v.to_vec().into_iter().map(CSSRule::Decl).collect(),
@@ -125,7 +130,10 @@ fn to_css_rule<'a>(value: &str, ctx: Arc<Context<'a>>) -> Option<Container> {
     Some(rule)
 }
 
-pub fn parse(input: &str, ctx: Arc<Context>) {
+pub fn parse<'a, 'b>(input: &str, ctx: Arc<Context<'a, 'b>>)
+where
+    'a: 'b,
+{
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {

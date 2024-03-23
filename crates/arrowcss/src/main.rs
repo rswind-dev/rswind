@@ -44,7 +44,7 @@ fn main() {
 
     let input: &'static String =
         Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
-    let ctx = Context::new(config);
+    let ctx = Arc::new(Context::new(config));
 
     ctx.add_rule(
         "text", 
@@ -129,8 +129,6 @@ fn main() {
             indent_type: writer::IndentType::Space,
         },
     );
-
-    let ctx = Arc::new(ctx);
 
     // open test.html
     parse(input, ctx.clone());
