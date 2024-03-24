@@ -14,9 +14,9 @@ pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
 pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
 
 #[derive(Default, Clone)]
-pub struct Context {
+pub struct Context<'a> {
     pub static_rules: RefCell<HashMap<String, CSSDecls>>,
-    pub rules: Arc<RefCell<HashMap<String, Vec<InContextRule>>>>,
+    pub rules: Arc<RefCell<HashMap<String, Vec<Arc<InContextRule<'a>>>>>>,
 
     pub variants: RefCell<HashMap<String, Rc<VariantHandler>>>,
 
@@ -36,7 +36,7 @@ impl<S: Into<String>> ThemeValue<S> {
     }
 }
 
-impl Context {
+impl<'a> Context<'a> {
     pub fn new(config: ArrowConfig) -> Self {
         Self {
             tokens: HashMap::new().into(),
@@ -88,9 +88,9 @@ impl Context {
         self
     }
 
-    pub fn add_variant<'a, S, M>(&self, key: S, matcher: M) -> &Self
+    pub fn add_variant<'b, S, M>(&self, key: S, matcher: M) -> &Self
     where
-        M: Matcher<'a>,
+        M: Matcher<'b>,
         S: Into<String>,
     {
         let key_clone: String = key.into();
@@ -115,21 +115,21 @@ impl Context {
     }
 }
 
-pub trait AddRule {
-    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule) -> &Self;
+pub trait AddRule<'a, 'b> {
+  fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self;
 }
 
-impl AddRule for Arc<Context> {
-    fn add_rule<S: Into<String>>(&self, key: S, rule: Rule) -> &Self {
-        self.rules
-            .borrow_mut()
-            .entry(key.into())
-            .or_insert_with(Vec::new)
-            .push(rule.bind_context(&self.clone()));
-        self
-    }
+impl<'a, 'b> AddRule<'a, 'b> for Arc<Context<'a>> {
+  fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self {
+      let rule = rule.bind_context(self.clone());
+      self.rules
+          .borrow_mut()
+          .entry(key.into())
+          .or_insert_with(Vec::new)
+          .push(rule.into());
+      self
+  }
 }
-
 fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
     decl_keys
         .into_iter()
@@ -154,14 +154,14 @@ macro_rules! add_static {
 
 #[macro_export]
 macro_rules! add_theme_rule {
-  ($ctx:ident, {
+  ($ctx:expr, {
     $($theme_key:literal => {
       $($key:literal => [$($decl_key:literal),+])+
     })+
   }) => {
     $(
       $ctx.add_theme_rule($theme_key, vec![
-        $(ThemeValue::new($key, vec![$($decl_key.into()),+]),)+
+        $($crate::context::ThemeValue::new($key, vec![$($decl_key.into()),+]),)+
       ]);
     )+
   };
