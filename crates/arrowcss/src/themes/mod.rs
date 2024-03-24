@@ -108,6 +108,38 @@ pub fn theme() -> Theme {
             "gradient-to-bl" => "linear-gradient(to bottom left, var(--tw-gradient-stops))",
             "gradient-to-l" => "linear-gradient(to left, var(--tw-gradient-stops))",
             "gradient-to-tl" => "linear-gradient(to top left, var(--tw-gradient-stops))"
+        }.into(),
+        "opacity" => map! {
+            "0" => "0",
+            "5" => "0.05",
+            "10" => "0.1",
+            "20" => "0.2",
+            "25" => "0.25",
+            "30" => "0.3",
+            "40" => "0.4",
+            "50" => "0.5",
+            "60" => "0.6",
+            "70" => "0.7",
+            "75" => "0.75",
+            "80" => "0.8",
+            "90" => "0.9",
+            "95" => "0.95",
+            "100" => "1"
+        }.into(),
+        "lineClamp" => map! {
+            "1" => "1",
+            "2" => "2",
+            "3" => "3",
+            "4" => "4",
+            "5" => "5",
+            "6" => "6"
+        }.into(),
+        "borderWidth" => map! {
+            "DEFAULT" => "1px",
+            "0" => "0",
+            "2" => "2px",
+            "4" => "4px",
+            "8" => "8px"
         }.into()
     }
     .into()

@@ -23,10 +23,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'a, 'b>(
-    value: &'a str,
-    ctx: Arc<Context>,
-) -> Option<Container> {
+fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<Container> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -61,7 +58,7 @@ fn to_css_rule<'a, 'b>(
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             if let Some(v) =
-                ctx.rules.clone().borrow().get(rule.get(..i)?).and_then(
+                ctx.rules.borrow().clone().get(rule.get(..i)?).and_then(
                     |func_vec| {
                         func_vec.iter().find_map(|func| {
                             func.apply_to(rule.get((i + 1)..)?)
@@ -130,7 +127,7 @@ fn to_css_rule<'a, 'b>(
     Some(rule)
 }
 
-pub fn parse<'a>(input: &str, ctx: Arc<Context>) {
+pub fn parse<'a>(input: &str, ctx: Arc<Context<'a>>) {
     let parts = EXTRACT_RE.split(input);
     for token in parts.into_iter() {
         if token.is_empty() {

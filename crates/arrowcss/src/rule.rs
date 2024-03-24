@@ -1,24 +1,70 @@
-use std::sync::{Arc, Weak};
+use std::{
+    ops::Deref,
+    sync::{Arc, Weak},
+};
 
 use lightningcss::properties::{Property, PropertyId};
 
 use crate::{
-    context::Context, css::CSSDecls, theme::ThemeValue, utils::StripArbitrary,
+    context::{AddRule, Context},
+    css::CSSDecls,
+    theme::ThemeValue,
+    utils::StripArbitrary,
 };
 
-pub trait RuleMatchingFn = Fn(Arc<Context>, &str) -> Option<CSSDecls> + 'static;
+pub struct MetaData {
+    pub raw: String,
+}
 
-pub struct Rule {
+pub struct ExtendedContext<'a> {
+    pub ctx: Arc<Context<'a>>,
+    pub meta: MetaData,
+}
+
+trait ContextExt<'a, 'b> {
+    fn with_meta(&'b self, meta: MetaData) -> Arc<ExtendedContext<'a>>;
+}
+
+impl<'a, 'b> ContextExt<'a, 'b> for Arc<Context<'a>> {
+    fn with_meta(&'b self, meta: MetaData) -> Arc<ExtendedContext<'a>> {
+        Arc::new(ExtendedContext {
+            ctx: self.clone(),
+            meta,
+        })
+    }
+}
+
+impl<'a> Deref for ExtendedContext<'a> {
+    type Target = Context<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.ctx
+    }
+}
+
+pub trait RuleMatchingFn =
+    Fn(Arc<ExtendedContext>, &str) -> Option<CSSDecls> + 'static;
+
+pub struct Rule<'a> {
     pub handler: Box<dyn RuleMatchingFn>,
     pub supports_negative: bool,
     // a Theme map
     pub allowed_values: Option<ThemeValue>,
     pub allowed_modifiers: Option<ThemeValue>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'static>>,
+    pub infer_property_id: Option<PropertyId<'a>>,
 }
 
-impl Rule {
+impl<'a, F> From<F> for Rule<'a>
+where
+    F: RuleMatchingFn,
+{
+    fn from(handler: F) -> Self {
+        Rule::new(handler)
+    }
+}
+
+impl<'a> Rule<'a> {
     pub fn new<F: RuleMatchingFn>(handler: F) -> Self {
         Self {
             handler: Box::new(handler),
@@ -29,7 +75,7 @@ impl Rule {
         }
     }
 
-    pub fn infer_by(mut self, id: PropertyId<'static>) -> Self {
+    pub fn infer_by(mut self, id: PropertyId<'a>) -> Self {
         self.infer_property_id = Some(id);
         self
     }
@@ -49,13 +95,15 @@ impl Rule {
         self
     }
 
-    pub fn apply_to<'b>(
-        &self,
-        ctx: Arc<Context>,
+    pub fn apply_to<'b, 'c>(
+        &'c self,
+        ctx: Arc<Context<'a>>,
         value: &'b str,
     ) -> Option<CSSDecls> {
         // arbitrary value
         if let Some(stripped) = value.strip_arbitrary() {
+            // TODO: add escape support
+            let stripped = &stripped.replace("_", " ");
             // when infer_property_id is None, default not check it
             match &self.infer_property_id {
                 Some(id) => {
@@ -66,38 +114,52 @@ impl Rule {
                     ) {
                         Ok(Property::Unparsed(_)) => return None,
                         Err(_) => return None,
-                        Ok(_) => return (self.handler)(ctx.clone(), stripped),
+                        Ok(_) => {
+                            return (self.handler)(
+                                ctx.clone()
+                                    .with_meta(MetaData { raw: value.into() }),
+                                stripped,
+                            )
+                        }
                     }
                 }
-                None => return (self.handler)(ctx.clone(), stripped),
+                None => {
+                    return (self.handler)(
+                        ctx.clone().with_meta(MetaData { raw: value.into() }),
+                        stripped,
+                    )
+                }
             }
         }
 
         // theme value
         if let Some(allowed_values) = &self.allowed_values {
             if let Some(v) = allowed_values.get(value) {
-                return (self.handler)(ctx.clone(), v);
+                return (self.handler)(
+                    ctx.clone().with_meta(MetaData { raw: value.into() }),
+                    v,
+                );
             }
         }
 
         None
     }
 
-    pub fn bind_context(self, ctx: &Arc<Context>) -> InContextRule {
+    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a> {
         InContextRule {
             rule: self,
-            ctx: Arc::downgrade(ctx),
+            ctx: Arc::downgrade(&ctx),
         }
     }
 }
 
-pub struct InContextRule {
-    pub rule: Rule,
-    pub ctx: Weak<Context>,
+pub struct InContextRule<'a> {
+    pub rule: Rule<'a>,
+    pub ctx: Weak<Context<'a>>,
 }
 
-impl<'a> InContextRule {
-    pub fn apply_to<'c>(&'c self, value: &'c str) -> Option<CSSDecls> {
+impl<'a> InContextRule<'a> {
+    pub fn apply_to<'b, 'c>(&'c self, value: &'b str) -> Option<CSSDecls> {
         self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
     }
 }
@@ -220,7 +282,5 @@ mod tests {
         // struct Context<'i> {
         //     theme: Theme<'i>,
         // }
-
-
     }
 }

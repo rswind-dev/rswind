@@ -1,3 +1,4 @@
+use std::ops::DerefMut;
 use std::{fmt::Write, ops::Deref};
 
 use anyhow::Error;
@@ -36,17 +37,68 @@ impl<A: Into<String>, B: Into<String>> FromIterator<(A, B)> for CSSDecls {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct CSSDecls(SmallVec<[CSSDecl; 1]>);
+pub struct CSSDecls(pub SmallVec<[CSSDecl; 1]>);
+
+pub enum OptionOrStr<'a> {
+    Option(Option<String>),
+    Str(&'a str),
+}
+
+impl<'a> From<Option<&'a str>> for OptionOrStr<'a> {
+    fn from(val: Option<&'a str>) -> Self {
+        Self::Option(val.map(Into::into))
+    }
+}
+
+impl<'a> From<&'a str> for OptionOrStr<'a> {
+    fn from(val: &'a str) -> Self {
+        Self::Str(val)
+    }
+}
+
+impl<'a> From<Option<String>> for OptionOrStr<'a> {
+    fn from(val: Option<String>) -> Self {
+        Self::Option(val)
+    }
+}
+
+impl<'a> From<OptionOrStr<'a>> for Option<String> {
+    fn from(value: OptionOrStr<'a>) -> Self {
+        match value {
+            OptionOrStr::Option(Some(s)) => Some(s),
+            OptionOrStr::Option(None) => None,
+            OptionOrStr::Str(s) => Some(s.to_string()),
+        }
+    }
+}
 
 #[macro_export]
 macro_rules! decls {
     ($($name:expr => $value:expr),* $(,)?) => {
-        $crate::css::decl::CSSDecls::multi(
-            [$(
-                $crate::css::decl::CSSDecl::new($name, $value)
-            ),*]
-        )
+        // $value ant be Option<&str> or &str, filter out None
+        {
+            let mut d = $crate::css::CSSDecls::new();
+            $(
+
+                if let Some(value) = Option::<String>::from($crate::css::decl::OptionOrStr::from($value)) {
+                    d.0.push($crate::css::CSSDecl::new($name, &value));
+                }
+            )*
+            d
+        }
     };
+}
+
+impl<'a> From<&&'a str> for OptionOrStr<'a> {
+    fn from(val: &&'a str) -> Self {
+        Self::Str(*val)
+    }
+}
+
+impl<'a> From<&'a std::string::String> for OptionOrStr<'a> {
+    fn from(val: &'a std::string::String) -> Self {
+        Self::Str(val.as_str())
+    }
 }
 
 impl Deref for CSSDecls {
@@ -54,6 +106,12 @@ impl Deref for CSSDecls {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl DerefMut for CSSDecls {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -70,8 +128,8 @@ impl From<Vec<CSSDecl>> for CSSDecls {
 }
 
 impl CSSDecls {
-    pub fn new(decl: CSSDecl) -> Self {
-        Self(smallvec![decl])
+    pub fn new() -> Self {
+        Self(smallvec![])
     }
 
     pub fn multi<D: Into<CSSDecl>, I: IntoIterator<Item = D>>(
@@ -81,7 +139,7 @@ impl CSSDecls {
     }
 
     pub fn from_pair<S: Into<String>>(pair: (S, S)) -> Self {
-        Self::new(pair.into())
+        Self::from(Into::<CSSDecl>::into(pair))
     }
 }
 
