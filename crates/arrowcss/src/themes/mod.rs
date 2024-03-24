@@ -66,7 +66,49 @@ pub fn theme() -> Theme {
             "xl" => "24px",
             "2xl" => "40px",
             "3xl" => "64px"
-          }.into()
+        }.into(),
+        "ringWidth" => map! {
+            "DEFAULT" => "3px",
+            "0" => "0px",
+            "1" => "1px",
+            "2" => "2px",
+            "4" => "4px",
+            "8" => "8px"
+        }.into(),
+        "ringOffsetWidth" => map! {
+            "0" => "0px",
+            "1" => "1px",
+            "2" => "2px",
+            "4" => "4px",
+            "8" => "8px"
+        }.into(),
+        "backgroundPosition" => map! {
+            "bottom" => "bottom",
+            "center" => "center",
+            "left" => "left",
+            "left-bottom" => "left bottom",
+            "left-top" => "left top",
+            "right" => "right",
+            "right-bottom" => "right bottom",
+            "right-top" => "right top",
+            "top" => "top"
+        }.into(),
+        "backgroundSize" => map! {
+            "auto" => "auto",
+            "cover" => "cover",
+            "contain" => "contain"
+        }.into(),
+        "backgroundImage" => map! {
+            "none" => "none",
+            "gradient-to-t" => "linear-gradient(to top, var(--tw-gradient-stops))",
+            "gradient-to-tr" => "linear-gradient(to top right, var(--tw-gradient-stops))",
+            "gradient-to-r" => "linear-gradient(to right, var(--tw-gradient-stops))",
+            "gradient-to-br" => "linear-gradient(to bottom right, var(--tw-gradient-stops))",
+            "gradient-to-b" => "linear-gradient(to bottom, var(--tw-gradient-stops))",
+            "gradient-to-bl" => "linear-gradient(to bottom left, var(--tw-gradient-stops))",
+            "gradient-to-l" => "linear-gradient(to left, var(--tw-gradient-stops))",
+            "gradient-to-tl" => "linear-gradient(to top left, var(--tw-gradient-stops))"
+        }.into()
     }
     .into()
 }
