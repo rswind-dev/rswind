@@ -1,8 +1,7 @@
 use std::{iter, ops::ControlFlow, rc::Rc};
 
 use crate::{
-    context::VariantMatchingFn,
-    css::{CSSAtRule, CSSRule, Container},
+    context::VariantMatchingFn, css::{CSSAtRule, CSSRule, Container}
 };
 
 pub fn strip_arbitrary(value: &str) -> Option<&str> {

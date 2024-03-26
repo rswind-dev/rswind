@@ -9,8 +9,6 @@ use crate::{
     utils::{create_variant_fn, Matcher, VariantHandler},
 };
 
-pub trait RuleMatchingFn = Fn(&str) -> Option<CSSDecls> + 'static;
-
 pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
 
 #[derive(Default, Clone)]
