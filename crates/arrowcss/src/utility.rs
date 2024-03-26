@@ -6,7 +6,7 @@ use std::fmt::Write;
 
 use cssparser::{Parser, ParserInput};
 
-use crate::css::CSSDecl;
+use crate::css::CssDecl;
 use crate::parser::Parse;
 use crate::utils::StripArbitrary;
 use crate::{context::Context, css::CSSDecls};

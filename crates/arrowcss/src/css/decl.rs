@@ -10,12 +10,12 @@ use crate::writer::Writer;
 use super::ToCss;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct CSSDecl {
+pub struct CssDecl {
     pub name: String,
     pub value: String,
 }
 
-impl CSSDecl {
+impl CssDecl {
     pub fn new<S: Into<String>>(name: S, value: S) -> Self {
         Self {
             name: name.into(),
@@ -24,9 +24,9 @@ impl CSSDecl {
     }
 }
 
-impl<A: Into<String>, B: Into<String>> From<(A, B)> for CSSDecl {
+impl<A: Into<String>, B: Into<String>> From<(A, B)> for CssDecl {
     fn from(val: (A, B)) -> Self {
-        CSSDecl::new(val.0.into(), val.1.into())
+        CssDecl::new(val.0.into(), val.1.into())
     }
 }
 
@@ -37,7 +37,7 @@ impl<A: Into<String>, B: Into<String>> FromIterator<(A, B)> for CSSDecls {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct CSSDecls(pub SmallVec<[CSSDecl; 1]>);
+pub struct CSSDecls(pub SmallVec<[CssDecl; 1]>);
 
 pub enum OptionOrStr<'a> {
     Option(Option<String>),
@@ -81,7 +81,7 @@ macro_rules! decls {
             $(
 
                 if let Some(value) = Option::<String>::from($crate::css::decl::OptionOrStr::from($value)) {
-                    d.0.push($crate::css::CSSDecl::new($name, &value));
+                    d.0.push($crate::css::CssDecl::new($name, &value));
                 }
             )*
             d
@@ -102,7 +102,7 @@ impl<'a> From<&'a std::string::String> for OptionOrStr<'a> {
 }
 
 impl Deref for CSSDecls {
-    type Target = [CSSDecl];
+    type Target = [CssDecl];
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -115,14 +115,14 @@ impl DerefMut for CSSDecls {
     }
 }
 
-impl From<CSSDecl> for CSSDecls {
-    fn from(decl: CSSDecl) -> Self {
+impl From<CssDecl> for CSSDecls {
+    fn from(decl: CssDecl) -> Self {
         Self(smallvec![decl])
     }
 }
 
-impl From<Vec<CSSDecl>> for CSSDecls {
-    fn from(decl: Vec<CSSDecl>) -> Self {
+impl From<Vec<CssDecl>> for CSSDecls {
+    fn from(decl: Vec<CssDecl>) -> Self {
         Self(decl.into())
     }
 }
@@ -132,18 +132,18 @@ impl CSSDecls {
         Self(smallvec![])
     }
 
-    pub fn multi<D: Into<CSSDecl>, I: IntoIterator<Item = D>>(
+    pub fn multi<D: Into<CssDecl>, I: IntoIterator<Item = D>>(
         decls: I,
     ) -> Self {
         Self(decls.into_iter().map(Into::into).collect())
     }
 
     pub fn from_pair<S: Into<String>>(pair: (S, S)) -> Self {
-        Self::from(Into::<CSSDecl>::into(pair))
+        Self::from(Into::<CssDecl>::into(pair))
     }
 }
 
-impl ToCss for CSSDecl {
+impl ToCss for CssDecl {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
@@ -172,8 +172,8 @@ mod tests {
         assert_eq!(
             decls,
             CSSDecls::multi([
-                CSSDecl::new("color", "red"),
-                CSSDecl::new("background-color", "blue"),
+                CssDecl::new("color", "red"),
+                CssDecl::new("background-color", "blue"),
             ])
         );
     }

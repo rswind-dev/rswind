@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     context::Context,
-    css::{CSSRule, CSSStyleRule, Container},
+    css::{CssRule, CssRuleList, StyleRule},
     utils::VariantHandler,
     variant_parse::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
@@ -23,7 +23,7 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<Container> {
+fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<CssRuleList> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -47,12 +47,12 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<Container> {
     }
 
     // Step 2: try static match
-    let mut decls: Vec<CSSRule> = vec![];
+    let mut decls: Vec<CssRule> = vec![];
     if let Some(static_rule) = ctx.static_rules.borrow().get(&rule) {
         decls = static_rule
             .to_vec()
             .into_iter()
-            .map(CSSRule::Decl)
+            .map(CssRule::Decl)
             .collect();
     } else {
         // Step 3: get all index of `-`
@@ -67,7 +67,7 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<Container> {
                 )
             {
                 decls.append(
-                    &mut v.to_vec().into_iter().map(CSSRule::Decl).collect(),
+                    &mut v.to_vec().into_iter().map(CssRule::Decl).collect(),
                 );
                 break;
             }
@@ -78,7 +78,7 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<Container> {
         return None;
     }
 
-    let mut rule: Container = CSSRule::Style(CSSStyleRule {
+    let mut rule: CssRuleList = CssRule::Style(StyleRule {
         selector: rule.to_string(),
         nodes: decls,
     })

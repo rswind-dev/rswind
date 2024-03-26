@@ -3,7 +3,7 @@ use cssparser::{
     Token,
 };
 
-use crate::css::{CSSAtRule, CSSRule, Container};
+use crate::css::{AtRule, CssRule, CssRuleList};
 
 #[derive(Debug, PartialEq)]
 pub struct Variant {
@@ -28,7 +28,7 @@ pub enum ArbitraryVariantKind {
 
 // MatchVariant trait has a VariantMatchingFn function
 pub trait MatchVariant {
-    fn match_variant(self, container: Container) -> Option<Container>;
+    fn match_variant(self, container: CssRuleList) -> Option<CssRuleList>;
 }
 
 // Something like [@media(min-width:300px)] or [&:nth-child(3)]
@@ -39,12 +39,12 @@ pub struct ArbitraryVariant {
 }
 
 impl MatchVariant for ArbitraryVariant {
-    fn match_variant(self, mut container: Container) -> Option<Container> {
+    fn match_variant(self, mut container: CssRuleList) -> Option<CssRuleList> {
         match self.kind {
             ArbitraryVariantKind::Replacement => {
                 for node in container.nodes.iter_mut() {
                     match node {
-                        CSSRule::Style(ref mut it) => {
+                        CssRule::Style(ref mut it) => {
                             it.selector = self.value.replace('&', &it.selector);
                         }
                         _ => {}
@@ -53,7 +53,7 @@ impl MatchVariant for ArbitraryVariant {
                 Some(container)
             }
             ArbitraryVariantKind::Nested => Some(
-                CSSRule::AtRule(CSSAtRule {
+                CssRule::AtRule(AtRule {
                     name: self.value.trim_start_matches('@').to_owned(),
                     params: "".into(),
                     nodes: vec![container],

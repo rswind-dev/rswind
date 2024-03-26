@@ -2,14 +2,14 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 use crate::{
     config::{ArrowConfig, Config},
-    css::{CSSDecls, Container},
+    css::{CSSDecls, CssRuleList},
     rule::{InContextRule, Rule},
     theme::Theme,
     themes::theme,
     utils::{create_variant_fn, Matcher, VariantHandler},
 };
 
-pub trait VariantMatchingFn = Fn(Container) -> Option<Container> + 'static;
+pub trait VariantMatchingFn = Fn(CssRuleList) -> Option<CssRuleList> + 'static;
 
 #[derive(Default, Clone)]
 pub struct Context<'a> {
@@ -20,7 +20,7 @@ pub struct Context<'a> {
 
     pub theme: RefCell<Rc<Theme>>,
     pub config: Config,
-    pub tokens: RefCell<HashMap<String, Option<Container>>>,
+    pub tokens: RefCell<HashMap<String, Option<CssRuleList>>>,
 }
 
 pub struct ThemeValue<S: Into<String>> {
@@ -114,19 +114,19 @@ impl<'a> Context<'a> {
 }
 
 pub trait AddRule<'a, 'b> {
-  fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self;
+    fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self;
 }
 
 impl<'a, 'b> AddRule<'a, 'b> for Arc<Context<'a>> {
-  fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self {
-      let rule = rule.bind_context(self.clone());
-      self.rules
-          .borrow_mut()
-          .entry(key.into())
-          .or_insert_with(Vec::new)
-          .push(rule.into());
-      self
-  }
+    fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self {
+        let rule = rule.bind_context(self.clone());
+        self.rules
+            .borrow_mut()
+            .entry(key.into())
+            .or_insert_with(Vec::new)
+            .push(rule.into());
+        self
+    }
 }
 fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
     decl_keys

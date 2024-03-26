@@ -4,41 +4,41 @@ use anyhow::Error;
 use smallvec::smallvec;
 use smallvec::SmallVec;
 
-use crate::css::rule::CSSRule;
+use crate::css::rule::CssRule;
 use crate::writer::Writer;
 
 use super::ToCss;
 
 #[derive(Debug, Clone)]
-pub struct Container {
-    pub nodes: SmallVec<[CSSRule; 1]>,
+pub struct CssRuleList {
+    pub nodes: SmallVec<[CssRule; 1]>,
 }
 
-impl From<CSSRule> for Container {
-    fn from(rule: CSSRule) -> Self {
+impl From<CssRule> for CssRuleList {
+    fn from(rule: CssRule) -> Self {
         Self {
             nodes: smallvec![rule],
         }
     }
 }
 
-impl FromIterator<CSSRule> for Container {
-    fn from_iter<T: IntoIterator<Item = CSSRule>>(iter: T) -> Self {
+impl FromIterator<CssRule> for CssRuleList {
+    fn from_iter<T: IntoIterator<Item = CssRule>>(iter: T) -> Self {
         Self {
             nodes: iter.into_iter().collect(),
         }
     }
 }
 
-impl FromIterator<Container> for Container {
-    fn from_iter<T: IntoIterator<Item = Container>>(iter: T) -> Self {
+impl FromIterator<CssRuleList> for CssRuleList {
+    fn from_iter<T: IntoIterator<Item = CssRuleList>>(iter: T) -> Self {
         Self {
             nodes: iter.into_iter().flat_map(|c| c.nodes).collect(),
         }
     }
 }
 
-impl ToCss for Container {
+impl ToCss for CssRuleList {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
@@ -50,13 +50,13 @@ impl ToCss for Container {
     }
 }
 
-impl Default for Container {
+impl Default for CssRuleList {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Container {
+impl CssRuleList {
     pub fn new() -> Self {
         Self { nodes: smallvec![] }
     }

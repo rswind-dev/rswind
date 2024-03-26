@@ -10,7 +10,7 @@ use std::sync::Arc;
 use ::config::{Config, File};
 
 use crate::context::ThemeValue;
-use crate::css::CSSDecl;
+use crate::css::CssDecl;
 use crate::{
     config::ArrowConfig,
     context::Context,
