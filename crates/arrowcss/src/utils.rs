@@ -181,12 +181,12 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
     );
 
     let handler: Box<dyn Fn(CssRuleList) -> Option<CssRuleList>> =
-        Box::new(move |mut container: CssRuleList<'_>| {
+        Box::new(move |mut container: CssRuleList| {
             container.nodes = fns
                 .deref()
                 .into_iter()
                 .filter_map(|f| f(container.clone()))
-                .collect::<CssRuleList<'_>>()
+                .collect::<CssRuleList>()
                 .nodes;
             Some(container)
         });
