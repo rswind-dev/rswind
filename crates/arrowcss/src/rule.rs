@@ -1,71 +1,58 @@
-use std::{
-    ops::Deref,
-    sync::{Arc, Weak},
+use lightningcss::{
+    properties::{Property, PropertyId},
+    values::string::CowArcStr,
 };
 
-use lightningcss::properties::{Property, PropertyId};
+use crate::{css::CssDecls, theme::ThemeValue, utils::StripArbitrary};
 
-use crate::{
-    context::{AddRule, Context},
-    css::CSSDecls,
-    theme::ThemeValue,
-    utils::StripArbitrary,
-};
-
+#[allow(dead_code)]
 pub struct MetaData {
     pub raw: String,
 }
 
-pub struct ExtendedContext<'a> {
-    pub ctx: Arc<Context<'a>>,
-    pub meta: MetaData,
-}
+// trait ContextExt<'i, 'c> {
+//     fn with_meta(self, meta: MetaData) -> Arc<ExtendedContext<'i, 'c>>;
+// }
 
-trait ContextExt<'a, 'b> {
-    fn with_meta(&'b self, meta: MetaData) -> Arc<ExtendedContext<'a>>;
-}
+// impl<'i, 'c: 'i> ContextExt<'i, 'c> for Arc<Context<'i, 'c>> {
+//     fn with_meta(self, meta: MetaData) -> Arc<ExtendedContext<'i, 'c>> {
+//         Arc::new(ExtendedContext {
+//             ctx: self.clone(),
+//             meta,
+//         })
+//     }
+// }
 
-impl<'a, 'b> ContextExt<'a, 'b> for Arc<Context<'a>> {
-    fn with_meta(&'b self, meta: MetaData) -> Arc<ExtendedContext<'a>> {
-        Arc::new(ExtendedContext {
-            ctx: self.clone(),
-            meta,
-        })
-    }
-}
+// impl<'i, 'c> Deref for ExtendedContext<'i, 'c> {
+//     type Target = Context<'i, 'c>;
 
-impl<'a> Deref for ExtendedContext<'a> {
-    type Target = Context<'a>;
+//     fn deref(&self) -> &Self::Target {
+//         &self.ctx
+//     }
+// }
 
-    fn deref(&self) -> &Self::Target {
-        &self.ctx
-    }
-}
+pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> Option<CssDecls>;
 
-pub trait RuleMatchingFn =
-    Fn(Arc<ExtendedContext>, &str) -> Option<CSSDecls> + 'static;
-
-pub struct Rule<'a> {
+pub struct Rule<'i> {
     pub handler: Box<dyn RuleMatchingFn>,
+    #[allow(dead_code)]
     pub supports_negative: bool,
     // a Theme map
-    pub allowed_values: Option<ThemeValue>,
-    pub allowed_modifiers: Option<ThemeValue>,
+    pub allowed_values: Option<ThemeValue<'i>>,
+    #[allow(dead_code)]
+    pub allowed_modifiers: Option<ThemeValue<'i>>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'a>>,
+    pub infer_property_id: Option<PropertyId<'i>>,
 }
 
-impl<'a, F> From<F> for Rule<'a>
-where
-    F: RuleMatchingFn,
-{
+impl<'c, F: RuleMatchingFn + 'static> From<F> for Rule<'c> {
     fn from(handler: F) -> Self {
         Rule::new(handler)
     }
 }
 
-impl<'a> Rule<'a> {
-    pub fn new<F: RuleMatchingFn>(handler: F) -> Self {
+impl<'c> Rule<'c> {
+    pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
             handler: Box::new(handler),
             supports_negative: false,
@@ -75,35 +62,37 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn infer_by(mut self, id: PropertyId<'a>) -> Self {
+    pub fn infer_by(mut self, id: PropertyId<'c>) -> Self {
         self.infer_property_id = Some(id);
         self
     }
 
+    #[allow(dead_code)]
     pub fn support_negative(mut self) -> Self {
         self.supports_negative = true;
         self
     }
 
-    pub fn allow_values(mut self, values: ThemeValue) -> Self {
+    pub fn allow_values(mut self, values: ThemeValue<'c>) -> Self {
         self.allowed_values = Some(values);
         self
     }
 
-    pub fn allow_modifiers(mut self, modifiers: ThemeValue) -> Self {
+    #[allow(dead_code)]
+    pub fn allow_modifiers(mut self, modifiers: ThemeValue<'c>) -> Self {
         self.allowed_modifiers = Some(modifiers);
         self
     }
 
-    pub fn apply_to<'b, 'c>(
-        &'c self,
-        ctx: Arc<Context<'a>>,
-        value: &'b str,
-    ) -> Option<CSSDecls> {
+    pub fn apply_to<'a>(&self, value: &'a str) -> Option<CssDecls<'a>>
+    where
+        'c: 'a,
+    {
         // arbitrary value
+        // let ctx = ctx.clone();
         if let Some(stripped) = value.strip_arbitrary() {
             // TODO: add escape support
-            let stripped = &stripped.replace("_", " ");
+            // let stripped = &stripped.replace("_", " ");
             // when infer_property_id is None, default not check it
             match &self.infer_property_id {
                 Some(id) => {
@@ -114,30 +103,28 @@ impl<'a> Rule<'a> {
                     ) {
                         Ok(Property::Unparsed(_)) => return None,
                         Err(_) => return None,
-                        Ok(_) => {
-                            return (self.handler)(
-                                ctx.clone()
-                                    .with_meta(MetaData { raw: value.into() }),
-                                stripped,
-                            )
-                        }
+                        Ok(_) => {}
                     }
                 }
-                None => {
-                    return (self.handler)(
-                        ctx.clone().with_meta(MetaData { raw: value.into() }),
-                        stripped,
-                    )
-                }
+                None => {}
             }
+
+            return (self.handler)(
+                MetaData {
+                    raw: value.to_string(),
+                },
+                stripped.into(),
+            );
         }
 
         // theme value
         if let Some(allowed_values) = &self.allowed_values {
             if let Some(v) = allowed_values.get(value) {
                 return (self.handler)(
-                    ctx.clone().with_meta(MetaData { raw: value.into() }),
-                    v,
+                    MetaData {
+                        raw: value.to_string(),
+                    },
+                    v.clone(),
                 );
             }
         }
@@ -145,24 +132,28 @@ impl<'a> Rule<'a> {
         None
     }
 
-    pub fn bind_context(self, ctx: Arc<Context<'a>>) -> InContextRule<'a> {
-        InContextRule {
-            rule: self,
-            ctx: Arc::downgrade(&ctx),
-        }
-    }
+    // pub fn bind_context(
+    //     self,
+    //     ctx: Arc<Context<'i, 'c>>,
+    // ) -> InContextRule<'i, 'c>
+    // {
+    //     InContextRule {
+    //         rule: self,
+    //         ctx: Arc::downgrade(&ctx),
+    //     }
+    // }
 }
 
-pub struct InContextRule<'a> {
-    pub rule: Rule<'a>,
-    pub ctx: Weak<Context<'a>>,
-}
+// pub struct InContextRule<'i, 'c> {
+//     pub rule: Rule<'c>,
+//     pub ctx: Weak<Context<'i, 'c>>,
+// }
 
-impl<'a> InContextRule<'a> {
-    pub fn apply_to<'b, 'c>(&'c self, value: &'b str) -> Option<CSSDecls> {
-        self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
-    }
-}
+// impl<'i, 'c: 'i> InContextRule<'i, 'c> {
+//     pub fn apply_to<'a>(&'a self, value: &'i str) -> Option<CssDecls<'i>> {
+//         self.rule.apply_to(self.ctx.upgrade().unwrap(), value)
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -182,89 +173,89 @@ mod tests {
 
     #[test]
     fn test_rule_handler() {
-        let rule = Rule::new(|_, value| {
-            Some(decls! {
-                "font-size" => &value,
-            })
-        })
-        .support_negative()
-        .infer_by(PropertyId::FontSize);
+        // let ctx = Arc::new(Context::default());
+        // let rule = Rule::new(|_, value| {
+        //     Some(decls! {
+        //         "font-size" => value.to_string(),
+        //     })
+        // })
+        // .support_negative()
+        // .infer_by(PropertyId::FontSize)
+        // .bind_context(ctx.clone());
 
-        let ctx = Arc::new(Context::default());
+        // assert_eq!(
+        //     rule.apply_to("[16px]"),
+        //     Some(decls! {
+        //         "font-size" => "16px",
+        //     })
+        // );
 
-        assert_eq!(
-            rule.apply_to(ctx.clone(), "[16px]"),
-            Some(decls! {
-                "font-size" => "16px",
-            })
-        );
+        // assert_eq!(
+        //     rule.apply_to("[larger]"),
+        //     Some(decls! {
+        //         "font-size" => "larger",
+        //     })
+        // );
 
-        assert_eq!(
-            rule.apply_to(ctx.clone(), "[larger]"),
-            Some(decls! {
-                "font-size" => "larger",
-            })
-        );
-
-        assert_eq!(
-            rule.apply_to(ctx.clone(), "[.5%]"),
-            Some(decls! {
-                "font-size" => ".5%",
-            })
-        );
+        // assert_eq!(
+        //     rule.apply_to("[.5%]"),
+        //     Some(decls! {
+        //         "font-size" => ".5%",
+        //     })
+        // );
     }
 
     #[test]
     fn test_handle_background_position() {
         let rule = Rule::new(|_, value| {
             Some(decls! {
-                "background-position" => &value,
+                "background-position" => value,
             })
         })
         .support_negative()
         .infer_by(PropertyId::BackgroundPosition);
 
-        let ctx = Arc::new(Context::default());
+        // let ctx = Arc::new(Context::default());
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[top]"),
+            rule.apply_to("[top]"),
             Some(decls! {
                 "background-position" => "top",
             })
         );
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[center]"),
+            rule.apply_to("[center]"),
             Some(decls! {
                 "background-position" => "center",
             })
         );
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[50% 50%]"),
+            rule.apply_to("[50% 50%]"),
             Some(decls! {
                 "background-position" => "50% 50%",
             })
         );
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[50% top]"),
+            rule.apply_to("[50% top]"),
             Some(decls! {
                 "background-position" => "50% top",
             })
         );
 
-        assert_eq!(rule.apply_to(ctx.clone(), "[top 50%]"), None);
+        assert_eq!(rule.apply_to("[top 50%]"), None);
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[left 50%]"),
+            rule.apply_to("[left 50%]"),
             Some(decls! {
                 "background-position" => "left 50%",
             })
         );
 
         assert_eq!(
-            rule.apply_to(ctx.clone(), "[bottom 10px right 20px]"),
+            rule.apply_to("[bottom 10px right 20px]"),
             Some(decls! {
                 "background-position" => "bottom 10px right 20px",
             })

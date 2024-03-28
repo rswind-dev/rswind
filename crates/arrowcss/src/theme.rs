@@ -1,3 +1,4 @@
+use lightningcss::values::string::CowArcStr;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
@@ -9,39 +10,39 @@ use std::{
 };
 use std::{fmt, sync::Arc};
 
-pub type ThemeValue = Arc<HashMap<String, String>>;
+pub type ThemeValue<'c> = Arc<HashMap<String, CowArcStr<'c>>>;
 
 #[derive(Debug, Default)]
-pub struct Theme(pub HashMap<String, ThemeValue>);
+pub struct Theme<'c>(pub HashMap<String, ThemeValue<'c>>);
 
-impl Deref for Theme {
-    type Target = HashMap<String, ThemeValue>;
+impl<'c> Deref for Theme<'c> {
+    type Target = HashMap<String, ThemeValue<'c>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for Theme {
+impl<'c> DerefMut for Theme<'c> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl From<Theme> for HashMap<String, ThemeValue> {
-    fn from(map: Theme) -> Self {
+impl<'c> From<Theme<'c>> for HashMap<String, ThemeValue<'c>> {
+    fn from(map: Theme<'c>) -> Self {
         map.0
     }
 }
 
-impl From<HashMap<String, ThemeValue>> for Theme {
-    fn from(map: HashMap<String, ThemeValue>) -> Self {
+impl<'c> From<HashMap<String, ThemeValue<'c>>> for Theme<'c> {
+    fn from(map: HashMap<String, ThemeValue<'c>>) -> Self {
         Theme(map)
     }
 }
 
-impl Theme {
-    pub fn merge(mut self, other: Theme) -> Self {
+impl<'c> Theme<'c> {
+    pub fn merge<'a: 'c>(mut self, other: Self) -> Self {
         for (key, value) in other.0 {
             self.0
                 .entry(key.clone())
@@ -60,21 +61,22 @@ impl Theme {
 struct ThemeVisitor;
 
 impl<'de> Visitor<'de> for ThemeVisitor {
-    type Value = Theme;
+    type Value = Theme<'de>;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("a map of themes")
     }
 
-    fn visit_map<V>(self, mut map: V) -> Result<Theme, V::Error>
+    fn visit_map<V>(self, mut map: V) -> Result<Theme<'de>, V::Error>
     where
         V: MapAccess<'de>,
     {
         let mut themes = HashMap::new();
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
-                ref value @ Value::Object(ref theme) => {
-                    let mut theme_map = HashMap::new();
+                value @ Value::Object(_) => {
+                    let mut theme_map: HashMap<String, CowArcStr<'de>> =
+                        HashMap::new();
                     if key == "colors" {
                         match FlattenedColors::deserialize(value) {
                             Ok(b) => {
@@ -85,9 +87,12 @@ impl<'de> Visitor<'de> for ThemeVisitor {
                             }
                         }
                     } else {
-                        for (k, v) in theme {
+                        for (k, v) in value.as_object().unwrap() {
                             if let Value::String(s) = v {
-                                theme_map.insert(k.to_string(), s.to_string());
+                                theme_map.insert(
+                                    k.to_string(),
+                                    s.to_string().into(),
+                                );
                             }
                         }
                     }
@@ -104,8 +109,8 @@ impl<'de> Visitor<'de> for ThemeVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for Theme {
-    fn deserialize<D>(deserializer: D) -> Result<Theme, D::Error>
+impl<'de> Deserialize<'de> for Theme<'de> {
+    fn deserialize<D>(deserializer: D) -> Result<Theme<'de>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -114,24 +119,24 @@ impl<'de> Deserialize<'de> for Theme {
 }
 
 #[derive(Debug, Default)]
-pub struct FlattenedColors(pub HashMap<String, String>);
+pub struct FlattenedColors<'c>(pub HashMap<String, CowArcStr<'c>>);
 
-impl Deref for FlattenedColors {
-    type Target = HashMap<String, String>;
+impl<'c> Deref for FlattenedColors<'c> {
+    type Target = HashMap<String, CowArcStr<'c>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for FlattenedColors {
+impl<'c> DerefMut for FlattenedColors<'c> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl From<FlattenedColors> for HashMap<String, String> {
-    fn from(map: FlattenedColors) -> Self {
+impl<'c> From<FlattenedColors<'c>> for HashMap<String, CowArcStr<'c>> {
+    fn from(map: FlattenedColors<'c>) -> Self {
         map.0
     }
 }
@@ -139,27 +144,27 @@ impl From<FlattenedColors> for HashMap<String, String> {
 struct FlattenedColorsVisitor;
 
 impl<'de> Visitor<'de> for FlattenedColorsVisitor {
-    type Value = FlattenedColors;
+    type Value = FlattenedColors<'de>;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("a map of colors")
     }
 
-    fn visit_map<V>(self, mut map: V) -> Result<FlattenedColors, V::Error>
+    fn visit_map<V>(self, mut map: V) -> Result<FlattenedColors<'de>, V::Error>
     where
         V: MapAccess<'de>,
     {
-        let mut colors = HashMap::new();
+        let mut colors: HashMap<String, CowArcStr> = HashMap::new();
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
                 Value::String(s) => {
-                    colors.insert(key, s);
+                    colors.insert(key, s.into());
                 }
                 Value::Object(nested) => {
                     for (nested_key, nested_value) in nested {
                         let flat_key = format!("{}-{}", key, nested_key);
                         if let serde_json::Value::String(color) = nested_value {
-                            colors.insert(flat_key, color);
+                            colors.insert(flat_key, color.into());
                         }
                     }
                 }
@@ -170,7 +175,7 @@ impl<'de> Visitor<'de> for FlattenedColorsVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for FlattenedColors {
+impl<'de> Deserialize<'de> for FlattenedColors<'de> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -202,15 +207,15 @@ mod tests {
 
         assert_eq!(
             theme.get("colors").unwrap().get("inherit"),
-            Some(&"inherit".to_string())
+            Some(&"inherit".to_string().into())
         );
         assert_eq!(
             theme.get("colors").unwrap().get("slate-50"),
-            Some(&"#f8fafc".to_string())
+            Some(&"#f8fafc".to_string().into())
         );
         assert_eq!(
             theme.get("spacing").unwrap().get("1"),
-            Some(&"0.25rem".to_string())
+            Some(&"0.25rem".to_string().into())
         );
     }
 
@@ -228,11 +233,11 @@ mod tests {
 
         assert_eq!(
             flattened_colors.get("inherit"),
-            Some(&"inherit".to_string())
+            Some(&"inherit".to_string().into())
         );
         assert_eq!(
             flattened_colors.get("slate-50"),
-            Some(&"#f8fafc".to_string())
+            Some(&"#f8fafc".to_string().into())
         );
     }
 
@@ -266,16 +271,28 @@ mod tests {
         let theme1 = theme1.merge(theme2);
 
         assert_eq!(
-            theme1.get("colors").unwrap().get("slate-50"),
-            Some(&"#f8fafc".to_string())
+            theme1
+                .get("colors")
+                .unwrap()
+                .get("slate-50")
+                .map(|s| s.to_string()),
+            Some("#f8fafc".to_string())
         );
         assert_eq!(
-            theme1.get("spacing").unwrap().get("1"),
-            Some(&"0.25rem".to_string())
+            theme1
+                .get("spacing")
+                .unwrap()
+                .get("1")
+                .map(|s| s.to_string()),
+            Some("0.25rem".to_string())
         );
         assert_eq!(
-            theme1.get("colors").unwrap().get("inherit"),
-            Some(&"inherit-merged".to_string())
+            theme1
+                .get("colors")
+                .unwrap()
+                .get("inherit")
+                .map(|s| s.to_string()),
+            Some("inherit-merged".to_string())
         );
     }
 }

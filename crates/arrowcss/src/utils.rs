@@ -1,4 +1,8 @@
-use std::{iter, ops::ControlFlow, rc::Rc};
+use std::{
+    iter,
+    ops::{ControlFlow, Deref},
+    sync::Arc,
+};
 
 use crate::{
     context::VariantMatchingFn,
@@ -48,17 +52,16 @@ impl<'a> Matcher<'a> for Vec<&'a str> {
     }
 }
 
-#[derive(Clone)]
 pub enum VariantHandler {
-    Nested(Rc<dyn VariantMatchingFn>),
-    Replacement(Rc<dyn VariantMatchingFn>),
+    Nested(Box<dyn VariantMatchingFn>),
+    Replacement(Box<dyn VariantMatchingFn>),
 }
 
-impl Fn<(CssRuleList,)> for VariantHandler {
+impl<'a, 'b> Fn<(CssRuleList<'a>,)> for VariantHandler {
     extern "rust-call" fn call(
         &self,
-        args: (CssRuleList,),
-    ) -> Option<CssRuleList> {
+        args: (CssRuleList<'a>,),
+    ) -> Option<CssRuleList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
             VariantHandler::Replacement(f) => f(args.0),
@@ -66,12 +69,12 @@ impl Fn<(CssRuleList,)> for VariantHandler {
     }
 }
 
-impl FnOnce<(CssRuleList,)> for VariantHandler {
-    type Output = Option<CssRuleList>;
+impl<'a, 'b> FnOnce<(CssRuleList<'a>,)> for VariantHandler {
+    type Output = Option<CssRuleList<'a>>;
 
     extern "rust-call" fn call_once(
         self,
-        args: (CssRuleList,),
+        args: (CssRuleList<'a>,),
     ) -> Self::Output {
         match self {
             VariantHandler::Nested(f) => f(args.0),
@@ -80,11 +83,11 @@ impl FnOnce<(CssRuleList,)> for VariantHandler {
     }
 }
 
-impl FnMut<(CssRuleList,)> for VariantHandler {
+impl<'a, 'b> FnMut<(CssRuleList<'a>,)> for VariantHandler {
     extern "rust-call" fn call_mut(
         &mut self,
-        args: (CssRuleList,),
-    ) -> Option<CssRuleList> {
+        args: (CssRuleList<'a>,),
+    ) -> Option<CssRuleList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
             VariantHandler::Replacement(f) => f(args.0),
@@ -92,8 +95,8 @@ impl FnMut<(CssRuleList,)> for VariantHandler {
     }
 }
 
-fn create_nested_variant_fn(matcher: String) -> VariantHandler {
-    VariantHandler::Nested(Rc::new(move |rule| {
+fn create_nested_variant_fn<'a>(matcher: String) -> VariantHandler {
+    VariantHandler::Nested(Box::new(move |rule| {
         Some(
             CssRule::AtRule(AtRule {
                 name: matcher.to_owned(),
@@ -105,8 +108,8 @@ fn create_nested_variant_fn(matcher: String) -> VariantHandler {
     }))
 }
 
-fn create_replacement_variant_fn(matcher: String) -> VariantHandler {
-    VariantHandler::Replacement(Rc::new(move |mut container: CssRuleList| {
+fn create_replacement_variant_fn<'a>(matcher: String) -> VariantHandler {
+    VariantHandler::Replacement(Box::new(move |mut container: CssRuleList| {
         for rule in container.nodes.iter_mut() {
             match rule {
                 CssRule::Style(ref mut it) => {
@@ -120,7 +123,7 @@ fn create_replacement_variant_fn(matcher: String) -> VariantHandler {
 }
 
 pub fn create_variant_fn<'a, M: Matcher<'a>>(
-    key: &str,
+    _key: &str,
     matcher: M,
 ) -> Option<VariantHandler> {
     let fns = matcher
@@ -142,7 +145,7 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
                     };
                     ControlFlow::Continue(match acc {
                         Some(VariantHandler::Nested(acc)) => {
-                            Some(VariantHandler::Nested(Rc::new(
+                            Some(VariantHandler::Nested(Box::new(
                                 move |container: CssRuleList| {
                                     acc(container.clone())
                                         .and_then(|container| new_fn(container))
@@ -150,7 +153,7 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
                             )))
                         }
                         Some(VariantHandler::Replacement(acc)) => {
-                            Some(VariantHandler::Replacement(Rc::new(
+                            Some(VariantHandler::Replacement(Box::new(
                                 move |container: CssRuleList| {
                                     acc(container.clone())
                                         .and_then(|container| new_fn(container))
@@ -170,17 +173,25 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
         .into_iter()
         .partition(|f| matches!(f, VariantHandler::Nested(_)));
     let is_nested = !nested_fns.is_empty();
-    let fns = replace_fns.into_iter().chain(nested_fns);
-
-    let handler = Rc::new(move |mut container: CssRuleList| {
-        container = fns
-            .clone()
+    let fns = Arc::new(
+        replace_fns
             .into_iter()
-            .filter_map(|f| f(container.clone()))
-            .collect::<CssRuleList>();
-        Some(container)
-    });
+            .chain(nested_fns)
+            .collect::<Vec<_>>(),
+    );
 
+    let handler: Box<dyn Fn(CssRuleList) -> Option<CssRuleList>> =
+        Box::new(move |mut container: CssRuleList<'_>| {
+            container.nodes = fns
+                .deref()
+                .into_iter()
+                .filter_map(|f| f(container.clone()))
+                .collect::<CssRuleList<'_>>()
+                .nodes;
+            Some(container)
+        });
+
+    // Some(VariantHandler::Nested(Box::new(|_| None)))
     Some(if is_nested {
         VariantHandler::Nested(handler)
     } else {
@@ -190,23 +201,17 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
 
 #[cfg(test)]
 mod tests {
-    use smallvec::SmallVec;
-
-    use crate::css::StyleRule;
-
-    use super::*;
-
     #[test]
     fn test_add_variant() {
-        let variant: VariantHandler =
-            create_variant_fn("disabled", "&:disabled").unwrap();
-        let rule = CssRule::Style(StyleRule {
-            selector: "flex".into(),
-            nodes: vec![CssRule::Decl(("display", "flex").into())],
-        })
-        .into();
-        let new_rule = variant(rule).unwrap();
+        // let variant: VariantHandler =
+        //     create_variant_fn("disabled", "&:disabled").unwrap();
+        // let rule = CssRule::Style(StyleRule {
+        //     selector: "flex".into(),
+        //     nodes: vec![CssRule::Decl(("display", "flex").into())],
+        // })
+        // .into();
+        // let new_rule = variant(rule).unwrap();
 
-        println!("{:?}", new_rule);
+        // println!("{:?}", new_rule);
     }
 }

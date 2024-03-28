@@ -8,23 +8,23 @@ use crate::writer::Writer;
 use super::{CssDecl, CssRuleList, ToCss};
 
 #[derive(Debug, Clone)]
-pub struct StyleRule {
+pub struct StyleRule<'a> {
     pub selector: String,
-    pub nodes: Vec<CssRule>,
+    pub nodes: Vec<CssRuleList<'a>>,
 }
 
 #[derive(Debug, Clone)]
-pub struct AtRule {
+pub struct AtRule<'a> {
     pub name: String,
     pub params: String,
-    pub nodes: Vec<CssRuleList>,
+    pub nodes: Vec<CssRuleList<'a>>,
 }
 
 #[derive(Debug, Clone)]
-pub enum CssRule {
-    Style(StyleRule),
-    AtRule(AtRule),
-    Decl(CssDecl),
+pub enum CssRule<'a> {
+    Style(StyleRule<'a>),
+    AtRule(AtRule<'a>),
+    Decl(CssDecl<'a>),
 }
 
 #[macro_export]
@@ -47,7 +47,7 @@ macro_rules! css {
     };
 }
 
-impl ToCss for AtRule {
+impl<'a> ToCss for AtRule<'a> {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
@@ -69,7 +69,7 @@ impl ToCss for AtRule {
     }
 }
 
-impl ToCss for CssRule {
+impl<'a> ToCss for CssRule<'a> {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
@@ -82,7 +82,7 @@ impl ToCss for CssRule {
     }
 }
 
-impl ToCss for StyleRule {
+impl<'a> ToCss for StyleRule<'a> {
     fn to_css<W: std::fmt::Write>(
         &self,
         writer: &mut Writer<W>,
@@ -106,6 +106,7 @@ impl ToCss for StyleRule {
 
 #[cfg(test)]
 mod tests {
+    use lightningcss::properties::Property;
 
     #[test]
     fn test_css_macro() {

@@ -2,28 +2,32 @@ use std::sync::Arc;
 
 use crate::{
     context::Context,
-    css::{CssRule, CssRuleList, StyleRule},
+    css::{CssDecls, CssRule, CssRuleList, StyleRule},
     utils::VariantHandler,
     variant_parse::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
     },
 };
-use cssparser::{BasicParseError, BasicParseErrorKind, Parser, ParserInput};
+use cssparser::{serialize_identifier, ParseError, Parser, ParserInput};
 use lazy_static::lazy_static;
+use lightningcss::traits::IntoOwned;
 use regex::Regex;
 
-pub trait Parse<T> {
-    fn parse(ctx: &Context, input: T) -> Option<Self>
-    where
-        Self: Sized;
-}
+// pub trait Parse<T> {
+//     fn parse(ctx: &Context, input: T) -> Option<Self>
+//     where
+//         Self: Sized;
+// }
 
 lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<CssRuleList> {
+fn to_css_rule<'c, 'i>(
+    value: &'i str,
+    ctx: Arc<Context<'c>>,
+) -> Option<CssRuleList<'i>> {
     let mut input = ParserInput::new(value);
     let mut parser = Parser::new(&mut input);
 
@@ -33,44 +37,29 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<CssRuleList> {
     }
 
     let start = parser.position();
-    let rule;
-
-    loop {
-        if let Err(BasicParseError {
-            kind: BasicParseErrorKind::EndOfInput,
-            ..
-        }) = parser.next()
-        {
-            rule = parser.slice(start..parser.position()).to_owned();
-            break;
-        }
-    }
+    let _ = parser.parse_entirely(|p| {
+        while let Ok(_) = p.next() {}
+        Ok::<(), ParseError<'_, ()>>(())
+    });
+    let rule = parser.slice(start..parser.position());
 
     // Step 2: try static match
-    let mut decls: Vec<CssRule> = vec![];
-    if let Some(static_rule) = ctx.static_rules.borrow().get(&rule) {
-        decls = static_rule
-            .to_vec()
-            .into_iter()
-            .map(CssRule::Decl)
-            .collect();
+    let mut decls = CssDecls::default();
+    if let Some(static_rule) =
+        ctx.clone().static_rules.clone().borrow().get(value)
+    {
+        decls = static_rule.clone();
     } else {
         // Step 3: get all index of `-`
-        for (i, _) in rule.match_indices('-') {
-            if let Some(v) =
-                ctx.rules.borrow().clone().get(rule.get(..i)?).and_then(
-                    |func_vec| {
-                        func_vec.iter().find_map(|func| {
-                            func.apply_to(rule.get((i + 1)..)?)
-                        })
-                    },
-                )
-            {
-                decls.append(
-                    &mut v.to_vec().into_iter().map(CssRule::Decl).collect(),
-                );
-                break;
+        'outer: for (i, _) in value.match_indices('-') {
+            for func in ctx.rules.borrow().get(rule.get(..i)?)? {
+                if let Some(d) = func.apply_to(rule.get(i + 1..)?) {
+                    decls = d.into_owned().into();
+                    break 'outer;
+                }
             }
+            // if let Some(v) = ctx.try_apply(rule.get(..i)?, rule.get(i + 1..)?) {
+            // }
         }
     }
 
@@ -78,9 +67,15 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<CssRuleList> {
         return None;
     }
 
+    let mut selector = String::new();
+    let _ = serialize_identifier(value, &mut selector);
     let mut rule: CssRuleList = CssRule::Style(StyleRule {
-        selector: rule.to_string(),
-        nodes: decls,
+        selector,
+        nodes: vec![decls
+            .0
+            .iter()
+            .map(|decl| CssRule::Decl(decl.clone()))
+            .collect::<CssRuleList>()],
     })
     .into();
 
@@ -127,8 +122,12 @@ fn to_css_rule(value: &str, ctx: Arc<Context>) -> Option<CssRuleList> {
     Some(rule)
 }
 
-pub fn parse<'a>(input: &str, ctx: Arc<Context<'a>>) {
+pub fn parse<'c, 'i>(
+    input: &'i str,
+    ctx: Arc<Context<'c>>,
+) -> Vec<CssRuleList<'i>> {
     let parts = EXTRACT_RE.split(input);
+    let mut tokens: Vec<CssRuleList> = vec![];
     for token in parts.into_iter() {
         if token.is_empty() {
             continue;
@@ -137,8 +136,10 @@ pub fn parse<'a>(input: &str, ctx: Arc<Context<'a>>) {
             continue;
         }
         let ctx_clone = ctx.clone();
-        ctx.tokens
-            .borrow_mut()
-            .insert(token.to_string(), to_css_rule(token, ctx_clone));
+        to_css_rule(token, ctx_clone).map(|rule| tokens.push(rule));
+        // ctx.tokens
+        //     .borrow_mut()
+        //     .insert(token.to_string(), to_css_rule(token, ctx_clone));
     }
+    tokens
 }

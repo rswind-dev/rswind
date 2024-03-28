@@ -7,7 +7,7 @@ macro_rules! static_rules {
   ) => {
     vec![
       $(
-        ($key, CSSDecls::multi([
+        ($key, CssDecls::multi([
           $(
             ($name, $value),
           )+

@@ -1,12 +1,13 @@
 use anyhow::Error;
 use std::fmt::Write;
 
-#[allow(clippy::upper_case_acronyms)]
+#[allow(clippy::upper_case_acronyms, unused)]
 pub enum LineFeed {
     LF,
     CRLF,
 }
 
+#[allow(unused)]
 pub enum IndentType {
     Space,
     Tab,
@@ -14,7 +15,7 @@ pub enum IndentType {
 
 pub struct WriterConfig {
     pub linefeed: LineFeed,
-    pub indent_width: u32,
+    pub indent_width: usize,
     pub indent_type: IndentType,
     pub minify: bool,
 }
@@ -26,7 +27,7 @@ pub struct Writer<'a, W: Write> {
     pub col: usize,
     pub linefeed: &'a str,
     pub indent: &'a str,
-    pub indent_width: u32,
+    pub indent_width: usize,
     pub indent_level: usize,
 }
 
@@ -60,7 +61,7 @@ where
         if self.minify {
             return Ok(());
         }
-        self.write_char(' ')?;
+        self.write_str(self.indent)?;
         self.col += 1;
 
         Ok(())
@@ -71,7 +72,7 @@ where
             return Ok(());
         }
 
-        self.write_char('\n')?;
+        self.write_str(self.linefeed)?;
         self.line += 1;
         self.col = 0;
 
@@ -90,8 +91,11 @@ where
 impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
     fn write_str(&mut self, s: &str) -> std::fmt::Result {
         if self.col == 0 && self.indent_level > 0 {
-            self.dest
-                .write_str(self.indent.repeat(self.indent_level).as_str())?;
+            self.dest.write_str(
+                self.indent
+                    .repeat(self.indent_level * self.indent_width)
+                    .as_str(),
+            )?;
         }
         self.col += s.len();
         self.dest.write_str(s)
@@ -99,8 +103,11 @@ impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
 
     fn write_char(&mut self, c: char) -> std::fmt::Result {
         if self.col == 0 && self.indent_level > 0 {
-            self.dest
-                .write_str(self.indent.repeat(self.indent_level).as_str())?;
+            self.dest.write_str(
+                self.indent
+                    .repeat(self.indent_level * self.indent_width)
+                    .as_str(),
+            )?;
         }
         self.col += 1;
         self.dest.write_char(c)

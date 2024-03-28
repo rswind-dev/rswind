@@ -1,52 +1,42 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
+use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
 use crate::{
     config::{ArrowConfig, Config},
-    css::{CSSDecls, CssRuleList},
-    rule::{InContextRule, Rule},
-    theme::Theme,
+    css::{decl::decl, CssDecls, CssRuleList},
+    rule::Rule,
+    theme::{Theme, ThemeValue},
     themes::theme,
     utils::{create_variant_fn, Matcher, VariantHandler},
 };
 
-pub trait VariantMatchingFn = Fn(CssRuleList) -> Option<CssRuleList> + 'static;
+pub trait VariantMatchingFn = Fn(CssRuleList) -> Option<CssRuleList>;
 
 #[derive(Default, Clone)]
-pub struct Context<'a> {
-    pub static_rules: RefCell<HashMap<String, CSSDecls>>,
-    pub rules: Arc<RefCell<HashMap<String, Vec<Arc<InContextRule<'a>>>>>>,
+pub struct Context<'c> {
+    pub static_rules: Arc<RefCell<HashMap<String, CssDecls<'static>>>>,
+    pub rules: Arc<RefCell<HashMap<String, Vec<Arc<Rule<'c>>>>>>,
 
-    pub variants: RefCell<HashMap<String, Rc<VariantHandler>>>,
+    pub variants: Arc<RefCell<HashMap<String, Box<VariantHandler>>>>,
 
-    pub theme: RefCell<Rc<Theme>>,
+    pub theme: Arc<RefCell<Theme<'static>>>,
+    #[allow(dead_code)]
     pub config: Config,
-    pub tokens: RefCell<HashMap<String, Option<CssRuleList>>>,
+    pub tokens: RefCell<HashMap<String, Option<CssRuleList<'c>>>>,
 }
 
-pub struct ThemeValue<S: Into<String>> {
-    pub key: S,
-    pub decl_key: Vec<String>,
-}
-
-impl<S: Into<String>> ThemeValue<S> {
-    pub fn new(key: S, decl_key: Vec<String>) -> Self {
-        Self { key, decl_key }
-    }
-}
-
-impl<'a> Context<'a> {
-    pub fn new(config: ArrowConfig) -> Self {
+impl<'c> Context<'c> {
+    pub fn new(config: ArrowConfig<'static>) -> Self {
         Self {
             tokens: HashMap::new().into(),
-            static_rules: HashMap::new().into(),
-            variants: HashMap::new().into(),
+            static_rules: Arc::new(HashMap::new().into()),
+            variants: Arc::new(HashMap::new().into()),
             rules: RefCell::new(HashMap::new()).into(),
-            theme: Rc::clone(&Rc::new(theme().merge(config.theme))).into(),
+            theme: Arc::new(RefCell::new(theme().merge(config.theme))),
             config: config.config,
         }
     }
 
-    pub fn add_static<S>(&self, pair: (S, CSSDecls)) -> &Self
+    pub fn add_static<S>(&self, pair: (S, CssDecls<'static>)) -> &Self
     where
         S: Into<String>,
     {
@@ -54,72 +44,88 @@ impl<'a> Context<'a> {
         self
     }
 
-    pub fn add_theme_rule<S, T>(
-        &self,
-        _theme_key: T,
-        values: Vec<ThemeValue<S>>,
-    ) -> &Self
-    where
-        S: Into<String>,
-        T: Into<String>,
-    {
-        // let theme_key: String = _theme_key.into();
-        // for value in values {
-        //     // TODO: use theme_key
-        //     let theme_key = theme_key.clone();
-        //     let theme_clone = Rc::clone(&self.theme.borrow());
-        //     self.rules.borrow_mut().insert(
-        //         value.key.into(),
-        //         vec![Rc::new(move |input| {
-        //             theme_clone
-        //                 .get(theme_key.as_str())
-        //                 .and_then(|theme| theme.get(input))
-        //                 .map(|theme_val| {
-        //                     theme_rule_handler(
-        //                         value.decl_key.clone(),
-        //                         theme_val.into(),
-        //                     )
-        //                 })
-        //         })],
-        //     );
-        // }
-        self
-    }
+    // pub fn add_theme_rule(
+    //     &self,
+    //     _theme_key: String,
+    //     values: Vec<(String, Vec<String>)>,
+    // ) -> &Self {
+    //     let theme = self.get_theme(&_theme_key).clone();
+    //     let mut rules = self.rules.borrow_mut();
+    //     for value in values {
+    //         let theme_clone = Arc::clone(&theme); // Clone theme inside the loop
+    //         rules.insert(
+    //             value.0.into(),
+    //             vec![Arc::new(Rule::new(move |_, input| {
+    //                 let theme_clone = Arc::clone(&theme_clone); // Clone theme inside the closure
+    //                 theme_clone
+    //                     .as_ref()
+    //                     .and_then(|theme| theme.get::<str>(&input))
+    //                     .map(|theme_val| {
+    //                         theme_rule_handler(
+    //                             value.1.clone(),
+    //                             theme_val.to_string(),
+    //                         )
+    //                     })
+    //             }))],
+    //         );
+    //     }
+    //     self
+    // }
 
-    pub fn add_variant<'b, S, M>(&self, key: S, matcher: M) -> &Self
-    where
-        M: Matcher<'b>,
-        S: Into<String>,
-    {
-        let key_clone: String = key.into();
-        create_variant_fn(&key_clone, matcher).map(|func| {
+    pub fn add_variant<M: Matcher<'c>>(
+        &self,
+        key: &'c str,
+        matcher: M,
+    ) -> &Self {
+        // let key_clone: String = key.into();
+        create_variant_fn(key, matcher).map(|func| {
             self.variants
                 .borrow_mut()
-                .insert(key_clone.clone(), func.into())
+                .insert(key.to_string(), func.into())
         });
         self
     }
 
-    pub fn get_theme_value(&self, key: &str, value: &str) -> Option<String> {
-        self.theme
-            .borrow()
-            .get(key)
-            .and_then(|theme| theme.get(value))
-            .map(|s| s.to_owned())
-    }
+    // pub fn get_theme_value(
+    //     &self,
+    //     key: &str,
+    //     value: &str,
+    // ) -> Option<CowArcStr<'c>> {
+    //     self.theme
+    //         .borrow()
+    //         .get(key)
+    //         .and_then(|theme| theme.get(value))
+    //         .map(|s| s.to_owned())
+    // }
 
-    pub fn get_theme(&self, key: &str) -> Option<crate::theme::ThemeValue> {
+    pub fn get_theme<'a, 'b: 'c>(
+        &self,
+        key: &'a str,
+    ) -> Option<ThemeValue<'b>> {
         self.theme.borrow().get(key).map(Clone::clone)
     }
+
+    // pub fn try_apply(&self, key: &str, value: &'c str) -> Option<CssDecls<'c>> {
+    //     for func in self.rules.borrow().get(key)? {
+    //         if let Some(d) = func.apply_to(value) {
+    //             return Some(d);
+    //         }
+    //     }
+    //     None
+    // }
 }
 
-pub trait AddRule<'a, 'b> {
-    fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self;
+pub trait AddRule<'c> {
+    fn add_rule(self, key: &str, rule: Rule<'c>) -> Self;
+    fn add_theme_rule<'a: 'c>(
+        self,
+        key: &'a str,
+        values: Vec<(String, Vec<String>)>,
+    ) -> Self;
 }
 
-impl<'a, 'b> AddRule<'a, 'b> for Arc<Context<'a>> {
-    fn add_rule<S: Into<String>>(&'b self, key: S, rule: Rule<'a>) -> &'b Self {
-        let rule = rule.bind_context(self.clone());
+impl<'c> AddRule<'c> for Arc<Context<'c>> {
+    fn add_rule(self, key: &str, rule: Rule<'c>) -> Self {
         self.rules
             .borrow_mut()
             .entry(key.into())
@@ -127,13 +133,46 @@ impl<'a, 'b> AddRule<'a, 'b> for Arc<Context<'a>> {
             .push(rule.into());
         self
     }
+
+    fn add_theme_rule<'a: 'c>(
+        self,
+        key: &'a str,
+        values: Vec<(String, Vec<String>)>,
+    ) -> Self {
+        for (k, v) in values {
+            let theme = self
+                .get_theme(&key)
+                .expect(&format!("Theme {} not found", k));
+            let rule = Arc::new(
+                Rule::new(move |_, input| {
+                    let value = v.clone();
+                    Some(CssDecls::multi(
+                        value
+                            .into_iter()
+                            .map(|decl_key| decl(decl_key, input.to_string())),
+                    ))
+                })
+                .allow_values(theme),
+            );
+            self.rules
+                .borrow_mut()
+                .entry(k.clone())
+                .or_default()
+                .push(rule);
+        }
+        self
+    }
 }
-fn theme_rule_handler(decl_keys: Vec<String>, value: String) -> CSSDecls {
-    decl_keys
-        .into_iter()
-        .map(|decl_key| (decl_key, value.to_owned()))
-        .collect::<CSSDecls>()
-}
+
+// fn theme_rule_handler<'a>(
+//     decl_keys: Vec<String>,
+//     value: String,
+// ) -> CssDecls<'a> {
+//     decl_keys
+//         .into_iter()
+//         .map(|decl_key| (decl_key, value.to_owned()))
+//         .collect::<CssDecls>()
+// }
 
 #[macro_export]
 macro_rules! add_static {
@@ -157,9 +196,10 @@ macro_rules! add_theme_rule {
       $($key:literal => [$($decl_key:literal),+])+
     })+
   }) => {
+    use crate::context::AddRule;
     $(
       $ctx.add_theme_rule($theme_key, vec![
-        $($crate::context::ThemeValue::new($key, vec![$($decl_key.into()),+]),)+
+        $(($key.to_string(), vec![$($decl_key.into()),+]),)+
       ]);
     )+
   };

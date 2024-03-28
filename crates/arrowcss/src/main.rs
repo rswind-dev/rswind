@@ -10,11 +10,10 @@ use std::sync::Arc;
 use ::config::{Config, File};
 use cssparser::color::parse_hash_color;
 use lightningcss::properties::PropertyId;
-use lightningcss::values::length::Length;
 
 use crate::app::Application;
 use crate::config::ArrowConfig;
-use crate::context::{AddRule, Context, ThemeValue};
+use crate::context::Context;
 use crate::css::ToCss;
 use crate::parser::parse;
 use crate::rule::Rule;
@@ -33,14 +32,13 @@ mod themes;
 mod utility;
 mod utils;
 // mod variant;
+mod app;
 mod variant_parse;
 mod writer;
-mod app;
 
 fn main() {
     let mut app = Application::new().unwrap();
-    app.init();
-    app.run();
+    app.init().run();
 
     let config = Config::builder()
         .add_source(File::with_name("examples/arrow.config"))
@@ -52,7 +50,104 @@ fn main() {
     let input: &'static String =
         Box::leak(Box::new(read_to_string("examples/test.html").unwrap()));
     let ctx = Arc::new(Context::new(config));
+
     ctx
+    .clone()
+    .add_rule(
+        "text", 
+        Rule::new(|_, value| {
+            // if !ctx.config.core_plugins.text_opacity {
+            //     return Some(decls! {
+            //         "color" => value
+            //     });
+            // }
+            let color = value.strip_prefix('#')?;
+            let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
+            Some(decls! {
+                "--tw-text-opacity" => a.to_string(),
+                "color" => format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
+            })
+        }).infer_by(PropertyId::Color)
+    )
+    .add_rule(
+        "text",
+        Rule::new(move |_, value| {
+            Some(decls! {
+                "font-size" => value,
+                // "line-height" => ctx.get_theme_value("fontSize:lineHeight", &ctx.meta.raw)
+            })
+        })
+        .infer_by(PropertyId::FontSize)
+        .allow_values(ctx.clone().get_theme("fontSize").unwrap())
+    )
+    .add_rule(
+        "ring",
+        Rule::new(|_, value| {
+            Some(decls! {
+                "--tw-ring-offset-shadow" => "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+                "--tw-ring-shadow" => format!("var(--tw-ring-inset) 0 0 0 calc({value} + var(--tw-ring-offset-width)) var(--tw-ring-color)"),
+                "box-shadow" => "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"
+            })
+        })
+        .infer_by(PropertyId::Width)
+        .allow_values(ctx.get_theme("ringWidth").unwrap())
+    )
+    .add_rule("ring", Rule::new(|_, value| {
+            Some(decls! {
+                "--tw-ring-color" => value
+            })
+        })
+        .allow_values(ctx.get_theme("colors").unwrap())
+        .infer_by(PropertyId::Color)
+    )
+    .add_rule("ring-offset", Rule::new(|_, value| {
+            Some(decls! {
+                "--tw-ring-offset-color" => value
+            })
+        })
+        .allow_values(ctx.get_theme("colors").unwrap())
+        .infer_by(PropertyId::Color)
+    )
+    .add_rule("ring-offset", Rule::new(|_, value| {
+            Some(decls! {
+                "--tw-ring-offset-width" => value
+            })
+        })
+        .infer_by(PropertyId::Width)
+        .allow_values(ctx.get_theme("ringOffsetWidth").unwrap())
+    )
+    .add_rule("bg", Rule::new(|_, value| {
+            Some(decls! {
+                "background-color" => value
+            })
+        })
+        .infer_by(PropertyId::Color)
+        .allow_values(ctx.get_theme("colors").unwrap())
+    )
+    .add_rule("bg", Rule::new(|_, value| {
+            Some(decls! {
+                "background-position" => value
+            })
+        })
+        .infer_by(PropertyId::BackgroundPosition)
+        .allow_values(ctx.get_theme("backgroundPosition").unwrap())
+    )
+    .add_rule("bg", Rule::new(|_, value| {
+            Some(decls! {
+                "background-size" => value
+            })
+        })
+        .infer_by(PropertyId::BackgroundSize)
+        .allow_values(ctx.get_theme("backgroundSize").unwrap())
+    )
+    .add_rule("bg", Rule::new(|_, value| {
+            Some(decls! {
+                "background-image" => value
+            })
+        })
+        .infer_by(PropertyId::BackgroundImage)
+        .allow_values(ctx.get_theme("backgroundImage").unwrap())
+    )
         .add_variant("first", "&:first-child")
         .add_variant("last", "&:last-child")
         .add_variant(
@@ -71,7 +166,7 @@ fn main() {
         ctx.add_static((*key, value.clone()));
     });
 
-    add_theme_rule!(ctx, {
+    add_theme_rule!(ctx.clone(), {
         "spacing" => {
             "m" => ["margin"]
             "mx" => ["margin-left", "margin-right"]

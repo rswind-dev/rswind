@@ -5,8 +5,6 @@ use crate::map;
 use crate::theme::Theme;
 use crate::themes::colors::colors;
 use crate::themes::spacing::spacing;
-use serde::Deserialize;
-use serde_json::json;
 use std::hash::Hash;
 
 mod colors;
@@ -24,14 +22,6 @@ macro_rules! create_theme {
     };
 }
 
-fn extend<K: Clone + Eq + Hash, V: Clone>(
-    mut a: Arc<HashMap<K, V>>,
-    mut b: HashMap<K, V>,
-) -> Arc<HashMap<K, V>> {
-    Arc::make_mut(&mut a).extend(b.drain());
-    a
-}
-
 trait ArcExtend<K, V> {
     fn arc_extend(&mut self, other: HashMap<K, V>) -> Arc<HashMap<K, V>>;
 }
@@ -43,7 +33,7 @@ impl<K: Clone + Eq + Hash, V: Clone> ArcExtend<K, V> for Arc<HashMap<K, V>> {
     }
 }
 
-pub fn theme() -> Theme {
+pub fn theme() -> Theme<'static> {
     create_theme! {
         "colors" => colors(),
         "spacing" => spacing(),

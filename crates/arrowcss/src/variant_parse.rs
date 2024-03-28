@@ -43,11 +43,8 @@ impl MatchVariant for ArbitraryVariant {
         match self.kind {
             ArbitraryVariantKind::Replacement => {
                 for node in container.nodes.iter_mut() {
-                    match node {
-                        CssRule::Style(ref mut it) => {
-                            it.selector = self.value.replace('&', &it.selector);
-                        }
-                        _ => {}
+                    if let CssRule::Style(ref mut it) = node {
+                        it.selector = self.value.replace('&', &it.selector);
                     }
                 }
                 Some(container)
@@ -64,6 +61,7 @@ impl MatchVariant for ArbitraryVariant {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug, PartialEq)]
 pub enum Modifier {
     Arbitrary(String),
@@ -77,10 +75,10 @@ pub struct LiteralVariant {
     pub arbitrary: Option<String>,
 }
 
-enum ParserError {
-    UnexpectedToken,
-    UnexpectedEnd,
-}
+// enum ParserError {
+//     UnexpectedToken,
+//     UnexpectedEnd,
+// }
 
 impl<'i> ArbitraryVariant {
     fn parse<'a>(
@@ -102,7 +100,7 @@ impl<'i> ArbitraryVariant {
                             .to_string(),
                     });
                 }
-                Ok(Token::AtKeyword(at_rule)) => {
+                Ok(Token::AtKeyword(_)) => {
                     kind = Some(ArbitraryVariantKind::Nested);
                 }
                 Ok(Token::Delim('&')) => {
@@ -169,8 +167,8 @@ impl<'i> Variant {
                         arbitrary = parser
                             .parse_nested_block(|parser| {
                                 let start = parser.state();
-                                while let e = parser.next() {
-                                    match e {
+                                loop {
+                                    match parser.next() {
                                         Err(BasicParseError {
                                             kind:
                                                 BasicParseErrorKind::EndOfInput,
@@ -192,7 +190,7 @@ impl<'i> Variant {
                                         }
                                     }
                                 }
-                                Err(parser.new_custom_error(()))
+                                // Err(parser.new_custom_error(()))
                             })
                             .ok();
                     }
@@ -243,6 +241,7 @@ impl<'i> Variant {
     }
 }
 
+#[allow(dead_code)]
 pub fn create_variant(input: &str) -> Option<Variant> {
     let mut input = ParserInput::new(input);
     let mut parser = Parser::new(&mut input);

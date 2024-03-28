@@ -2,6 +2,8 @@ use std::ops::DerefMut;
 use std::{fmt::Write, ops::Deref};
 
 use anyhow::Error;
+use lightningcss::traits::IntoOwned;
+use lightningcss::values::string::CowArcStr;
 use smallvec::smallvec;
 use smallvec::SmallVec;
 
@@ -9,14 +11,14 @@ use crate::writer::Writer;
 
 use super::ToCss;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct CssDecl {
-    pub name: String,
-    pub value: String,
+#[derive(Clone, Debug, PartialEq)]
+pub struct CssDecl<'a> {
+    pub name: CowArcStr<'a>,
+    pub value: CowArcStr<'a>,
 }
 
-impl CssDecl {
-    pub fn new<S: Into<String>>(name: S, value: S) -> Self {
+impl<'a> CssDecl<'a> {
+    pub fn new<S: Into<CowArcStr<'a>>>(name: S, value: S) -> Self {
         Self {
             name: name.into(),
             value: value.into(),
@@ -24,64 +26,90 @@ impl CssDecl {
     }
 }
 
-impl<A: Into<String>, B: Into<String>> From<(A, B)> for CssDecl {
+impl<'a> IntoOwned<'a> for CssDecl<'a> {
+    type Owned = CssDecl<'static>;
+
+    fn into_owned(self) -> Self::Owned {
+        CssDecl {
+            name: self.name.into_owned(),
+            value: self.value.into_owned(),
+        }
+    }
+}
+
+pub fn decl<'a, S: Into<CowArcStr<'a>>>(name: S, value: S) -> CssDecl<'a> {
+    CssDecl::new(name, value)
+}
+
+impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> From<(A, B)>
+    for CssDecl<'a>
+{
     fn from(val: (A, B)) -> Self {
         CssDecl::new(val.0.into(), val.1.into())
     }
 }
 
-impl<A: Into<String>, B: Into<String>> FromIterator<(A, B)> for CSSDecls {
+impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> FromIterator<(A, B)>
+    for CssDecls<'a>
+{
     fn from_iter<T: IntoIterator<Item = (A, B)>>(iter: T) -> Self {
         Self(iter.into_iter().map(Into::into).collect())
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct CSSDecls(pub SmallVec<[CssDecl; 1]>);
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct CssDecls<'a>(pub SmallVec<[CssDecl<'a>; 1]>);
 
-pub enum OptionOrStr<'a> {
-    Option(Option<String>),
-    Str(&'a str),
-}
+impl<'a> IntoOwned<'a> for CssDecls<'a> {
+    type Owned = CssDecls<'static>;
 
-impl<'a> From<Option<&'a str>> for OptionOrStr<'a> {
-    fn from(val: Option<&'a str>) -> Self {
-        Self::Option(val.map(Into::into))
+    fn into_owned(self) -> Self::Owned {
+        CssDecls(self.0.into_iter().map(IntoOwned::into_owned).collect())
     }
 }
+// pub enum OptionOrStr<'a> {
+//     Option(Option<String>),
+//     Str(&'a str),
+// }
 
-impl<'a> From<&'a str> for OptionOrStr<'a> {
-    fn from(val: &'a str) -> Self {
-        Self::Str(val)
-    }
-}
+// impl<'a> From<Option<&'a str>> for OptionOrStr<'a> {
+//     fn from(val: Option<&'a str>) -> Self {
+//         Self::Option(val.map(Into::into))
+//     }
+// }
 
-impl<'a> From<Option<String>> for OptionOrStr<'a> {
-    fn from(val: Option<String>) -> Self {
-        Self::Option(val)
-    }
-}
+// impl<'a> From<&'a str> for OptionOrStr<'a> {
+//     fn from(val: &'a str) -> Self {
+//         Self::Str(val)
+//     }
+// }
 
-impl<'a> From<OptionOrStr<'a>> for Option<String> {
-    fn from(value: OptionOrStr<'a>) -> Self {
-        match value {
-            OptionOrStr::Option(Some(s)) => Some(s),
-            OptionOrStr::Option(None) => None,
-            OptionOrStr::Str(s) => Some(s.to_string()),
-        }
-    }
-}
+// impl<'a> From<Option<String>> for OptionOrStr<'a> {
+//     fn from(val: Option<String>) -> Self {
+//         Self::Option(val)
+//     }
+// }
+
+// impl<'a> From<OptionOrStr<'a>> for Option<String> {
+//     fn from(value: OptionOrStr<'a>) -> Self {
+//         match value {
+//             OptionOrStr::Option(Some(s)) => Some(s),
+//             OptionOrStr::Option(None) => None,
+//             OptionOrStr::Str(s) => Some(s.to_string()),
+//         }
+//     }
+// }
 
 #[macro_export]
 macro_rules! decls {
     ($($name:expr => $value:expr),* $(,)?) => {
         // $value ant be Option<&str> or &str, filter out None
         {
-            let mut d = $crate::css::CSSDecls::new();
+            let mut d = $crate::css::CssDecls::new();
             $(
 
-                if let Some(value) = Option::<String>::from($crate::css::decl::OptionOrStr::from($value)) {
-                    d.0.push($crate::css::CssDecl::new($name, &value));
+                if let Some(value) = Option::from(lightningcss::values::string::CowArcStr::from($value)) {
+                    d.0.push($crate::css::CssDecl::new($name.into(), value));
                 }
             )*
             d
@@ -89,61 +117,57 @@ macro_rules! decls {
     };
 }
 
-impl<'a> From<&&'a str> for OptionOrStr<'a> {
-    fn from(val: &&'a str) -> Self {
-        Self::Str(*val)
-    }
-}
+// impl<'a> From<&&'a str> for OptionOrStr<'a> {
+//     fn from(val: &&'a str) -> Self {
+//         Self::Str(*val)
+//     }
+// }
 
-impl<'a> From<&'a std::string::String> for OptionOrStr<'a> {
-    fn from(val: &'a std::string::String) -> Self {
-        Self::Str(val.as_str())
-    }
-}
+// impl<'a> From<&'a std::string::String> for OptionOrStr<'a> {
+//     fn from(val: &'a std::string::String) -> Self {
+//         Self::Str(val.as_str())
+//     }
+// }
 
-impl Deref for CSSDecls {
-    type Target = [CssDecl];
+impl<'a> Deref for CssDecls<'a> {
+    type Target = [CssDecl<'a>];
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for CSSDecls {
+impl<'a> DerefMut for CssDecls<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl From<CssDecl> for CSSDecls {
-    fn from(decl: CssDecl) -> Self {
+impl<'a> From<CssDecl<'a>> for CssDecls<'a> {
+    fn from(decl: CssDecl<'a>) -> Self {
         Self(smallvec![decl])
     }
 }
 
-impl From<Vec<CssDecl>> for CSSDecls {
-    fn from(decl: Vec<CssDecl>) -> Self {
+impl<'a> From<Vec<CssDecl<'a>>> for CssDecls<'a> {
+    fn from(decl: Vec<CssDecl<'a>>) -> Self {
         Self(decl.into())
     }
 }
 
-impl CSSDecls {
+impl<'a> CssDecls<'a> {
     pub fn new() -> Self {
         Self(smallvec![])
     }
 
-    pub fn multi<D: Into<CssDecl>, I: IntoIterator<Item = D>>(
+    pub fn multi<D: Into<CssDecl<'a>>, I: IntoIterator<Item = D>>(
         decls: I,
     ) -> Self {
         Self(decls.into_iter().map(Into::into).collect())
     }
-
-    pub fn from_pair<S: Into<String>>(pair: (S, S)) -> Self {
-        Self::from(Into::<CssDecl>::into(pair))
-    }
 }
 
-impl ToCss for CssDecl {
+impl<'a> ToCss for CssDecl<'a> {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
@@ -171,7 +195,7 @@ mod tests {
 
         assert_eq!(
             decls,
-            CSSDecls::multi([
+            CssDecls::multi([
                 CssDecl::new("color", "red"),
                 CssDecl::new("background-color", "blue"),
             ])

@@ -7,7 +7,7 @@ use lightningcss::properties::PropertyId;
 use crate::{
     add_theme_rule,
     config::ArrowConfig,
-    context::{AddRule, Context},
+    context::Context,
     css::ToCss,
     decls,
     parser::parse,
@@ -16,12 +16,13 @@ use crate::{
     writer::{self, Writer, WriterConfig},
 };
 
-pub struct Application<'i> {
-    pub ctx: Arc<Context<'i>>,
-    pub writer: Writer<'i, String>,
+pub struct Application<'c> {
+    pub ctx: Arc<Context<'c>>,
+    pub writer: Writer<'c, String>,
+    pub buffer: String,
 }
 
-impl<'a> Application<'a> {
+impl<'c> Application<'c> {
     pub fn new() -> Result<Self, config::ConfigError> {
         let config = Config::builder()
             .add_source(File::with_name("examples/arrow.config"))
@@ -42,34 +43,36 @@ impl<'a> Application<'a> {
         Ok(Self {
             ctx: Arc::new(Context::new(config)),
             writer,
+            buffer: String::new(),
         })
     }
 
-    pub fn init(&self) -> &Self {
+    pub fn init(&mut self) -> &mut Self {
         load_dynamic_rules(self.ctx.clone());
-        self.ctx
+        self.ctx.clone()
     .add_rule(
         "text", 
-        Rule::new(|ctx, value| {
-            if !ctx.config.core_plugins.text_opacity {
-                return Some(decls! {
-                    "color" => &value
-                });
-            }
+        Rule::new(|_, value| {
+            // if !ctx.config.core_plugins.text_opacity {
+            //     return Some(decls! {
+            //         "color" => value
+            //     });
+            // }
             let color = value.strip_prefix('#')?;
             let (r, g, b, a) = parse_hash_color(color.as_bytes()).ok()?;
             Some(decls! {
-                "--tw-text-opacity" => &a.to_string(),
-                "color" => &format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
+                "--tw-text-opacity" => a.to_string(),
+                "color" => format!("rgb({} {} {} / var(--tw-text-opacity))", r, g, b)
             })
         }).infer_by(PropertyId::Color)
+        .allow_values(self.ctx.get_theme("colors").unwrap())
     )
     .add_rule(
         "text",
-        Rule::new(move |ctx, value| {
+        Rule::new(move |_, value| {
             Some(decls! {
-                "font-size" => &value,
-                "line-height" => ctx.get_theme_value("fontSize:lineHeight", &ctx.meta.raw)
+                "font-size" => value,
+                // "line-height" => ctx.get_theme_value("fontSize:lineHeight", ctx.raw)
             })
         })
         .infer_by(PropertyId::FontSize)
@@ -80,7 +83,7 @@ impl<'a> Application<'a> {
         Rule::new(|_, value| {
             Some(decls! {
                 "--tw-ring-offset-shadow" => "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
-                "--tw-ring-shadow" => &format!("var(--tw-ring-inset) 0 0 0 calc({value} + var(--tw-ring-offset-width)) var(--tw-ring-color)"),
+                "--tw-ring-shadow" => format!("var(--tw-ring-inset) 0 0 0 calc({value} + var(--tw-ring-offset-width)) var(--tw-ring-color)"),
                 "box-shadow" => "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"
             })
         })
@@ -89,7 +92,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("ring", Rule::new(|_, value| {
             Some(decls! {
-                "--tw-ring-color" => &value
+                "--tw-ring-color" => value
             })
         })
         .allow_values(self.ctx.get_theme("colors").unwrap())
@@ -97,7 +100,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("ring-offset", Rule::new(|_, value| {
             Some(decls! {
-                "--tw-ring-offset-color" => &value
+                "--tw-ring-offset-color" => value
             })
         })
         .allow_values(self.ctx.get_theme("colors").unwrap())
@@ -105,7 +108,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("ring-offset", Rule::new(|_, value| {
             Some(decls! {
-                "--tw-ring-offset-width" => &value
+                "--tw-ring-offset-width" => value
             })
         })
         .infer_by(PropertyId::Width)
@@ -113,7 +116,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("bg", Rule::new(|_, value| {
             Some(decls! {
-                "background-color" => &value
+                "background-color" => value
             })
         })
         .infer_by(PropertyId::Color)
@@ -121,7 +124,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("bg", Rule::new(|_, value| {
             Some(decls! {
-                "background-position" => &value
+                "background-position" => value
             })
         })
         .infer_by(PropertyId::BackgroundPosition)
@@ -129,7 +132,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("bg", Rule::new(|_, value| {
             Some(decls! {
-                "background-size" => &value
+                "background-size" => value
             })
         })
         .infer_by(PropertyId::BackgroundSize)
@@ -137,7 +140,7 @@ impl<'a> Application<'a> {
     )
     .add_rule("bg", Rule::new(|_, value| {
             Some(decls! {
-                "background-image" => &value
+                "background-image" => value
             })
         })
         .infer_by(PropertyId::BackgroundImage)
@@ -161,7 +164,7 @@ impl<'a> Application<'a> {
             self.ctx.add_static((*key, value.clone()));
         });
 
-        add_theme_rule!(self.ctx, {
+        add_theme_rule!(self.ctx.clone(), {
             "spacing" => {
                 "m" => ["margin"]
                 "mx" => ["margin-left", "margin-right"]
@@ -193,22 +196,14 @@ impl<'a> Application<'a> {
     }
 
     pub fn run(&mut self) {
-        // read input from stdin
-        let mut buffer = String::new();
-
         loop {
-            stdin().read_line(&mut buffer).unwrap();
+            stdin().read_line(&mut self.buffer).unwrap();
+            let res = parse(&self.buffer, self.ctx.clone());
 
-            parse(&buffer, self.ctx.clone());
-
-            self.ctx.clone().tokens.borrow().values().for_each(|it| {
-                if let Some(rule) = it {
-                    let _ = rule.to_css(&mut self.writer);
-                }
+            res.iter().for_each(|rule| {
+                let _ = rule.to_css(&mut self.writer);
             });
-
             println!("{}", self.writer.dest);
-            buffer.clear();
             self.writer.dest.clear();
         }
     }

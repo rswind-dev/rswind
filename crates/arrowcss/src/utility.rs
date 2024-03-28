@@ -7,24 +7,24 @@ use std::fmt::Write;
 use cssparser::{Parser, ParserInput};
 
 use crate::css::CssDecl;
-use crate::parser::Parse;
 use crate::utils::StripArbitrary;
-use crate::{context::Context, css::CSSDecls};
+use crate::{context::Context, css::CssDecls};
 
 #[derive(Debug, PartialEq)]
-pub enum Utility {
-    Literal(LiteralUtility),
+#[allow(unused)]
+pub enum Utility<'a> {
+    Literal(LiteralUtility<'a>),
     Arbitrary(ArbitraryUtility),
 }
 
 // static rule / arbitrary declaration
 // E.g. `[text:red]` or `flex`(defined in config.theme)
 #[derive(Debug, PartialEq)]
-pub struct LiteralUtility {
+pub struct LiteralUtility<'a> {
     pub raw: String,
     pub important: bool,
     pub negative: bool,
-    pub value: CSSDecls,
+    pub value: CssDecls<'a>,
 }
 
 // dynamic rule
@@ -38,111 +38,111 @@ pub struct ArbitraryUtility {
     pub modifier: Option<String>,
 }
 
-impl Utility {
-    pub fn lit(
-        raw: String,
-        important: bool,
-        negative: bool,
-        value: CSSDecls,
-    ) -> Self {
-        Self::Literal(LiteralUtility {
-            raw,
-            important,
-            negative,
-            value,
-        })
-    }
+// impl Utility {
+//     pub fn lit(
+//         raw: String,
+//         important: bool,
+//         negative: bool,
+//         value: CSSDecls,
+//     ) -> Self {
+//         Self::Literal(LiteralUtility {
+//             raw,
+//             important,
+//             negative,
+//             value,
+//         })
+//     }
 
-    pub fn arbitrary(
-        raw: String,
-        value: String,
-        important: bool,
-        negative: bool,
-        modifier: Option<String>,
-    ) -> Self {
-        Self::Arbitrary(ArbitraryUtility {
-            raw,
-            value,
-            important,
-            negative,
-            modifier,
-        })
-    }
-}
+//     pub fn arbitrary(
+//         raw: String,
+//         value: String,
+//         important: bool,
+//         negative: bool,
+//         modifier: Option<String>,
+//     ) -> Self {
+//         Self::Arbitrary(ArbitraryUtility {
+//             raw,
+//             value,
+//             important,
+//             negative,
+//             modifier,
+//         })
+//     }
+// }
 
-impl Parse<&str> for Utility {
-    fn parse(ctx: &Context, value: &str) -> Option<Self> {
-        let mut unprefixed = value;
-        let mut important = false;
+// impl Parse<&str> for Utility {
+//     fn parse(ctx: &Context, value: &str) -> Option<Self> {
+//         let mut unprefixed = value;
+//         let mut important = false;
 
-        if let Some(un) = value.strip_prefix('!') {
-            unprefixed = un;
-            important = true;
-        }
+//         if let Some(un) = value.strip_prefix('!') {
+//             unprefixed = un;
+//             important = true;
+//         }
 
-        // Step 2: try arbitrary decl match (e.g. `[color:red]`)
-        if let Some((k, v)) =
-            unprefixed.strip_arbitrary().and_then(|r| r.split_once(':'))
-        {
-            return Some(Utility::lit(
-                value.to_string(),
-                important,
-                false,
-                CSSDecls::from_pair((k, v)),
-            ));
-        }
+//         // Step 2: try arbitrary decl match (e.g. `[color:red]`)
+//         if let Some((k, v)) =
+//             unprefixed.strip_arbitrary().and_then(|r| r.split_once(':'))
+//         {
+//             return Some(Utility::lit(
+//                 value.to_string(),
+//                 important,
+//                 false,
+//                 CSSDecls::from_pair((k, v)),
+//             ));
+//         }
 
-        // Step 3: try static match (e.g. `flex`)
-        if let Some(decl) = ctx.static_rules.borrow().get(unprefixed) {
-            return Some(Utility::lit(
-                value.to_string(),
-                important,
-                false,
-                decl.clone(),
-            ));
-        }
+//         // Step 3: try static match (e.g. `flex`)
+//         if let Some(decl) = ctx.static_rules.borrow().get(unprefixed) {
+//             return Some(Utility::lit(
+//                 value.to_string(),
+//                 important,
+//                 false,
+//                 decl.clone(),
+//             ));
+//         }
 
-        // Step 4: try arbitrary rule match (e.g. `text-[#123]`)
-        let mut parts = unprefixed.split('-').rev();
+//         // Step 4: try arbitrary rule match (e.g. `text-[#123]`)
+//         let mut parts = unprefixed.split('-').rev();
 
-        let maybe_arbitrary = parts.next();
+//         let maybe_arbitrary = parts.next();
 
-        if let Some(arbitrary) =
-            maybe_arbitrary.and_then(StripArbitrary::strip_arbitrary)
-        {
-            return Some(Utility::arbitrary(
-                value.to_string(),
-                arbitrary.to_string(),
-                important,
-                false,
-                None,
-            ));
-        } else if let Some(rule) = maybe_arbitrary {
-            let mut negative = false;
-            if let Some(un) = value.strip_prefix('-') {
-                unprefixed = un;
-                negative = true;
-            }
-            // for (i, _) in unprefixed.match_indices('-') {
-            //     let key = unprefixed.get(..i).unwrap();
-            //     let rules = ctx.rules.borrow();
-            //     if let Some(v) = rules
-            //         .get(key)
-            //         .and_then(|func| func(unprefixed.get((i + 1)..).unwrap()))
-            //     {
-            //         return Some(Utility::lit(
-            //             value.into(),
-            //             important,
-            //             negative,
-            //             v,
-            //         ));
-            //     }
-            // }
-        }
+//         if let Some(arbitrary) =
+//             maybe_arbitrary.and_then(StripArbitrary::strip_arbitrary)
+//         {
+//             return Some(Utility::arbitrary(
+//                 value.to_string(),
+//                 arbitrary.to_string(),
+//                 important,
+//                 false,
+//                 None,
+//             ));
+//         } else if let Some(rule) = maybe_arbitrary {
+//             let mut negative = false;
+//             if let Some(un) = value.strip_prefix('-') {
+//                 unprefixed = un;
+//                 negative = true;
+//             }
+//             // for (i, _) in unprefixed.match_indices('-') {
+//             //     let key = unprefixed.get(..i).unwrap();
+//             //     let rules = ctx.rules.borrow();
+//             //     if let Some(v) = rules
+//             //         .get(key)
+//             //         .and_then(|func| func(unprefixed.get((i + 1)..).unwrap()))
+//             //     {
+//             //         return Some(Utility::lit(
+//             //             value.into(),
+//             //             important,
+//             //             negative,
+//             //             v,
+//             //         ));
+//             //     }
+//             // }
+//         }
 
-        todo!()
-    }
-}
+//         todo!()
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -152,18 +152,18 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_utility() {
-        let ctx = Context::default();
+    // #[test]
+    // fn test_utility() {
+    //     let ctx = Context::default();
 
-        let utility = Utility::parse(&ctx, "![color:red]").unwrap();
+    //     let utility = Utility::parse(&ctx, "![color:red]").unwrap();
 
-        if let Utility::Literal(u) = utility {
-            assert_eq!(u.raw, "![color:red]");
-            assert_eq!(u.value, CSSDecls::from_pair(("color", "red")));
-            assert!(u.important);
-        }
-    }
+    //     if let Utility::Literal(u) = utility {
+    //         assert_eq!(u.raw, "![color:red]");
+    //         assert_eq!(u.value, CSSDecls::from_pair(("color", "red")));
+    //         assert!(u.important);
+    //     }
+    // }
 
     #[test]
     fn test_utility_parse() {
@@ -187,21 +187,21 @@ mod tests {
         // }
     }
 
-    #[test]
-    fn test_utility_parse_arbitrary() {
-        let ctx = Context::default();
-        let utility = Utility::parse(&ctx, "text-[#123456]").unwrap();
+    // #[test]
+    // fn test_utility_parse_arbitrary() {
+    //     let ctx = Context::default();
+    //     let utility = Utility::parse(&ctx, "text-[#123456]").unwrap();
 
-        if let Utility::Arbitrary(u) = utility {
-            assert_eq!(u.raw, "text-[#123456]");
-            assert_eq!(u.value, "#123456");
-            assert!(!u.important);
-            assert!(!u.negative);
-            assert!(u.modifier.is_none());
-        } else {
-            panic!("Expected Utility::Literal, found a different variant");
-        }
-    }
+    //     if let Utility::Arbitrary(u) = utility {
+    //         assert_eq!(u.raw, "text-[#123456]");
+    //         assert_eq!(u.value, "#123456");
+    //         assert!(!u.important);
+    //         assert!(!u.negative);
+    //         assert!(u.modifier.is_none());
+    //     } else {
+    //         panic!("Expected Utility::Literal, found a different variant");
+    //     }
+    // }
 
     #[test]
     fn test_utility_parse_theme() {

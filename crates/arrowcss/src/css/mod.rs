@@ -7,8 +7,8 @@ pub mod decl;
 pub mod rule;
 
 pub use self::container::CssRuleList;
-pub use self::decl::CSSDecls;
 pub use self::decl::CssDecl;
+pub use self::decl::CssDecls;
 
 pub use self::rule::AtRule;
 pub use self::rule::CssRule;

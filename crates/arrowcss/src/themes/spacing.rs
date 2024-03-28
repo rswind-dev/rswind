@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use lazy_static::lazy_static;
+use lightningcss::values::string::CowArcStr;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -47,6 +48,10 @@ lazy_static! {
     );
 }
 
-pub fn spacing() -> Arc<HashMap<String, String>> {
-    SPACING.clone()
+pub fn spacing() -> Arc<HashMap<String, CowArcStr<'static>>> {
+    SPACING
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone().into()))
+        .collect::<HashMap<String, CowArcStr<'static>>>()
+        .into()
 }

@@ -7,18 +7,15 @@
 
 use std::sync::Arc;
 
-use ::config::{Config, File};
-
-use crate::context::ThemeValue;
-use crate::css::CssDecl;
 use crate::{
     config::ArrowConfig,
     context::Context,
     css::ToCss,
-    parser::parse,
+    // parser::parse,
     rules::statics::STATIC_RULES,
     writer::{Writer, WriterConfig},
 };
+use ::config::{Config, File};
 
 pub mod config;
 pub mod context;
@@ -51,7 +48,7 @@ pub fn generate(_input: String) -> String {
         ctx.add_static((*key, value.clone()));
     });
 
-    add_theme_rule!(ctx, {
+    add_theme_rule!(ctx.clone(), {
         "spacing" => {
             "m" => ["margin"]
             "mx" => ["margin-left", "margin-right"]
@@ -88,7 +85,7 @@ pub fn generate(_input: String) -> String {
     );
 
     // open test.html
-    parse("", ctx.clone());
+    // parse("", ctx.clone());
 
     ctx.tokens.borrow().values().for_each(|it| {
         if let Some(rule) = it {

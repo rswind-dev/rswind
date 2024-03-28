@@ -2,11 +2,12 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::theme::FlattenedColors;
 use lazy_static::lazy_static;
+use lightningcss::values::string::CowArcStr;
 use serde::Deserialize;
 use serde_json::json;
 
 lazy_static! {
-    static ref COLORS: Arc<HashMap<String, String>> = Arc::new(
+    static ref COLORS: Arc<HashMap<String, CowArcStr<'static>>> = Arc::new(
         FlattenedColors::deserialize(json!({
           "inherit": "inherit",
           "current": "currentColor",
@@ -305,6 +306,6 @@ lazy_static! {
     );
 }
 
-pub fn colors() -> Arc<HashMap<String, String>> {
+pub fn colors() -> Arc<HashMap<String, CowArcStr<'static>>> {
     COLORS.clone()
 }

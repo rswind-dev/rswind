@@ -492,6 +492,7 @@ dependencies = [
  "rayon",
  "serde",
  "smallvec",
+ "static-self",
 ]
 
 [[package]]
@@ -637,6 +638,7 @@ dependencies = [
  "phf_codegen",
  "precomputed-hash",
  "smallvec",
+ "static-self",
 ]
 
 [[package]]
@@ -1098,6 +1100,27 @@ name = "smallvec"
 version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
+
+[[package]]
+name = "static-self"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "253e76c8c993a7b1b201b0539228b334582153cd4364292822d2c30776d469c7"
+dependencies = [
+ "smallvec",
+ "static-self-derive",
+]
+
+[[package]]
+name = "static-self-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5268c96d4b907c558a9a52d8492522d6c7b559651a5e1d8f2d551e461b9425d5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "syn"
