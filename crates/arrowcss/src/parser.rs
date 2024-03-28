@@ -46,7 +46,7 @@ fn to_css_rule<'c, 'i>(
     // Step 2: try static match
     let mut decls = CssDecls::default();
     if let Some(static_rule) =
-        ctx.clone().static_rules.clone().borrow().get(value)
+        ctx.clone().static_rules.clone().borrow().get(rule)
     {
         decls = static_rule.clone();
     } else {
