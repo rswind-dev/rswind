@@ -158,6 +158,16 @@ impl<'c> Application<'c> {
         )
         .add_variant("marker", vec!["& *::marker", "&::marker"])
         .add_variant("*", "& > *")
+        .add_variant("first", "&:first-child")
+        .add_variant("last", "&:last-child")
+        .add_variant(
+            "motion-safe",
+            "@media(prefers-reduced-motion: no-preference)",
+        )
+        .add_variant(
+            "hover",
+            "@media (hover: hover) and (pointer: fine) | &:hover",
+        )
         .add_variant("disabled", "&:disabled");
 
         STATIC_RULES.iter().for_each(|(key, value)| {
