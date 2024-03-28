@@ -88,7 +88,7 @@ impl<'a> ToCss for StyleRule<'a> {
         writer: &mut Writer<W>,
     ) -> Result<(), Error> {
         writer.write_char('.')?;
-        serialize_identifier(&self.selector, writer)?;
+        writer.write_str(&self.selector)?;
         writer.whitespace()?;
         writer.write_char('{')?;
         writer.indent();
