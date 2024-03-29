@@ -9,7 +9,7 @@ use crate::{
     rule::Rule,
     theme::{Theme, ThemeValue},
     themes::theme,
-    utils::{create_variant_fn, Matcher, VariantHandler},
+    utils::{create_variant_fn, VariantHandler},
 };
 
 use self::{static_rules::StaticRuleStorage, utilities::UtilityStorage};
@@ -53,11 +53,12 @@ impl<'c> Context<'c> {
         self.static_rules.get(key)
     }
 
-    pub fn add_variant<M: Matcher<'c>>(
-        &self,
-        key: &'c str,
-        matcher: M,
-    ) -> &Self {
+    pub fn add_variant<T>(&self, key: &'c str, matcher: T) -> &Self
+    where
+        T: IntoIterator,
+        T::Item: AsRef<str>,
+        T::IntoIter: ExactSizeIterator,
+    {
         // let key_clone: String = key.into();
         create_variant_fn(key, matcher).map(|func| {
             self.variants

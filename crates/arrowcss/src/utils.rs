@@ -1,4 +1,5 @@
 use std::{
+    cmp::Ordering,
     iter,
     ops::{ControlFlow, Deref},
     sync::Arc,
@@ -23,38 +24,53 @@ impl StripArbitrary for str {
     }
 }
 
-pub trait Matcher<'a> {
-    fn into_matcher(self) -> impl IntoIterator<Item = &'a str>;
-}
-
-impl<'a> Matcher<'a> for &'a str {
-    fn into_matcher(self) -> impl IntoIterator<Item = &'a str> {
-        iter::once(self)
-    }
-}
-
-impl<'a> Matcher<'a> for &'a [&'a str] {
-    fn into_matcher(self) -> impl IntoIterator<Item = &'a str> {
-        self.iter().copied()
-    }
-}
-
-// impl for ["& *::marker", "&::marker"])
-// impl<'a, const N: usize> Matcher<'a> for [&'a str; N] {
-//     fn into_matcher(self) -> impl IntoIterator<Item = &'a str> {
-//         self.iter().copied()
-//     }
-// }
-
-impl<'a> Matcher<'a> for Vec<&'a str> {
-    fn into_matcher(self) -> impl IntoIterator<Item = &'a str> {
-        self.into_iter()
-    }
-}
-
 pub enum VariantHandler {
     Nested(Box<dyn VariantMatchingFn>),
     Replacement(Box<dyn VariantMatchingFn>),
+}
+
+impl VariantHandler {
+    pub fn as_handler(self) -> Box<dyn VariantMatchingFn> {
+        match self {
+            Self::Nested(f) => f,
+            Self::Replacement(f) => f,
+        }
+    }
+
+    pub fn create_constructor(&self) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
+        match self {
+            Self::Nested(_) => VariantHandler::Nested,
+            Self::Replacement(_) => VariantHandler::Replacement,
+        }
+    }
+}
+
+impl PartialEq for VariantHandler {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Nested(_), Self::Nested(_)) => true,
+            (Self::Replacement(_), Self::Replacement(_)) => true,
+            _ => false,
+        }
+    }
+}
+
+impl Eq for VariantHandler {}
+
+impl PartialOrd for VariantHandler {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match (self, other) {
+            (Self::Nested(_), Self::Replacement(_)) => Some(Ordering::Greater),
+            (Self::Replacement(_), Self::Nested(_)) => Some(Ordering::Less),
+            _ => Some(Ordering::Equal),
+        }
+    }
+}
+
+impl Ord for VariantHandler {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
+    }
 }
 
 impl<'a, 'b> Fn<(CssRuleList<'a>,)> for VariantHandler {
@@ -95,106 +111,93 @@ impl<'a, 'b> FnMut<(CssRuleList<'a>,)> for VariantHandler {
     }
 }
 
-fn create_nested_variant_fn<'a>(matcher: String) -> VariantHandler {
-    VariantHandler::Nested(Box::new(move |rule| {
-        Some(
-            CssRule::AtRule(AtRule {
-                name: matcher.to_owned(),
-                params: "".into(),
-                nodes: vec![rule],
-            })
-            .into(),
-        )
-    }))
-}
-
-fn create_replacement_variant_fn<'a>(matcher: String) -> VariantHandler {
-    VariantHandler::Replacement(Box::new(move |mut container: CssRuleList| {
-        for rule in container.nodes.iter_mut() {
-            match rule {
-                CssRule::Style(ref mut it) => {
-                    it.selector += matcher.as_str();
+fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
+    let m = matcher.get(1..)?.to_owned();
+    match matcher.chars().next()? {
+        '&' => Some(VariantHandler::Replacement(Box::new(
+            move |mut container: CssRuleList| {
+                for rule in container.nodes.iter_mut() {
+                    match rule {
+                        CssRule::Style(ref mut it) => {
+                            it.selector += m.as_str();
+                        }
+                        _ => {
+                            println!("Mismatched rule: {:?}, expect a CssRule::Style", rule)
+                        }
+                    }
                 }
-                _ => {}
-            }
-        }
-        Some(container)
-    }))
+                Some(container)
+            },
+        ))),
+        '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
+            Some(
+                CssRule::AtRule(AtRule {
+                    name: m.to_owned(),
+                    params: "".into(),
+                    nodes: rule.nodes.to_vec(),
+                })
+                .into(),
+            )
+        }))),
+        _ => None,
+    }
 }
 
-pub fn create_variant_fn<'a, M: Matcher<'a>>(
+pub fn create_variant_fn<'a, T>(
     _key: &str,
-    matcher: M,
-) -> Option<VariantHandler> {
+    matcher: T,
+) -> Option<VariantHandler>
+where
+    T: IntoIterator,
+    T::Item: AsRef<str>,
+    T::IntoIter: ExactSizeIterator,
+{
+    let mut has_replacement = false;
     let fns = matcher
-        .into_matcher()
         .into_iter()
-        .map(|matcher| {
-            matcher
-                .split('|')
-                .map(|matcher| matcher.trim())
-                .try_fold(None, |acc: Option<VariantHandler>, item| {
-                    let new_fn: VariantHandler = match item.chars().next() {
-                        Some('@') => create_nested_variant_fn(
-                            item.get(1..).unwrap().to_string(),
-                        ),
-                        Some('&') => create_replacement_variant_fn(
-                            item.get(1..).unwrap().to_string(),
-                        ),
-                        _ => return ControlFlow::Break(()),
-                    };
-                    ControlFlow::Continue(match acc {
-                        Some(VariantHandler::Nested(acc)) => {
-                            Some(VariantHandler::Nested(Box::new(
-                                move |container: CssRuleList| {
-                                    acc(container.clone())
-                                        .and_then(|container| new_fn(container))
-                                },
-                            )))
-                        }
-                        Some(VariantHandler::Replacement(acc)) => {
-                            Some(VariantHandler::Replacement(Box::new(
-                                move |container: CssRuleList| {
-                                    acc(container.clone())
-                                        .and_then(|container| new_fn(container))
-                                },
-                            )))
-                        }
-                        None => Some(new_fn),
+        // .map(|item| item.as_ref())
+        .map(|s| {
+            let s = s.as_ref();
+            let this_fn: VariantHandler = if s.find('|').is_some() {
+                let mut fns = s
+                    .split('|')
+                    .map(|matcher| matcher.trim())
+                    .map(|item| variant_fn(item.into()))
+                    .collect::<Option<Vec<_>>>()?;
+
+                fns.sort();
+
+                let wrapper = VariantHandler::create_constructor(&fns[0]);
+                let composed_fn: Box<dyn VariantMatchingFn> = Box::new(move |rules| {
+                    fns.iter().fold(Some(rules), |acc, f| {
+                        acc.and_then(|r| f(r.clone()))
                     })
-                })
-                .continue_value()
-                .flatten()
+                });
+                wrapper(composed_fn)
+            } else {
+                // Normal
+                variant_fn(s.into())?
+            };
+            if matches!(this_fn, VariantHandler::Replacement(_)) {
+                has_replacement = true;
+            }
+            Some(this_fn)
         })
         .collect::<Option<Vec<_>>>()?;
 
-    // sort fns by VariantHandler type
-    let (nested_fns, replace_fns): (Vec<_>, Vec<_>) = fns
-        .into_iter()
-        .partition(|f| matches!(f, VariantHandler::Nested(_)));
-    let is_nested = !nested_fns.is_empty();
-    let fns = Arc::new(
-        replace_fns
-            .into_iter()
-            .chain(nested_fns)
-            .collect::<Vec<_>>(),
-    );
-
-    let handler: Box<dyn Fn(CssRuleList) -> Option<CssRuleList>> =
+    let handler: Box<dyn VariantMatchingFn> =
         Box::new(move |mut container: CssRuleList| {
-            container.nodes = fns
-                .deref()
+            container = fns
                 .iter()
-                .filter_map(|f| f(container.clone()))
-                .collect::<CssRuleList>()
-                .nodes;
+                .map(|f| f(container.clone()))
+                .collect::<Option<CssRuleList>>()?;
             Some(container)
         });
 
-    Some(if is_nested {
-        VariantHandler::Nested(handler)
-    } else {
+    Some(if has_replacement {
         VariantHandler::Replacement(handler)
+    } else {
+        VariantHandler::Nested(handler)
     })
 }
 

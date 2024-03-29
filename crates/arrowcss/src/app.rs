@@ -147,29 +147,29 @@ impl<'c> Application<'c> {
         .infer_by(PropertyId::BackgroundImage)
         .allow_values(self.ctx.get_theme("backgroundImage").unwrap())
     )
-        .add_variant("first", "&:first-child")
-        .add_variant("last", "&:last-child")
+        .add_variant("first", ["&:first-child"])
+        .add_variant("last", ["&:last-child"])
         .add_variant(
             "motion-safe",
-            "@media(prefers-reduced-motion: no-preference)",
+            ["@media(prefers-reduced-motion: no-preference)"],
         )
         .add_variant(
             "hover",
-            "@media (hover: hover) and (pointer: fine) | &:hover",
+            ["@media (hover: hover) and (pointer: fine) | &:hover"],
         )
-        .add_variant("marker", vec!["& *::marker", "&::marker"])
-        .add_variant("*", "& > *")
-        .add_variant("first", "&:first-child")
-        .add_variant("last", "&:last-child")
+        .add_variant("marker", ["& *::marker", "&::marker"])
+        .add_variant("*", ["& > *"])
+        .add_variant("first", ["&:first-child"])
+        .add_variant("last", ["&:last-child"])
         .add_variant(
             "motion-safe",
-            "@media(prefers-reduced-motion: no-preference)",
+            ["@media(prefers-reduced-motion: no-preference)"],
         )
         .add_variant(
             "hover",
-            "@media (hover: hover) and (pointer: fine) | &:hover",
+            ["@media (hover: hover) and (pointer: fine) | &:hover"],
         )
-        .add_variant("disabled", "&:disabled");
+        .add_variant("disabled", ["&:disabled"]);
 
         STATIC_RULES.iter().for_each(|(key, value)| {
             self.ctx.add_static((*key, value.clone()));
