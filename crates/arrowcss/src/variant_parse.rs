@@ -45,6 +45,8 @@ impl MatchVariant for ArbitraryVariant {
                 for node in container.nodes.iter_mut() {
                     if let CssRule::Style(ref mut it) = node {
                         it.selector = self.value.replace('&', &it.selector);
+                    } else {
+                        println!("Unexpected variant: {:?}", node);
                     }
                 }
                 Some(container)

@@ -155,6 +155,12 @@ impl<'a> From<Vec<CssDecl<'a>>> for CssDecls<'a> {
     }
 }
 
+impl<'a> FromIterator<CssDecl<'a>> for CssDecls<'a> {
+    fn from_iter<T: IntoIterator<Item = CssDecl<'a>>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
 impl<'a> CssDecls<'a> {
     pub fn new() -> Self {
         Self(smallvec![])

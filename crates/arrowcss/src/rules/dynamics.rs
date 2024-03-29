@@ -1,7 +1,8 @@
-use std::{ops::Deref, sync::Arc};
+use std::ops::Deref;
 
 use lightningcss::{
     properties::{Property, PropertyId},
+    traits::IntoOwned,
     values::color::{CssColor, RGBA},
 };
 
@@ -27,7 +28,7 @@ impl<'i> Deref for PendingRule<'i> {
 }
 
 impl<'c> PendingRule<'c> {
-    fn add_to(mut self, ctx: Arc<Context<'c>>) {
+    fn add_to(mut self, ctx: &mut Context<'c>) {
         self.theme_key.map(|key| {
             self.rule.allowed_values = ctx
                 .get_theme(key)
@@ -36,9 +37,9 @@ impl<'c> PendingRule<'c> {
                 .into();
         });
 
-        self.property_id.map(|id| {
-            self.rule.infer_property_id = Some(id);
-        });
+        if let Some(id) = self.property_id {
+            self.rule.infer_property_id = Some(Box::new(id.into_owned()));
+        }
 
         ctx.add_rule(self.key, self.rule);
     }
@@ -48,7 +49,7 @@ impl<'c> PendingRule<'c> {
         self
     }
 
-    fn with_type(mut self, property_id: PropertyId<'c>) -> Self {
+    fn with_type<'a: 'c>(mut self, property_id: PropertyId<'a>) -> Self {
         self.property_id = Some(property_id);
         self
     }
@@ -69,12 +70,12 @@ fn rule<'c>(
 macro_rules! add_rules {
     ($ctx:expr => $($rule:expr)*) => {
         $(
-            $rule.add_to($ctx.clone());
+            $rule.add_to($ctx);
         )*
     };
 }
 
-pub fn load_dynamic_rules(ctx: Arc<Context>) {
+pub fn load_dynamic_rules(ctx: &mut Context) {
     add_rules! { ctx =>
         rule("line-clamp", |_, value| {
             Some(decls! {

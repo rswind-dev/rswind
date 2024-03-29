@@ -1,9 +1,15 @@
 use lightningcss::{
     properties::{Property, PropertyId},
+    traits::IntoOwned,
     values::string::CowArcStr,
 };
 
-use crate::{css::CssDecls, theme::ThemeValue, utils::StripArbitrary};
+use crate::{
+    css::CssDecls,
+    theme::ThemeValue,
+    types::TypeValidator,
+    utils::{decode_arbitrary_value, StripArbitrary},
+};
 
 #[allow(dead_code)]
 #[derive(Clone, Default)]
@@ -13,14 +19,16 @@ pub struct MetaData {
 
 impl MetaData {
     pub(crate) fn new(raw: &str) -> Self {
-        Self { raw: raw.to_owned() }
+        Self {
+            raw: raw.to_owned(),
+        }
     }
 }
 
 pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> Option<CssDecls>;
 
 pub struct Rule<'i> {
-    pub handler: Box<dyn RuleMatchingFn>,
+    handler: Box<dyn RuleMatchingFn>,
     #[allow(dead_code)]
     pub supports_negative: bool,
     // a Theme map
@@ -28,7 +36,7 @@ pub struct Rule<'i> {
     #[allow(dead_code)]
     pub allowed_modifiers: Option<ThemeValue<'i>>,
     // a lightningcss PropertyId
-    pub infer_property_id: Option<PropertyId<'i>>,
+    pub infer_property_id: Option<Box<dyn TypeValidator>>,
 }
 
 impl<'c, F: RuleMatchingFn + 'static> From<F> for Rule<'c> {
@@ -48,8 +56,8 @@ impl<'c> Rule<'c> {
         }
     }
 
-    pub fn infer_by(mut self, id: PropertyId<'c>) -> Self {
-        self.infer_property_id = Some(id);
+    pub fn infer_by(mut self, id: impl TypeValidator + 'static) -> Self {
+        self.infer_property_id = Some(Box::new(id));
         self
     }
 
@@ -70,36 +78,23 @@ impl<'c> Rule<'c> {
         self
     }
 
-    pub fn apply_to<'a>(&self, value: &'a str) -> Option<CssDecls<'a>>
-    where
-        'c: 'a,
-    {
+    pub fn apply_to<'a>(&self, value: &'a str) -> Option<CssDecls<'c>> {
         // arbitrary value
-        // let ctx = ctx.clone();
         if let Some(stripped) = value.strip_arbitrary() {
             // TODO: add escape support
-            // let stripped = &stripped.replace("_", " ");
+            let stripped = decode_arbitrary_value(stripped);
             // when infer_property_id is None, default not check it
-            match &self.infer_property_id {
-                Some(id) => {
-                    match Property::parse_string(
-                        id.clone(),
-                        stripped,
-                        Default::default(),
-                    ) {
-                        Ok(Property::Unparsed(_)) => return None,
-                        Err(_) => return None,
-                        Ok(_) => {}
-                    }
+            if let Some(validator) = &self.infer_property_id {
+                if !validator.validate(&stripped) {
+                    return None;
                 }
-                None => {}
             }
 
             return (self.handler)(
                 MetaData {
                     raw: value.to_string(),
                 },
-                stripped.into(),
+                CowArcStr::from(stripped).into_owned(),
             );
         }
 
@@ -110,7 +105,7 @@ impl<'c> Rule<'c> {
                     MetaData {
                         raw: value.to_string(),
                     },
-                    v.clone(),
+                    v.clone().into_owned(),
                 );
             }
         }
@@ -154,7 +149,7 @@ mod tests {
             .infer_by(PropertyId::FontSize);
 
         assert!(rule.supports_negative);
-        assert_eq!(rule.infer_property_id, Some(PropertyId::FontSize));
+        assert!(rule.infer_property_id.is_some());
     }
 
     #[test]

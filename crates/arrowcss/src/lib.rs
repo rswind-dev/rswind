@@ -31,6 +31,8 @@ pub mod utils;
 // pub mod variant;
 pub mod variant_parse;
 pub mod writer;
+pub mod types;
+pub mod app;
 
 pub fn generate(_input: String) -> String {
     let config = Config::builder()
@@ -87,11 +89,11 @@ pub fn generate(_input: String) -> String {
     // open test.html
     // parse("", ctx.clone());
 
-    ctx.tokens.borrow().values().for_each(|it| {
-        if let Some(rule) = it {
-            let _ = rule.to_css(&mut writer);
-        }
-    });
+    // ctx.tokens.borrow().values().for_each(|it| {
+    //     if let Some(rule) = it {
+    //         let _ = rule.to_css(&mut writer);
+    //     }
+    // });
 
     w
 }

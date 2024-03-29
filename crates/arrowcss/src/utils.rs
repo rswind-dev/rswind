@@ -199,8 +199,30 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
     })
 }
 
+pub fn decode_arbitrary_value(input: &str) -> String {
+    let mut output = String::with_capacity(input.len());
+    let mut chars = input.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            if let Some(next_char) = chars.peek() {
+                if *next_char == '_' {
+                    chars.next();
+                    output.push('_');
+                    continue;
+                }
+            }
+        }
+        output.push(if c == '_' { ' ' } else { c });
+    }
+
+    output
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::utils::decode_arbitrary_value;
+
     #[test]
     fn test_add_variant() {
         // let variant: VariantHandler =
@@ -213,5 +235,17 @@ mod tests {
         // let new_rule = variant(rule).unwrap();
 
         // println!("{:?}", new_rule);
+    }
+
+    #[test]
+    fn test_decode_arbitrary_value() {
+        assert_eq!(
+            decode_arbitrary_value(r"hello\_world"),
+            "hello_world".to_string()
+        );
+        assert_eq!(
+            decode_arbitrary_value(r"hello_world"),
+            "hello world".to_string()
+        );
     }
 }

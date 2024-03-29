@@ -1,9 +1,9 @@
-use std::{io::stdin, sync::Arc};
+use std::io::stdin;
 
 use config::{Config, File};
 use cssparser::color::parse_hash_color;
-use lightningcss::properties::PropertyId;
 
+use crate::types::PropertyId;
 use crate::{
     add_theme_rule,
     config::ArrowConfig,
@@ -13,11 +13,12 @@ use crate::{
     parser::parse,
     rule::Rule,
     rules::{dynamics::load_dynamic_rules, statics::STATIC_RULES},
+    types::CssDataType,
     writer::{self, Writer, WriterConfig},
 };
 
 pub struct Application<'c> {
-    pub ctx: Arc<Context<'c>>,
+    pub ctx: Context<'c>,
     pub writer: Writer<'c, String>,
     pub buffer: String,
 }
@@ -41,14 +42,14 @@ impl<'c> Application<'c> {
         );
 
         Ok(Self {
-            ctx: Arc::new(Context::new(config)),
+            ctx: Context::new(config),
             writer,
             buffer: String::new(),
         })
     }
 
     pub fn init(&mut self) -> &mut Self {
-        load_dynamic_rules(self.ctx.clone());
+        load_dynamic_rules(&mut self.ctx);
         self.ctx.clone()
     .add_rule(
         "text", 
@@ -87,7 +88,7 @@ impl<'c> Application<'c> {
                 "box-shadow" => "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)"
             })
         })
-        .infer_by(PropertyId::Width)
+        .infer_by(CssDataType::LengthPercentage)
         .allow_values(self.ctx.get_theme("ringWidth").unwrap())
     )
     .add_rule("ring", Rule::new(|_, value| {
@@ -206,10 +207,10 @@ impl<'c> Application<'c> {
     }
 
     pub fn run(&mut self) {
+        self.buffer = "hover:flex".into();
         loop {
             stdin().read_line(&mut self.buffer).unwrap();
-            let res = parse(&self.buffer, self.ctx.clone());
-
+            let res = parse(&self.buffer, &mut self.ctx);
             res.iter().for_each(|rule| {
                 let _ = rule.to_css(&mut self.writer);
             });

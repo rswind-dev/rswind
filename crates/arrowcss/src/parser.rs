@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{
     context::Context,
     css::{CssDecls, CssRule, CssRuleList, StyleRule},
@@ -14,19 +12,13 @@ use lazy_static::lazy_static;
 use lightningcss::traits::IntoOwned;
 use regex::Regex;
 
-// pub trait Parse<T> {
-//     fn parse(ctx: &Context, input: T) -> Option<Self>
-//     where
-//         Self: Sized;
-// }
-
 lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
 fn to_css_rule<'c, 'i>(
     value: &'i str,
-    ctx: Arc<Context<'c>>,
+    ctx: &mut Context<'c>,
 ) -> Option<CssRuleList<'i>> {
     let mut input = ParserInput::new(value);
     let mut parser = cssparser::Parser::new(&mut input);
@@ -49,8 +41,10 @@ fn to_css_rule<'c, 'i>(
         decls = static_rule.clone();
     } else {
         // Step 3: get all index of `-`
-        for (i, _) in value.match_indices('-') {
-            if let Some(v) = ctx.rules.try_apply(rule.get(..i)?, rule.get(i + 1..)?) {
+        for (i, _) in rule.match_indices('-') {
+            if let Some(v) =
+                ctx.utilities.try_apply(rule.get(..i)?, rule.get(i + 1..)?)
+            {
                 decls = v.into_owned().into();
             }
         }
@@ -117,7 +111,7 @@ fn to_css_rule<'c, 'i>(
 
 pub fn parse<'c, 'i>(
     input: &'i str,
-    ctx: Arc<Context<'c>>,
+    ctx: &mut Context<'c>,
 ) -> Vec<CssRuleList<'i>> {
     let parts = EXTRACT_RE.split(input);
     let mut tokens: Vec<CssRuleList> = vec![];
@@ -125,11 +119,11 @@ pub fn parse<'c, 'i>(
         if token.is_empty() {
             continue;
         }
-        if ctx.tokens.borrow().contains_key(token) {
-            continue;
-        }
-        let ctx_clone = ctx.clone();
-        to_css_rule(token, ctx_clone).map(|rule| tokens.push(rule));
+        // if ctx.tokens.borrow().contains_key(token) {
+        //     continue;
+        // }
+        // let ctx_clone = ctx.clone();
+        to_css_rule(token, ctx).map(|rule| tokens.push(rule));
         // ctx.tokens
         //     .borrow_mut()
         //     .insert(token.to_string(), to_css_rule(token, ctx_clone));
