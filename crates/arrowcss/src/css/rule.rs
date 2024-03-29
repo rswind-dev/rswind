@@ -1,7 +1,6 @@
 use std::fmt::Write;
 
 use anyhow::Error;
-use cssparser::serialize_identifier;
 
 use crate::writer::Writer;
 
@@ -27,25 +26,25 @@ pub enum CssRule<'a> {
     Decl(CssDecl<'a>),
 }
 
-#[macro_export]
-macro_rules! css {
-    ($($selector:expr => { $($name:expr => $value:expr),* })* ) => {
-        {
-            let mut container = super::Container::new();
-            $(
-                let mut rule = super::CSSStyleRule {
-                    selector: $selector.to_owned(),
-                    nodes: vec![],
-                };
-                $(
-                    rule.nodes.push(super::CSSRule::Decl(super::CSSDecl::new($name, $value)));
-                )*
-                container.nodes.push(super::CSSRule::Style(rule));
-            )*
-            container
-        }
-    };
-}
+// #[macro_export]
+// macro_rules! css {
+//     ($($selector:expr => { $($name:expr => $value:expr),* })* ) => {
+//         {
+//             let mut container = super::Container::new();
+//             $(
+//                 let mut rule = super::CssStyleRule {
+//                     selector: $selector.to_owned(),
+//                     nodes: vec![],
+//                 };
+//                 $(
+//                     rule.nodes.push(super::CSSRule::Decl(super::CSSDecl::new($name, $value)));
+//                 )*
+//                 container.nodes.push(super::CSSRule::Style(rule));
+//             )*
+//             container
+//         }
+//     };
+// }
 
 impl<'a> ToCss for AtRule<'a> {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
@@ -106,7 +105,6 @@ impl<'a> ToCss for StyleRule<'a> {
 
 #[cfg(test)]
 mod tests {
-    use lightningcss::properties::Property;
 
     #[test]
     fn test_css_macro() {
@@ -120,24 +118,5 @@ mod tests {
         //     }
         // };
         // println!("{:?}", container);
-
-        use lightningcss::stylesheet::{
-            MinifyOptions, ParserOptions, PrinterOptions, StyleSheet,
-        };
-
-        // Parse a style sheet from a string.
-        let mut stylesheet = StyleSheet::parse(
-            r#"
-            .foo {
-              color: red;
-            }
-
-            /* This is a comment */
-            "#,
-            ParserOptions::default(),
-        )
-        .unwrap();
-
-        println!("{:#?}", stylesheet);
     }
 }

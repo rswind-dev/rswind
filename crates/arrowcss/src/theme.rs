@@ -42,7 +42,7 @@ impl<'c> From<HashMap<String, ThemeValue<'c>>> for Theme<'c> {
 }
 
 impl<'c> Theme<'c> {
-    pub fn merge<'a: 'c>(mut self, other: Self) -> Self {
+    pub fn merge(mut self, other: Self) -> Self {
         for (key, value) in other.0 {
             self.0
                 .entry(key.clone())

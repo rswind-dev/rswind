@@ -25,7 +25,7 @@ pub struct Application<'c> {
 impl<'c> Application<'c> {
     pub fn new() -> Result<Self, config::ConfigError> {
         let config = Config::builder()
-            .add_source(File::with_name("examples/arrow.config"))
+            .add_source(File::with_name("arrow.config"))
             .build()?
             .try_deserialize::<ArrowConfig>()?;
 

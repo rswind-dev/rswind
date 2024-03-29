@@ -9,7 +9,7 @@ use crate::{
         VariantKind,
     },
 };
-use cssparser::{serialize_identifier, ParseError, Parser, ParserInput};
+use cssparser::{serialize_identifier, ParseError, ParserInput};
 use lazy_static::lazy_static;
 use lightningcss::traits::IntoOwned;
 use regex::Regex;
@@ -29,7 +29,7 @@ fn to_css_rule<'c, 'i>(
     ctx: Arc<Context<'c>>,
 ) -> Option<CssRuleList<'i>> {
     let mut input = ParserInput::new(value);
-    let mut parser = Parser::new(&mut input);
+    let mut parser = cssparser::Parser::new(&mut input);
 
     let mut variants = vec![];
     while let Ok(variant) = parser.try_parse(Variant::parse) {
@@ -45,21 +45,14 @@ fn to_css_rule<'c, 'i>(
 
     // Step 2: try static match
     let mut decls = CssDecls::default();
-    if let Some(static_rule) =
-        ctx.clone().static_rules.clone().borrow().get(rule)
-    {
+    if let Some(static_rule) = ctx.get_static(rule) {
         decls = static_rule.clone();
     } else {
         // Step 3: get all index of `-`
-        'outer: for (i, _) in value.match_indices('-') {
-            for func in ctx.rules.borrow().get(rule.get(..i)?)? {
-                if let Some(d) = func.apply_to(rule.get(i + 1..)?) {
-                    decls = d.into_owned().into();
-                    break 'outer;
-                }
+        for (i, _) in value.match_indices('-') {
+            if let Some(v) = ctx.rules.try_apply(rule.get(..i)?, rule.get(i + 1..)?) {
+                decls = v.into_owned().into();
             }
-            // if let Some(v) = ctx.try_apply(rule.get(..i)?, rule.get(i + 1..)?) {
-            // }
         }
     }
 

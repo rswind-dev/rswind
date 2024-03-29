@@ -1,5 +1,8 @@
 use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
+mod rule;
+mod static_rules;
+
 use crate::{
     config::{ArrowConfig, Config},
     css::{decl::decl, CssDecls, CssRuleList},
@@ -9,12 +12,14 @@ use crate::{
     utils::{create_variant_fn, Matcher, VariantHandler},
 };
 
+use self::{rule::RuleStorage, static_rules::StaticRuleStorage};
+
 pub trait VariantMatchingFn = Fn(CssRuleList) -> Option<CssRuleList>;
 
 #[derive(Default, Clone)]
 pub struct Context<'c> {
-    pub static_rules: Arc<RefCell<HashMap<String, CssDecls<'static>>>>,
-    pub rules: Arc<RefCell<HashMap<String, Vec<Arc<Rule<'c>>>>>>,
+    pub static_rules: StaticRuleStorage,
+    pub rules: RuleStorage<'c>,
 
     pub variants: Arc<RefCell<HashMap<String, Box<VariantHandler>>>>,
 
@@ -28,9 +33,9 @@ impl<'c> Context<'c> {
     pub fn new(config: ArrowConfig<'static>) -> Self {
         Self {
             tokens: HashMap::new().into(),
-            static_rules: Arc::new(HashMap::new().into()),
+            static_rules: StaticRuleStorage::new(),
             variants: Arc::new(HashMap::new().into()),
-            rules: RefCell::new(HashMap::new()).into(),
+            rules: RuleStorage::new(),
             theme: Arc::new(RefCell::new(theme().merge(config.theme))),
             config: config.config,
         }
@@ -40,8 +45,12 @@ impl<'c> Context<'c> {
     where
         S: Into<String>,
     {
-        self.static_rules.borrow_mut().insert(pair.0.into(), pair.1);
+        self.static_rules.insert(pair.0.into(), pair.1);
         self
+    }
+
+    pub fn get_static(&self, key: &str) -> Option<CssDecls<'static>> {
+        self.static_rules.get(key)
     }
 
     // pub fn add_theme_rule(
@@ -126,11 +135,7 @@ pub trait AddRule<'c> {
 
 impl<'c> AddRule<'c> for Arc<Context<'c>> {
     fn add_rule(self, key: &str, rule: Rule<'c>) -> Self {
-        self.rules
-            .borrow_mut()
-            .entry(key.into())
-            .or_insert_with(Vec::new)
-            .push(rule.into());
+        self.rules.insert(key.into(), rule);
         self
     }
 
@@ -143,22 +148,16 @@ impl<'c> AddRule<'c> for Arc<Context<'c>> {
             let theme = self
                 .get_theme(&key)
                 .expect(&format!("Theme {} not found", k));
-            let rule = Arc::new(
-                Rule::new(move |_, input| {
-                    let value = v.clone();
-                    Some(CssDecls::multi(
-                        value
-                            .into_iter()
-                            .map(|decl_key| decl(decl_key, input.to_string())),
-                    ))
-                })
-                .allow_values(theme),
-            );
-            self.rules
-                .borrow_mut()
-                .entry(k.clone())
-                .or_default()
-                .push(rule);
+            let rule = Rule::new(move |_, input| {
+                let value = v.clone();
+                Some(CssDecls::multi(
+                    value
+                        .into_iter()
+                        .map(|decl_key| decl(decl_key, input.to_string())),
+                ))
+            })
+            .allow_values(theme);
+            self.rules.insert(k.clone(), rule);
         }
         self
     }

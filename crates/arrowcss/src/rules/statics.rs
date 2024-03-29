@@ -241,7 +241,7 @@ pub fn grid_auto_flow<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn get_all<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn get_all() -> Vec<(&'static str, CssDecls<'static>)> {
     vec![]
         .into_iter()
         .chain(accessibility())

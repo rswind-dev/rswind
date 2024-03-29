@@ -6,30 +6,16 @@ use lightningcss::{
 use crate::{css::CssDecls, theme::ThemeValue, utils::StripArbitrary};
 
 #[allow(dead_code)]
+#[derive(Clone, Default)]
 pub struct MetaData {
     pub raw: String,
 }
 
-// trait ContextExt<'i, 'c> {
-//     fn with_meta(self, meta: MetaData) -> Arc<ExtendedContext<'i, 'c>>;
-// }
-
-// impl<'i, 'c: 'i> ContextExt<'i, 'c> for Arc<Context<'i, 'c>> {
-//     fn with_meta(self, meta: MetaData) -> Arc<ExtendedContext<'i, 'c>> {
-//         Arc::new(ExtendedContext {
-//             ctx: self.clone(),
-//             meta,
-//         })
-//     }
-// }
-
-// impl<'i, 'c> Deref for ExtendedContext<'i, 'c> {
-//     type Target = Context<'i, 'c>;
-
-//     fn deref(&self) -> &Self::Target {
-//         &self.ctx
-//     }
-// }
+impl MetaData {
+    pub(crate) fn new(raw: &str) -> Self {
+        Self { raw: raw.to_owned() }
+    }
+}
 
 pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> Option<CssDecls>;
 

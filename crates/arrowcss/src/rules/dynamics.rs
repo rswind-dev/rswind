@@ -74,7 +74,7 @@ macro_rules! add_rules {
     };
 }
 
-pub fn load_dynamic_rules<'c>(ctx: Arc<Context<'c>>) {
+pub fn load_dynamic_rules(ctx: Arc<Context>) {
     add_rules! { ctx =>
         rule("line-clamp", |_, value| {
             Some(decls! {
