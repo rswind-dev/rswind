@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{
     context::Context,
     css::{CssDecls, CssRule, CssRuleList, StyleRule},
@@ -58,11 +60,7 @@ fn to_css_rule<'i>(
     let _ = serialize_identifier(value, &mut selector);
     let mut rule: CssRuleList = CssRule::Style(StyleRule {
         selector,
-        nodes: vec![decls
-            .0
-            .iter()
-            .map(|decl| CssRule::Decl(decl.clone()))
-            .collect::<CssRuleList>()],
+        nodes: decls.into()
     })
     .into();
 
@@ -123,7 +121,9 @@ pub fn parse<'i>(
         //     continue;
         // }
         // let ctx_clone = ctx.clone();
-        if let Some(rule) = to_css_rule(token, ctx) { tokens.push(rule) }
+        if let Some(rule) = to_css_rule(token, ctx) {
+            tokens.push(rule)
+        }
         // ctx.tokens
         //     .borrow_mut()
         //     .insert(token.to_string(), to_css_rule(token, ctx_clone));

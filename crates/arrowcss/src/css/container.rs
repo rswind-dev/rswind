@@ -1,8 +1,6 @@
 use std::fmt::Write;
 
 use anyhow::Error;
-use smallvec::smallvec;
-use smallvec::SmallVec;
 
 use crate::css::rule::CssRule;
 use crate::writer::Writer;
@@ -11,7 +9,7 @@ use super::ToCss;
 
 #[derive(Debug, Default)]
 pub struct CssRuleList<'a> {
-    pub nodes: SmallVec<[CssRule<'a>; 1]>,
+    pub nodes: Vec<CssRule<'a>>,
 }
 
 impl<'a> Clone for CssRuleList<'a> {
@@ -24,9 +22,7 @@ impl<'a> Clone for CssRuleList<'a> {
 
 impl<'a> From<CssRule<'a>> for CssRuleList<'a> {
     fn from(rule: CssRule<'a>) -> Self {
-        Self {
-            nodes: smallvec![rule],
-        }
+        Self { nodes: vec![rule] }
     }
 }
 

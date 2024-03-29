@@ -9,7 +9,7 @@ use smallvec::SmallVec;
 
 use crate::writer::Writer;
 
-use super::ToCss;
+use super::{CssRule, ToCss};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CssDecl<'a> {
@@ -67,38 +67,21 @@ impl<'a> IntoOwned<'a> for CssDecls<'a> {
         CssDecls(self.0.into_iter().map(IntoOwned::into_owned).collect())
     }
 }
-// pub enum OptionOrStr<'a> {
-//     Option(Option<String>),
-//     Str(&'a str),
-// }
 
-// impl<'a> From<Option<&'a str>> for OptionOrStr<'a> {
-//     fn from(val: Option<&'a str>) -> Self {
-//         Self::Option(val.map(Into::into))
-//     }
-// }
+impl<'c> IntoIterator for CssDecls<'c> {
+    type Item = CssDecl<'c>;
+    type IntoIter = smallvec::IntoIter<[CssDecl<'c>; 1]>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
 
-// impl<'a> From<&'a str> for OptionOrStr<'a> {
-//     fn from(val: &'a str) -> Self {
-//         Self::Str(val)
-//     }
-// }
 
-// impl<'a> From<Option<String>> for OptionOrStr<'a> {
-//     fn from(val: Option<String>) -> Self {
-//         Self::Option(val)
-//     }
-// }
-
-// impl<'a> From<OptionOrStr<'a>> for Option<String> {
-//     fn from(value: OptionOrStr<'a>) -> Self {
-//         match value {
-//             OptionOrStr::Option(Some(s)) => Some(s),
-//             OptionOrStr::Option(None) => None,
-//             OptionOrStr::Str(s) => Some(s.to_string()),
-//         }
-//     }
-// }
+impl<'a> Into<Vec<CssRule<'a>>> for CssDecls<'a> {
+    fn into(self) -> Vec<CssRule<'a>> {
+        self.0.into_iter().map(CssRule::Decl).collect()
+    }
+}
 
 #[macro_export]
 macro_rules! decls {

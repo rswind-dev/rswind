@@ -4,19 +4,19 @@ use anyhow::Error;
 
 use crate::writer::Writer;
 
-use super::{CssDecl, CssRuleList, ToCss};
+use super::{CssDecl, ToCss};
 
 #[derive(Debug, Clone)]
 pub struct StyleRule<'a> {
     pub selector: String,
-    pub nodes: Vec<CssRuleList<'a>>,
+    pub nodes: Vec<CssRule<'a>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct AtRule<'a> {
     pub name: String,
     pub params: String,
-    pub nodes: Vec<CssRuleList<'a>>,
+    pub nodes: Vec<CssRule<'a>>,
 }
 
 #[derive(Debug, Clone)]
@@ -25,26 +25,6 @@ pub enum CssRule<'a> {
     AtRule(AtRule<'a>),
     Decl(CssDecl<'a>),
 }
-
-// #[macro_export]
-// macro_rules! css {
-//     ($($selector:expr => { $($name:expr => $value:expr),* })* ) => {
-//         {
-//             let mut container = super::Container::new();
-//             $(
-//                 let mut rule = super::CssStyleRule {
-//                     selector: $selector.to_owned(),
-//                     nodes: vec![],
-//                 };
-//                 $(
-//                     rule.nodes.push(super::CSSRule::Decl(super::CSSDecl::new($name, $value)));
-//                 )*
-//                 container.nodes.push(super::CSSRule::Style(rule));
-//             )*
-//             container
-//         }
-//     };
-// }
 
 impl<'a> ToCss for AtRule<'a> {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
@@ -61,7 +41,6 @@ impl<'a> ToCss for AtRule<'a> {
             node.to_css(writer)?;
         }
         writer.dedent();
-        // writer.newline()?;
         writer.write_str("}")?;
         writer.newline()?;
         Ok(())

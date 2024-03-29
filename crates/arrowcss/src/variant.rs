@@ -55,7 +55,7 @@ impl MatchVariant for ArbitraryVariant {
                 CssRule::AtRule(AtRule {
                     name: self.value.trim_start_matches('@').to_owned(),
                     params: "".into(),
-                    nodes: vec![container],
+                    nodes: container.nodes.to_vec(),
                 })
                 .into(),
             ),
