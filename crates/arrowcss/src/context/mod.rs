@@ -68,7 +68,7 @@ impl<'c> Context<'c> {
     }
 
     pub fn get_theme<'b: 'c>(&self, key: &str) -> Option<ThemeValue<'b>> {
-        self.theme.borrow().get(key).map(Clone::clone)
+        self.theme.borrow().get(key).cloned()
     }
 }
 
@@ -95,7 +95,7 @@ impl<'c> AddRule<'c> for Context<'c> {
         for (k, v) in values {
             let theme = self
                 .get_theme(key)
-                .expect(&format!("Theme {} not found", &k));
+                .unwrap_or_else(|| panic!("Theme {} not found", &k));
 
             self.utilities.insert(
                 k,
@@ -121,7 +121,7 @@ macro_rules! add_theme_rule {
       $($key:literal => [$($decl_key:literal),+])+
     })+
   }) => {
-    use crate::context::AddRule;
+    use $crate::context::AddRule;
     $(
       $ctx.add_theme_rule($theme_key, vec![
         $(($key.to_string(), vec![$($decl_key.into()),+]),)+

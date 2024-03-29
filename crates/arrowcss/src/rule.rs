@@ -1,5 +1,4 @@
 use lightningcss::{
-    properties::{Property, PropertyId},
     traits::IntoOwned,
     values::string::CowArcStr,
 };

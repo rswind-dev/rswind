@@ -10,8 +10,6 @@ use std::sync::Arc;
 use crate::{
     config::ArrowConfig,
     context::Context,
-    css::ToCss,
-    // parser::parse,
     rules::statics::STATIC_RULES,
     writer::{Writer, WriterConfig},
 };
@@ -76,7 +74,7 @@ pub fn generate(_input: String) -> String {
     });
 
     let mut w = String::new();
-    let mut writer = Writer::new(
+    let writer = Writer::new(
         &mut w,
         WriterConfig {
             minify: false,

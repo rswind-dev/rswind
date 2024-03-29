@@ -29,13 +29,11 @@ impl<'i> Deref for PendingRule<'i> {
 
 impl<'c> PendingRule<'c> {
     fn add_to(mut self, ctx: &mut Context<'c>) {
-        self.theme_key.map(|key| {
-            self.rule.allowed_values = ctx
+        if let Some(key) = self.theme_key { self.rule.allowed_values = ctx
                 .get_theme(key)
-                .expect(&format!("theme key `{key}` not found"))
+                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
                 .clone()
-                .into();
-        });
+                .into(); }
 
         if let Some(id) = self.property_id {
             self.rule.infer_property_id = Some(Box::new(id.into_owned()));
@@ -55,10 +53,10 @@ impl<'c> PendingRule<'c> {
     }
 }
 
-fn rule<'c>(
-    key: &'c str,
+fn rule(
+    key: &str,
     handler: impl RuleMatchingFn + 'static,
-) -> PendingRule<'c> {
+) -> PendingRule<'_> {
     PendingRule {
         key,
         rule: Rule::new(handler),

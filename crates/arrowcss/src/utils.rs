@@ -184,14 +184,13 @@ pub fn create_variant_fn<'a, M: Matcher<'a>>(
         Box::new(move |mut container: CssRuleList| {
             container.nodes = fns
                 .deref()
-                .into_iter()
+                .iter()
                 .filter_map(|f| f(container.clone()))
                 .collect::<CssRuleList>()
                 .nodes;
             Some(container)
         });
 
-    // Some(VariantHandler::Nested(Box::new(|_| None)))
     Some(if is_nested {
         VariantHandler::Nested(handler)
     } else {

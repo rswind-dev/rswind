@@ -16,9 +16,9 @@ lazy_static! {
     static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
 }
 
-fn to_css_rule<'c, 'i>(
+fn to_css_rule<'i>(
     value: &'i str,
-    ctx: &mut Context<'c>,
+    ctx: &mut Context<'_>,
 ) -> Option<CssRuleList<'i>> {
     let mut input = ParserInput::new(value);
     let mut parser = cssparser::Parser::new(&mut input);
@@ -30,7 +30,7 @@ fn to_css_rule<'c, 'i>(
 
     let start = parser.position();
     let _ = parser.parse_entirely(|p| {
-        while let Ok(_) = p.next() {}
+        while p.next().is_ok() {}
         Ok::<(), ParseError<'_, ()>>(())
     });
     let rule = parser.slice(start..parser.position());
@@ -45,7 +45,7 @@ fn to_css_rule<'c, 'i>(
             if let Some(v) =
                 ctx.utilities.try_apply(rule.get(..i)?, rule.get(i + 1..)?)
             {
-                decls = v.into_owned().into();
+                decls = v.into_owned();
             }
         }
     }
@@ -109,9 +109,9 @@ fn to_css_rule<'c, 'i>(
     Some(rule)
 }
 
-pub fn parse<'c, 'i>(
+pub fn parse<'i>(
     input: &'i str,
-    ctx: &mut Context<'c>,
+    ctx: &mut Context<'_>,
 ) -> Vec<CssRuleList<'i>> {
     let parts = EXTRACT_RE.split(input);
     let mut tokens: Vec<CssRuleList> = vec![];
@@ -123,7 +123,7 @@ pub fn parse<'c, 'i>(
         //     continue;
         // }
         // let ctx_clone = ctx.clone();
-        to_css_rule(token, ctx).map(|rule| tokens.push(rule));
+        if let Some(rule) = to_css_rule(token, ctx) { tokens.push(rule) }
         // ctx.tokens
         //     .borrow_mut()
         //     .insert(token.to_string(), to_css_rule(token, ctx_clone));
