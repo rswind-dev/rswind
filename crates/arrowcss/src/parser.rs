@@ -2,7 +2,7 @@ use crate::{
     context::Context,
     css::{CssDecls, CssRule, CssRuleList, StyleRule},
     utils::VariantHandler,
-    variant_parse::{
+    variant::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
     },

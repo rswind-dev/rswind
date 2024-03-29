@@ -27,7 +27,7 @@ pub mod themes;
 pub mod utility;
 pub mod utils;
 // pub mod variant;
-pub mod variant_parse;
+pub mod variant;
 pub mod writer;
 pub mod types;
 pub mod app;

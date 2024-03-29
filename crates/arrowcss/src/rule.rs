@@ -1,7 +1,4 @@
-use lightningcss::{
-    traits::IntoOwned,
-    values::string::CowArcStr,
-};
+use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 
 use crate::{
     css::CssDecls,
@@ -137,9 +134,9 @@ impl<'c> Rule<'c> {
 
 #[cfg(test)]
 mod tests {
-    use crate::decls;
-
     use super::*;
+    use crate::decls;
+    use crate::types::PropertyId;
 
     #[test]
     fn test_rule_builder() {
