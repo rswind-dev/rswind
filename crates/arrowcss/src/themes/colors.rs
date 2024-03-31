@@ -1,4 +1,5 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
+use hashbrown::HashMap;
 
 use crate::theme::FlattenedColors;
 use lazy_static::lazy_static;

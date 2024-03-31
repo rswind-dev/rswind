@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::sync::Arc;
 
 use crate::map;
@@ -13,7 +13,7 @@ mod spacing;
 macro_rules! create_theme {
     ($($key:expr => $value:expr),*) => {
         {
-            let mut m = std::collections::HashMap::new();
+            let mut m = hashbrown::HashMap::new();
             $(
                 m.insert($key.to_string(), $value);
             )*
