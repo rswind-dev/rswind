@@ -4,10 +4,9 @@ use serde::{
     Deserialize, Deserializer,
 };
 use serde_json::Value;
-use std::{
-    collections::HashMap,
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
+use hashbrown::HashMap;
+
 use std::{fmt, sync::Arc};
 
 pub type ThemeValue<'c> = Arc<HashMap<String, CowArcStr<'c>>>;

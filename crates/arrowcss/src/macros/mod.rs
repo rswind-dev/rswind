@@ -4,7 +4,7 @@ pub mod rule;
 macro_rules! map {
     ($($key:expr => $value:expr),*) => {
         {
-            let mut m = std::collections::HashMap::new();
+            let mut m = hashbrown::HashMap::new();
             $(
                 m.insert($key.to_string(), $value.into());
             )*

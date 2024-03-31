@@ -1,4 +1,5 @@
-use std::{cell::RefCell, collections::HashMap, sync::Arc};
+use hashbrown::HashMap;
+use std::{cell::RefCell, sync::Arc};
 
 use crate::css::CssDecls;
 use crate::rule::Rule;

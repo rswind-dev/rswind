@@ -1,4 +1,5 @@
-use std::{cell::RefCell, collections::HashMap, sync::Arc};
+use hashbrown::HashMap;
+use std::{cell::RefCell, sync::Arc};
 
 mod static_rules;
 mod utilities;
