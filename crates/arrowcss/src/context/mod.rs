@@ -25,6 +25,7 @@ pub struct Context<'c> {
     pub variants: Arc<RefCell<HashMap<String, Box<VariantHandler>>>>,
 
     pub theme: Arc<RefCell<Theme<'static>>>,
+    pub cache: HashMap<String, String>,
     // #[allow(dead_code)]
     // pub config: Config,
     // pub tokens: RefCell<HashMap<String, Option<CssRuleList<'c>>>>,
@@ -38,6 +39,7 @@ impl<'c> Context<'c> {
             variants: Arc::new(HashMap::new().into()),
             utilities: UtilityStorage::new(),
             theme: Arc::new(RefCell::new(theme().merge(config.theme))),
+            cache: HashMap::new(),
             // config: config.config,
         }
     }

@@ -1,27 +1,27 @@
-use std::ops::Deref;
-
 use crate::{
     context::Context,
-    css::{CssDecls, CssRule, CssRuleList, StyleRule},
+    css::{CssDecls, CssRule, CssRuleList, StyleRule, ToCss},
     utils::VariantHandler,
     variant::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
     },
+    writer::Writer,
 };
 use cssparser::{serialize_identifier, ParseError, ParserInput};
+use hashbrown::HashSet;
 use lazy_static::lazy_static;
 use lightningcss::traits::IntoOwned;
 use regex::Regex;
 
 lazy_static! {
-    static ref EXTRACT_RE: Regex = Regex::new(r#"[\\:]?[\s'"`;{}]+"#).unwrap();
+    pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
 }
 
-fn to_css_rule<'i>(
+pub fn to_css_rule<'i, 'c>(
     value: &'i str,
-    ctx: &mut Context<'_>,
-) -> Option<CssRuleList<'i>> {
+    ctx: &mut Context<'c>,
+) -> Option<CssRuleList<'c>> {
     let mut input = ParserInput::new(value);
     let mut parser = cssparser::Parser::new(&mut input);
 
@@ -40,7 +40,7 @@ fn to_css_rule<'i>(
     // Step 2: try static match
     let mut decls = CssDecls::default();
     if let Some(static_rule) = ctx.get_static(rule) {
-        decls = static_rule.clone();
+        decls = static_rule;
     } else {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
@@ -56,11 +56,11 @@ fn to_css_rule<'i>(
         return None;
     }
 
-    let mut selector = String::new();
+    let mut selector = String::with_capacity(value.len() + 5);
     let _ = serialize_identifier(value, &mut selector);
     let mut rule: CssRuleList = CssRule::Style(StyleRule {
         selector,
-        nodes: decls.into()
+        nodes: decls.into(),
     })
     .into();
 
@@ -105,28 +105,4 @@ fn to_css_rule<'i>(
     }
 
     Some(rule)
-}
-
-pub fn parse<'i>(
-    input: &'i str,
-    ctx: &mut Context<'_>,
-) -> Vec<CssRuleList<'i>> {
-    let parts = EXTRACT_RE.split(input);
-    let mut tokens: Vec<CssRuleList> = vec![];
-    for token in parts.into_iter() {
-        if token.is_empty() {
-            continue;
-        }
-        // if ctx.tokens.borrow().contains_key(token) {
-        //     continue;
-        // }
-        // let ctx_clone = ctx.clone();
-        if let Some(rule) = to_css_rule(token, ctx) {
-            tokens.push(rule)
-        }
-        // ctx.tokens
-        //     .borrow_mut()
-        //     .insert(token.to_string(), to_css_rule(token, ctx_clone));
-    }
-    tokens
 }

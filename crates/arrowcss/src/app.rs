@@ -1,8 +1,11 @@
-use std::io::stdin;
+use std::fmt::Write as _;
+use std::fs::OpenOptions;
+use std::io::{BufWriter, Read, Write};
+use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::time::{Duration, Instant};
 
-use config::{Config, File};
-use cssparser::color::parse_hash_color;
-
+use crate::parser::to_css_rule;
 use crate::types::PropertyId;
 use crate::{
     add_theme_rule,
@@ -10,17 +13,22 @@ use crate::{
     context::Context,
     css::ToCss,
     decls,
-    parser::parse,
     rule::Rule,
     rules::{dynamics::load_dynamic_rules, statics::STATIC_RULES},
     types::CssDataType,
     writer::{self, Writer, WriterConfig},
 };
+use config::{Config, File};
+use cssparser::color::parse_hash_color;
+use hashbrown::HashSet;
+use notify::RecursiveMode;
+use notify_debouncer_mini::new_debouncer;
 
 pub struct Application<'c> {
     pub ctx: Context<'c>,
     pub writer: Writer<'c, String>,
     pub buffer: String,
+    pub cache: String,
 }
 
 impl<'c> Application<'c> {
@@ -45,6 +53,7 @@ impl<'c> Application<'c> {
             ctx: Context::new(config),
             writer,
             buffer: String::new(),
+            cache: String::new(),
         })
     }
 
@@ -157,6 +166,7 @@ impl<'c> Application<'c> {
             "hover",
             ["@media (hover: hover) and (pointer: fine) | &:hover"],
         )
+        .add_variant("focus", ["&:focus"])
         .add_variant("marker", ["& *::marker", "&::marker"])
         .add_variant("*", ["& > *"])
         .add_variant("first", ["&:first-child"])
@@ -187,6 +197,16 @@ impl<'c> Application<'c> {
                 "ms" => ["margin-inline-start"]
                 "me" => ["margin-inline-end"]
 
+                "p" => ["padding"]
+                "px" => ["padding-left", "padding-right"]
+                "py" => ["padding-top", "padding-bottom"]
+                "pt" => ["padding-top"]
+                "pr" => ["padding-right"]
+                "pb" => ["padding-bottom"]
+                "pl" => ["padding-left"]
+                "ps" => ["padding-inline-start"]
+                "pe" => ["padding-inline-end"]
+
                 "inset" => ["top", "right", "bottom", "left"]
                 "inset-x" => ["left", "right"]
                 "inset-y" => ["top", "bottom"]
@@ -206,16 +226,65 @@ impl<'c> Application<'c> {
         self
     }
 
+    pub fn generate(&mut self, _: Vec<PathBuf>) {
+        let mut buffer = String::new();
+        let start = Instant::now();
+        let file =
+            std::fs::File::open(Path::new("examples/test.html")).unwrap();
+        let mut reader = std::io::BufReader::new(file);
+        let _ = reader.read_to_string(&mut buffer);
+
+        let parts = buffer
+            .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
+            .filter(|s| {
+                s.starts_with(char::is_lowercase)
+                    || self.ctx.cache.contains_key(*s)
+            })
+            .collect::<HashSet<_>>();
+        println!("split: {} us", start.elapsed().as_micros());
+        let _ = self.ctx.cache.iter().map(|rule| {
+            let _ = self.writer.write_str(&rule.1);
+        });
+        for token in parts {
+            if let Some(rule) = to_css_rule(token, &mut self.ctx) {
+                let mut w = String::with_capacity(100);
+                let mut writer = Writer::default(&mut w);
+                let _ = rule.to_css(&mut writer);
+                let _ = self.writer.write_str(&w);
+                self.ctx.cache.insert(String::from(token), w);
+            }
+        }
+
+        self.cache = buffer.clone();
+        let mut w = BufWriter::new(
+            OpenOptions::new()
+                .write(true)
+                .create(true)
+                .append(false)
+                .open(Path::new("examples/test.css"))
+                .unwrap(),
+        );
+
+        println!("Execution time: {} us", start.elapsed().as_micros());
+        w.write(self.writer.dest.as_bytes()).unwrap();
+        self.writer.dest.clear();
+    }
+
     pub fn run(&mut self) {
-        self.buffer = "hover:flex".into();
-        loop {
-            stdin().read_line(&mut self.buffer).unwrap();
-            let res = parse(&self.buffer, &mut self.ctx);
-            res.iter().for_each(|rule| {
-                let _ = rule.to_css(&mut self.writer);
-            });
-            println!("{}", self.writer.dest);
-            self.writer.dest.clear();
+        let (tx, rx) = mpsc::channel();
+
+        let mut debouncer =
+            new_debouncer(Duration::from_millis(0), tx).unwrap();
+
+        debouncer
+            .watcher()
+            .watch(Path::new("examples/test.html"), RecursiveMode::NonRecursive)
+            .unwrap();
+
+        self.generate(vec![]);
+
+        for _ in rx {
+            self.generate(vec![]);
         }
     }
 }
