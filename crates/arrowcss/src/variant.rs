@@ -108,8 +108,8 @@ impl<'i> ArbitraryVariant {
                 Ok(Token::Delim('&')) => {
                     kind = Some(ArbitraryVariantKind::Replacement);
                 }
-                other => {
-                    println!("other: {:?}", other);
+                _ => {
+                    // println!("other: {:?}", other);
                 }
             }
         })
@@ -215,7 +215,7 @@ impl<'i> Variant {
                     ident += "*";
                 }
                 Ok(token) => {
-                    println!("{:?}", token);
+                    // println!("{:?}", token);
                 }
                 Err(_e) => {
                     parser.reset(&start_state);
