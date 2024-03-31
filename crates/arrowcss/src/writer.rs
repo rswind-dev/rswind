@@ -35,6 +35,17 @@ impl<'a, W> Writer<'a, W>
 where
     W: Write,
 {
+    pub fn default(dest: W) -> Self {
+        Self::new(
+            dest,
+            WriterConfig {
+                minify: false,
+                linefeed: LineFeed::LF,
+                indent_width: 2,
+                indent_type: IndentType::Space,
+            },
+        )
+    }
     pub fn new(dest: W, config: WriterConfig) -> Self {
         let indent = match config.indent_type {
             IndentType::Tab => "\t",
@@ -80,35 +91,34 @@ where
     }
 
     pub fn indent(&mut self) {
-        self.indent_level += 2;
+        self.indent_level += 1;
     }
 
     pub fn dedent(&mut self) {
-        self.indent_level -= 2;
+        self.indent_level -= 1;
+    }
+
+    fn ensure_ident(&mut self) -> Result<(), std::fmt::Error> {
+        if self.col == 0 && self.indent_level > 0 {
+            self.dest.write_str(
+                self.indent
+                    .repeat(self.indent_level * self.indent_width)
+                    .as_str(),
+            )?;
+        }
+        Ok(())
     }
 }
 
 impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
     fn write_str(&mut self, s: &str) -> std::fmt::Result {
-        if self.col == 0 && self.indent_level > 0 {
-            self.dest.write_str(
-                self.indent
-                    .repeat(self.indent_level * self.indent_width)
-                    .as_str(),
-            )?;
-        }
+        self.ensure_ident()?;
         self.col += s.len();
         self.dest.write_str(s)
     }
 
     fn write_char(&mut self, c: char) -> std::fmt::Result {
-        if self.col == 0 && self.indent_level > 0 {
-            self.dest.write_str(
-                self.indent
-                    .repeat(self.indent_level * self.indent_width)
-                    .as_str(),
-            )?;
-        }
+        self.ensure_ident()?;
         self.col += 1;
         self.dest.write_char(c)
     }
