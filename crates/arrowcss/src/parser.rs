@@ -38,21 +38,21 @@ pub fn to_css_rule<'i, 'c>(
     let rule = parser.slice(start..parser.position());
 
     // Step 2: try static match
-    let mut decls = CssDecls::default();
+    let mut decls = CssRuleList::default();
     if let Some(static_rule) = ctx.get_static(rule) {
-        decls = static_rule;
+        decls = static_rule.into();
     } else {
         // Step 3: get all index of `-`
         for (i, _) in rule.match_indices('-') {
             if let Some(v) =
                 ctx.utilities.try_apply(rule.get(..i)?, rule.get(i + 1..)?)
             {
-                decls = v.into_owned();
+                decls = v;
             }
         }
     }
 
-    if decls.is_empty() {
+    if decls.nodes.is_empty() {
         return None;
     }
 
@@ -60,7 +60,7 @@ pub fn to_css_rule<'i, 'c>(
     let _ = serialize_identifier(value, &mut selector);
     let mut rule: CssRuleList = CssRule::Style(StyleRule {
         selector,
-        nodes: decls.into(),
+        nodes: decls.nodes.into(),
     })
     .into();
 
