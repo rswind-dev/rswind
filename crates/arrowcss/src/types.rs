@@ -11,7 +11,7 @@ pub use lightningcss::values::{
     time::Time,
 };
 
-pub trait TypeValidator {
+pub trait TypeValidator: Sync + Send {
     fn validate(&self, value: &str) -> bool;
 }
 

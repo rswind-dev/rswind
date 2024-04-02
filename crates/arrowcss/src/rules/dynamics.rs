@@ -13,9 +13,8 @@ use lightningcss::{
 use crate::{
     add_theme_rule,
     context::{AddRule, Context},
-    css,
     css::NodeList,
-    rule::{MetaData, RuleMatchingFn, Utility},
+    rule::{MetaData, Utility},
 };
 
 struct PendingRule<'i> {
@@ -63,7 +62,7 @@ impl<'c> PendingRule<'c> {
 
 fn rule(
     key: &str,
-    handler: impl Fn(MetaData, CowArcStr) -> NodeList + 'static,
+    handler: impl Fn(MetaData, CowArcStr) -> NodeList + Sync + Send + 'static,
 ) -> PendingRule<'_> {
     PendingRule {
         key,

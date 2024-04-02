@@ -112,17 +112,17 @@ fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
     let m = matcher.get(1..)?.to_owned();
     match matcher.chars().next()? {
         '&' => Some(VariantHandler::Replacement(Box::new(
-            move |mut container: NodeList| {
-                for rule in container.iter_mut() {
-                    match rule {
-                        AstNode::Rule(ref mut it) => {
-                            it.selector += m.as_str();
-                        }
-                        _ => {
-                            println!("Mismatched rule: {:?}, expect a CssRule::Style", rule)
-                        }
-                    }
-                }
+            move |container: NodeList| {
+                // for rule in container.iter_mut() {
+                //     match rule {
+                //         AstNode::Rule(ref mut it) => {
+                //             it.selector += m.as_str();
+                //         }
+                //         _ => {
+                //             println!("Mismatched rule: {:?}, expect a CssRule::Style", rule)
+                //         }
+                //     }
+                // }
                 Some(container)
             },
         ))),
@@ -183,15 +183,15 @@ where
         .collect::<Option<Vec<_>>>()?;
 
     let handler: Box<dyn VariantMatchingFn> =
-        Box::new(move |mut container: NodeList| {
-            container = fns
-                .iter()
-                .map(|f| f(container.clone()))
-                .collect::<Option<Vec<Vec<AstNode>>>>()?
-                .into_iter()
-                .flatten()
-                .collect::<Vec<AstNode>>()
-                .into();
+        Box::new(move |container: NodeList| {
+            // container = fns
+            //     .iter()
+            //     .map(|f| f(container.clone()))
+            //     .collect::<Option<Vec<Vec<AstNode>>>>()?
+            //     .into_iter()
+            //     .flatten()
+            //     .collect::<Vec<AstNode>>()
+            //     .into();
             Some(container)
         });
 

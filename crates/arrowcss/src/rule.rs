@@ -1,12 +1,11 @@
 use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 
 use crate::{
-    css::{DeclList, NodeList},
+    css::NodeList,
     theme::ThemeValue,
     types::TypeValidator,
     utils::{decode_arbitrary_value, StripArbitrary},
 };
-use arrowcss_css_macro::css;
 
 #[allow(dead_code)]
 #[derive(Clone, Default)]
@@ -22,7 +21,7 @@ impl MetaData {
     }
 }
 
-pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> NodeList;
+pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> NodeList + Send + Sync;
 
 pub struct Utility<'i> {
     handler: Box<dyn RuleMatchingFn>,
@@ -137,6 +136,8 @@ impl<'c> Utility<'c> {
 
 #[cfg(test)]
 mod tests {
+    use arrowcss_css_macro::css;
+
     use super::*;
     use crate::types::PropertyId;
 

@@ -11,7 +11,7 @@ use std::{fmt, sync::Arc};
 
 pub type ThemeValue<'c> = Arc<HashMap<String, CowArcStr<'c>>>;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Theme<'c>(pub HashMap<String, ThemeValue<'c>>);
 
 impl<'c> Deref for Theme<'c> {

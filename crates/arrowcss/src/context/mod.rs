@@ -1,5 +1,4 @@
 use fxhash::FxHashMap as HashMap;
-use std::{cell::RefCell, sync::Arc};
 
 mod static_rules;
 mod utilities;
@@ -16,16 +15,16 @@ use arrowcss_css_macro::css;
 
 use self::{static_rules::StaticRuleStorage, utilities::UtilityStorage};
 
-pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList>;
+pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct Context<'c> {
     pub static_rules: StaticRuleStorage,
     pub utilities: UtilityStorage<'c>,
 
-    pub variants: Arc<RefCell<HashMap<String, Box<VariantHandler>>>>,
+    pub variants: HashMap<String, VariantHandler>,
 
-    pub theme: Arc<RefCell<Theme<'static>>>,
+    pub theme: Theme<'static>,
     pub cache: HashMap<String, Option<String>>,
     // #[allow(dead_code)]
     // pub config: Config,
@@ -37,15 +36,15 @@ impl<'c> Context<'c> {
         Self {
             // tokens: HashMap::new().into(),
             static_rules: StaticRuleStorage::new(),
-            variants: Arc::new(HashMap::default().into()),
+            variants: HashMap::default().into(),
             utilities: UtilityStorage::new(),
-            theme: Arc::new(RefCell::new(theme().merge(config.theme))),
+            theme: theme().merge(config.theme),
             cache: HashMap::default(),
             // config: config.config,
         }
     }
 
-    pub fn add_static<S>(&self, pair: (S, DeclList<'static>)) -> &Self
+    pub fn add_static<S>(&mut self, pair: (S, DeclList<'static>)) -> &Self
     where
         S: Into<String>,
     {
@@ -57,41 +56,36 @@ impl<'c> Context<'c> {
         self.static_rules.get(key)
     }
 
-    pub fn add_variant<T>(&self, key: &'c str, matcher: T) -> &Self
+    pub fn add_variant<T>(&mut self, key: &'c str, matcher: T) -> &Self
     where
         T: IntoIterator,
         T::Item: AsRef<str>,
         T::IntoIter: ExactSizeIterator,
     {
-        create_variant_fn(key, matcher).map(|func| {
-            self.variants
-                .borrow_mut()
-                .insert(key.to_string(), func.into())
-        });
+        create_variant_fn(key, matcher)
+            .map(|func| self.variants.insert(key.to_string(), func.into()));
         self
     }
 
     pub fn add_variant_fn<'a>(
-        &self,
+        &mut self,
         key: &'a str,
         func: impl VariantMatchingFn + 'static,
     ) -> &Self {
-        self.variants.borrow_mut().insert(
-            key.to_string(),
-            Box::new(VariantHandler::Nested(Box::new(func))),
-        );
+        self.variants
+            .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));
         self
     }
 
     pub fn get_theme(&self, key: &str) -> Option<ThemeValue<'c>> {
-        self.theme.borrow().get(key).cloned()
+        self.theme.get(key).cloned()
     }
 }
 
 pub trait AddRule<'c> {
-    fn add_rule(&self, key: &str, rule: Utility<'c>) -> &Self;
+    fn add_rule(&mut self, key: &str, rule: Utility<'c>) -> &Self;
     fn add_theme_rule<'a: 'c>(
-        &self,
+        &mut self,
         key: &'a str,
         values: Vec<(String, Vec<String>)>,
         // typ: Option<impl TypeValidator>,
@@ -99,13 +93,13 @@ pub trait AddRule<'c> {
 }
 
 impl<'c> AddRule<'c> for Context<'c> {
-    fn add_rule(&self, key: &str, rule: Utility<'c>) -> &Self {
+    fn add_rule(&mut self, key: &str, rule: Utility<'c>) -> &Self {
         self.utilities.insert(key.into(), rule);
         self
     }
 
     fn add_theme_rule<'a: 'c>(
-        &self,
+        &mut self,
         key: &'a str,
         values: Vec<(String, Vec<String>)>,
         // typ: Option<impl TypeValidator>,

@@ -1,17 +1,15 @@
 use crate::{
     context::Context,
-    css::{AstNode, DeclList, NodeList, Rule, ToCss},
+    css::{AstNode, NodeList, Rule},
     utils::VariantHandler,
     variant::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
         VariantKind,
     },
-    writer::Writer,
 };
 use cssparser::{serialize_identifier, ParseError, ParserInput};
-use hashbrown::HashSet;
+
 use lazy_static::lazy_static;
-use lightningcss::traits::IntoOwned;
 use regex::Regex;
 
 lazy_static! {
@@ -20,7 +18,7 @@ lazy_static! {
 
 pub fn to_css_rule<'i, 'c>(
     value: &'i str,
-    ctx: &mut Context<'c>,
+    ctx: &Context<'c>,
 ) -> Option<NodeList<'c>> {
     let mut input = ParserInput::new(value);
     let mut parser = cssparser::Parser::new(&mut input);
@@ -57,6 +55,7 @@ pub fn to_css_rule<'i, 'c>(
     }
 
     let mut selector = String::from(".");
+    selector.reserve(value.len() + 5);
     let _ = serialize_identifier(value, &mut selector);
     let mut rule: NodeList = AstNode::Rule(Rule {
         selector,
@@ -71,7 +70,6 @@ pub fn to_css_rule<'i, 'c>(
             VariantKind::Arbitrary(_) => Some(variant),
             VariantKind::Literal(v) => ctx
                 .variants
-                .borrow()
                 .contains_key(&v.value)
                 .then_some(variant),
         })
@@ -81,8 +79,8 @@ pub fn to_css_rule<'i, 'c>(
                 ..
             }) => true,
             VariantKind::Literal(v) => {
-                ctx.variants.borrow().get(&v.value).is_some_and(|v| {
-                    matches!(v.as_ref(), VariantHandler::Nested(_))
+                ctx.variants.get(&v.value).is_some_and(|v| {
+                    matches!(v, VariantHandler::Nested(_))
                 })
             }
             _ => false,
@@ -98,7 +96,7 @@ pub fn to_css_rule<'i, 'c>(
                 rule = new_rule;
             }
             VariantKind::Literal(v) => {
-                let new_rule = (ctx.variants.borrow()[&v.value])(rule)?;
+                let new_rule = (ctx.variants[&v.value])(rule)?;
                 rule = new_rule;
             }
         }

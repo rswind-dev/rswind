@@ -1,31 +1,29 @@
+use std::collections::HashMap;
 use std::fmt::Write as _;
-use std::fs::OpenOptions;
-use std::io::{BufWriter, Read, Write};
+use std::fs::{read_to_string, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
-use crate::context::AddRule;
 use crate::css::{AstNode, Rule};
 use crate::parser::to_css_rule;
-use crate::types::PropertyId;
 use crate::{
     config::ArrowConfig,
     context::Context,
     css::ToCss,
-    rule::Utility,
     rules::{dynamics::load_dynamic_rules, statics::STATIC_RULES},
-    types::CssDataType,
     writer::Writer,
 };
 
-use arrowcss_css_macro::css;
 use config::{Config, File};
-use hashbrown::HashSet;
+use fxhash::FxHashSet as HashSet;
 use lightningcss::traits::IntoOwned;
 use lightningcss::values::string::CowArcStr;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
+use rayon::prelude::*;
+use walkdir::WalkDir;
 
 pub struct Application<'c> {
     pub ctx: Context<'c>,
@@ -54,23 +52,23 @@ impl<'c> Application<'c> {
 
     pub fn init(&mut self) -> &mut Self {
         load_dynamic_rules(&mut self.ctx);
-        self.ctx
-            .add_variant("first", ["&:first-child"])
-            .add_variant("last", ["&:last-child"])
-            .add_variant(
-                "motion-safe",
-                ["@media(prefers-reduced-motion: no-preference)"],
-            )
-            .add_variant(
-                "hover",
-                ["@media (hover: hover) and (pointer: fine) | &:hover"],
-            )
-            .add_variant("focus", ["&:focus"])
-            .add_variant("marker", ["& *::marker", "&::marker"])
-            .add_variant("*", ["& > *"])
-            .add_variant("first", ["&:first-child"])
-            .add_variant("last", ["&:last-child"])
-            .add_variant("disabled", ["&:disabled"]);
+        // self.ctx
+        //     .add_variant("first", ["&:first-child"])
+        //     .add_variant("last", ["&:last-child"])
+        //     .add_variant(
+        //         "motion-safe",
+        //         ["@media(prefers-reduced-motion: no-preference)"],
+        //     )
+        //     .add_variant(
+        //         "hover",
+        //         ["@media (hover: hover) and (pointer: fine) | &:hover"],
+        //     )
+        //     .add_variant("focus", ["&:focus"])
+        //     .add_variant("marker", ["& *::marker", "&::marker"])
+        //     .add_variant("*", ["& > *"])
+        //     .add_variant("first", ["&:first-child"])
+        //     .add_variant("last", ["&:last-child"])
+        //     .add_variant("disabled", ["&:disabled"]);
 
         for (key, value) in self.ctx.get_theme("breakpoints").unwrap().iter() {
             let value: CowArcStr<'static> = value.clone().into_owned();
@@ -98,12 +96,15 @@ impl<'c> Application<'c> {
 
         let parts = buffer
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-            .filter(|s| s.starts_with(char::is_lowercase) && self.ctx.cache.get(*s).is_none())
+            .filter(|s| {
+                s.starts_with(char::is_lowercase)
+                    && self.ctx.cache.get(*s).is_none()
+            })
             .collect::<HashSet<_>>();
         println!("split: {} us", start.elapsed().as_micros());
 
         for token in parts {
-            if let Some(rule) = to_css_rule(token, &mut self.ctx) {
+            if let Some(rule) = to_css_rule(token, &self.ctx) {
                 let mut w = String::with_capacity(100);
                 let mut writer = Writer::default(&mut w);
                 let _ = rule.to_css(&mut writer);
@@ -125,7 +126,6 @@ impl<'c> Application<'c> {
 
         println!("Execution time: {} us", start.elapsed().as_micros());
         w.write(self.writer.dest.as_bytes()).unwrap();
-        // self.writer.dest.clear();
     }
 
     pub fn run(&mut self) {
@@ -145,4 +145,62 @@ impl<'c> Application<'c> {
             self.generate(vec![]);
         }
     }
+
+    pub fn run_parallel(&mut self, dir: &str) {
+        let start = Instant::now();
+        let res = WalkDir::new(dir)
+            .max_depth(1)
+            .into_iter()
+            .filter_map(|e| {
+                Some(e.ok()?.path().to_owned()).filter(|p| p.is_file())
+            })
+            .par_bridge()
+            .map(|x| generate_parallel(&self.ctx, x))
+            .reduce(
+                || HashMap::new(),
+                |mut a, b| {
+                    a.extend(b);
+                    a
+                },
+            );
+
+        for (token, rule) in res {
+            // if self.ctx.cache.contains_key(&token) {
+            //     continue;
+            // }
+            let mut w = String::with_capacity(100);
+            let mut writer = Writer::default(&mut w);
+            let _ = rule.to_css(&mut writer);
+            let _ = self.writer.write_str(&w);
+            self.ctx.cache.insert(String::from(token), Some(w));
+        }
+
+        let mut w = BufWriter::new(
+            OpenOptions::new()
+                .write(true)
+                .create(true)
+                .append(false)
+                .open(Path::new("examples/test.css"))
+                .unwrap(),
+        );
+
+        w.write(self.writer.dest.as_bytes()).unwrap();
+        println!("Execution time: {:?}", start.elapsed());
+    }
+}
+
+pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
+    ctx: &'a Context<'c>,
+    path: P,
+) -> HashMap<String, Vec<AstNode<'c>>> {
+    read_to_string(path.as_ref())
+        .unwrap()
+        .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
+        .filter(|s| s.starts_with(char::is_lowercase))
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .filter_map(|token| {
+            to_css_rule(token, &ctx).map(|rule| (token.to_owned(), rule))
+        })
+        .collect::<HashMap<String, Vec<AstNode>>>()
 }

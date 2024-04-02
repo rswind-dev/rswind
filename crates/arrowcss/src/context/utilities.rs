@@ -1,50 +1,44 @@
 use fxhash::FxHashMap as HashMap;
-use std::{cell::RefCell, sync::Arc};
 
-use crate::css::{DeclList, NodeList};
+use crate::css::NodeList;
 use crate::rule::Utility;
-use crate::theme::Theme;
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct UtilityStorage<'c> {
-    pub utilities: Arc<RefCell<HashMap<String, Vec<Arc<Utility<'c>>>>>>,
-    pub theme: Arc<RefCell<Theme<'static>>>,
-    pub cache: HashMap<String, Option<NodeList<'c>>>,
+    pub utilities: HashMap<String, Vec<Utility<'c>>>,
+    // pub theme: Arc<RefCell<Theme<'static>>>,
+    // pub cache: HashMap<String, Option<NodeList<'c>>>,
 }
 
 impl<'c> UtilityStorage<'c> {
     pub fn new() -> Self {
         Self {
-            utilities: Arc::new(RefCell::new(HashMap::default())),
-            theme: Arc::new(RefCell::new(Theme::default())),
-            cache: HashMap::default(),
+            utilities: HashMap::default(),
+            // theme: Arc::new(RefCell::new(Theme::default())),
+            // cache: HashMap::default(),
         }
     }
 
-    pub fn insert(&self, key: String, value: Utility<'c>) {
-        self.utilities
-            .borrow_mut()
-            .entry(key)
-            .or_default()
-            .push(value.into());
+    pub fn insert(&mut self, key: String, value: Utility<'c>) {
+        self.utilities.entry(key).or_default().push(value.into());
     }
 
-    pub fn get(&self, key: &str) -> Option<Vec<Arc<Utility<'c>>>> {
-        self.utilities.borrow().get(key).cloned()
+    pub fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
+        self.utilities.get(key)
     }
 
     pub fn try_apply<'a>(
-        &mut self,
+        &self,
         key: &str,
         input: &'a str,
     ) -> Option<NodeList<'c>> {
         let k = self.get(key)?;
-        self.cache
-            .entry(format!("{}{}", key, input))
-            .or_insert_with(|| {
-                k.into_iter().find_map(|rule| rule.apply_to(input))
-            })
-            .clone()
+        k.into_iter().find_map(|rule| rule.apply_to(input))
+        // self.cache
+        //     .entry(format!("{}{}", key, input))
+        //     .or_insert_with(|| {
+        //     })
+        //     .clone()
     }
 }
 
