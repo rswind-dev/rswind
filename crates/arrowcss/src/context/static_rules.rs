@@ -1,11 +1,11 @@
+use fxhash::FxHashMap as HashMap;
 use std::{cell::RefCell, sync::Arc};
-use hashbrown::HashMap;
 
-use crate::css::CssDecls;
+use crate::css::DeclList;
 
 #[derive(Default, Clone)]
 pub struct StaticRuleStorage(
-    pub Arc<RefCell<HashMap<String, CssDecls<'static>>>>,
+    pub Arc<RefCell<HashMap<String, DeclList<'static>>>>,
 );
 
 impl StaticRuleStorage {
@@ -13,11 +13,11 @@ impl StaticRuleStorage {
         Self::default()
     }
 
-    pub fn insert(&self, key: String, value: CssDecls<'static>) {
+    pub fn insert(&self, key: String, value: DeclList<'static>) {
         self.0.borrow_mut().insert(key, value);
     }
 
-    pub fn get(&self, key: &str) -> Option<CssDecls<'static>> {
+    pub fn get(&self, key: &str) -> Option<DeclList<'static>> {
         self.0.borrow().get(key).cloned()
     }
 }

@@ -2,6 +2,7 @@
 members = [
   "bindings/binding_core_node",
   "crates/arrowcss",
+  "crates/arrowcss_css_macro",
 ]
 resolver = "2"
 [profile.release]

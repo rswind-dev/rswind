@@ -1,13 +1,8 @@
-use std::{
-    cmp::Ordering,
-    iter,
-    ops::{ControlFlow, Deref},
-    sync::Arc,
-};
+use std::cmp::Ordering;
 
 use crate::{
     context::VariantMatchingFn,
-    css::{AtRule, CssRule, CssRuleList},
+    css::{AstNode, NodeList, Rule},
 };
 
 pub fn strip_arbitrary(value: &str) -> Option<&str> {
@@ -37,7 +32,9 @@ impl VariantHandler {
         }
     }
 
-    pub fn create_constructor(&self) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
+    pub fn create_constructor(
+        &self,
+    ) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
         match self {
             Self::Nested(_) => VariantHandler::Nested,
             Self::Replacement(_) => VariantHandler::Replacement,
@@ -73,11 +70,11 @@ impl Ord for VariantHandler {
     }
 }
 
-impl<'a, 'b> Fn<(CssRuleList<'a>,)> for VariantHandler {
+impl<'a, 'b> Fn<(NodeList<'a>,)> for VariantHandler {
     extern "rust-call" fn call(
         &self,
-        args: (CssRuleList<'a>,),
-    ) -> Option<CssRuleList<'a>> {
+        args: (NodeList<'a>,),
+    ) -> Option<NodeList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
             VariantHandler::Replacement(f) => f(args.0),
@@ -85,12 +82,12 @@ impl<'a, 'b> Fn<(CssRuleList<'a>,)> for VariantHandler {
     }
 }
 
-impl<'a, 'b> FnOnce<(CssRuleList<'a>,)> for VariantHandler {
-    type Output = Option<CssRuleList<'a>>;
+impl<'a, 'b> FnOnce<(NodeList<'a>,)> for VariantHandler {
+    type Output = Option<NodeList<'a>>;
 
     extern "rust-call" fn call_once(
         self,
-        args: (CssRuleList<'a>,),
+        args: (NodeList<'a>,),
     ) -> Self::Output {
         match self {
             VariantHandler::Nested(f) => f(args.0),
@@ -99,11 +96,11 @@ impl<'a, 'b> FnOnce<(CssRuleList<'a>,)> for VariantHandler {
     }
 }
 
-impl<'a, 'b> FnMut<(CssRuleList<'a>,)> for VariantHandler {
+impl<'a, 'b> FnMut<(NodeList<'a>,)> for VariantHandler {
     extern "rust-call" fn call_mut(
         &mut self,
-        args: (CssRuleList<'a>,),
-    ) -> Option<CssRuleList<'a>> {
+        args: (NodeList<'a>,),
+    ) -> Option<NodeList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
             VariantHandler::Replacement(f) => f(args.0),
@@ -115,10 +112,10 @@ fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
     let m = matcher.get(1..)?.to_owned();
     match matcher.chars().next()? {
         '&' => Some(VariantHandler::Replacement(Box::new(
-            move |mut container: CssRuleList| {
-                for rule in container.nodes.iter_mut() {
+            move |mut container: NodeList| {
+                for rule in container.iter_mut() {
                     match rule {
-                        CssRule::Style(ref mut it) => {
+                        AstNode::Rule(ref mut it) => {
                             it.selector += m.as_str();
                         }
                         _ => {
@@ -131,10 +128,9 @@ fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
         ))),
         '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
             Some(
-                CssRule::AtRule(AtRule {
-                    name: m.to_owned(),
-                    params: "".into(),
-                    nodes: rule.nodes.to_vec(),
+                AstNode::Rule(Rule {
+                    selector: matcher.to_owned(),
+                    nodes: rule.to_vec(),
                 })
                 .into(),
             )
@@ -168,11 +164,12 @@ where
                 fns.sort();
 
                 let wrapper = VariantHandler::create_constructor(&fns[0]);
-                let composed_fn: Box<dyn VariantMatchingFn> = Box::new(move |rules| {
-                    fns.iter().fold(Some(rules), |acc, f| {
-                        acc.and_then(|r| f(r.clone()))
-                    })
-                });
+                let composed_fn: Box<dyn VariantMatchingFn> =
+                    Box::new(move |rules| {
+                        fns.iter().fold(Some(rules), |acc, f| {
+                            acc.and_then(|r| f(r.clone()))
+                        })
+                    });
                 wrapper(composed_fn)
             } else {
                 // Normal
@@ -186,11 +183,15 @@ where
         .collect::<Option<Vec<_>>>()?;
 
     let handler: Box<dyn VariantMatchingFn> =
-        Box::new(move |mut container: CssRuleList| {
+        Box::new(move |mut container: NodeList| {
             container = fns
                 .iter()
                 .map(|f| f(container.clone()))
-                .collect::<Option<CssRuleList>>()?;
+                .collect::<Option<Vec<Vec<AstNode>>>>()?
+                .into_iter()
+                .flatten()
+                .collect::<Vec<AstNode>>()
+                .into();
             Some(container)
         });
 

@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use fxhash::FxHashMap as HashMap;
 use std::{cell::RefCell, sync::Arc};
 
 mod static_rules;
@@ -6,16 +6,17 @@ mod utilities;
 
 use crate::{
     config::ArrowConfig,
-    css::{decl::decl, CssDecls, CssRuleList},
-    rule::Rule,
+    css::{DeclList, NodeList},
+    rule::Utility,
     theme::{Theme, ThemeValue},
     themes::theme,
     utils::{create_variant_fn, VariantHandler},
 };
+use arrowcss_css_macro::css;
 
 use self::{static_rules::StaticRuleStorage, utilities::UtilityStorage};
 
-pub trait VariantMatchingFn = Fn(CssRuleList) -> Option<CssRuleList>;
+pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList>;
 
 #[derive(Default, Clone)]
 pub struct Context<'c> {
@@ -25,7 +26,7 @@ pub struct Context<'c> {
     pub variants: Arc<RefCell<HashMap<String, Box<VariantHandler>>>>,
 
     pub theme: Arc<RefCell<Theme<'static>>>,
-    pub cache: HashMap<String, String>,
+    pub cache: HashMap<String, Option<String>>,
     // #[allow(dead_code)]
     // pub config: Config,
     // pub tokens: RefCell<HashMap<String, Option<CssRuleList<'c>>>>,
@@ -36,15 +37,15 @@ impl<'c> Context<'c> {
         Self {
             // tokens: HashMap::new().into(),
             static_rules: StaticRuleStorage::new(),
-            variants: Arc::new(HashMap::new().into()),
+            variants: Arc::new(HashMap::default().into()),
             utilities: UtilityStorage::new(),
             theme: Arc::new(RefCell::new(theme().merge(config.theme))),
-            cache: HashMap::new(),
+            cache: HashMap::default(),
             // config: config.config,
         }
     }
 
-    pub fn add_static<S>(&self, pair: (S, CssDecls<'static>)) -> &Self
+    pub fn add_static<S>(&self, pair: (S, DeclList<'static>)) -> &Self
     where
         S: Into<String>,
     {
@@ -52,7 +53,7 @@ impl<'c> Context<'c> {
         self
     }
 
-    pub fn get_static(&self, key: &str) -> Option<CssDecls<'static>> {
+    pub fn get_static(&self, key: &str) -> Option<DeclList<'static>> {
         self.static_rules.get(key)
     }
 
@@ -62,7 +63,6 @@ impl<'c> Context<'c> {
         T::Item: AsRef<str>,
         T::IntoIter: ExactSizeIterator,
     {
-        // let key_clone: String = key.into();
         create_variant_fn(key, matcher).map(|func| {
             self.variants
                 .borrow_mut()
@@ -71,22 +71,35 @@ impl<'c> Context<'c> {
         self
     }
 
-    pub fn get_theme<'b: 'c>(&self, key: &str) -> Option<ThemeValue<'b>> {
+    pub fn add_variant_fn<'a>(
+        &self,
+        key: &'a str,
+        func: impl VariantMatchingFn + 'static,
+    ) -> &Self {
+        self.variants.borrow_mut().insert(
+            key.to_string(),
+            Box::new(VariantHandler::Nested(Box::new(func))),
+        );
+        self
+    }
+
+    pub fn get_theme(&self, key: &str) -> Option<ThemeValue<'c>> {
         self.theme.borrow().get(key).cloned()
     }
 }
 
 pub trait AddRule<'c> {
-    fn add_rule(&self, key: &str, rule: Rule<'c>) -> &Self;
+    fn add_rule(&self, key: &str, rule: Utility<'c>) -> &Self;
     fn add_theme_rule<'a: 'c>(
         &self,
         key: &'a str,
         values: Vec<(String, Vec<String>)>,
+        // typ: Option<impl TypeValidator>,
     ) -> &Self;
 }
 
 impl<'c> AddRule<'c> for Context<'c> {
-    fn add_rule(&self, key: &str, rule: Rule<'c>) -> &Self {
+    fn add_rule(&self, key: &str, rule: Utility<'c>) -> &Self {
         self.utilities.insert(key.into(), rule);
         self
     }
@@ -95,6 +108,7 @@ impl<'c> AddRule<'c> for Context<'c> {
         &self,
         key: &'a str,
         values: Vec<(String, Vec<String>)>,
+        // typ: Option<impl TypeValidator>,
     ) -> &Self {
         for (k, v) in values {
             let theme = self
@@ -103,13 +117,12 @@ impl<'c> AddRule<'c> for Context<'c> {
 
             self.utilities.insert(
                 k,
-                Rule::new(move |_, input| {
-                    Some(
-                        v.clone()
-                            .into_iter()
-                            .map(|k| decl(k, input.to_string()))
-                            .collect(),
-                    )
+                Utility::new(move |_, input| {
+                    v.clone()
+                        .into_iter()
+                        .map(|k| css!(k: input.to_string()))
+                        .flatten()
+                        .collect()
                 })
                 .allow_values(theme),
             );

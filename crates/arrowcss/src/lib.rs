@@ -27,10 +27,10 @@ pub mod themes;
 pub mod utility;
 pub mod utils;
 // pub mod variant;
+pub mod app;
+pub mod types;
 pub mod variant;
 pub mod writer;
-pub mod types;
-pub mod app;
 
 pub fn generate(_input: String) -> String {
     let config = Config::builder()

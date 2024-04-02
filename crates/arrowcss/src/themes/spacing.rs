@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use fxhash::FxHashMap as HashMap;
 use std::sync::Arc;
 
 use lazy_static::lazy_static;

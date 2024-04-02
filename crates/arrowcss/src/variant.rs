@@ -3,7 +3,7 @@ use cssparser::{
     Token,
 };
 
-use crate::css::{AtRule, CssRule, CssRuleList};
+use crate::css::{AstNode, NodeList, Rule};
 
 #[derive(Debug, PartialEq)]
 pub struct Variant {
@@ -28,7 +28,7 @@ pub enum ArbitraryVariantKind {
 
 // MatchVariant trait has a VariantMatchingFn function
 pub trait MatchVariant {
-    fn match_variant(self, container: CssRuleList) -> Option<CssRuleList>;
+    fn match_variant(self, container: NodeList) -> Option<NodeList>;
 }
 
 // Something like [@media(min-width:300px)] or [&:nth-child(3)]
@@ -39,11 +39,11 @@ pub struct ArbitraryVariant {
 }
 
 impl MatchVariant for ArbitraryVariant {
-    fn match_variant(self, mut container: CssRuleList) -> Option<CssRuleList> {
+    fn match_variant(self, mut container: NodeList) -> Option<NodeList> {
         match self.kind {
             ArbitraryVariantKind::Replacement => {
-                for node in container.nodes.iter_mut() {
-                    if let CssRule::Style(ref mut it) = node {
+                for node in container.iter_mut() {
+                    if let AstNode::Rule(ref mut it) = node {
                         it.selector = self.value.replace('&', &it.selector);
                     } else {
                         println!("Unexpected variant: {:?}", node);
@@ -52,10 +52,9 @@ impl MatchVariant for ArbitraryVariant {
                 Some(container)
             }
             ArbitraryVariantKind::Nested => Some(
-                CssRule::AtRule(AtRule {
-                    name: self.value.trim_start_matches('@').to_owned(),
-                    params: "".into(),
-                    nodes: container.nodes.to_vec(),
+                AstNode::Rule(Rule {
+                    selector: self.value.trim_start_matches('@').to_owned(),
+                    nodes: container,
                 })
                 .into(),
             ),

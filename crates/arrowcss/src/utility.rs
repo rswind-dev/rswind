@@ -6,9 +6,9 @@ use std::fmt::Write;
 
 use cssparser::{Parser, ParserInput};
 
-use crate::css::CssDecl;
+use crate::css::Decl;
 use crate::utils::StripArbitrary;
-use crate::{context::Context, css::CssDecls};
+use crate::{context::Context, css::DeclList};
 
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
@@ -24,7 +24,7 @@ pub struct LiteralUtility<'a> {
     pub raw: String,
     pub important: bool,
     pub negative: bool,
-    pub value: CssDecls<'a>,
+    pub value: DeclList<'a>,
 }
 
 // dynamic rule

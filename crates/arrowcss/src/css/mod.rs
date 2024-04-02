@@ -6,13 +6,11 @@ pub mod container;
 pub mod decl;
 pub mod rule;
 
-pub use self::container::CssRuleList;
-pub use self::decl::CssDecl;
-pub use self::decl::CssDecls;
-
-pub use self::rule::AtRule;
-pub use self::rule::CssRule;
-pub use self::rule::StyleRule;
+pub use self::container::NodeList;
+pub use self::decl::Decl;
+pub use self::decl::DeclList;
+pub use self::rule::AstNode;
+pub use self::rule::Rule;
 
 pub trait ToCss {
     fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>

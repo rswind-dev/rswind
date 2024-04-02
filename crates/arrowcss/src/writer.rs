@@ -100,11 +100,9 @@ where
 
     fn ensure_ident(&mut self) -> Result<(), std::fmt::Error> {
         if self.col == 0 && self.indent_level > 0 {
-            self.dest.write_str(
-                self.indent
-                    .repeat(self.indent_level * self.indent_width)
-                    .as_str(),
-            )?;
+            for _ in 0..(self.indent_level * self.indent_width) {
+                self.dest.write_str(self.indent)?;
+            }
         }
         Ok(())
     }

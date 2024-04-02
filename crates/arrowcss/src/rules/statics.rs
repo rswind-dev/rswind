@@ -1,7 +1,7 @@
-use crate::{css::CssDecls, static_rules};
+use crate::{css::DeclList, static_rules};
 use lazy_static::lazy_static;
 
-pub fn accessibility<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "sr-only" => {
             "position": "absolute";
@@ -27,14 +27,14 @@ pub fn accessibility<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn pointer_events<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn pointer_events<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "pointer-events-none" => { "pointer-events": "none"; }
         "pointer-events-auto" => { "pointer-events": "auto"; }
     }
 }
 
-pub fn visibility<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn visibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "visible" => { "visibility": "visible"; }
         "invisible" => { "visibility": "hidden"; }
@@ -42,7 +42,7 @@ pub fn visibility<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn position<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "static" => { "position": "static"; }
         "fixed" => { "position": "fixed"; }
@@ -52,14 +52,14 @@ pub fn position<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn isolation<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn isolation<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "isolate" => { "isolation": "isolate"; }
         "isolation-auto" => { "isolation": "auto"; }
     }
 }
 
-pub fn float<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn float<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "float-right" => { "float": "right"; }
         "float-left" => { "float": "left"; }
@@ -67,7 +67,7 @@ pub fn float<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn clear<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn clear<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "clear-start" => { "clear": "inline-start"; }
         "clear-end" => { "clear": "inline-end"; }
@@ -78,14 +78,14 @@ pub fn clear<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn box_sizing<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn box_sizing<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "box-border" => { "box-sizing": "border-box"; }
         "box-content" => { "box-sizing": "content-box"; }
     }
 }
 
-pub fn display<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn display<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "block" => { "display": "block"; }
         "inline-block" => { "display": "inline-block"; }
@@ -110,28 +110,28 @@ pub fn display<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn table_layout<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn table_layout<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "table-auto" => { "table-layout": "auto"; }
         "table-fixed" => { "table-layout": "fixed"; }
     }
 }
 
-pub fn caption_side<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn caption_side<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "caption-top" => { "caption-side": "top"; }
         "caption-bottom" => { "caption-side": "bottom"; }
     }
 }
 
-pub fn border_collapse<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn border_collapse<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "border-collapse" => { "border-collapse": "collapse"; }
         "border-separate" => { "border-collapse": "separate"; }
     }
 }
 
-pub fn user_select<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn user_select<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "select-none" => { "user-select": "none"; }
         "select-text" => { "user-select": "text"; }
@@ -140,7 +140,7 @@ pub fn user_select<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn resize<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn resize<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "resize-none" => { "resize": "none"; }
         "resize-y" => { "resize": "vertical"; }
@@ -149,7 +149,7 @@ pub fn resize<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn scroll_snap_align<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn scroll_snap_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "snap-start" => { "scroll-snap-align": "start"; }
         "snap-end" => { "scroll-snap-align": "end"; }
@@ -158,28 +158,28 @@ pub fn scroll_snap_align<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn scroll_snap_stop<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn scroll_snap_stop<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "snap-normal" => { "scroll-snap-stop": "normal"; }
         "snap-always" => { "scroll-snap-stop": "always"; }
     }
 }
 
-pub fn list_style_position<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn list_style_position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "list-inside" => { "list-style-position": "inside"; }
         "list-outside" => { "list-style-position": "outside"; }
     }
 }
 
-pub fn appearance<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn appearance<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "appearance-none" => { "appearance": "none"; }
         "appearance-auto" => { "appearance": "auto"; }
     }
 }
 
-pub fn break_before<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn break_before<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "break-before-auto" => { "break-before": "auto"; }
         "break-before-avoid" => { "break-before": "avoid"; }
@@ -198,7 +198,7 @@ pub fn break_before<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn break_inside<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn break_inside<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "break-inside-auto" => { "break-inside": "auto"; }
         "break-inside-avoid" => { "break-inside": "avoid"; }
@@ -210,7 +210,7 @@ pub fn break_inside<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn break_after<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn break_after<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "break-after-auto" => { "break-after": "auto"; }
         "break-after-avoid" => { "break-after": "avoid"; }
@@ -231,7 +231,7 @@ pub fn break_after<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn grid_auto_flow<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
+pub fn grid_auto_flow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
         "grid-flow-row" => { "grid-auto-flow": "row"; }
         "grid-flow-col" => { "grid-auto-flow": "column"; }
@@ -241,7 +241,7 @@ pub fn grid_auto_flow<'a>() -> Vec<(&'static str, CssDecls<'a>)> {
     }
 }
 
-pub fn get_all() -> Vec<(&'static str, CssDecls<'static>)> {
+pub fn get_all() -> Vec<(&'static str, DeclList<'static>)> {
     vec![]
         .into_iter()
         .chain(accessibility())
@@ -270,7 +270,7 @@ pub fn get_all() -> Vec<(&'static str, CssDecls<'static>)> {
 }
 
 lazy_static! {
-    pub static ref STATIC_RULES: Vec<(&'static str, CssDecls<'static>)> =
+    pub static ref STATIC_RULES: Vec<(&'static str, DeclList<'static>)> =
         get_all();
 }
 

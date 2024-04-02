@@ -1,6 +1,6 @@
 use crate::{
     context::Context,
-    css::{CssDecls, CssRule, CssRuleList, StyleRule, ToCss},
+    css::{AstNode, DeclList, NodeList, Rule, ToCss},
     utils::VariantHandler,
     variant::{
         ArbitraryVariant, ArbitraryVariantKind, MatchVariant, Variant,
@@ -21,7 +21,7 @@ lazy_static! {
 pub fn to_css_rule<'i, 'c>(
     value: &'i str,
     ctx: &mut Context<'c>,
-) -> Option<CssRuleList<'c>> {
+) -> Option<NodeList<'c>> {
     let mut input = ParserInput::new(value);
     let mut parser = cssparser::Parser::new(&mut input);
 
@@ -38,7 +38,7 @@ pub fn to_css_rule<'i, 'c>(
     let rule = parser.slice(start..parser.position());
 
     // Step 2: try static match
-    let mut decls = CssRuleList::default();
+    let mut decls = NodeList::default();
     if let Some(static_rule) = ctx.get_static(rule) {
         decls = static_rule.into();
     } else {
@@ -52,15 +52,15 @@ pub fn to_css_rule<'i, 'c>(
         }
     }
 
-    if decls.nodes.is_empty() {
+    if decls.is_empty() {
         return None;
     }
 
-    let mut selector = String::with_capacity(value.len() + 5);
+    let mut selector = String::from(".");
     let _ = serialize_identifier(value, &mut selector);
-    let mut rule: CssRuleList = CssRule::Style(StyleRule {
+    let mut rule: NodeList = AstNode::Rule(Rule {
         selector,
-        nodes: decls.nodes.into(),
+        nodes: decls.to_vec(),
     })
     .into();
 

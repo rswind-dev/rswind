@@ -9,19 +9,16 @@ edition = "2021"
 anyhow = "1.0.75"
 config = "0.13.4"
 cssparser = "0.33.0"
-hashbrown = { version = "0.14.3", features = ["serde"] }
 lazy_static = "1.4.0"
 lightningcss = { version = "1.0.0-alpha.55", features = ["into_owned"] }
 notify = "6.1.1"
 notify-debouncer-mini = "0.4.1"
-proc-macro2 = "1.0.79"
-quote = "1.0.35"
 regex = "1.10.2"
 serde = "1.0.193"
 serde_json = "1.0.108"
 smallvec = "1.11.2"
-syn = "2.0.57"
+arrowcss_css_macro = { version = "0.1.0", path = "../arrowcss_css_macro" }
+fxhash = "0.2.1"
 
 [lib]
 bench = false
-proc-macro = true

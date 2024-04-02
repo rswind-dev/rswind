@@ -1,3 +1,4 @@
+use fxhash::FxHashMap as HashMap;
 use lightningcss::values::string::CowArcStr;
 use serde::{
     de::{self, MapAccess, Visitor},
@@ -5,7 +6,6 @@ use serde::{
 };
 use serde_json::Value;
 use std::ops::{Deref, DerefMut};
-use hashbrown::HashMap;
 
 use std::{fmt, sync::Arc};
 
@@ -70,12 +70,12 @@ impl<'de> Visitor<'de> for ThemeVisitor {
     where
         V: MapAccess<'de>,
     {
-        let mut themes = HashMap::new();
+        let mut themes = HashMap::default();
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
                 value @ Value::Object(_) => {
                     let mut theme_map: HashMap<String, CowArcStr<'de>> =
-                        HashMap::new();
+                        HashMap::default();
                     if key == "colors" {
                         match FlattenedColors::deserialize(value) {
                             Ok(b) => {
@@ -153,7 +153,7 @@ impl<'de> Visitor<'de> for FlattenedColorsVisitor {
     where
         V: MapAccess<'de>,
     {
-        let mut colors: HashMap<String, CowArcStr> = HashMap::new();
+        let mut colors: HashMap<String, CowArcStr> = HashMap::default();
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
                 Value::String(s) => {

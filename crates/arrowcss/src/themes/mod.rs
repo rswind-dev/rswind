@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use fxhash::FxHashMap as HashMap;
 use std::sync::Arc;
 
 use crate::map;
@@ -13,7 +13,7 @@ mod spacing;
 macro_rules! create_theme {
     ($($key:expr => $value:expr),*) => {
         {
-            let mut m = hashbrown::HashMap::new();
+            let mut m = fxhash::FxHashMap::default();
             $(
                 m.insert($key.to_string(), $value);
             )*
@@ -130,6 +130,36 @@ pub fn theme() -> Theme<'static> {
             "2" => "2px",
             "4" => "4px",
             "8" => "8px"
+        }.into(),
+        "breakpoints" => map! {
+            "sm" => "640px",
+            "md" => "768px",
+            "lg" => "1024px",
+            "xl" => "1280px",
+            "2xl" => "1536px"
+        }.into(),
+        "lineHeight" => map! {
+            "3" => "0.75rem",
+            "4" => "1rem",
+            "5" => "1.25rem",
+            "6" => "1.5rem",
+            "7" => "1.75rem",
+            "8" => "2rem",
+            "9" => "2.25rem",
+            "10" => "2.5rem",
+            "none" => "1",
+            "tight" => "1.25",
+            "snug" => "1.375",
+            "normal" => "1.5",
+            "relaxed" => "1.625",
+            "loose" => "2"
+        }.into(),
+        "animate" => map! {
+            "none" => "none",
+            "spin" => "spin 1s linear infinite",
+            "ping" => "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
+            "pulse" => "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            "bounce" => "bounce 1s infinite"
         }.into()
     }
     .into()
