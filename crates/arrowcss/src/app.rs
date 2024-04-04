@@ -52,23 +52,23 @@ impl<'c> Application<'c> {
 
     pub fn init(&mut self) -> &mut Self {
         load_dynamic_rules(&mut self.ctx);
-        // self.ctx
-        //     .add_variant("first", ["&:first-child"])
-        //     .add_variant("last", ["&:last-child"])
-        //     .add_variant(
-        //         "motion-safe",
-        //         ["@media(prefers-reduced-motion: no-preference)"],
-        //     )
-        //     .add_variant(
-        //         "hover",
-        //         ["@media (hover: hover) and (pointer: fine) | &:hover"],
-        //     )
-        //     .add_variant("focus", ["&:focus"])
-        //     .add_variant("marker", ["& *::marker", "&::marker"])
-        //     .add_variant("*", ["& > *"])
-        //     .add_variant("first", ["&:first-child"])
-        //     .add_variant("last", ["&:last-child"])
-        //     .add_variant("disabled", ["&:disabled"]);
+        self.ctx
+            .add_variant("first", ["&:first-child"])
+            .add_variant("last", ["&:last-child"])
+            .add_variant(
+                "motion-safe",
+                ["@media(prefers-reduced-motion: no-preference)"],
+            )
+            .add_variant(
+                "hover",
+                ["@media (hover: hover) and (pointer: fine) | &:hover"],
+            )
+            .add_variant("focus", ["&:focus"])
+            .add_variant("marker", ["& *::marker", "&::marker"])
+            .add_variant("*", ["& > *"])
+            .add_variant("first", ["&:first-child"])
+            .add_variant("last", ["&:last-child"])
+            .add_variant("disabled", ["&:disabled"]);
 
         for (key, value) in self.ctx.get_theme("breakpoints").unwrap().iter() {
             let value: CowArcStr<'static> = value.clone().into_owned();

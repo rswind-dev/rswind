@@ -184,37 +184,29 @@ pub fn load_dynamic_rules(ctx: &mut Context) {
             }
         })
 
-        rule("bg", |_, value| {
-            css! {
-                "background-color": value;
-            }
-        })
+        rule("bg", |_, value| css!("background-color": value))
+            .with_theme("colors")
+            .with_type(PropertyId::Color)
+
+        rule("bg", |_, value| css!("background-position": value))
+            .with_theme("backgroundPosition")
+            .with_type(PropertyId::BackgroundPosition)
+
+        rule("bg", |_, value| css!("background-size": value))
+            .with_theme("backgroundSize")
+            .with_type(PropertyId::BackgroundSize)
+
+        rule("bg", |_, value| css!("background-image": value))
+            .with_theme("backgroundImage")
+            .with_type(PropertyId::BackgroundImage)
+
+        rule("text", |_, value| css!("color": value))
         .with_theme("colors")
         .with_type(PropertyId::Color)
 
-        rule("bg", |_, value| {
-            css! {
-                "background-position": value;
-            }
-        })
-        .with_theme("backgroundPosition")
-        .with_type(PropertyId::BackgroundPosition)
-
-        rule("bg", |_, value| {
-            css! {
-                "background-size": value;
-            }
-        })
-        .with_theme("backgroundSize")
-        .with_type(PropertyId::BackgroundSize)
-
-        rule("bg", |_, value| {
-            css! {
-                "background-image": value;
-            }
-        })
-        .with_theme("backgroundImage")
-        .with_type(PropertyId::BackgroundImage)
+        rule("text", |_, value| css!("font-size": value))
+        .with_theme("fontSize")
+        .with_type(PropertyId::FontSize)
     }
 
     add_theme_rule!(ctx, {
