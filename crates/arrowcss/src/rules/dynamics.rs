@@ -62,7 +62,7 @@ impl<'c> PendingRule<'c> {
 
 fn rule(
     key: &str,
-    handler: impl Fn(MetaData, CowArcStr) -> NodeList + Sync + Send + 'static,
+    handler: fn(MetaData, CowArcStr) -> NodeList,
 ) -> PendingRule<'_> {
     PendingRule {
         key,
