@@ -7,6 +7,7 @@ use crate::{
         VariantKind,
     },
 };
+
 use cssparser::{serialize_identifier, ParseError, ParserInput};
 
 use lazy_static::lazy_static;
@@ -68,21 +69,19 @@ pub fn to_css_rule<'i, 'c>(
         .into_iter()
         .filter_map(|variant| match &variant.kind {
             VariantKind::Arbitrary(_) => Some(variant),
-            VariantKind::Literal(v) => ctx
-                .variants
-                .contains_key(&v.value)
-                .then_some(variant),
+            VariantKind::Literal(v) => {
+                ctx.variants.contains_key(&v.value).then_some(variant)
+            }
         })
         .partition(|variant| match &variant.kind {
             VariantKind::Arbitrary(ArbitraryVariant {
                 kind: ArbitraryVariantKind::Nested,
                 ..
             }) => true,
-            VariantKind::Literal(v) => {
-                ctx.variants.get(&v.value).is_some_and(|v| {
-                    matches!(v, VariantHandler::Nested(_))
-                })
-            }
+            VariantKind::Literal(v) => ctx
+                .variants
+                .get(&v.value)
+                .is_some_and(|v| matches!(v, VariantHandler::Nested(_))),
             _ => false,
         });
 
