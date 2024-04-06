@@ -42,8 +42,8 @@ impl<'a> Into<NodeList<'a>> for AstNode<'a> {
     }
 }
 
-impl<'a> ToCss for Rule<'a> {
-    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+impl<'a> ToCss for &Rule<'a> {
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
     {
@@ -62,14 +62,14 @@ impl<'a> ToCss for Rule<'a> {
     }
 }
 
-impl<'a> ToCss for AstNode<'a> {
-    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+impl<'a> ToCss for &AstNode<'a> {
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
     {
         match self {
-            Self::Rule(rule) => rule.to_css(writer),
-            Self::Decl(decl) => decl.to_css(writer),
+            AstNode::Rule(rule) => rule.to_css(writer),
+            AstNode::Decl(decl) => decl.to_css(writer),
         }
     }
 }

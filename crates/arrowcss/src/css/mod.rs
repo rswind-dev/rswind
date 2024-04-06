@@ -13,7 +13,7 @@ pub use self::rule::AstNode;
 pub use self::rule::Rule;
 
 pub trait ToCss {
-    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: std::fmt::Write;
 }

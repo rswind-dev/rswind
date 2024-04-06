@@ -135,8 +135,8 @@ impl<'a> DeclList<'a> {
     }
 }
 
-impl<'a> ToCss for Decl<'a> {
-    fn to_css<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+impl<'a> ToCss for &Decl<'a> {
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,
     {
