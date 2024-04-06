@@ -23,8 +23,13 @@ impl MetaData {
 
 pub trait RuleMatchingFn = Fn(MetaData, CowArcStr) -> NodeList + Send + Sync;
 
+pub enum UtilityHandler {
+    Static(fn(MetaData, CowArcStr) -> NodeList),
+    Dynamic(Box<dyn RuleMatchingFn>),
+}
+
 pub struct Utility<'i> {
-    handler: Box<dyn RuleMatchingFn>,
+    pub handler: UtilityHandler,
     #[allow(dead_code)]
     pub supports_negative: bool,
     // a Theme map
@@ -44,7 +49,7 @@ impl<'c, F: RuleMatchingFn + 'static> From<F> for Utility<'c> {
 impl<'c> Utility<'c> {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
-            handler: Box::new(handler),
+            handler: UtilityHandler::Dynamic(Box::new(handler)),
             supports_negative: false,
             allowed_values: None,
             allowed_modifiers: None,
@@ -86,25 +91,19 @@ impl<'c> Utility<'c> {
                 }
             }
 
-            return (self.handler)(
-                MetaData {
-                    raw: value.to_string(),
-                },
-                CowArcStr::from(stripped).into_owned(),
-            )
-            .into();
+            return match &self.handler {
+                UtilityHandler::Static(handler) => Some(handler(MetaData::new(value), CowArcStr::from(stripped).into_owned())),
+                UtilityHandler::Dynamic(handler) => Some(handler(MetaData::new(value), CowArcStr::from(stripped).into_owned())),
+            };
         }
 
         // theme value
         if let Some(allowed_values) = &self.allowed_values {
             if let Some(v) = allowed_values.get(value) {
-                return (self.handler)(
-                    MetaData {
-                        raw: value.to_string(),
-                    },
-                    v.clone().into_owned(),
-                )
-                .into();
+                return match &self.handler {
+                    UtilityHandler::Static(handler) => Some(handler(MetaData::new(value), v.clone().into_owned())),
+                    UtilityHandler::Dynamic(handler) => Some(handler(MetaData::new(value), v.clone().into_owned())),
+                };
             }
         }
 
