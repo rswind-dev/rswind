@@ -13,14 +13,13 @@ use crate::{
 };
 use arrowcss_css_macro::css;
 
-use self::{static_rules::StaticRuleStorage, utilities::UtilityStorage};
+use self::{static_rules::StaticRuleStorage, utilities::{HashMapUtilityStorage, UtilityStorage}};
 
 pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
 
-#[derive(Default)]
 pub struct Context<'c> {
     pub static_rules: StaticRuleStorage,
-    pub utilities: UtilityStorage<'c>,
+    pub utilities: Box<dyn UtilityStorage<'c> + 'c>,
 
     pub variants: HashMap<String, VariantHandler>,
 
@@ -31,13 +30,19 @@ pub struct Context<'c> {
     // pub tokens: RefCell<HashMap<String, Option<CssRuleList<'c>>>>,
 }
 
+impl Default for Context<'_> {
+    fn default() -> Self {
+        Self::new(ArrowConfig::default())
+    }
+}
+
 impl<'c> Context<'c> {
     pub fn new(config: ArrowConfig<'static>) -> Self {
         Self {
             // tokens: HashMap::new().into(),
             static_rules: StaticRuleStorage::new(),
             variants: HashMap::default().into(),
-            utilities: UtilityStorage::new(),
+            utilities: Box::new(HashMapUtilityStorage::default()),
             theme: theme().merge(config.theme),
             cache: HashMap::default(),
             // config: config.config,

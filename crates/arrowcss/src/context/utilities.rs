@@ -1,44 +1,42 @@
+use arrowcss_css_macro::css;
 use fxhash::FxHashMap as HashMap;
+use lightningcss::values::string::CowArcStr;
+use phf::Map;
 
-use crate::css::NodeList;
-use crate::rule::Utility;
+use crate::css::{AstNode, Decl, NodeList};
+use crate::rule::{MetaData, Utility, UtilityHandler};
 
-#[derive(Default)]
-pub struct UtilityStorage<'c> {
-    pub utilities: HashMap<String, Vec<Utility<'c>>>,
-    // pub theme: Arc<RefCell<Theme<'static>>>,
-    // pub cache: HashMap<String, Option<NodeList<'c>>>,
+pub trait UtilityStorage<'c>: Sync + Send {
+    fn insert(&mut self, key: String, value: Utility<'c>);
+    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>>;
+    fn try_apply<'a>(&self, key: &str, input: &'a str) -> Option<NodeList<'c>>;
 }
 
-impl<'c> UtilityStorage<'c> {
-    pub fn new() -> Self {
-        Self {
-            utilities: HashMap::default(),
-            // theme: Arc::new(RefCell::new(Theme::default())),
-            // cache: HashMap::default(),
-        }
-    }
 
-    pub fn insert(&mut self, key: String, value: Utility<'c>) {
+#[derive(Default)]
+pub struct HashMapUtilityStorage<'c> {
+    pub utilities: HashMap<String, Vec<Utility<'c>>>,
+    // pub theme: Arc<RefCell<Theme<'static>>>,
+}
+
+impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
+
+    fn insert(&mut self, key: String, value: Utility<'c>) {
         self.utilities.entry(key).or_default().push(value.into());
     }
 
-    pub fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
+    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
         self.utilities.get(key)
     }
 
-    pub fn try_apply<'a>(
+    fn try_apply<'a>(
         &self,
         key: &str,
         input: &'a str,
     ) -> Option<NodeList<'c>> {
-        let k = self.get(key)?;
-        k.into_iter().find_map(|rule| rule.apply_to(input))
-        // self.cache
-        //     .entry(format!("{}{}", key, input))
-        //     .or_insert_with(|| {
-        //     })
-        //     .clone()
+        self.get(key)?
+            .into_iter()
+            .find_map(|rule| rule.apply_to(input))
     }
 }
 
