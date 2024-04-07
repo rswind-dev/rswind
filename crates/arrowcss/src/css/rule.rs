@@ -2,7 +2,6 @@ use std::fmt::Write;
 
 use anyhow::Error;
 use lightningcss::values::string::CowArcStr;
-use smallvec::smallvec;
 
 use crate::writer::Writer;
 

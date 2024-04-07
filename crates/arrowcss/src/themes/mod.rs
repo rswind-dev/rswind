@@ -172,6 +172,18 @@ pub fn theme() -> Theme<'static> {
             "4xl" => "2.25rem",
             "5xl" => "3rem",
             "6xl" => "4rem"
+        }.into(),
+        "fontSize:lineHeight" => map! {
+            "xs" => "1.5",
+            "sm" => "1.5",
+            "base" => "1.5",
+            "lg" => "1.5",
+            "xl" => "1.5",
+            "2xl" => "1.5",
+            "3xl" => "1.25",
+            "4xl" => "1.25",
+            "5xl" => "1.25",
+            "6xl" => "1.125"
         }.into()
     }
     .into()

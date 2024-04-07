@@ -1,5 +1,4 @@
 use fxhash::FxHashMap as HashMap;
-use std::{cell::RefCell, sync::Arc};
 
 use crate::css::DeclList;
 

@@ -1,9 +1,8 @@
 #![feature(trait_alias)]
 #![feature(control_flow_enum)]
-#![feature(auto_traits)]
-#![feature(unboxed_closures)]
 #![feature(fn_traits)]
-#![feature(tuple_trait)]
+#![feature(unboxed_closures)]
+#![feature(pattern)]
 
 pub mod config;
 pub mod context;
@@ -21,6 +20,7 @@ pub mod app;
 pub mod types;
 pub mod variant;
 pub mod writer;
+pub mod common;
 
 pub fn generate(_input: String) -> String {
     _input

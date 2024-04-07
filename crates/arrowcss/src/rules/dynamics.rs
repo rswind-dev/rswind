@@ -4,129 +4,147 @@ use arrowcss_css_macro::css;
 use lightningcss::{
     properties::{Property, PropertyId},
     traits::IntoOwned,
-    values::{
-        color::{CssColor, RGBA},
-        string::CowArcStr,
-    },
+    values::color::{CssColor, RGBA},
 };
 
 use crate::{
     add_theme_rule,
     context::{AddRule, Context},
-    css::NodeList,
-    rule::{MetaData, Utility},
+    rule::{ModifierProcessor, UtilityHandler, UtilityProcessor},
+    types::{CssDataType, TypeValidator},
 };
 
-struct PendingRule<'i> {
+struct PendingRule<'i, 'c> {
     key: &'i str,
     theme_key: Option<&'i str>,
-    property_id: Option<PropertyId<'i>>,
-    rule: Utility<'i>,
+    handler: UtilityHandler,
+    modifier: Option<ModifierProcessor<'c>>,
+    validator: Option<Box<dyn TypeValidator>>,
+    supports_negative: bool,
+    supports_fraction: bool,
+    ctx: &'i mut Context<'c>,
 }
 
-impl<'i> Deref for PendingRule<'i> {
-    type Target = Utility<'i>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.rule
-    }
-}
-
-impl<'c> PendingRule<'c> {
-    fn add_to(mut self, ctx: &mut Context<'c>) {
-        if let Some(key) = self.theme_key {
-            self.rule.allowed_values = ctx
-                .get_theme(key)
-                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
-                .clone()
-                .into();
-        }
-
-        if let Some(id) = self.property_id {
-            self.rule.infer_property_id = Some(Box::new(id.into_owned()));
-        }
-
-        ctx.add_rule(self.key, self.rule);
-    }
-
-    fn with_theme(mut self, key: &'c str) -> Self {
+impl<'i, 'c> PendingRule<'i, 'c> {
+    fn with_theme(mut self, key: &'i str) -> Self {
         self.theme_key = Some(key);
         self
     }
 
-    fn with_type<'a: 'c>(mut self, property_id: PropertyId<'a>) -> Self {
-        self.property_id = Some(property_id);
+    fn support_negative(mut self) -> Self {
+        self.supports_negative = true;
+        self
+    }
+
+    fn support_fraction(mut self) -> Self {
+        self.supports_fraction = true;
+        self
+    }
+
+    fn with_modifier(mut self, modifier: ModifierProcessor<'c>) -> Self {
+        self.modifier = Some(modifier);
+        self
+    }
+
+    fn with_validator(
+        mut self,
+        validator: impl TypeValidator + 'static,
+    ) -> Self {
+        self.validator = Some(Box::new(validator));
         self
     }
 }
 
-fn rule(
-    key: &str,
-    handler: fn(MetaData, CowArcStr) -> NodeList,
-) -> PendingRule<'_> {
-    PendingRule {
-        key,
-        rule: Utility::new(handler),
-        theme_key: None,
-        property_id: None,
+/// Automatically adds the rule to the context when dropped.
+/// This is useful for defining rules in a more declarative way.
+impl<'i, 'c> Drop for PendingRule<'i, 'c> {
+    fn drop(&mut self) {
+        let allowed_values = self.theme_key.map(|key| {
+            self.ctx
+                .get_theme(key)
+                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
+                .clone()
+        });
+        let validator = std::mem::take(&mut self.validator);
+        let handler = std::mem::take(&mut self.handler);
+        let modifier = std::mem::take(&mut self.modifier);
+
+        self.ctx.add_rule(
+            self.key,
+            UtilityProcessor {
+                validator,
+                allowed_values,
+                handler,
+                modifier,
+                supports_negative: self.supports_negative,
+                supports_fraction: self.supports_fraction,
+            },
+        );
     }
 }
 
-macro_rules! add_rules {
-    ($ctx:expr => $($rule:expr)*) => {
-        $(
-            $rule.add_to($ctx);
-        )*
-    };
-}
-
-pub fn load_dynamic_rules(ctx: &mut Context) {
-    add_rules! { ctx =>
-        rule("line-clamp", |_, value| {
-            css! {
-                "display": "-webkit-box";
-                "-webkit-line-clamp": value;
-                "-webkit-box-orient": "vertical";
-                "overflow": "hidden";
+pub fn load_dynamic_rules<'c>(ctx: &mut Context<'c>) {
+    macro_rules! add_rule {
+        ($key:expr, $handler:expr) => {
+            PendingRule {
+                key: $key,
+                handler: UtilityHandler::Dynamic(Box::new($handler)),
+                ctx,
+                theme_key: None,
+                supports_negative: false,
+                supports_fraction: false,
+                modifier: None,
+                validator: None,
             }
-        })
-        .with_theme("lineClamp")
-        .with_type(PropertyId::LineHeight)
+        };
+    }
 
-        rule("border-spacing", |_, value| {
+    add_rule!("line-clamp", |_, value| {
+        css! {
+            "display": "-webkit-box";
+            "-webkit-line-clamp": value;
+            "-webkit-box-orient": "vertical";
+            "overflow": "hidden";
+        }
+    })
+    .with_validator(CssDataType::Number)
+    .with_theme("lineClamp");
+
+    add_rule!("border-spacing", |_, value| {
             css! {
                 "--tw-border-spacing-x": value.clone();
                 "--tw-border-spacing-y": value.clone();
                 "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
             }
         })
-        .with_theme("spacing")
-
-        rule("border-spacing-x", |_, value| {
+        .with_theme("spacing");
+    // theme: for additional required properties
+    // modifier;
+    // options: feature flag
+    add_rule!("border-spacing-x", |_, value| {
             css! {
                 "--tw-border-spacing-x": value;
                 "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
             }
         })
-        .with_theme("spacing")
+        .with_theme("spacing");
 
-        rule("border-spacing-y", |_, value| {
+    add_rule!("border-spacing-y", |_, value| {
             css! {
                 "--tw-border-spacing-y": value;
                 "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
             }
         })
-        .with_theme("spacing")
+        .with_theme("spacing");
 
-        rule("animate", |_, value| {
-            css! {
-                "animation": value;
-            }
-        })
-        .with_theme("animate")
-
-        // TODO: return a CSSRule with "& > :not([hidden]) ~ :not([hidden])"
-        rule("space-x", |_, value| {
+    add_rule!("animate", |_, value| {
+        css! {
+            "animation": value;
+        }
+    })
+    .with_theme("animate");
+    // TODO: return a CSSRule with "& > :not([hidden]) ~ :not([hidden])"
+    add_rule!("space-x", |_, value| {
             css! {
                 "& > :not([hidden]) ~ :not([hidden])" {
                     "--tw-space-x-reverse": "0";
@@ -136,9 +154,9 @@ pub fn load_dynamic_rules(ctx: &mut Context) {
             }
         })
         .with_theme("spacing")
-        // .support_negative()
+        .support_negative();
 
-        rule("space-y", |_, value| {
+    add_rule!("space-y", |_, value| {
             css! {
                 "--tw-space-y-reverse": "0";
                 "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
@@ -146,9 +164,9 @@ pub fn load_dynamic_rules(ctx: &mut Context) {
             }
         })
         .with_theme("spacing")
-        // .support_negative()
+        .support_negative();
 
-        rule("divide-x", |_, value| {
+    add_rule!("divide-x", |_, value| {
             css! {
                 "--tw-divide-x-reverse": "0";
                 "border-right-width": format!("calc({value} * var(--tw-divide-x-reverse))");
@@ -156,9 +174,9 @@ pub fn load_dynamic_rules(ctx: &mut Context) {
             }
         })
         .with_theme("borderWidth")
-        .with_type(PropertyId::BorderRightWidth)
+        .with_validator(PropertyId::BorderRightWidth);
 
-        rule("divide-y", |_, value| {
+    add_rule!("divide-y", |_, value| {
             css! {
                 "--tw-divide-y-reverse": "0";
                 "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
@@ -166,48 +184,73 @@ pub fn load_dynamic_rules(ctx: &mut Context) {
             }
         })
         .with_theme("borderWidth")
-        .with_type(PropertyId::BorderTopWidth)
+        .with_validator(PropertyId::BorderTopWidth);
 
-        rule("divide", |_, value| {
-            // TODO: check corePlugins.divideOpacity
-            let r = Property::parse_string(PropertyId::Color, value.as_ref(), Default::default()).unwrap();
-            if let Property::Color(a) = r {
-                if let Ok(CssColor::RGBA(RGBA { red, green, blue, alpha })) = a.to_rgb() {
-                    return css! {
-                        "--tw-divide-opacity": alpha.to_string();
-                        "border-color": format!("rgb({} {} {} / var(--tw-divide-opacity))", red, green, blue);
-                    }
-                }
+    add_rule!("divide", |_, value| {
+        // TODO: check corePlugins.divideOpacity
+        let r = Property::parse_string(
+            PropertyId::Color,
+            value.as_ref(),
+            Default::default(),
+        )
+        .unwrap();
+        if let Property::Color(a) = r {
+            if let Ok(CssColor::RGBA(RGBA {
+                red,
+                green,
+                blue,
+                alpha,
+            })) = a.to_rgb()
+            {
+                return css! {
+                    "--tw-divide-opacity": alpha.to_string();
+                    "border-color": format!("rgb({} {} {} / var(--tw-divide-opacity))", red, green, blue);
+                };
             }
-            css! {
-                "border-color": value.clone();
-            }
-        })
+        }
+        css! {
+            "border-color": value.clone();
+        }
+    });
 
-        rule("bg", |_, value| css!("background-color": value))
-            .with_theme("colors")
-            .with_type(PropertyId::Color)
-
-        rule("bg", |_, value| css!("background-position": value))
-            .with_theme("backgroundPosition")
-            .with_type(PropertyId::BackgroundPosition)
-
-        rule("bg", |_, value| css!("background-size": value))
-            .with_theme("backgroundSize")
-            .with_type(PropertyId::BackgroundSize)
-
-        rule("bg", |_, value| css!("background-image": value))
-            .with_theme("backgroundImage")
-            .with_type(PropertyId::BackgroundImage)
-
-        rule("text", |_, value| css!("color": value))
+    add_rule!("bg", |_, value| css!("background-color": value))
         .with_theme("colors")
-        .with_type(PropertyId::Color)
+        .with_validator(PropertyId::Color);
 
-        rule("text", |_, value| css!("font-size": value))
-        .with_theme("fontSize")
-        .with_type(PropertyId::FontSize)
-    }
+    add_rule!("bg", |_, value| css!("background-position": value))
+        .with_theme("backgroundPosition")
+        .with_validator(PropertyId::BackgroundPosition);
+
+    add_rule!("bg", |_, value| css!("background-size": value))
+        .with_theme("backgroundSize")
+        .with_validator(PropertyId::BackgroundSize);
+
+    add_rule!("bg", |_, value| css!("background-image": value))
+        .with_theme("backgroundImage")
+        .with_validator(PropertyId::BackgroundImage);
+
+    add_rule!("text", |_, value| css!("color": value))
+        .with_theme("colors")
+        .with_validator(PropertyId::Color);
+
+    let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
+    add_rule!("text", move |meta, value| {
+        let mut font_size = css!("font-size": value.clone());
+        if let Some(modifier) = meta.modifier {
+            font_size.extend(css!("line-height": modifier));
+        } else if let Some(line_height) = meta
+            .candidate
+            .value
+            .take_named()
+            .and_then(|v| line_height_map.get(v))
+        {
+            font_size
+                .extend(css!("line-height": line_height.clone().into_owned()));
+        }
+        font_size
+    })
+    .with_theme("fontSize")
+    .with_validator(PropertyId::FontSize);
 
     add_theme_rule!(ctx, {
         "spacing" => {

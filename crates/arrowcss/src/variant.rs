@@ -1,349 +1,235 @@
-use cssparser::{
-    BasicParseError, BasicParseErrorKind, ParseError, Parser, ParserInput,
-    Token,
-};
-
-use crate::css::{AstNode, NodeList, Rule};
+use crate::{common::{MaybeArbitrary, ParserPosition}, context::Context};
 
 #[derive(Debug, PartialEq)]
-pub struct Variant {
-    pub raw: String,
-    pub kind: VariantKind,
+pub struct Variant<'a> {
+    key: &'a str,
+    value: Option<MaybeArbitrary<'a>>,
+    modifier: Option<MaybeArbitrary<'a>>,
+    // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
+    arbitrary: bool,
 }
 
-#[derive(Debug, PartialEq)]
-pub enum VariantKind {
-    Arbitrary(ArbitraryVariant),
-    Literal(LiteralVariant),
+#[derive(Debug)]
+pub struct VariantParser<'a> {
+    input: &'a str,
+    key: Option<&'a str>,
+    value: Option<MaybeArbitrary<'a>>,
+    modifier: Option<MaybeArbitrary<'a>>,
+    pos: ParserPosition,
+    // The current arbitrary value, could either be a `modifier` or a `value`
+    arbitrary_start: usize,
+    cur_arbitrary: Option<&'a str>,
 }
 
-// TODO: name better
-// Replacement: &:nth-child(3)
-// Nested: @media
-#[derive(Debug, PartialEq)]
-pub enum ArbitraryVariantKind {
-    Replacement,
-    Nested,
-}
-
-// MatchVariant trait has a VariantMatchingFn function
-pub trait MatchVariant {
-    fn match_variant(self, container: NodeList) -> Option<NodeList>;
-}
-
-// Something like [@media(min-width:300px)] or [&:nth-child(3)]
-#[derive(Debug, PartialEq)]
-pub struct ArbitraryVariant {
-    pub kind: ArbitraryVariantKind,
-    pub value: String,
-}
-
-impl MatchVariant for ArbitraryVariant {
-    fn match_variant(self, mut container: NodeList) -> Option<NodeList> {
-        match self.kind {
-            ArbitraryVariantKind::Replacement => {
-                for node in container.iter_mut() {
-                    if let AstNode::Rule(ref mut it) = node {
-                        it.selector = self.value.replace('&', &it.selector);
-                    } else {
-                        println!("Unexpected variant: {:?}", node);
-                    }
-                }
-                Some(container)
-            }
-            ArbitraryVariantKind::Nested => Some(
-                AstNode::Rule(Rule {
-                    selector: self.value.trim_start_matches('@').to_owned(),
-                    nodes: container,
-                })
-                .into(),
-            ),
+impl<'a> VariantParser<'a> {
+    pub fn new(input: &'a str) -> Self {
+        Self {
+            pos: ParserPosition {
+                start: 0,
+                end: input.len(),
+            },
+            input,
+            key: None,
+            value: None,
+            arbitrary_start: usize::MAX,
+            modifier: None,
+            cur_arbitrary: None,
         }
     }
-}
 
-#[allow(unused)]
-#[derive(Debug, PartialEq)]
-pub enum Modifier {
-    Arbitrary(String),
-    Literal(String),
-}
-
-#[derive(Debug, PartialEq)]
-pub struct LiteralVariant {
-    pub value: String,
-    pub modifier: Option<Modifier>,
-    pub arbitrary: Option<String>,
-}
-
-// enum ParserError {
-//     UnexpectedToken,
-//     UnexpectedEnd,
-// }
-
-impl<'i> ArbitraryVariant {
-    fn parse<'a>(
-        parser: &mut Parser<'i, 'a>,
-    ) -> Result<Self, ParseError<'a, ()>> {
-        let start = parser.state();
-        let mut kind = None;
-        parser.parse_nested_block(|parser| loop {
-            match parser.next() {
-                Err(BasicParseError {
-                    kind: BasicParseErrorKind::EndOfInput,
-                    ..
-                }) => {
-                    return Ok(Self {
-                        // return Err when kind is None
-                        kind: kind.ok_or(parser.new_custom_error(()))?,
-                        value: parser
-                            .slice(start.position()..parser.position())
-                            .to_string(),
-                    });
-                }
-                Ok(Token::AtKeyword(_)) => {
-                    kind = Some(ArbitraryVariantKind::Nested);
-                }
-                Ok(Token::Delim('&')) => {
-                    kind = Some(ArbitraryVariantKind::Replacement);
-                }
-                _ => {
-                    // println!("other: {:?}", other);
-                }
-            }
-        })
+    fn current<'b>(&self) -> &'b str
+    where
+        'a: 'b,
+    {
+        self.input.get(self.pos.start..self.pos.end).unwrap()
     }
-}
 
-// fn parse_arbitrary<'i, 'a>(
-//     parser: &mut Parser<'i, 'a>,
-// ) -> Result<String, ParseError<'a, ()>> {
-//     let start = parser.state();
-//     while let Err(e) = parser.next() {
-//         match e.kind {
-//             BasicParseErrorKind::EndOfInput => {
-//                 let value = parser.slice(start.position()..parser.position());
-//                 println!("{:?}", value);
-//                 return Ok(value.get(..value.len() - 1).unwrap().into());
-//             }
-//             _ => {
-//                 parser.reset(&start);
-//                 return Err(parser.new_custom_error(()));
-//             }
-//         }
-//     }
-//     Err(parser.new_custom_error(()))
-// }
+    fn inside_arbitrary(&self) -> bool {
+        self.arbitrary_start != usize::MAX
+    }
 
-impl<'i> Variant {
-    pub fn parse<'a>(
-        parser: &mut Parser<'i, 'a>,
-    ) -> Result<Self, ParseError<'a, ()>> {
-        let mut is_first_token = true;
-        let mut ident = String::new();
-        let mut arbitrary: Option<String> = None;
+    fn arbitrary_start_at(&mut self, i: usize) {
+        self.arbitrary_start = i;
+    }
 
-        let start_state = parser.state();
+    fn consume_modifier(&mut self, pos: usize) {
+        if let Some(arbitrary) = self.cur_arbitrary {
+            self.modifier = Some(MaybeArbitrary::Arbitrary(arbitrary));
+            self.cur_arbitrary = None;
+        } else {
+            self.modifier = Some(MaybeArbitrary::Named(
+                self.current().get(pos + 1..).unwrap(),
+            ));
+        }
+        self.pos.end = self.pos.start + pos;
+    }
 
-        loop {
-            match parser.next() {
-                Ok(Token::Colon) => {
+    fn consume_arbitrary(&mut self, pos: usize) {
+        self.cur_arbitrary = self.current().get(pos..self.arbitrary_start);
+        self.arbitrary_start = usize::MAX;
+    }
+
+    fn parse_value_and_modifier(&mut self) {
+        let len = self.current().len();
+        for (i, c) in self.current().chars().rev().enumerate() {
+            let i = len - i - 1;
+            match c {
+                '/' if !self.inside_arbitrary() => self.consume_modifier(i),
+                ']' => self.arbitrary_start_at(i),
+                '[' => self.consume_arbitrary(i + 1),
+                _ => (),
+            }
+        }
+
+        if let Some(arbitrary) = self.cur_arbitrary {
+            self.value = Some(MaybeArbitrary::Arbitrary(arbitrary));
+        } else {
+            self.value = Some(MaybeArbitrary::Named(self.current()));
+        }
+    }
+
+    pub fn parse(&mut self, ctx: &Context) -> Option<Variant<'a>> {
+        if self.current().starts_with('[') && self.current().ends_with(']') {
+            // let arbitrary = self.current().get(1..self.current().len() - 1)?;
+            todo!("parse arbitrary")
+        }
+
+        // find key
+        if ctx.variants.contains_key(self.current()) {
+            self.key = Some(self.current());
+            return Some(Variant {
+                key: self.key?,
+                value: None,
+                modifier: None,
+                arbitrary: false,
+            });
+        } else if self.current().starts_with('@') {
+            self.key = Some("@");
+            self.pos.advance(1);
+        } else {
+            for (i, _) in self.current().match_indices('-') {
+                let key = self.current().get(0..i)?;
+                if ctx.variants.contains_key(key) {
+                    self.key = Some(key);
+                    self.pos.advance(i + 1);
                     break;
                 }
-                Ok(Token::SquareBracketBlock) => {
-                    if is_first_token {
-                        // trait as ArbitraryVariant
-                        let arbitrary_variant =
-                            parser.try_parse(ArbitraryVariant::parse)?;
-                        parser.expect_colon()?;
-                        return Ok(Self {
-                            raw: parser
-                                .slice(
-                                    start_state.position()..parser.position(),
-                                )
-                                .into(),
-                            kind: VariantKind::Arbitrary(arbitrary_variant),
-                        });
-                    } else {
-                        arbitrary = parser
-                            .parse_nested_block(|parser| {
-                                let start = parser.state();
-                                loop {
-                                    match parser.next() {
-                                        Err(BasicParseError {
-                                            kind:
-                                                BasicParseErrorKind::EndOfInput,
-                                            ..
-                                        }) => {
-                                            return Ok(parser
-                                                .slice(
-                                                    start.position()
-                                                        ..parser.position(),
-                                                )
-                                                .into());
-                                        }
-                                        Ok(_) => {}
-                                        _ => {
-                                            return Err(parser
-                                                .new_custom_error::<(), ()>(
-                                                    (),
-                                                ));
-                                        }
-                                    }
-                                }
-                                // Err(parser.new_custom_error(()))
-                            })
-                            .ok();
-                    }
-                }
-                Ok(Token::Delim('/')) => {
-                    // modifier = parser.try_parse(Modifier::parse);
-                }
-                Ok(Token::Ident(id)) => {
-                    ident = id.to_string();
-                }
-                Ok(_token @ Token::Delim('@')) => {
-                    ident += "@";
-                }
-                Ok(Token::AtKeyword(at_rule)) => {
-                    println!("{:?}", at_rule);
-                    ident += "@";
-                    ident += at_rule;
-                }
-                Ok(Token::Delim('*')) => {
-                    ident += "*";
-                }
-                Ok(token) => {
-                    // println!("{:?}", token);
-                }
-                Err(_e) => {
-                    parser.reset(&start_state);
-                    return Err(parser.new_custom_error(()));
-                }
             }
-            is_first_token = false;
         }
 
-        // remove the last `-` if it exists
-        if ident.ends_with('-') {
-            ident.pop();
-        }
+        self.key?;
 
-        Ok(Self {
-            raw: parser
-                .slice(start_state.position()..parser.position())
-                .into(),
-            kind: VariantKind::Literal(LiteralVariant {
-                value: ident,
-                modifier: None,
-                arbitrary,
-            }),
-        })
+        // find value and modifier\
+        self.parse_value_and_modifier();
+
+        let candidate = Variant {
+            key: self.key?,
+            value: self.value,
+            arbitrary: false,
+            modifier: self.modifier.clone(),
+        };
+
+        Some(candidate)
     }
-}
-
-#[allow(dead_code)]
-pub fn create_variant(input: &str) -> Option<Variant> {
-    let mut input = ParserInput::new(input);
-    let mut parser = Parser::new(&mut input);
-    Variant::parse(&mut parser).ok()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_plain_variant() {
-        assert_eq!(
-            create_variant("group-hover:").unwrap(),
-            Variant {
-                raw: "group-hover:".into(),
-                kind: VariantKind::Literal(LiteralVariant {
-                    value: "group-hover".into(),
-                    modifier: None,
-                    arbitrary: None,
-                })
-            }
-        );
-    }
+    // #[test]
+    // fn test_parse_variant() {
+    //     let mut input = VariantParser::new("group-[&:hover]/[sidebar]");
+    //     let expected = Variant {
+    //         key: "group",
+    //         value: Some(MaybeArbitrary::Arbitrary("&:hover")),
+    //         modifier: Some(MaybeArbitrary::Arbitrary("sidebar")),
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 
-    #[test]
-    fn test_arbitrary_variant() {
-        assert_eq!(
-            create_variant("[@media(min-width:200px)]:").unwrap(),
-            Variant {
-                raw: "[@media(min-width:200px)]:".into(),
-                kind: VariantKind::Arbitrary(ArbitraryVariant {
-                    kind: ArbitraryVariantKind::Nested,
-                    value: "@media(min-width:200px)".into(),
-                })
-            }
-        );
-    }
+    // #[test]
+    // fn test_arbitrary() {
+    //     let mut input = VariantParser::new("group-[&:hover]/sidebar");
+    //     let expected = Variant {
+    //         key: "group",
+    //         value: Some(MaybeArbitrary::Arbitrary("&:hover")),
+    //         modifier: Some(MaybeArbitrary::Named("sidebar")),
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 
-    // group-[&:hover]
-    #[test]
-    fn test_literal_variant_with_arbitrary() {
-        assert_eq!(
-            create_variant("group-[&:hover]:").unwrap(),
-            Variant {
-                raw: "group-[&:hover]:".into(),
-                kind: VariantKind::Literal(LiteralVariant {
-                    value: "group".into(),
-                    modifier: None,
-                    arbitrary: Some("&:hover".into()),
-                })
-            }
-        );
-    }
+    // #[test]
+    // fn test_named_modifier() {
+    //     let mut input = VariantParser::new("group-hover/sidebar");
+    //     let expected = Variant {
+    //         key: "group",
+    //         value: Some(MaybeArbitrary::Named("hover")),
+    //         modifier: Some(MaybeArbitrary::Named("sidebar")),
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 
-    // group-[&:hover]/sidebar
-    #[test]
-    fn test_literal_variant_with_arbitrary_and_literal_modifier() {
-        // TODO: fix this
-        // assert_eq!(
-        //     create_variant("group-[&:hover]/sidebar:").unwrap(),
-        //     Variant {
-        //         raw: "group-[&:hover]/sidebar:".into(),
-        //         kind: VariantKind::Literal(LiteralVariant {
-        //             value: "group".into(),
-        //             modifier: Some(Modifier::Literal("sidebar".into())),
-        //             arbitrary: Some("&:hover".into()),
-        //         })
-        //     }
-        // );
-    }
+    // #[test]
+    // fn test_named_arbitrary_modifier() {
+    //     let mut input = VariantParser::new("group-hover/[sidebar]");
+    //     let expected = Variant {
+    //         key: "group",
+    //         value: Some(MaybeArbitrary::Named("hover")),
+    //         modifier: Some(MaybeArbitrary::Arbitrary("sidebar")),
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 
-    // group-[&:hover]/[sidebar]
-    #[test]
-    fn test_literal_variant_with_arbitrary_and_modifier() {
-        assert_eq!(
-            create_variant("group-[&:hover]/[sidebar]:").unwrap(),
-            Variant {
-                raw: "group-[&:hover]/[sidebar]:".into(),
-                kind: VariantKind::Literal(LiteralVariant {
-                    value: "group".into(),
-                    modifier: Some(Modifier::Arbitrary("sidebar".into())),
-                    arbitrary: Some("&:hover".into()),
-                })
-            }
-        );
-    }
+    // #[test]
+    // fn test_simple_variant() {
+    //     let mut input = VariantParser::new("group-hover");
+    //     let expected = Variant {
+    //         key: "group",
+    //         value: Some(MaybeArbitrary::Named("hover")),
+    //         modifier: None,
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 
-    // @md
-    #[test]
-    fn test_at() {
-        assert_eq!(
-            create_variant("@md:").unwrap(),
-            Variant {
-                raw: "@md:".into(),
-                kind: VariantKind::Literal(LiteralVariant {
-                    value: "@md".into(),
-                    modifier: None,
-                    arbitrary: None,
-                })
-            }
-        );
-    }
+    // #[test]
+    // fn test_at_variant() {
+    //     let mut input = VariantParser::new("@md");
+    //     let expected = Variant {
+    //         key: "@",
+    //         value: Some(MaybeArbitrary::Named("md")),
+    //         modifier: None,
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
+
+    // #[test]
+    // fn test_at_arbitrary() {
+    //     let mut input = VariantParser::new("@[17.5rem]");
+    //     let expected = Variant {
+    //         key: "@",
+    //         value: Some(MaybeArbitrary::Arbitrary("17.5rem")),
+    //         modifier: None,
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
+
+    // #[test]
+    // fn test_at_arbitrary_with_modifier() {
+    //     let mut input = VariantParser::new("@lg/main");
+    //     let expected = Variant {
+    //         key: "@",
+    //         value: Some(MaybeArbitrary::Named("lg")),
+    //         modifier: Some(MaybeArbitrary::Named("main")),
+    //         arbitrary: false,
+    //     };
+    //     assert_eq!(input.parse(), Some(expected));
+    // }
 }

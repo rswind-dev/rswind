@@ -1,42 +1,34 @@
-use arrowcss_css_macro::css;
 use fxhash::FxHashMap as HashMap;
-use lightningcss::values::string::CowArcStr;
-use phf::Map;
 
-use crate::css::{AstNode, Decl, NodeList};
-use crate::rule::{MetaData, Utility, UtilityHandler};
+use crate::css::NodeList;
+use crate::rule::UtilityProcessor;
+use crate::utility::UtilityCandidate;
 
 pub trait UtilityStorage<'c>: Sync + Send {
-    fn insert(&mut self, key: String, value: Utility<'c>);
-    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>>;
-    fn try_apply<'a>(&self, key: &str, input: &'a str) -> Option<NodeList<'c>>;
+    fn insert(&mut self, key: String, value: UtilityProcessor<'c>);
+    fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>>;
+    fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<NodeList<'c>>;
 }
-
 
 #[derive(Default)]
 pub struct HashMapUtilityStorage<'c> {
-    pub utilities: HashMap<String, Vec<Utility<'c>>>,
+    pub utilities: HashMap<String, Vec<UtilityProcessor<'c>>>,
     // pub theme: Arc<RefCell<Theme<'static>>>,
 }
 
 impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
-
-    fn insert(&mut self, key: String, value: Utility<'c>) {
+    fn insert(&mut self, key: String, value: UtilityProcessor<'c>) {
         self.utilities.entry(key).or_default().push(value.into());
     }
 
-    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
+    fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>> {
         self.utilities.get(key)
     }
 
-    fn try_apply<'a>(
-        &self,
-        key: &str,
-        input: &'a str,
-    ) -> Option<NodeList<'c>> {
-        self.get(key)?
+    fn try_apply<'a>(&self, candidate: UtilityCandidate<'a>) -> Option<NodeList<'c>> {
+        self.get(candidate.key)?
             .into_iter()
-            .find_map(|rule| rule.apply_to(input))
+            .find_map(|rule| rule.apply_to(candidate))
     }
 }
 

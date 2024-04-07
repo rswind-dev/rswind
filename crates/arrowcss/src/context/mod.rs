@@ -6,16 +6,20 @@ mod utilities;
 use crate::{
     config::ArrowConfig,
     css::{DeclList, NodeList},
-    rule::Utility,
+    rule::UtilityProcessor,
     theme::{Theme, ThemeValue},
     themes::theme,
     utils::{create_variant_fn, VariantHandler},
 };
 use arrowcss_css_macro::css;
 
-use self::{static_rules::StaticRuleStorage, utilities::{HashMapUtilityStorage, UtilityStorage}};
+use self::{
+    static_rules::StaticRuleStorage,
+    utilities::{HashMapUtilityStorage, UtilityStorage},
+};
 
 pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
+pub trait ModifierMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
 
 pub struct Context<'c> {
     pub static_rules: StaticRuleStorage,
@@ -82,13 +86,13 @@ impl<'c> Context<'c> {
         self
     }
 
-    pub fn get_theme(&self, key: &str) -> Option<ThemeValue<'c>> {
+    pub fn get_theme(&self, key: &str) -> Option<ThemeValue<'static>> {
         self.theme.get(key).cloned()
     }
 }
 
 pub trait AddRule<'c> {
-    fn add_rule(&mut self, key: &str, rule: Utility<'c>) -> &Self;
+    fn add_rule<'a: 'c>(&mut self, key: &str, rule: UtilityProcessor<'a>);
     fn add_theme_rule<'a: 'c>(
         &mut self,
         key: &'a str,
@@ -98,9 +102,8 @@ pub trait AddRule<'c> {
 }
 
 impl<'c> AddRule<'c> for Context<'c> {
-    fn add_rule(&mut self, key: &str, rule: Utility<'c>) -> &Self {
+    fn add_rule<'a: 'c>(&mut self, key: &str, rule: UtilityProcessor<'a>) {
         self.utilities.insert(key.into(), rule);
-        self
     }
 
     fn add_theme_rule<'a: 'c>(
@@ -116,7 +119,7 @@ impl<'c> AddRule<'c> for Context<'c> {
 
             self.utilities.insert(
                 k,
-                Utility::new(move |_, input| {
+                UtilityProcessor::new(move |_, input| {
                     v.clone()
                         .into_iter()
                         .map(|k| css!(k: input.to_string()))
