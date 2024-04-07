@@ -75,8 +75,9 @@ impl<'a> ToCss for &AstNode<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use arrowcss_css_macro::css;
+
+    use super::*;
 
     #[test]
     fn test_rule_to_css() {

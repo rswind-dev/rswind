@@ -1,11 +1,12 @@
-use fxhash::FxHashMap as HashMap;
 use std::sync::Arc;
 
-use crate::theme::FlattenedColors;
+use fxhash::FxHashMap as HashMap;
 use lazy_static::lazy_static;
 use lightningcss::values::string::CowArcStr;
 use serde::Deserialize;
 use serde_json::json;
+
+use crate::theme::FlattenedColors;
 
 lazy_static! {
     static ref COLORS: Arc<HashMap<String, CowArcStr<'static>>> = Arc::new(

@@ -1,5 +1,5 @@
-use std::ops::DerefMut;
 use std::{fmt::Write, ops::Deref};
+use std::ops::DerefMut;
 
 use anyhow::Error;
 use lightningcss::traits::IntoOwned;
@@ -153,10 +153,11 @@ impl<'a> ToCss for &Decl<'a> {
 
 #[cfg(test)]
 mod tests {
+    use arrowcss_css_macro::css;
+
     use crate::css::NodeList;
 
     use super::*;
-    use arrowcss_css_macro::css;
 
     #[test]
     fn test_css_decl_macro() {

@@ -1,5 +1,10 @@
 use std::fmt::Write;
 
+use cssparser::serialize_identifier;
+use lazy_static::lazy_static;
+use regex::Regex;
+use smallvec::SmallVec;
+
 use crate::{
     context::Context,
     css::{AstNode, NodeList},
@@ -7,12 +12,6 @@ use crate::{
     utils::TopLevelPattern,
     variant::VariantParser,
 };
-
-use cssparser::serialize_identifier;
-
-use lazy_static::lazy_static;
-use regex::Regex;
-use smallvec::SmallVec;
 
 lazy_static! {
     pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();

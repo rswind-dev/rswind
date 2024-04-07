@@ -1,7 +1,7 @@
 use std::{
     cmp::Ordering,
     str::pattern::{
-        DoubleEndedSearcher, Pattern, ReverseSearcher, SearchStep, Searcher,
+        DoubleEndedSearcher, Pattern, ReverseSearcher, Searcher, SearchStep,
     },
 };
 

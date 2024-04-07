@@ -1,9 +1,10 @@
+use lazy_static::lazy_static;
+use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
+
 use crate::{
     common::MaybeArbitrary, css::NodeList, theme::ThemeValue,
     types::TypeValidator, utility::UtilityCandidate,
 };
-use lazy_static::lazy_static;
-use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 
 #[allow(dead_code)]
 #[derive(Clone, Default)]
@@ -196,8 +197,9 @@ impl<'c> UtilityProcessor<'c> {
 mod tests {
     use arrowcss_css_macro::css;
 
-    use super::*;
     use crate::types::PropertyId;
+
+    use super::*;
 
     #[test]
     fn test_rule_builder() {

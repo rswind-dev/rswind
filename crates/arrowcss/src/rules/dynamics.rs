@@ -1,9 +1,10 @@
-use arrowcss_css_macro::css;
 use lightningcss::{
     properties::{Property, PropertyId},
     traits::IntoOwned,
     values::color::{CssColor, RGBA},
 };
+
+use arrowcss_css_macro::css;
 
 use crate::{
     add_theme_rule,

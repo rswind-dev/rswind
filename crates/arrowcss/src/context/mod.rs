@@ -1,7 +1,6 @@
 use fxhash::FxHashMap as HashMap;
 
-mod static_rules;
-mod utilities;
+use arrowcss_css_macro::css;
 
 use crate::{
     config::ArrowConfig,
@@ -11,12 +10,14 @@ use crate::{
     themes::theme,
     utils::{create_variant_fn, VariantHandler},
 };
-use arrowcss_css_macro::css;
 
 use self::{
     static_rules::StaticRuleStorage,
     utilities::{HashMapUtilityStorage, UtilityStorage},
 };
+
+mod static_rules;
+mod utilities;
 
 pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
 pub trait ModifierMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;

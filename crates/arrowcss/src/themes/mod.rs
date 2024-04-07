@@ -1,11 +1,12 @@
-use fxhash::FxHashMap as HashMap;
+use std::hash::Hash;
 use std::sync::Arc;
+
+use fxhash::FxHashMap as HashMap;
 
 use crate::map;
 use crate::theme::Theme;
 use crate::themes::colors::colors;
 use crate::themes::spacing::spacing;
-use std::hash::Hash;
 
 mod colors;
 mod spacing;

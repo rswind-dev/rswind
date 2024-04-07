@@ -1,3 +1,6 @@
+use std::{fmt, sync::Arc};
+use std::ops::{Deref, DerefMut};
+
 use fxhash::FxHashMap as HashMap;
 use lightningcss::values::string::CowArcStr;
 use serde::{
@@ -5,9 +8,6 @@ use serde::{
     Deserialize, Deserializer,
 };
 use serde_json::Value;
-use std::ops::{Deref, DerefMut};
-
-use std::{fmt, sync::Arc};
 
 pub type ThemeValue<'c> = Arc<HashMap<String, CowArcStr<'c>>>;
 

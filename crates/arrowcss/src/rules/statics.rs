@@ -1,5 +1,6 @@
-use crate::{css::DeclList, static_rules};
 use lazy_static::lazy_static;
+
+use crate::{css::DeclList, static_rules};
 
 pub fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {

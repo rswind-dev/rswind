@@ -1,5 +1,4 @@
 use lightningcss::{properties::Property, traits::Parse};
-
 pub use lightningcss::properties::PropertyId;
 pub use lightningcss::values::{
     color::CssColor,

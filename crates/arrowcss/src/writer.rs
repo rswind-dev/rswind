@@ -1,5 +1,6 @@
-use anyhow::Error;
 use std::fmt::Write;
+
+use anyhow::Error;
 
 #[allow(clippy::upper_case_acronyms, unused)]
 pub enum LineFeed {
