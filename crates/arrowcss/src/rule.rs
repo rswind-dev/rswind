@@ -1,9 +1,9 @@
-use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
-use lazy_static::lazy_static;
 use crate::{
     common::MaybeArbitrary, css::NodeList, theme::ThemeValue,
     types::TypeValidator, utility::UtilityCandidate,
 };
+use lazy_static::lazy_static;
+use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 
 #[allow(dead_code)]
 #[derive(Clone, Default)]
@@ -41,9 +41,9 @@ impl Default for UtilityHandler {
 }
 
 impl UtilityHandler {
-    pub fn call<'a, 'b>(
+    pub fn call<'a>(
         &self,
-        meta: MetaData<'b>,
+        meta: MetaData<'_>,
         value: CowArcStr<'a>,
     ) -> NodeList<'a> {
         match self {
@@ -69,18 +69,15 @@ pub struct UtilityProcessor<'i> {
 
 pub struct ModifierProcessor<'i> {
     // handler: for<'a> fn(NodeList<'a>, CowArcStr<'static>) -> NodeList<'a>,
-    validator: Option<Box<dyn TypeValidator>>,
-    allowed_values: Option<ThemeValue<'i>>,
+    pub validator: Option<Box<dyn TypeValidator>>,
+    pub allowed_values: Option<ThemeValue<'i>>,
 }
 
 pub trait ArbitraryValueProcessor<'a> {
     fn validate(&self, value: &str) -> bool;
     fn allowed_values(&self) -> Option<&ThemeValue<'a>>;
 
-    fn process<'b>(
-        &self,
-        value: MaybeArbitrary<'b>,
-    ) -> Option<CowArcStr<'static>> {
+    fn process(&self, value: MaybeArbitrary<'_>) -> Option<CowArcStr<'static>> {
         match value {
             MaybeArbitrary::Arbitrary(value) => self
                 .validate(value)
@@ -200,7 +197,7 @@ mod tests {
     use arrowcss_css_macro::css;
 
     use super::*;
-    use crate::{css::AstNode, types::PropertyId};
+    use crate::types::PropertyId;
 
     #[test]
     fn test_rule_builder() {

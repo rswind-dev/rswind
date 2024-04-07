@@ -122,7 +122,7 @@ impl<'a> UtilityParser<'a> {
         // find key
         for (i, _) in self.current().match_indices('-') {
             let key = self.current().get(0..i)?;
-            if ctx.utilities.get(&key).is_some() {
+            if ctx.utilities.get(key).is_some() {
                 self.key = Some(key);
                 self.pos.start += i + 1;
                 break;
@@ -164,7 +164,6 @@ impl<'a> UtilityParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     // #[test]
     // fn test() {

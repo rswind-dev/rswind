@@ -35,9 +35,9 @@ impl<'a> AstNode<'a> {
     }
 }
 
-impl<'a> Into<NodeList<'a>> for AstNode<'a> {
-    fn into(self) -> NodeList<'a> {
-        vec![self]
+impl<'a> From<AstNode<'a>> for NodeList<'a> {
+    fn from(val: AstNode<'a>) -> Self {
+        vec![val]
     }
 }
 

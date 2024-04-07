@@ -17,10 +17,10 @@ pub mod utility;
 pub mod utils;
 // pub mod variant;
 pub mod app;
+pub mod common;
 pub mod types;
 pub mod variant;
 pub mod writer;
-pub mod common;
 
 pub fn generate(_input: String) -> String {
     _input

@@ -45,8 +45,8 @@ impl<'c> Context<'c> {
         Self {
             // tokens: HashMap::new().into(),
             static_rules: StaticRuleStorage::new(),
-            variants: HashMap::default().into(),
-            utilities: Box::new(HashMapUtilityStorage::default()),
+            variants: HashMap::default(),
+            utilities: Box::<HashMapUtilityStorage>::default(),
             theme: theme().merge(config.theme),
             cache: HashMap::default(),
             // config: config.config,
@@ -72,13 +72,13 @@ impl<'c> Context<'c> {
         T::IntoIter: ExactSizeIterator,
     {
         create_variant_fn(key, matcher)
-            .map(|func| self.variants.insert(key.to_string(), func.into()));
+            .map(|func| self.variants.insert(key.to_string(), func));
         self
     }
 
-    pub fn add_variant_fn<'a>(
+    pub fn add_variant_fn(
         &mut self,
-        key: &'a str,
+        key: &str,
         func: impl VariantMatchingFn + 'static,
     ) -> &Self {
         self.variants
@@ -122,8 +122,7 @@ impl<'c> AddRule<'c> for Context<'c> {
                 UtilityProcessor::new(move |_, input| {
                     v.clone()
                         .into_iter()
-                        .map(|k| css!(k: input.to_string()))
-                        .flatten()
+                        .flat_map(|k| css!(k: input.to_string()))
                         .collect()
                 })
                 .allow_values(theme),

@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use arrowcss_css_macro::css;
 use lightningcss::{
     properties::{Property, PropertyId},
@@ -36,6 +34,7 @@ impl<'i, 'c> PendingRule<'i, 'c> {
         self
     }
 
+    #[allow(dead_code)]
     fn support_fraction(mut self) -> Self {
         self.supports_fraction = true;
         self
@@ -83,7 +82,7 @@ impl<'i, 'c> Drop for PendingRule<'i, 'c> {
     }
 }
 
-pub fn load_dynamic_rules<'c>(ctx: &mut Context<'c>) {
+pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
     macro_rules! add_rule {
         ($key:expr, $handler:expr) => {
             PendingRule {
@@ -234,6 +233,7 @@ pub fn load_dynamic_rules<'c>(ctx: &mut Context<'c>) {
         .with_validator(PropertyId::Color);
 
     let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
+    let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
     add_rule!("text", move |meta, value| {
         let mut font_size = css!("font-size": value.clone());
         if let Some(modifier) = meta.modifier {
@@ -250,7 +250,11 @@ pub fn load_dynamic_rules<'c>(ctx: &mut Context<'c>) {
         font_size
     })
     .with_theme("fontSize")
-    .with_validator(PropertyId::FontSize);
+    .with_validator(PropertyId::FontSize)
+    .with_modifier(ModifierProcessor {
+        validator: Some(Box::new(PropertyId::LineHeight)),
+        allowed_values: Some(line_height_map2),
+    });
 
     add_theme_rule!(ctx, {
         "spacing" => {

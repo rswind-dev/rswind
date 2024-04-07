@@ -3,9 +3,7 @@ use fxhash::FxHashMap as HashMap;
 use crate::css::DeclList;
 
 #[derive(Default, Clone)]
-pub struct StaticRuleStorage(
-    pub HashMap<String, DeclList<'static>>,
-);
+pub struct StaticRuleStorage(pub HashMap<String, DeclList<'static>>);
 
 impl StaticRuleStorage {
     pub fn new() -> Self {

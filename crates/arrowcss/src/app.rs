@@ -98,7 +98,7 @@ impl<'c> Application<'c> {
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
             .filter(|s| {
                 s.starts_with(char::is_lowercase)
-                    && self.ctx.cache.get(*s).is_none()
+                    && !self.ctx.cache.contains_key(*s)
             })
             .collect::<HashSet<_>>();
         println!("split: {} us", start.elapsed().as_micros());
@@ -125,7 +125,7 @@ impl<'c> Application<'c> {
         );
 
         println!("Execution time: {} us", start.elapsed().as_micros());
-        w.write(self.writer.dest.as_bytes()).unwrap();
+        w.write_all(self.writer.dest.as_bytes()).unwrap();
     }
 
     pub fn run(&mut self) {
@@ -156,13 +156,10 @@ impl<'c> Application<'c> {
             })
             .par_bridge()
             .map(|x| generate_parallel(&self.ctx, x))
-            .reduce(
-                || HashMap::new(),
-                |mut a, b| {
-                    a.extend(b);
-                    a
-                },
-            );
+            .reduce(HashMap::new, |mut a, b| {
+                a.extend(b);
+                a
+            });
 
         for (token, rule) in res {
             // if self.ctx.cache.contains_key(&token) {
@@ -172,7 +169,7 @@ impl<'c> Application<'c> {
             let mut writer = Writer::default(&mut w);
             let _ = rule.to_css(&mut writer);
             let _ = self.writer.write_str(&w);
-            self.ctx.cache.insert(String::from(token), Some(w));
+            self.ctx.cache.insert(token, Some(w));
         }
 
         let mut w = BufWriter::new(
@@ -180,11 +177,12 @@ impl<'c> Application<'c> {
                 .write(true)
                 .create(true)
                 .append(false)
+                .truncate(true)
                 .open(Path::new("examples/test.css"))
                 .unwrap(),
         );
 
-        w.write(self.writer.dest.as_bytes()).unwrap();
+        w.write_all(self.writer.dest.as_bytes()).unwrap();
         println!("Execution time: {:?}", start.elapsed());
     }
 }
@@ -200,7 +198,7 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
         .collect::<HashSet<_>>()
         .into_iter()
         .filter_map(|token| {
-            to_css_rule(token, &ctx).map(|rule| (token.to_owned(), rule))
+            to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
         })
         .collect::<HashMap<String, Vec<AstNode>>>()
 }

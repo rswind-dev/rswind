@@ -79,9 +79,9 @@ impl<'c> IntoIterator for DeclList<'c> {
     }
 }
 
-impl<'a> Into<Vec<AstNode<'a>>> for DeclList<'a> {
-    fn into(self) -> Vec<AstNode<'a>> {
-        self.0.into_iter().map(AstNode::Decl).collect()
+impl<'a> From<DeclList<'a>> for Vec<AstNode<'a>> {
+    fn from(val: DeclList<'a>) -> Self {
+        val.0.into_iter().map(AstNode::Decl).collect()
     }
 }
 
@@ -157,7 +157,6 @@ mod tests {
 
     use super::*;
     use arrowcss_css_macro::css;
-    use smallvec::smallvec;
 
     #[test]
     fn test_css_decl_macro() {

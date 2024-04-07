@@ -1,4 +1,9 @@
-use std::{cmp::Ordering, str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher, SearchStep, Searcher, StrSearcher}};
+use std::{
+    cmp::Ordering,
+    str::pattern::{
+        DoubleEndedSearcher, Pattern, ReverseSearcher, SearchStep, Searcher,
+    },
+};
 
 use crate::{
     context::VariantMatchingFn,
@@ -44,11 +49,11 @@ impl VariantHandler {
 
 impl PartialEq for VariantHandler {
     fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Nested(_), Self::Nested(_)) => true,
-            (Self::Replacement(_), Self::Replacement(_)) => true,
-            _ => false,
-        }
+        matches!(
+            (self, other),
+            (Self::Nested(_), Self::Nested(_))
+                | (Self::Replacement(_), Self::Replacement(_))
+        )
     }
 }
 
@@ -70,7 +75,7 @@ impl Ord for VariantHandler {
     }
 }
 
-impl<'a, 'b> Fn<(NodeList<'a>,)> for VariantHandler {
+impl<'a> Fn<(NodeList<'a>,)> for VariantHandler {
     extern "rust-call" fn call(
         &self,
         args: (NodeList<'a>,),
@@ -82,7 +87,7 @@ impl<'a, 'b> Fn<(NodeList<'a>,)> for VariantHandler {
     }
 }
 
-impl<'a, 'b> FnOnce<(NodeList<'a>,)> for VariantHandler {
+impl<'a> FnOnce<(NodeList<'a>,)> for VariantHandler {
     type Output = Option<NodeList<'a>>;
 
     extern "rust-call" fn call_once(
@@ -96,7 +101,7 @@ impl<'a, 'b> FnOnce<(NodeList<'a>,)> for VariantHandler {
     }
 }
 
-impl<'a, 'b> FnMut<(NodeList<'a>,)> for VariantHandler {
+impl<'a> FnMut<(NodeList<'a>,)> for VariantHandler {
     extern "rust-call" fn call_mut(
         &mut self,
         args: (NodeList<'a>,),
@@ -108,7 +113,7 @@ impl<'a, 'b> FnMut<(NodeList<'a>,)> for VariantHandler {
     }
 }
 
-fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
+fn variant_fn(matcher: String) -> Option<VariantHandler> {
     let m = matcher.get(1..)?.to_owned();
     match matcher.chars().next()? {
         '&' => Some(VariantHandler::Replacement(Box::new(
@@ -142,10 +147,7 @@ fn variant_fn<'a>(matcher: String) -> Option<VariantHandler> {
     }
 }
 
-pub fn create_variant_fn<'a, T>(
-    _key: &str,
-    matcher: T,
-) -> Option<VariantHandler>
+pub fn create_variant_fn<T>(_key: &str, matcher: T) -> Option<VariantHandler>
 where
     T: IntoIterator,
     T::Item: AsRef<str>,
@@ -169,9 +171,7 @@ where
                 let wrapper = VariantHandler::create_constructor(&fns[0]);
                 let composed_fn: Box<dyn VariantMatchingFn> =
                     Box::new(move |rules| {
-                        fns.iter().fold(Some(rules), |acc, f| {
-                            acc.and_then(|r| f(r.clone()))
-                        })
+                        fns.iter().try_fold(rules, |acc, f| f(acc))
                     });
                 wrapper(composed_fn)
             } else {
@@ -187,8 +187,7 @@ where
 
     let handler: Box<dyn VariantMatchingFn> =
         Box::new(move |container: NodeList| {
-            fns
-                .iter()
+            fns.iter()
                 .map(|f| f(container.clone()))
                 .collect::<Option<Vec<Vec<AstNode>>>>()?
                 .into_iter()
@@ -223,7 +222,6 @@ pub fn decode_arbitrary_value(input: &str) -> String {
 
     output
 }
-
 
 pub struct TopLevelPattern<'a, P> {
     needle: P,
@@ -275,7 +273,9 @@ unsafe impl<'a> Searcher<'a> for TopLevelCharSearcher<'a> {
     fn next(&mut self) -> SearchStep {
         let old_finger = self.finger;
 
-        let slice = unsafe { self.haystack.get_unchecked(old_finger..self.finger_back) };
+        let slice = unsafe {
+            self.haystack.get_unchecked(old_finger..self.finger_back)
+        };
         let mut iter = slice.chars();
         let local_iter: &LocalChars = unsafe { std::mem::transmute(&iter) };
         let old_len = local_iter.iter.len();
@@ -308,7 +308,8 @@ unsafe impl<'a> ReverseSearcher<'a> for TopLevelCharSearcher<'a> {
     fn next_back(&mut self) -> SearchStep {
         let old_finger = self.finger_back;
         // SAFETY: see the comment for next() above
-        let slice = unsafe { self.haystack.get_unchecked(self.finger..old_finger) };
+        let slice =
+            unsafe { self.haystack.get_unchecked(self.finger..old_finger) };
         let mut iter = slice.chars();
         let local_iter: &LocalChars = unsafe { std::mem::transmute(&iter) };
 
@@ -341,17 +342,9 @@ impl<'a> Pattern<'a> for TopLevelPattern<'a, char> {
     type Searcher = TopLevelCharSearcher<'a>;
 
     fn into_searcher(self, haystack: &'a str) -> Self::Searcher {
-        TopLevelCharSearcher {
-            haystack,
-            needle: self.needle,
-            finger: 0,
-            finger_back: haystack.len(),
-            parentheses: 0,
-            brackets: 0,
-        }
+        TopLevelCharSearcher::new(haystack, self.needle)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

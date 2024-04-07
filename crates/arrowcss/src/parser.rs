@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use crate::{
     context::Context,
-    css::{AstNode, NodeList, Rule},
+    css::{AstNode, NodeList},
     utility::UtilityParser,
     utils::TopLevelPattern,
     variant::VariantParser,
@@ -18,23 +18,20 @@ lazy_static! {
     pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
 }
 
-pub fn to_css_rule<'i, 'c>(
-    value: &'i str,
-    ctx: &Context<'c>,
-) -> Option<NodeList<'c>> {
+pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<NodeList<'c>> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
-    let u = UtilityParser::new(utility).parse(&ctx)?;
+    let u = UtilityParser::new(utility).parse(ctx)?;
 
     let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
+    #[allow(unused_variables)]
     let vs = variants
         .into_iter()
-        .map(|v| VariantParser::new(v).parse(&ctx))
+        .map(|v| VariantParser::new(v).parse(ctx))
         .collect::<Vec<_>>();
 
     let node = ctx.utilities.try_apply(u);
-
 
     let mut w = String::with_capacity(utility.len() + 5);
     w.write_char('.').ok()?;

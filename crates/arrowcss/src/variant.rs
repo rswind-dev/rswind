@@ -1,4 +1,7 @@
-use crate::{common::{MaybeArbitrary, ParserPosition}, context::Context};
+use crate::{
+    common::{MaybeArbitrary, ParserPosition},
+    context::Context,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct Variant<'a> {
@@ -126,7 +129,7 @@ impl<'a> VariantParser<'a> {
             key: self.key?,
             value: self.value,
             arbitrary: false,
-            modifier: self.modifier.clone(),
+            modifier: self.modifier,
         };
 
         Some(candidate)
@@ -135,7 +138,6 @@ impl<'a> VariantParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     // #[test]
     // fn test_parse_variant() {
