@@ -1,3 +1,5 @@
+use either::Either;
+
 use crate::{
     common::{MaybeArbitrary, ParserPosition},
     context::Context,
@@ -10,6 +12,7 @@ pub struct Variant<'a> {
     modifier: Option<MaybeArbitrary<'a>>,
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
     arbitrary: bool,
+    compound: Either<bool, Box<Variant<'a>>>,
 }
 
 #[derive(Debug)]
@@ -105,6 +108,7 @@ impl<'a> VariantParser<'a> {
                 value: None,
                 modifier: None,
                 arbitrary: false,
+                compound: Either::Left(true),
             });
         } else if self.current().starts_with('@') {
             self.key = Some("@");
@@ -130,6 +134,7 @@ impl<'a> VariantParser<'a> {
             value: self.value,
             arbitrary: false,
             modifier: self.modifier,
+            compound: Either::Left(false),
         };
 
         Some(candidate)

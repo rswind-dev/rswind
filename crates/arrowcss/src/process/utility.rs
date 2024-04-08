@@ -1,12 +1,13 @@
 use lazy_static::lazy_static;
-use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
+use lightningcss::values::string::CowArcStr;
 
 use crate::{
-    common::MaybeArbitrary, css::NodeList, theme::ThemeValue,
-    types::TypeValidator, utility::UtilityCandidate,
+    css::NodeList, parsing::UtilityCandidate, theme::ThemeValue,
+    types::TypeValidator,
 };
 
-#[allow(dead_code)]
+use super::ArbitraryValueProcessor;
+
 #[derive(Clone, Default)]
 pub struct MetaData<'a> {
     pub candidate: UtilityCandidate<'a>,
@@ -22,8 +23,11 @@ impl<'a> MetaData<'a> {
     }
 }
 
-pub trait RuleMatchingFn =
-    for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> NodeList<'b> + Send + Sync;
+#[rustfmt::skip]
+pub trait RuleMatchingFn: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> NodeList<'b> + Send + Sync {}
+
+#[rustfmt::skip]
+impl<T> RuleMatchingFn for T where T: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> NodeList<'b> + Send + Sync {}
 
 pub enum UtilityHandler {
     Static(for<'a, 'b> fn(MetaData<'a>, CowArcStr<'b>) -> NodeList<'b>),
@@ -60,7 +64,7 @@ pub struct UtilityProcessor<'i> {
     pub supports_negative: bool,
 
     pub supports_fraction: bool,
-    // a Theme map
+
     pub allowed_values: Option<ThemeValue<'i>>,
 
     pub modifier: Option<ModifierProcessor<'i>>,
@@ -69,26 +73,8 @@ pub struct UtilityProcessor<'i> {
 }
 
 pub struct ModifierProcessor<'i> {
-    // handler: for<'a> fn(NodeList<'a>, CowArcStr<'static>) -> NodeList<'a>,
     pub validator: Option<Box<dyn TypeValidator>>,
     pub allowed_values: Option<ThemeValue<'i>>,
-}
-
-pub trait ArbitraryValueProcessor<'a> {
-    fn validate(&self, value: &str) -> bool;
-    fn allowed_values(&self) -> Option<&ThemeValue<'a>>;
-
-    fn process(&self, value: MaybeArbitrary<'_>) -> Option<CowArcStr<'static>> {
-        match value {
-            MaybeArbitrary::Arbitrary(value) => self
-                .validate(value)
-                .then(|| CowArcStr::from(value).into_owned()),
-            MaybeArbitrary::Named(value) => self
-                .allowed_values()?
-                .get(value)
-                .map(|v| v.clone().into_owned()),
-        }
-    }
 }
 
 impl<'a> ArbitraryValueProcessor<'a> for ModifierProcessor<'a> {
@@ -197,7 +183,7 @@ impl<'c> UtilityProcessor<'c> {
 mod tests {
     use arrowcss_css_macro::css;
 
-    use crate::types::PropertyId;
+    use crate::{common::MaybeArbitrary, types::PropertyId};
 
     use super::*;
 

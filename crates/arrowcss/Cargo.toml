@@ -21,6 +21,8 @@ arrowcss_css_macro = { version = "0.1.0", path = "../arrowcss_css_macro" }
 fxhash = "0.2.1"
 rayon = "1.10.0"
 walkdir = "2.5.0"
+either = "1.10.0"
+enum_dispatch = "0.3.13"
 
 [lib]
 bench = false

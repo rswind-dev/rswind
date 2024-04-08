@@ -9,7 +9,7 @@ use arrowcss_css_macro::css;
 use crate::{
     add_theme_rule,
     context::{AddRule, Context},
-    rule::{ModifierProcessor, UtilityHandler, UtilityProcessor},
+    process::{ModifierProcessor, UtilityHandler, UtilityProcessor},
     types::{CssDataType, TypeValidator},
 };
 

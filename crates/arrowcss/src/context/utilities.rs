@@ -1,9 +1,11 @@
+use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
 
 use crate::css::NodeList;
-use crate::rule::UtilityProcessor;
-use crate::utility::UtilityCandidate;
+use crate::parsing::UtilityCandidate;
+use crate::process::UtilityProcessor;
 
+#[enum_dispatch]
 pub trait UtilityStorage<'c>: Sync + Send {
     fn insert(&mut self, key: String, value: UtilityProcessor<'c>);
     fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>>;
@@ -13,10 +15,20 @@ pub trait UtilityStorage<'c>: Sync + Send {
     ) -> Option<NodeList<'c>>;
 }
 
+#[enum_dispatch(UtilityStorage)]
+pub enum UtilityStorageImpl<'c> {
+    HashMap(HashMapUtilityStorage<'c>),
+}
+
+impl Default for UtilityStorageImpl<'_> {
+    fn default() -> Self {
+        Self::HashMap(HashMapUtilityStorage::default())
+    }
+}
+
 #[derive(Default)]
 pub struct HashMapUtilityStorage<'c> {
-    pub utilities: HashMap<String, Vec<UtilityProcessor<'c>>>,
-    // pub theme: Arc<RefCell<Theme<'static>>>,
+    utilities: HashMap<String, Vec<UtilityProcessor<'c>>>,
 }
 
 impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {

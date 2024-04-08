@@ -5,34 +5,33 @@ use arrowcss_css_macro::css;
 use crate::{
     config::ArrowConfig,
     css::{DeclList, NodeList},
-    rule::UtilityProcessor,
+    process::{
+        create_variant_fn, UtilityProcessor, VariantHandler, VariantMatchingFn,
+    },
     theme::{Theme, ThemeValue},
     themes::theme,
-    utils::{create_variant_fn, VariantHandler},
 };
 
 use self::{
     static_rules::StaticRuleStorage,
-    utilities::{HashMapUtilityStorage, UtilityStorage},
+    utilities::{UtilityStorage, UtilityStorageImpl},
 };
 
 mod static_rules;
-mod utilities;
+pub mod utilities;
 
-pub trait VariantMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
-pub trait ModifierMatchingFn = Fn(NodeList) -> Option<NodeList> + Sync + Send;
+#[rustfmt::skip]
+pub trait ModifierMatchingFn: Fn(NodeList) -> Option<NodeList> + Sync + Send {}
+
+#[rustfmt::skip]
+impl<T: Fn(NodeList) -> Option<NodeList> + Sync + Send> ModifierMatchingFn for T {}
 
 pub struct Context<'c> {
     pub static_rules: StaticRuleStorage,
-    pub utilities: Box<dyn UtilityStorage<'c> + 'c>,
-
+    pub utilities: UtilityStorageImpl<'c>,
     pub variants: HashMap<String, VariantHandler>,
-
     pub theme: Theme<'static>,
     pub cache: HashMap<String, Option<String>>,
-    // #[allow(dead_code)]
-    // pub config: Config,
-    // pub tokens: RefCell<HashMap<String, Option<CssRuleList<'c>>>>,
 }
 
 impl Default for Context<'_> {
@@ -47,7 +46,7 @@ impl<'c> Context<'c> {
             // tokens: HashMap::new().into(),
             static_rules: StaticRuleStorage::new(),
             variants: HashMap::default(),
-            utilities: Box::<HashMapUtilityStorage>::default(),
+            utilities: UtilityStorageImpl::HashMap(Default::default()),
             theme: theme().merge(config.theme),
             cache: HashMap::default(),
             // config: config.config,

@@ -13,6 +13,12 @@ pub struct Rule<'a> {
     pub nodes: Vec<AstNode<'a>>,
 }
 
+impl<'a> Rule<'a> {
+    pub fn is_at_rule(&self) -> bool {
+        self.selector.starts_with('@')
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum AstNode<'a> {
     Rule(Rule<'a>),

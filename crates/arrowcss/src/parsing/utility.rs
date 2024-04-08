@@ -1,6 +1,6 @@
 use crate::{
     common::{MaybeArbitrary, ParserPosition},
-    context::Context,
+    context::{utilities::UtilityStorage, Context},
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]

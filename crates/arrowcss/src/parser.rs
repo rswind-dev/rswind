@@ -5,12 +5,13 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use smallvec::SmallVec;
 
+use crate::context::utilities::UtilityStorage;
 use crate::{
     context::Context,
     css::{AstNode, NodeList},
-    utility::UtilityParser,
+    parsing::UtilityParser,
+    parsing::VariantParser,
     utils::TopLevelPattern,
-    variant::VariantParser,
 };
 
 lazy_static! {
@@ -43,7 +44,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<NodeList<'c>> {
 mod tests {
     use arrowcss_css_macro::css;
 
-    use crate::{context::AddRule, rule::UtilityProcessor};
+    use crate::{context::AddRule, process::UtilityProcessor};
 
     use super::*;
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::Write as _;
-use std::fs::{OpenOptions, read_to_string};
+use std::fs::{read_to_string, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
@@ -15,6 +15,8 @@ use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
+use crate::css::{AstNode, Rule};
+use crate::parser::to_css_rule;
 use crate::{
     config::ArrowConfig,
     context::Context,
@@ -22,8 +24,6 @@ use crate::{
     rules::{dynamics::load_dynamic_rules, statics::STATIC_RULES},
     writer::Writer,
 };
-use crate::css::{AstNode, Rule};
-use crate::parser::to_css_rule;
 
 pub struct Application<'c> {
     pub ctx: Context<'c>,

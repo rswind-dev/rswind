@@ -18,7 +18,7 @@ macro_rules! create_theme {
             $(
                 m.insert($key.to_string(), $value);
             )*
-            m
+            Theme(m)
         }
     };
 }
@@ -187,7 +187,6 @@ pub fn theme() -> Theme<'static> {
             "6xl" => "1.125"
         }.into()
     }
-    .into()
 }
 
 #[cfg(test)]
