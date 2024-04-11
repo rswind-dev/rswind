@@ -71,19 +71,12 @@ impl<'c> Application<'c> {
             .add_variant("last", ["&:last-child"])
             .add_variant("disabled", ["&:disabled"]);
 
-        for (key, value) in self.ctx.get_theme("breakpoints").unwrap().iter() {
-            let value: CowArcStr<'static> = value.clone().into_owned();
-            self.ctx.add_variant_fn(&key.clone(), move |rule| {
-                Some(
-                    Rule {
-                        selector: format!("@media (width >= {value})"),
-                        rules: rule,
-                        decls: vec![],
-                    }
-                    .into(),
-                )
-            });
-        }
+        // for (key, value) in self.ctx.get_theme("breakpoints").unwrap().iter() {
+        //     let value: CowArcStr<'static> = value.clone().into_owned();
+        //     self.ctx.add_variant_fn(&key.clone(), move |rule| {
+        //         Some(rule.wrap(format!("@media (width >= {value})")))
+        //     });
+        // }
 
         STATIC_RULES.iter().for_each(|(key, value)| {
             self.ctx.add_static((*key, value.clone()));

@@ -66,17 +66,21 @@ mod tests {
 
         let utility = parts.next().unwrap();
         let u = UtilityParser::new(utility).parse(&ctx).unwrap();
-        println!("{:#?}", u);
 
         let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
+
         let vs = variants
             .into_iter()
             .map(|v| VariantParser::new(v).parse(&ctx))
-            .collect::<Vec<_>>();
-        println!("{:#?}", vs);
+            .collect::<Option<Vec<_>>>()
+            .unwrap();
 
-        let node = ctx.utilities.try_apply(u);
+        let node: RuleList = ctx.utilities.try_apply(u).unwrap().into();
 
+        let node = vs.into_iter().fold(node, |acc, cur| {
+            let processor = ctx.variants.get(cur.key).unwrap();
+            processor.process(cur, acc)
+        });
         println!("{:#?}", node);
     }
 }

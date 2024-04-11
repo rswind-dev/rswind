@@ -15,6 +15,24 @@ pub struct VariantCandidate<'a> {
     pub compose: Either<bool, Box<VariantCandidate<'a>>>,
 }
 
+/// Parser
+/// formal syntax:
+/// https://drafts.csswg.org/css-values/#value-defs
+/// https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax
+///
+/// utility =
+///   [ <utility> / <modifier>? ]
+///
+/// utility =
+///   [ <ident> - <value>? ]
+///
+/// value =
+///   <ident> | <arbitrary>
+///
+/// arbitrary =
+///   '['<any>']'
+///
+/// modifier = <value>
 #[derive(Debug)]
 pub struct VariantParser<'a> {
     input: &'a str,
@@ -87,11 +105,11 @@ impl<'a> VariantParser<'a> {
             }
         }
 
-        if let Some(arbitrary) = self.cur_arbitrary {
-            self.value = Some(MaybeArbitrary::Arbitrary(arbitrary));
+        self.value = if let Some(arbitrary) = self.cur_arbitrary {
+            Some(MaybeArbitrary::Arbitrary(arbitrary))
         } else {
-            self.value = Some(MaybeArbitrary::Named(self.current()));
-        }
+            Some(MaybeArbitrary::Named(self.current()))
+        };
     }
 
     pub fn parse(&mut self, ctx: &Context) -> Option<VariantCandidate<'a>> {

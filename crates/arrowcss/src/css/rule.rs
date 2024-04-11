@@ -17,6 +17,17 @@ pub struct Rule<'a> {
 }
 
 impl<'a> Rule<'a> {
+    pub fn new_with_decls(
+        selector: impl Into<String>,
+        decls: Vec<Decl<'a>>,
+    ) -> Self {
+        Self {
+            selector: selector.into(),
+            decls,
+            rules: RuleList::default(),
+        }
+    }
+
     pub fn modify_with(self, modifier: impl FnOnce(String) -> String) -> Self {
         Self {
             selector: modifier(self.selector),
@@ -40,6 +51,14 @@ pub struct RuleList<'a>(pub Vec<Rule<'a>>);
 impl<'a> RuleList<'a> {
     pub fn new(rule: Rule<'a>) -> Self {
         Self(vec![rule])
+    }
+
+    pub fn wrap(self, wrapper: String) -> Rule<'a> {
+        Rule {
+            selector: wrapper,
+            decls: vec![],
+            rules: self,
+        }
     }
 }
 
