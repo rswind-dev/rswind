@@ -1,12 +1,11 @@
 use fxhash::FxHashMap as HashMap;
 
-use arrowcss_css_macro::css;
-
 use crate::{
     config::ArrowConfig,
-    css::{DeclList, NodeList},
+    css::{Decl, DeclList, Rule},
     process::{
         create_variant_fn, UtilityProcessor, VariantHandler, VariantMatchingFn,
+        VariantProcessor,
     },
     theme::{Theme, ThemeValue},
     themes::theme,
@@ -21,15 +20,15 @@ mod static_rules;
 pub mod utilities;
 
 #[rustfmt::skip]
-pub trait ModifierMatchingFn: Fn(NodeList) -> Option<NodeList> + Sync + Send {}
+pub trait ModifierMatchingFn: Fn(Rule) -> Option<Rule> + Sync + Send {}
 
 #[rustfmt::skip]
-impl<T: Fn(NodeList) -> Option<NodeList> + Sync + Send> ModifierMatchingFn for T {}
+impl<T: Fn(Rule) -> Option<Rule> + Sync + Send> ModifierMatchingFn for T {}
 
 pub struct Context<'c> {
     pub static_rules: StaticRuleStorage,
     pub utilities: UtilityStorageImpl<'c>,
-    pub variants: HashMap<String, VariantHandler>,
+    pub variants: HashMap<String, VariantProcessor>,
     pub theme: Theme<'static>,
     pub cache: HashMap<String, Option<String>>,
 }
@@ -68,11 +67,11 @@ impl<'c> Context<'c> {
     pub fn add_variant<T>(&mut self, key: &'c str, matcher: T) -> &mut Self
     where
         T: IntoIterator,
-        T::Item: AsRef<str>,
+        T::Item: Into<String>,
         T::IntoIter: ExactSizeIterator,
     {
-        create_variant_fn(key, matcher)
-            .map(|func| self.variants.insert(key.to_string(), func));
+        self.variants
+            .insert(key.to_string(), VariantProcessor::new_static(matcher));
         self
     }
 
@@ -81,8 +80,8 @@ impl<'c> Context<'c> {
         key: &str,
         func: impl VariantMatchingFn + 'static,
     ) -> &Self {
-        self.variants
-            .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));
+        // self.variants
+        //     .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));
         self
     }
 
@@ -120,10 +119,20 @@ impl<'c> AddRule<'c> for Context<'c> {
             self.utilities.insert(
                 k,
                 UtilityProcessor::new(move |_, input| {
-                    v.clone()
+                    let decls = v
+                        .clone()
                         .into_iter()
-                        .flat_map(|k| css!(k: input.to_string()))
-                        .collect()
+                        .map(|k| Decl {
+                            name: k.into(),
+                            value: input.clone().into(),
+                        })
+                        .collect();
+
+                    Rule {
+                        selector: "&".into(),
+                        decls,
+                        rules: vec![].into(),
+                    }
                 })
                 .allow_values(theme),
             );

@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
 
-use crate::css::NodeList;
+use crate::css::Rule;
 use crate::parsing::UtilityCandidate;
 use crate::process::UtilityProcessor;
 
@@ -9,10 +9,7 @@ use crate::process::UtilityProcessor;
 pub trait UtilityStorage<'c>: Sync + Send {
     fn insert(&mut self, key: String, value: UtilityProcessor<'c>);
     fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>>;
-    fn try_apply<'a>(
-        &self,
-        input: UtilityCandidate<'a>,
-    ) -> Option<NodeList<'c>>;
+    fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<Rule<'c>>;
 }
 
 #[enum_dispatch(UtilityStorage)]
@@ -43,7 +40,7 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
     fn try_apply<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
-    ) -> Option<NodeList<'c>> {
+    ) -> Option<Rule<'c>> {
         self.get(candidate.key)?
             .iter()
             .find_map(|rule| rule.apply_to(candidate))

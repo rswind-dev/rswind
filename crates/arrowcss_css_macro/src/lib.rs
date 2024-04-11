@@ -33,14 +33,21 @@ impl ToTokens for AstNodeExpr {
                 let key = &decl.key;
                 let value = &decl.value;
                 tokens.extend(quote! {
-                    crate::css::AstNode::decl(lightningcss::values::string::CowArcStr::from(#key), lightningcss::values::string::CowArcStr::from(#value))
+                    crate::css::Decl {
+                        name: lightningcss::values::string::CowArcStr::from(#key),
+                        value: lightningcss::values::string::CowArcStr::from(#value)
+                    }
                 });
             }
             AstNodeExpr::Rule(rule) => {
                 let selector = &rule.selector;
                 let nodes = &rule.nodes;
                 tokens.extend(quote! {
-                    crate::css::AstNode::rule(#selector.into(), vec![#(#nodes),*])
+                    crate::css::Rule {
+                        selector: #selector.into(),
+                        decls: vec![#(#nodes),*],
+                        rules: vec![].into(),
+                    }
                 });
             }
         }
@@ -87,9 +94,26 @@ impl Parse for MyMacroInput {
 #[proc_macro]
 pub fn css(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as MyMacroInput);
-    let generated_code = input.css.iter().map(ToTokens::to_token_stream);
+    let (_, rules): (Vec<_>, Vec<_>) = input
+        .css
+        .iter()
+        .partition(|x| matches!(x, AstNodeExpr::Decl(_)));
 
-    TokenStream::from(quote! {
-        vec![#(#generated_code),*]
+    TokenStream::from(if rules.is_empty() {
+        let generated_code = input.css.iter().map(ToTokens::to_token_stream);
+        quote! {
+            crate::css::Rule {
+                selector: "&".into(),
+                decls: vec![#(#generated_code),*],
+                rules: vec![].into(),
+            }
+        }
+    } else if rules.len() == 1 {
+        let generated_code = rules[0].to_token_stream();
+        quote! {
+            #generated_code
+        }
+    } else {
+        panic!("Only one rule is allowed")
     })
 }

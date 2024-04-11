@@ -15,7 +15,8 @@ use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
-use crate::css::{AstNode, Rule};
+use crate::css::rule::RuleList;
+use crate::css::Rule;
 use crate::parser::to_css_rule;
 use crate::{
     config::ArrowConfig,
@@ -74,10 +75,11 @@ impl<'c> Application<'c> {
             let value: CowArcStr<'static> = value.clone().into_owned();
             self.ctx.add_variant_fn(&key.clone(), move |rule| {
                 Some(
-                    AstNode::Rule(Rule {
+                    Rule {
                         selector: format!("@media (width >= {value})"),
-                        nodes: rule,
-                    })
+                        rules: rule,
+                        decls: vec![],
+                    }
                     .into(),
                 )
             });
@@ -190,7 +192,7 @@ impl<'c> Application<'c> {
 pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
     ctx: &'a Context<'c>,
     path: P,
-) -> HashMap<String, Vec<AstNode<'c>>> {
+) -> HashMap<String, RuleList<'c>> {
     read_to_string(path.as_ref())
         .unwrap()
         .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
@@ -200,5 +202,5 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
         .filter_map(|token| {
             to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
         })
-        .collect::<HashMap<String, Vec<AstNode>>>()
+        .collect::<HashMap<String, RuleList>>()
 }

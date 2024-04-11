@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq)]
-pub struct Variant<'a> {
-    key: &'a str,
-    value: Option<MaybeArbitrary<'a>>,
-    modifier: Option<MaybeArbitrary<'a>>,
+pub struct VariantCandidate<'a> {
+    pub key: &'a str,
+    pub value: Option<MaybeArbitrary<'a>>,
+    pub modifier: Option<MaybeArbitrary<'a>>,
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
-    arbitrary: bool,
-    compound: Either<bool, Box<Variant<'a>>>,
+    pub arbitrary: bool,
+    pub compose: Either<bool, Box<VariantCandidate<'a>>>,
 }
 
 #[derive(Debug)]
@@ -94,7 +94,7 @@ impl<'a> VariantParser<'a> {
         }
     }
 
-    pub fn parse(&mut self, ctx: &Context) -> Option<Variant<'a>> {
+    pub fn parse(&mut self, ctx: &Context) -> Option<VariantCandidate<'a>> {
         if self.current().starts_with('[') && self.current().ends_with(']') {
             // let arbitrary = self.current().get(1..self.current().len() - 1)?;
             todo!("parse arbitrary")
@@ -103,12 +103,12 @@ impl<'a> VariantParser<'a> {
         // find key
         if ctx.variants.contains_key(self.current()) {
             self.key = Some(self.current());
-            return Some(Variant {
+            return Some(VariantCandidate {
                 key: self.key?,
                 value: None,
                 modifier: None,
                 arbitrary: false,
-                compound: Either::Left(true),
+                compose: Either::Left(true),
             });
         } else if self.current().starts_with('@') {
             self.key = Some("@");
@@ -129,12 +129,12 @@ impl<'a> VariantParser<'a> {
         // find value and modifier\
         self.parse_value_and_modifier();
 
-        let candidate = Variant {
+        let candidate = VariantCandidate {
             key: self.key?,
             value: self.value,
             arbitrary: false,
             modifier: self.modifier,
-            compound: Either::Left(false),
+            compose: Either::Left(false),
         };
 
         Some(candidate)

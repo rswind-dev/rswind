@@ -1,29 +1,134 @@
 use std::cmp::Ordering;
 
-use crate::css::{AstNode, NodeList, Rule};
+use arrowcss_css_macro::css;
+use either::Either;
+use smallvec::{smallvec, SmallVec};
+
+use crate::{
+    css::{rule::RuleList, Rule},
+    parsing::VariantCandidate,
+};
 
 #[rustfmt::skip]
-pub trait VariantMatchingFn: Fn(NodeList) -> Option<NodeList> + Sync + Send {}
+pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 
 #[rustfmt::skip]
-impl<T: Fn(NodeList) -> Option<NodeList> + Sync + Send> VariantMatchingFn for T {}
+impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
+// hover -> &:hover not-hover -> &:not(:hover)
 #[allow(dead_code)]
 pub struct VariantProcessor {
-    handler: VariantHandler,
-    compundable: bool,
+    handler: Either<StaticHandler, DynamicHandler>,
+    composable: bool,
 }
+
+impl VariantProcessor {
+    pub fn new_static(
+        matcher: impl IntoIterator<Item: Into<String>, IntoIter: ExactSizeIterator>,
+    ) -> Self {
+        Self {
+            handler: Either::Left(StaticHandler::new(matcher)),
+            composable: true,
+        }
+    }
+
+    pub fn process<'a>(
+        &self,
+        candidate: VariantCandidate,
+        rule: RuleList<'a>,
+    ) -> RuleList<'a> {
+        match self.handler {
+            Either::Left(ref handler) => handler.process(candidate, rule),
+            Either::Right(ref handler) => todo!(),
+        }
+    }
+}
+
+enum StaticHandler {
+    // for single rule
+    Selector(String),
+    // for single rule
+    PesudoElement(String),
+    // for multiple rules
+    Nested(String),
+    // for multiple rules
+    Duplicate(SmallVec<[String; 2]>),
+}
+
+impl StaticHandler {
+    pub fn new(
+        matcher: impl IntoIterator<Item: Into<String>, IntoIter: ExactSizeIterator>,
+    ) -> Self {
+        let mut iter = matcher.into_iter();
+        let is_duplicate = iter.len() > 1;
+        if !is_duplicate {
+            let matcher = iter.next().unwrap().into();
+            match matcher.chars().next() {
+                Some('&') => {
+                    if matcher.starts_with("&::") {
+                        Self::PesudoElement(matcher)
+                    } else {
+                        Self::Selector(matcher)
+                    }
+                }
+                Some('@') => Self::Nested(matcher),
+                _ => panic!("Invalid matcher: {}", matcher),
+            }
+        } else {
+            Self::new_duplicate(iter)
+        }
+    }
+
+    pub fn new_duplicate(
+        matcher: impl IntoIterator<Item: Into<String>>,
+    ) -> Self {
+        Self::Duplicate(matcher.into_iter().map(Into::into).collect())
+    }
+
+    pub fn process<'a>(
+        &self,
+        candidate: VariantCandidate,
+        rules: RuleList<'a>,
+    ) -> RuleList<'a> {
+        match self {
+            Self::Selector(a) | Self::PesudoElement(a) => rules
+                .into_iter()
+                .map(|rule| {
+                    rule.modify_with(|selector| selector.replace("&", a))
+                })
+                .collect(),
+            Self::Nested(a) => RuleList::new(Rule {
+                selector: a.clone(),
+                decls: vec![],
+                rules,
+            }),
+            Self::Duplicate(list) => list
+                .iter()
+                .flat_map(move |a| {
+                    rules.clone().into_iter().map(|rule| {
+                        rule.modify_with(|selector| selector.replace("&", a))
+                    })
+                })
+                .collect(),
+        }
+    }
+}
+
+pub struct DynamicHandler {}
 
 pub enum VariantHandler {
     Nested(Box<dyn VariantMatchingFn>),
-    Replacement(Box<dyn VariantMatchingFn>),
+    Selector(Box<dyn VariantMatchingFn>),
 }
+
+#[rustfmt::skip]
+pub trait ComposeVairantFn: Fn(VariantHandler) -> VariantHandler {}
 
 impl VariantHandler {
     pub fn as_handler(&self) -> &Box<dyn VariantMatchingFn> {
         match self {
             Self::Nested(f) => f,
-            Self::Replacement(f) => f,
+            Self::Selector(f) => f,
         }
     }
 
@@ -32,7 +137,7 @@ impl VariantHandler {
     ) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
         match self {
             Self::Nested(_) => VariantHandler::Nested,
-            Self::Replacement(_) => VariantHandler::Replacement,
+            Self::Selector(_) => VariantHandler::Selector,
         }
     }
 }
@@ -40,30 +145,27 @@ impl VariantHandler {
 fn variant_fn(matcher: String) -> Option<VariantHandler> {
     let m = matcher.get(1..)?.to_owned();
     match matcher.chars().next()? {
-        '&' => Some(VariantHandler::Replacement(Box::new(
-            move |container: NodeList| {
-                container.into_iter().map(|rule| {
-                    match rule {
-                        AstNode::Rule(it) => {
-                            AstNode::Rule(Rule {
-                                selector: it.selector + &m,
-                                nodes: it.nodes,
-                            })
-                        }
-                        _ => {
-                            println!("Mismatched rule: {:?}, expect a CssRule::Style", rule);
-                            rule.clone()
-                        }
-                    }
-                }).collect::<Vec<_>>().into()
+        '&' => Some(VariantHandler::Selector(Box::new(
+            move |container: RuleList| {
+                Some(
+                    container
+                        .into_iter()
+                        .map(|rule| Rule {
+                            selector: rule.selector + &m,
+                            decls: rule.decls,
+                            rules: rule.rules,
+                        })
+                        .collect(),
+                )
             },
         ))),
         '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
             Some(
-                AstNode::Rule(Rule {
-                    selector: matcher.to_owned(),
-                    nodes: rule.to_vec(),
-                })
+                Rule {
+                    selector: m.clone(),
+                    decls: vec![],
+                    rules: rule,
+                }
                 .into(),
             )
         }))),
@@ -77,7 +179,7 @@ where
     T::Item: AsRef<str>,
     T::IntoIter: ExactSizeIterator,
 {
-    let mut has_replacement = false;
+    let mut has_selector_handler = false;
     let fns = matcher
         .into_iter()
         // .map(|item| item.as_ref())
@@ -102,26 +204,28 @@ where
                 // Normal
                 variant_fn(s.into())?
             };
-            if matches!(this_fn, VariantHandler::Replacement(_)) {
-                has_replacement = true;
+            if matches!(this_fn, VariantHandler::Selector(_)) {
+                has_selector_handler = true;
             }
             Some(this_fn)
         })
         .collect::<Option<Vec<_>>>()?;
 
     let handler: Box<dyn VariantMatchingFn> =
-        Box::new(move |container: NodeList| {
-            fns.iter()
-                .map(|f| f(container.clone()))
-                .collect::<Option<Vec<Vec<AstNode>>>>()?
-                .into_iter()
-                .flatten()
-                .collect::<Vec<AstNode>>()
-                .into()
+        Box::new(move |container: RuleList| {
+            Some(
+                fns.iter()
+                    .map(|f| f(container.clone()))
+                    .collect::<Option<Vec<RuleList>>>()?
+                    .into_iter()
+                    .flatten()
+                    .collect::<Vec<Rule>>()
+                    .into(),
+            )
         });
 
-    Some(if has_replacement {
-        VariantHandler::Replacement(handler)
+    Some(if has_selector_handler {
+        VariantHandler::Selector(handler)
     } else {
         VariantHandler::Nested(handler)
     })
@@ -134,7 +238,7 @@ impl PartialEq for VariantHandler {
         matches!(
             (self, other),
             (Self::Nested(_), Self::Nested(_))
-                | (Self::Replacement(_), Self::Replacement(_))
+                | (Self::Selector(_), Self::Selector(_))
         )
     }
 }
@@ -144,8 +248,8 @@ impl Eq for VariantHandler {}
 impl PartialOrd for VariantHandler {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
-            (Self::Nested(_), Self::Replacement(_)) => Some(Ordering::Greater),
-            (Self::Replacement(_), Self::Nested(_)) => Some(Ordering::Less),
+            (Self::Nested(_), Self::Selector(_)) => Some(Ordering::Greater),
+            (Self::Selector(_), Self::Nested(_)) => Some(Ordering::Less),
             _ => Some(Ordering::Equal),
         }
     }
@@ -157,40 +261,104 @@ impl Ord for VariantHandler {
     }
 }
 
-impl<'a> Fn<(NodeList<'a>,)> for VariantHandler {
+impl<'a> Fn<(RuleList<'a>,)> for VariantHandler {
     extern "rust-call" fn call(
         &self,
-        args: (NodeList<'a>,),
-    ) -> Option<NodeList<'a>> {
+        args: (RuleList<'a>,),
+    ) -> Option<RuleList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Replacement(f) => f(args.0),
+            VariantHandler::Selector(f) => f(args.0),
         }
     }
 }
 
-impl<'a> FnOnce<(NodeList<'a>,)> for VariantHandler {
-    type Output = Option<NodeList<'a>>;
+impl<'a> FnOnce<(RuleList<'a>,)> for VariantHandler {
+    type Output = Option<RuleList<'a>>;
 
     extern "rust-call" fn call_once(
         self,
-        args: (NodeList<'a>,),
+        args: (RuleList<'a>,),
     ) -> Self::Output {
         match self {
             VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Replacement(f) => f(args.0),
+            VariantHandler::Selector(f) => f(args.0),
         }
     }
 }
 
-impl<'a> FnMut<(NodeList<'a>,)> for VariantHandler {
+impl<'a> FnMut<(RuleList<'a>,)> for VariantHandler {
     extern "rust-call" fn call_mut(
         &mut self,
-        args: (NodeList<'a>,),
-    ) -> Option<NodeList<'a>> {
+        args: (RuleList<'a>,),
+    ) -> Option<RuleList<'a>> {
         match self {
             VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Replacement(f) => f(args.0),
+            VariantHandler::Selector(f) => f(args.0),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use arrowcss_css_macro::css;
+    use either::Either::Left;
+    use smallvec::smallvec;
+
+    use crate::{
+        context::Context,
+        css::{rule::RuleList, Decl, Rule},
+        parsing::{VariantCandidate, VariantParser},
+    };
+
+    use super::VariantProcessor;
+
+    #[test]
+    fn test_variant_process() {
+        let mut ctx = Context::default();
+        ctx.add_variant("hover", ["&:hover"]);
+        ctx.add_variant("active", ["&:active"]);
+
+        let candidates = vec![
+            VariantParser::new("hover").parse(&ctx).unwrap(),
+            VariantParser::new("active").parse(&ctx).unwrap(),
+        ];
+
+        let input = css! {
+            ".flex" {
+                "display": "flex";
+            }
+        };
+
+        let selector = RuleList::new(Rule {
+            selector: "&".to_string(),
+            rules: RuleList::default(),
+            decls: vec![Decl {
+                name: "display".into(),
+                value: "flex".into(),
+            }],
+        });
+
+        let res = candidates
+            .into_iter()
+            .map(|candidate| {
+                let processor = ctx.variants.get(candidate.key).unwrap();
+                (processor, candidate)
+            })
+            .fold(selector, |acc, (processor, candidate)| {
+                processor.process(candidate, acc)
+            });
+
+        // let res = res
+        //     .into_iter()
+        //     .map(|res| Rule {
+        //         selector: res.selector.replace("&", ".flex"),
+        //         nodes: res.nodes,
+        //     })
+        //     .collect::<Vec<_>>();
+
+        println!("{input:?}");
+        println!("res: {:#?}", res);
+        // expect: ".flex:hover"
     }
 }

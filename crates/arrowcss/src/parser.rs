@@ -6,11 +6,10 @@ use regex::Regex;
 use smallvec::SmallVec;
 
 use crate::context::utilities::UtilityStorage;
+use crate::css::rule::RuleList;
+use crate::css::Rule;
 use crate::{
-    context::Context,
-    css::{AstNode, NodeList},
-    parsing::UtilityParser,
-    parsing::VariantParser,
+    context::Context, parsing::UtilityParser, parsing::VariantParser,
     utils::TopLevelPattern,
 };
 
@@ -18,7 +17,7 @@ lazy_static! {
     pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
 }
 
-pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<NodeList<'c>> {
+pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
@@ -37,7 +36,14 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<NodeList<'c>> {
     w.write_char('.').ok()?;
     serialize_identifier(utility, &mut w).ok()?;
 
-    Some(vec![AstNode::rule(&w, node?)])
+    Some(
+        Rule {
+            selector: w,
+            rules: vec![node?].into(),
+            ..Default::default()
+        }
+        .into(),
+    )
 }
 
 #[cfg(test)]
