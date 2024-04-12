@@ -94,7 +94,7 @@ impl StaticHandler {
             Self::Selector(a) | Self::PesudoElement(a) => rules
                 .into_iter()
                 .map(|rule| {
-                    rule.modify_with(|selector| selector.replace("&", a))
+                    rule.modify_with(|selector| selector.replace('&', a))
                 })
                 .collect(),
             Self::Nested(a) => RuleList::new(Rule {
@@ -106,7 +106,7 @@ impl StaticHandler {
                 .iter()
                 .flat_map(move |a| {
                     rules.clone().into_iter().map(|rule| {
-                        rule.modify_with(|selector| selector.replace("&", a))
+                        rule.modify_with(|selector| selector.replace('&', a))
                     })
                 })
                 .collect(),

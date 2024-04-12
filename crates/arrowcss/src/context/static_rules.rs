@@ -21,9 +21,9 @@ impl StaticRuleStorage {
         self.0.get(key).cloned()
     }
 
-    pub fn try_apply<'a>(
+    pub fn try_apply(
         &self,
-        candidate: UtilityCandidate<'a>,
+        candidate: UtilityCandidate<'_>,
     ) -> Option<Rule<'static>> {
         self.get(candidate.key)
             .map(|decls| Rule::new_with_decls("&", decls.0.into_vec()))

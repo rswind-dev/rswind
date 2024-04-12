@@ -57,7 +57,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     serialize_identifier(value, &mut w).ok()?;
 
     node.iter_mut().for_each(|rule| {
-        rule.selector = rule.selector.replace("&", &w);
+        rule.selector = rule.selector.replace('&', &w);
     });
 
     let node = nested.into_iter().fold(node, |acc, cur| {

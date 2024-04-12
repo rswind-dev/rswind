@@ -69,7 +69,7 @@ impl<'c> Application<'c> {
         self.ctx.get_theme("breakpoints").unwrap().iter().for_each(
             |(key, value)| {
                 self.ctx
-                    .add_variant(&key, [format!("@media (width >= {value})")]);
+                    .add_variant(key, [format!("@media (width >= {value})")]);
             },
         );
 
