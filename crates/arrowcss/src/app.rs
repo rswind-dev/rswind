@@ -37,8 +37,9 @@ impl<'c> Application<'c> {
     pub fn new() -> Result<Self, config::ConfigError> {
         let config = Config::builder()
             .add_source(File::with_name("arrow.config"))
-            .build()?
-            .try_deserialize::<ArrowConfig>()?;
+            .build()
+            .map(|c| c.try_deserialize::<ArrowConfig>())
+            .unwrap_or_else(|_| Ok(ArrowConfig::default()))?;
 
         let w = String::new();
         let writer = Writer::default(w);
