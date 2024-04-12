@@ -1,12 +1,12 @@
-use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::fs::{read_to_string, OpenOptions};
-use std::io::{BufWriter, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
 use config::{Config, File};
+use fxhash::FxHashMap as HashMap;
 use fxhash::FxHashSet as HashSet;
 use lightningcss::traits::IntoOwned;
 use lightningcss::values::string::CowArcStr;
@@ -53,17 +53,14 @@ impl<'c> Application<'c> {
 
     pub fn init(&mut self) -> &mut Self {
         load_dynamic_rules(&mut self.ctx);
+
+        #[rustfmt::skip]
         self.ctx
             .add_variant("first", ["&:first-child"])
             .add_variant("last", ["&:last-child"])
-            .add_variant(
-                "motion-safe",
-                ["@media(prefers-reduced-motion: no-preference)"],
-            )
-            .add_variant(
-                "hover",
-                ["@media (hover: hover) and (pointer: fine) | &:hover"],
-            )
+            .add_variant("motion-safe", ["@media(prefers-reduced-motion: no-preference)"])
+            // @media (hover: hover) and (pointer: fine) | &:hover
+            .add_variant("hover", ["&:hover"])
             .add_variant("focus", ["&:focus"])
             .add_variant("marker", ["& *::marker", "&::marker"])
             .add_variant("*", ["& > *"])
@@ -71,12 +68,12 @@ impl<'c> Application<'c> {
             .add_variant("last", ["&:last-child"])
             .add_variant("disabled", ["&:disabled"]);
 
-        // for (key, value) in self.ctx.get_theme("breakpoints").unwrap().iter() {
-        //     let value: CowArcStr<'static> = value.clone().into_owned();
-        //     self.ctx.add_variant_fn(&key.clone(), move |rule| {
-        //         Some(rule.wrap(format!("@media (width >= {value})")))
-        //     });
-        // }
+        self.ctx.get_theme("breakpoints").unwrap().iter().for_each(
+            |(key, value)| {
+                self.ctx
+                    .add_variant(&key, [format!("@media (width >= {value})")]);
+            },
+        );
 
         STATIC_RULES.iter().for_each(|(key, value)| {
             self.ctx.add_static((*key, value.clone()));
@@ -151,7 +148,7 @@ impl<'c> Application<'c> {
             })
             .par_bridge()
             .map(|x| generate_parallel(&self.ctx, x))
-            .reduce(HashMap::new, |mut a, b| {
+            .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
                 a
             });
@@ -189,7 +186,7 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
     read_to_string(path.as_ref())
         .unwrap()
         .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-        .filter(|s| s.starts_with(char::is_lowercase))
+        .filter(|s| s.starts_with(char::is_lowercase) && s.len() > 3)
         .collect::<HashSet<_>>()
         .into_iter()
         .filter_map(|token| {
