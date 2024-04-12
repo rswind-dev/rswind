@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 use std::fs::{read_to_string, OpenOptions};
-use std::io::{BufRead, BufWriter, Write};
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
@@ -60,6 +60,7 @@ impl<'c> Application<'c> {
             // @media (hover: hover) and (pointer: fine) | &:hover
             .add_variant("hover", ["&:hover"])
             .add_variant("focus", ["&:focus"])
+            .add_variant("active", ["&:active"])
             .add_variant("marker", ["& *::marker", "&::marker"])
             .add_variant("*", ["& > *"])
             .add_variant("first", ["&:first-child"])
@@ -118,7 +119,7 @@ impl<'c> Application<'c> {
         w.write_all(self.writer.dest.as_bytes()).unwrap();
     }
 
-    pub fn run(&mut self) {
+    pub fn watch(&mut self, dir: &str, output: Option<&str>) {
         let (tx, rx) = mpsc::channel();
 
         let mut debouncer =
@@ -126,30 +127,32 @@ impl<'c> Application<'c> {
 
         debouncer
             .watcher()
-            .watch(Path::new("examples/test.html"), RecursiveMode::NonRecursive)
+            .watch(Path::new(dir), RecursiveMode::NonRecursive)
             .unwrap();
 
-        self.generate(vec![]);
+        let files = get_files(dir);
+        self.run_parallel(files.as_slice(), output);
 
-        for _ in rx {
-            self.generate(vec![]);
+        for change in rx {
+            let files = change
+                .unwrap()
+                .into_iter()
+                .map(|e| e.path)
+                .collect::<Vec<_>>();
+            self.run_parallel(files.as_slice(), output);
         }
     }
 
-    pub fn run_parallel(&mut self, dir: &str) {
+    pub fn run_parallel(&mut self, paths: &[PathBuf], output: Option<&str>) {
         let start = Instant::now();
-        let res = WalkDir::new(dir)
-            .max_depth(1)
-            .into_iter()
-            .filter_map(|e| {
-                Some(e.ok()?.path().to_owned()).filter(|p| p.is_file())
-            })
-            .par_bridge()
+        let res = paths
+            .par_iter()
             .map(|x| generate_parallel(&self.ctx, x))
             .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
                 a
             });
+        let res_len = res.len();
 
         for (token, rule) in res {
             // if self.ctx.cache.contains_key(&token) {
@@ -162,18 +165,28 @@ impl<'c> Application<'c> {
             self.ctx.cache.insert(token, Some(w));
         }
 
-        let mut w = BufWriter::new(
-            OpenOptions::new()
-                .write(true)
-                .create(true)
-                .append(false)
-                .truncate(true)
-                .open(Path::new("examples/test.css"))
-                .unwrap(),
-        );
+        let mut w: Box<dyn Write> = if let Some(output) = output {
+            Box::new(BufWriter::new(
+                OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .append(false)
+                    .truncate(true)
+                    .open(Path::new(output))
+                    .unwrap(),
+            ))
+        } else {
+            Box::new(std::io::stdout())
+        };
 
         w.write_all(self.writer.dest.as_bytes()).unwrap();
-        println!("Execution time: {:?}", start.elapsed());
+        println!(
+            "Parsed {:3} file{:1} in {:>8.2?}, {} rules generated",
+            paths.len(),
+            if paths.len() > 1 { "s" } else { "" },
+            start.elapsed(),
+            res_len,
+        );
     }
 }
 
@@ -188,7 +201,19 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
         .collect::<HashSet<_>>()
         .into_iter()
         .filter_map(|token| {
-            to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
+            if !ctx.cache.contains_key(token) {
+                to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
+            } else {
+                None
+            }
         })
         .collect::<HashMap<String, RuleList>>()
+}
+
+pub fn get_files(dir: &str) -> Vec<PathBuf> {
+    WalkDir::new(dir)
+        .max_depth(1)
+        .into_iter()
+        .filter_map(|e| Some(e.ok()?.path().to_owned()).filter(|p| p.is_file()))
+        .collect()
 }

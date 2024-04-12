@@ -2,6 +2,8 @@ use std::fmt::Write;
 
 use anyhow::Error;
 
+use crate::css::ToCss;
+
 #[allow(clippy::upper_case_acronyms, unused)]
 pub enum LineFeed {
     LF,
@@ -121,4 +123,11 @@ impl<'a, W: std::fmt::Write + Sized> Write for Writer<'a, W> {
         self.col += 1;
         self.dest.write_char(c)
     }
+}
+
+pub fn write_to_string(css: impl ToCss) -> String {
+    let mut w = String::with_capacity(100);
+    let mut writer = Writer::default(&mut w);
+    let _ = css.to_css(&mut writer);
+    w
 }

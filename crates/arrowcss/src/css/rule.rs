@@ -142,6 +142,15 @@ where
     }
 }
 
+impl ToCss for RuleList<'_> {
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: Write,
+    {
+        self.iter().to_css(writer)
+    }
+}
+
 // region: impl Traits for RuleList
 
 impl<'a> Deref for RuleList<'a> {

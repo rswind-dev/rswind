@@ -74,8 +74,8 @@ impl<'c> Context<'c> {
 
     pub fn add_variant_fn(
         &mut self,
-        key: &str,
-        func: impl VariantMatchingFn + 'static,
+        _key: &str,
+        _func: impl VariantMatchingFn + 'static,
     ) -> &Self {
         // self.variants
         //     .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));

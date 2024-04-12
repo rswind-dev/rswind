@@ -38,7 +38,7 @@ impl VariantProcessor {
     ) -> RuleList<'a> {
         match self.handler {
             Either::Left(ref handler) => handler.process(candidate, rule),
-            Either::Right(ref handler) => todo!(),
+            Either::Right(ref _handler) => todo!(),
         }
     }
 }
@@ -48,7 +48,7 @@ pub enum StaticHandler {
     // for single rule
     Selector(String),
     // for single rule
-    PesudoElement(String),
+    PseudoElement(String),
     // for multiple rules
     Nested(String),
     // for multiple rules
@@ -66,7 +66,7 @@ impl StaticHandler {
             match matcher.chars().next() {
                 Some('&') => {
                     if matcher.starts_with("&::") {
-                        Self::PesudoElement(matcher)
+                        Self::PseudoElement(matcher)
                     } else {
                         Self::Selector(matcher)
                     }
@@ -87,11 +87,11 @@ impl StaticHandler {
 
     pub fn process<'a>(
         &self,
-        candidate: VariantCandidate,
+        _candidate: VariantCandidate,
         rules: RuleList<'a>,
     ) -> RuleList<'a> {
         match self {
-            Self::Selector(a) | Self::PesudoElement(a) => rules
+            Self::Selector(a) | Self::PseudoElement(a) => rules
                 .into_iter()
                 .map(|rule| {
                     rule.modify_with(|selector| selector.replace('&', a))
