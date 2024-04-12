@@ -1,13 +1,14 @@
 use std::fmt::Write;
 
 use cssparser::serialize_identifier;
+use either::Either;
 use lazy_static::lazy_static;
 use regex::Regex;
 use smallvec::SmallVec;
 
 use crate::context::utilities::UtilityStorage;
 use crate::css::rule::RuleList;
-use crate::css::Rule;
+use crate::process::{StaticHandler, VariantProcessor};
 use crate::{
     context::Context, parsing::UtilityParser, parsing::VariantParser,
     utils::TopLevelPattern,
@@ -24,26 +25,50 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     let u = UtilityParser::new(utility).parse(ctx)?;
 
     let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
-    #[allow(unused_variables)]
+
     let vs = variants
         .into_iter()
         .map(|v| VariantParser::new(v).parse(ctx))
-        .collect::<Vec<_>>();
+        .collect::<Option<Vec<_>>>()?;
 
-    let node = ctx.utilities.try_apply(u);
+    let (nested, selector): (Vec<_>, Vec<_>) = vs.into_iter().partition(|v| {
+        matches!(
+            v.processor,
+            VariantProcessor {
+                handler: Either::Left(StaticHandler::Nested(_)),
+                ..
+            }
+        )
+    });
 
-    let mut w = String::with_capacity(utility.len() + 5);
+    let node = ctx
+        .utilities
+        .try_apply(u)
+        .or(ctx.static_rules.try_apply(u))?;
+
+    let mut node =
+        selector.into_iter().fold(node.to_rule_list(), |acc, cur| {
+            let processor = ctx.variants.get(cur.key).unwrap();
+            processor.process(cur, acc)
+        });
+
+    let mut w = String::with_capacity(value.len() + 5);
     w.write_char('.').ok()?;
-    serialize_identifier(utility, &mut w).ok()?;
+    serialize_identifier(value, &mut w).ok()?;
 
-    Some(
-        Rule {
-            selector: w,
-            rules: vec![node?].into(),
-            ..Default::default()
-        }
-        .into(),
-    )
+    node.iter_mut().for_each(|rule| {
+        rule.selector = rule.selector.replace("&", &w);
+    });
+
+    let node = nested.into_iter().fold(node, |acc, cur| {
+        let processor = ctx.variants.get(cur.key).unwrap();
+        processor.process(cur, acc)
+    });
+
+    node.into()
+    // node.modify_with(|s| s.replace("&", &w))
+    //     .to_rule_list()
+    //     .into()
 }
 
 #[cfg(test)]
@@ -75,7 +100,12 @@ mod tests {
             .collect::<Option<Vec<_>>>()
             .unwrap();
 
-        let node: RuleList = ctx.utilities.try_apply(u).unwrap().into();
+        let node: RuleList = ctx
+            .utilities
+            .try_apply(u)
+            .or(ctx.static_rules.try_apply(u))
+            .unwrap()
+            .into();
 
         let node = vs.into_iter().fold(node, |acc, cur| {
             let processor = ctx.variants.get(cur.key).unwrap();
