@@ -1,4 +1,3 @@
-use lightningcss::{properties::Property, traits::Parse};
 pub use lightningcss::properties::PropertyId;
 pub use lightningcss::values::{
     color::CssColor,
@@ -9,6 +8,7 @@ pub use lightningcss::values::{
     percentage::Percentage,
     time::Time,
 };
+use lightningcss::{properties::Property, traits::Parse};
 
 pub trait TypeValidator: Sync + Send {
     fn validate(&self, value: &str) -> bool;

@@ -174,9 +174,6 @@ impl<'a> From<Vec<Rule<'a>>> for RuleList<'a> {
 
 #[cfg(test)]
 mod tests {
-    use arrowcss_css_macro::css;
-
-    use super::*;
 
     #[test]
     fn test_rule_to_css() {

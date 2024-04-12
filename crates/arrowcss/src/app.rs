@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 use std::fs::{read_to_string, OpenOptions};
-use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::io::{BufRead, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
@@ -8,15 +8,12 @@ use std::time::{Duration, Instant};
 use config::{Config, File};
 use fxhash::FxHashMap as HashMap;
 use fxhash::FxHashSet as HashSet;
-use lightningcss::traits::IntoOwned;
-use lightningcss::values::string::CowArcStr;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
 use crate::css::rule::RuleList;
-use crate::css::Rule;
 use crate::parser::to_css_rule;
 use crate::{
     config::ArrowConfig,

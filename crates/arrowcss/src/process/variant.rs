@@ -1,8 +1,7 @@
 use std::cmp::Ordering;
 
-use arrowcss_css_macro::css;
 use either::Either;
-use smallvec::{smallvec, SmallVec};
+use smallvec::SmallVec;
 
 use crate::{
     css::{rule::RuleList, Rule},
@@ -304,16 +303,12 @@ impl<'a> FnMut<(RuleList<'a>,)> for VariantHandler {
 #[cfg(test)]
 mod tests {
     use arrowcss_css_macro::css;
-    use either::Either::Left;
-    use smallvec::smallvec;
 
     use crate::{
         context::Context,
         css::{rule::RuleList, Decl, Rule},
-        parsing::{VariantCandidate, VariantParser},
+        parsing::VariantParser,
     };
-
-    use super::VariantProcessor;
 
     #[test]
     fn test_variant_process() {

@@ -3,10 +3,7 @@ use fxhash::FxHashMap as HashMap;
 use crate::{
     config::ArrowConfig,
     css::{Decl, DeclList, Rule},
-    process::{
-        create_variant_fn, UtilityProcessor, VariantHandler, VariantMatchingFn,
-        VariantProcessor,
-    },
+    process::{UtilityProcessor, VariantMatchingFn, VariantProcessor},
     theme::{Theme, ThemeValue},
     themes::theme,
 };

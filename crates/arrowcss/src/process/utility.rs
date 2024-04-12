@@ -182,11 +182,6 @@ impl<'c> UtilityProcessor<'c> {
 
 #[cfg(test)]
 mod tests {
-    use arrowcss_css_macro::css;
-
-    use crate::{common::MaybeArbitrary, types::PropertyId};
-
-    use super::*;
 
     #[test]
     fn test_rule_builder() {

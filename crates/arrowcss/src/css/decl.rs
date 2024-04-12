@@ -147,9 +147,6 @@ impl<'a> ToCss for &Decl<'a> {
 
 #[cfg(test)]
 mod tests {
-    use arrowcss_css_macro::css;
-
-    use super::*;
 
     #[test]
     fn test_css_decl_macro() {
