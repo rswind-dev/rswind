@@ -16,10 +16,10 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 // hover -> &:hover not-hover -> &:not(:hover)
-#[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct VariantProcessor {
-    handler: Either<StaticHandler, DynamicHandler>,
-    composable: bool,
+    pub handler: Either<StaticHandler, DynamicHandler>,
+    pub composable: bool,
 }
 
 impl VariantProcessor {
@@ -44,7 +44,8 @@ impl VariantProcessor {
     }
 }
 
-enum StaticHandler {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StaticHandler {
     // for single rule
     Selector(String),
     // for single rule
@@ -114,6 +115,7 @@ impl StaticHandler {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct DynamicHandler {}
 
 pub enum VariantHandler {

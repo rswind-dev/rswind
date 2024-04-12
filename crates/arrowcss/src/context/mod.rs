@@ -64,7 +64,7 @@ impl<'c> Context<'c> {
         self.static_rules.get(key)
     }
 
-    pub fn add_variant<T>(&mut self, key: &'c str, matcher: T) -> &mut Self
+    pub fn add_variant<'a, T>(&mut self, key: &'a str, matcher: T) -> &mut Self
     where
         T: IntoIterator,
         T::Item: Into<String>,

@@ -43,6 +43,10 @@ impl<'a> Rule<'a> {
             rules: RuleList::new(self),
         }
     }
+
+    pub fn to_rule_list(self) -> RuleList<'a> {
+        RuleList::new(self)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

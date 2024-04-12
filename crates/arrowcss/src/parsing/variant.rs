@@ -3,9 +3,10 @@ use either::Either;
 use crate::{
     common::{MaybeArbitrary, ParserPosition},
     context::Context,
+    process::VariantProcessor,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct VariantCandidate<'a> {
     pub key: &'a str,
     pub value: Option<MaybeArbitrary<'a>>,
@@ -13,6 +14,7 @@ pub struct VariantCandidate<'a> {
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
     pub arbitrary: bool,
     pub compose: Either<bool, Box<VariantCandidate<'a>>>,
+    pub processor: VariantProcessor,
 }
 
 /// Parser
@@ -118,8 +120,10 @@ impl<'a> VariantParser<'a> {
             todo!("parse arbitrary")
         }
 
+        let mut processor = None;
+
         // find key
-        if ctx.variants.contains_key(self.current()) {
+        if let Some(processor) = ctx.variants.get(self.current()) {
             self.key = Some(self.current());
             return Some(VariantCandidate {
                 key: self.key?,
@@ -127,6 +131,7 @@ impl<'a> VariantParser<'a> {
                 modifier: None,
                 arbitrary: false,
                 compose: Either::Left(true),
+                processor: processor.clone(),
             });
         } else if self.current().starts_with('@') {
             self.key = Some("@");
@@ -134,7 +139,8 @@ impl<'a> VariantParser<'a> {
         } else {
             for (i, _) in self.current().match_indices('-') {
                 let key = self.current().get(0..i)?;
-                if ctx.variants.contains_key(key) {
+                if let Some(p) = ctx.variants.get(key) {
+                    processor = Some(p.clone());
                     self.key = Some(key);
                     self.pos.advance(i + 1);
                     break;
@@ -153,6 +159,7 @@ impl<'a> VariantParser<'a> {
             arbitrary: false,
             modifier: self.modifier,
             compose: Either::Left(false),
+            processor: processor?,
         };
 
         Some(candidate)

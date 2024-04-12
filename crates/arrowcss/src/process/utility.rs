@@ -163,7 +163,8 @@ impl<'c> UtilityProcessor<'c> {
         if candidate.is_fraction_like() && self.supports_fraction {
             todo!()
         }
-        let process_result = self.process(candidate.value)?;
+        let process_result =
+            candidate.value.and_then(|value| self.process(value))?;
         let mut meta = MetaData::new(candidate);
 
         // handing modifier

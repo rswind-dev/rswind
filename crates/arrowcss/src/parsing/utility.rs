@@ -6,7 +6,7 @@ use crate::{
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct UtilityCandidate<'a> {
     pub key: &'a str,
-    pub value: MaybeArbitrary<'a>,
+    pub value: Option<MaybeArbitrary<'a>>,
     pub modifier: Option<MaybeArbitrary<'a>>,
     // fully arbitrary, e.g. [color:red] [text:--my-font-size]
     pub arbitrary: bool,
@@ -19,7 +19,10 @@ impl UtilityCandidate<'_> {
     pub fn is_fraction_like(&self) -> bool {
         matches!(
             (self.value, self.modifier),
-            (MaybeArbitrary::Named(_), Some(MaybeArbitrary::Named(_)))
+            (
+                Some(MaybeArbitrary::Named(_)),
+                Some(MaybeArbitrary::Named(_))
+            )
         )
     }
 }
@@ -111,7 +114,7 @@ impl<'a> UtilityParser<'a> {
             let (key, value) = arbitrary.split_once(':')?;
             return Some(UtilityCandidate {
                 key,
-                value: MaybeArbitrary::Named(value),
+                value: Some(MaybeArbitrary::Named(value)),
                 arbitrary: true,
                 important: self.is_important,
                 negative: self.is_negative,
@@ -120,12 +123,26 @@ impl<'a> UtilityParser<'a> {
         }
 
         // find key
-        for (i, _) in self.current().match_indices('-') {
-            let key = self.current().get(0..i)?;
-            if ctx.utilities.get(key).is_some() {
-                self.key = Some(key);
-                self.pos.start += i + 1;
-                break;
+        if ctx.static_rules.get(self.current()).is_some()
+            || ctx.utilities.get(self.current()).is_some()
+        {
+            self.key = Some(self.current());
+            return Some(UtilityCandidate {
+                key: self.key?,
+                value: None,
+                modifier: None,
+                arbitrary: false,
+                important: self.is_important,
+                negative: self.is_negative,
+            });
+        } else {
+            for (i, _) in self.current().match_indices('-') {
+                let key = self.current().get(0..i)?;
+                if ctx.utilities.get(key).is_some() {
+                    self.key = Some(key);
+                    self.pos.start += i + 1;
+                    break;
+                }
             }
         }
 
@@ -151,7 +168,7 @@ impl<'a> UtilityParser<'a> {
 
         let candidate = UtilityCandidate {
             key: self.key?,
-            value: self.value?,
+            value: self.value,
             arbitrary: false,
             important: self.is_important,
             negative: self.is_negative,

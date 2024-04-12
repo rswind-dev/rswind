@@ -242,8 +242,7 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
         } else if let Some(line_height) = meta
             .candidate
             .value
-            .take_named()
-            .and_then(|v| line_height_map.get(v))
+            .and_then(|v| line_height_map.get(v.take_named()?))
         {
             font_size
                 .extend(css!("line-height": line_height.clone().into_owned()));
