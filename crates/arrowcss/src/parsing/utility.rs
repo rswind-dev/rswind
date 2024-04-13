@@ -1,5 +1,5 @@
 use crate::{
-    common::{MaybeArbitrary, ParserPosition},
+    common::MaybeArbitrary,
     context::{utilities::UtilityStorage, Context},
     css::rule::RuleList,
     process::{
@@ -7,6 +7,8 @@ use crate::{
     },
     types::TypeValidator,
 };
+
+use super::ParserPosition;
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct UtilityCandidate<'a> {

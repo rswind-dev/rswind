@@ -1,10 +1,10 @@
 use either::Either;
 
 use crate::{
-    common::{MaybeArbitrary, ParserPosition},
-    context::Context,
-    process::VariantProcessor,
+    common::MaybeArbitrary, context::Context, process::VariantProcessor,
 };
+
+use super::ParserPosition;
 
 #[derive(Debug)]
 pub struct VariantCandidate<'a> {
