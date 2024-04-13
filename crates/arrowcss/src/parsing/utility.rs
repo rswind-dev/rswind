@@ -1,6 +1,11 @@
 use crate::{
     common::{MaybeArbitrary, ParserPosition},
     context::{utilities::UtilityStorage, Context},
+    css::rule::RuleList,
+    process::{
+        ModifierProcessor, RuleMatchingFn, UtilityHandler, UtilityProcessor,
+    },
+    types::TypeValidator,
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
@@ -123,9 +128,7 @@ impl<'a> UtilityParser<'a> {
         }
 
         // find key
-        if ctx.static_rules.get(self.current()).is_some()
-            || ctx.utilities.get(self.current()).is_some()
-        {
+        if ctx.utilities.get(self.current()).is_some() {
             self.key = Some(self.current());
             return Some(UtilityCandidate {
                 key: self.key?,
@@ -176,6 +179,109 @@ impl<'a> UtilityParser<'a> {
         };
 
         Some(candidate)
+    }
+}
+
+pub struct UtilityBuilder<'i, 'c> {
+    ctx: &'i mut Context<'c>,
+    key: &'i str,
+    theme_key: Option<&'i str>,
+    handler: UtilityHandler,
+    modifier: Option<ModifierProcessor<'c>>,
+    validator: Option<Box<dyn TypeValidator>>,
+    additional_css: Option<RuleList<'c>>,
+    wrapper: Option<String>,
+    supports_negative: bool,
+    supports_fraction: bool,
+}
+
+impl<'i, 'c> UtilityBuilder<'i, 'c> {
+    pub fn new(
+        ctx: &'i mut Context<'c>,
+        key: &'i str,
+        handler: impl RuleMatchingFn + 'static,
+    ) -> Self {
+        Self {
+            ctx,
+            key,
+            handler: UtilityHandler::Dynamic(Box::new(handler)),
+            theme_key: None,
+            supports_negative: false,
+            supports_fraction: false,
+            modifier: None,
+            validator: None,
+            additional_css: None,
+            wrapper: None,
+        }
+    }
+
+    pub fn with_theme(mut self, key: &'i str) -> Self {
+        self.theme_key = Some(key);
+        self
+    }
+
+    pub fn support_negative(mut self) -> Self {
+        self.supports_negative = true;
+        self
+    }
+
+    #[allow(dead_code)]
+    pub fn support_fraction(mut self) -> Self {
+        self.supports_fraction = true;
+        self
+    }
+
+    pub fn with_modifier(mut self, modifier: ModifierProcessor<'c>) -> Self {
+        self.modifier = Some(modifier);
+        self
+    }
+
+    pub fn with_validator(
+        mut self,
+        validator: impl TypeValidator + 'static,
+    ) -> Self {
+        self.validator = Some(Box::new(validator));
+        self
+    }
+
+    pub fn with_additional_css(mut self, css: RuleList<'c>) -> Self {
+        self.additional_css = Some(css);
+        self
+    }
+
+    pub fn with_wrapper(mut self, wrapper: &str) -> Self {
+        self.wrapper = Some(wrapper.to_string());
+        self
+    }
+}
+
+/// Automatically adds the rule to the context when dropped.
+/// This is useful for defining rules in a more declarative way.
+impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
+    fn drop(&mut self) {
+        let allowed_values = self.theme_key.map(|key| {
+            self.ctx
+                .get_theme(key)
+                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
+                .clone()
+        });
+        let validator = std::mem::take(&mut self.validator);
+        let handler = std::mem::take(&mut self.handler);
+        let modifier = std::mem::take(&mut self.modifier);
+
+        self.ctx.add_utility(
+            self.key,
+            UtilityProcessor {
+                validator,
+                allowed_values,
+                handler,
+                modifier,
+                supports_negative: self.supports_negative,
+                supports_fraction: self.supports_fraction,
+                additional_css: std::mem::take(&mut self.additional_css),
+                wrapper: std::mem::take(&mut self.wrapper),
+            },
+        );
     }
 }
 

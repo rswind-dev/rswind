@@ -8,186 +8,122 @@ use arrowcss_css_macro::css;
 
 use crate::{
     add_theme_rule,
-    context::{AddRule, Context},
-    process::{ModifierProcessor, UtilityHandler, UtilityProcessor},
-    types::{CssDataType, TypeValidator},
+    context::Context,
+    parsing::UtilityBuilder,
+    process::{ModifierProcessor, RuleMatchingFn},
+    types::CssDataType,
 };
 
-struct PendingRule<'i, 'c> {
-    key: &'i str,
-    theme_key: Option<&'i str>,
-    handler: UtilityHandler,
-    modifier: Option<ModifierProcessor<'c>>,
-    validator: Option<Box<dyn TypeValidator>>,
-    supports_negative: bool,
-    supports_fraction: bool,
-    ctx: &'i mut Context<'c>,
+struct RuleAdder<'a, 'c> {
+    ctx: &'a mut Context<'c>,
 }
 
-impl<'i, 'c> PendingRule<'i, 'c> {
-    fn with_theme(mut self, key: &'i str) -> Self {
-        self.theme_key = Some(key);
-        self
+impl<'a, 'c> RuleAdder<'a, 'c> {
+    pub fn new(ctx: &'a mut Context<'c>) -> Self {
+        Self { ctx }
     }
 
-    fn support_negative(mut self) -> Self {
-        self.supports_negative = true;
-        self
-    }
-
-    #[allow(dead_code)]
-    fn support_fraction(mut self) -> Self {
-        self.supports_fraction = true;
-        self
-    }
-
-    fn with_modifier(mut self, modifier: ModifierProcessor<'c>) -> Self {
-        self.modifier = Some(modifier);
-        self
-    }
-
-    fn with_validator(
-        mut self,
-        validator: impl TypeValidator + 'static,
-    ) -> Self {
-        self.validator = Some(Box::new(validator));
-        self
-    }
-}
-
-/// Automatically adds the rule to the context when dropped.
-/// This is useful for defining rules in a more declarative way.
-impl<'i, 'c> Drop for PendingRule<'i, 'c> {
-    fn drop(&mut self) {
-        let allowed_values = self.theme_key.map(|key| {
-            self.ctx
-                .get_theme(key)
-                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
-                .clone()
-        });
-        let validator = std::mem::take(&mut self.validator);
-        let handler = std::mem::take(&mut self.handler);
-        let modifier = std::mem::take(&mut self.modifier);
-
-        self.ctx.add_rule(
-            self.key,
-            UtilityProcessor {
-                validator,
-                allowed_values,
-                handler,
-                modifier,
-                supports_negative: self.supports_negative,
-                supports_fraction: self.supports_fraction,
-            },
-        );
+    pub fn add<'b>(
+        &'b mut self,
+        key: &'b str,
+        handler: impl RuleMatchingFn + 'static,
+    ) -> UtilityBuilder<'b, 'c> {
+        UtilityBuilder::new(self.ctx, key, handler)
     }
 }
 
 pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
-    macro_rules! add_rule {
-        ($key:expr, $handler:expr) => {
-            PendingRule {
-                key: $key,
-                handler: UtilityHandler::Dynamic(Box::new($handler)),
-                ctx,
-                theme_key: None,
-                supports_negative: false,
-                supports_fraction: false,
-                modifier: None,
-                validator: None,
-            }
-        };
-    }
+    let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
+    let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
+    let mut rules = RuleAdder::new(ctx);
 
-    add_rule!("line-clamp", |_, value| {
+    rules
+        .add("line-clamp", |_, value| {
+            css! {
+                "display": "-webkit-box";
+                "-webkit-line-clamp": value;
+                "-webkit-box-orient": "vertical";
+                "overflow": "hidden";
+            }
+        })
+        .with_validator(CssDataType::Number)
+        .with_theme("lineClamp");
+
+    rules.add("border-spacing", |_, value| {
         css! {
-            "display": "-webkit-box";
-            "-webkit-line-clamp": value;
-            "-webkit-box-orient": "vertical";
-            "overflow": "hidden";
+            "--tw-border-spacing-x": value.clone();
+            "--tw-border-spacing-y": value.clone();
+            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
         }
     })
-    .with_validator(CssDataType::Number)
-    .with_theme("lineClamp");
+    .with_theme("spacing");
 
-    add_rule!("border-spacing", |_, value| {
-            css! {
-                "--tw-border-spacing-x": value.clone();
-                "--tw-border-spacing-y": value.clone();
-                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-            }
-        })
-        .with_theme("spacing");
-    // theme: for additional required properties
-    // modifier;
-    // options: feature flag
-    add_rule!("border-spacing-x", |_, value| {
-            css! {
-                "--tw-border-spacing-x": value;
-                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-            }
-        })
-        .with_theme("spacing");
-
-    add_rule!("border-spacing-y", |_, value| {
-            css! {
-                "--tw-border-spacing-y": value;
-                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-            }
-        })
-        .with_theme("spacing");
-
-    add_rule!("animate", |_, value| {
+    rules.add("border-spacing-x", |_, value| {
         css! {
-            "animation": value;
+            "--tw-border-spacing-x": value;
+            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
         }
     })
-    .with_theme("animate");
-    // TODO: return a CSSRule with "& > :not([hidden]) ~ :not([hidden])"
-    add_rule!("space-x", |_, value| {
+    .with_theme("spacing");
+
+    rules.add("border-spacing-y", |_, value| {
+        css! {
+            "--tw-border-spacing-y": value;
+            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
+        }
+    })
+    .with_theme("spacing");
+
+    rules
+        .add("animate", |_, value| {
             css! {
-                "& > :not([hidden]) ~ :not([hidden])" {
-                    "--tw-space-x-reverse": "0";
-                    "margin-right": format!("calc({value} * var(--tw-space-x-reverse))");
-                    "margin-left":  format!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
-                }
+                "animation": value;
             }
         })
-        .with_theme("spacing")
-        .support_negative();
+        .with_theme("animate");
 
-    add_rule!("space-y", |_, value| {
-            css! {
-                "--tw-space-y-reverse": "0";
-                "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
-                "margin-bottom": format!("calc({value} * var(--tw-space-y-reverse))");
-            }
-        })
-        .with_theme("spacing")
-        .support_negative();
+    rules.add("space-x", |_, value| {
+        css! {
+            "--tw-space-x-reverse": "0";
+            "margin-right": format!("calc({value} * var(--tw-space-x-reverse))");
+            "margin-left":  format!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
+        }
+    })
+    .with_theme("spacing")
+    .with_wrapper("& > :not([hidden]) ~ :not([hidden])")
+    .support_negative();
 
-    add_rule!("divide-x", |_, value| {
-            css! {
-                "--tw-divide-x-reverse": "0";
-                "border-right-width": format!("calc({value} * var(--tw-divide-x-reverse))");
-                "border-left-width": format!("calc({value} * calc(1 - var(--tw-divide-x-reverse)))");
-            }
-        })
-        .with_theme("borderWidth")
-        .with_validator(PropertyId::BorderRightWidth);
+    rules.add("space-y", |_, value| {
+        css! {
+            "--tw-space-y-reverse": "0";
+            "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
+            "margin-bottom": format!("calc({value} * var(--tw-space-y-reverse))");
+        }
+    })
+    .with_theme("spacing")
+    .support_negative();
 
-    add_rule!("divide-y", |_, value| {
-            css! {
-                "--tw-divide-y-reverse": "0";
-                "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
-                "border-bottom-width": format!("calc({value} * var(--tw-divide-y-reverse))");
-            }
-        })
-        .with_theme("borderWidth")
-        .with_validator(PropertyId::BorderTopWidth);
+    rules.add("divide-x", |_, value| {
+        css! {
+            "--tw-divide-x-reverse": "0";
+            "border-right-width": format!("calc({value} * var(--tw-divide-x-reverse))");
+            "border-left-width": format!("calc({value} * calc(1 - var(--tw-divide-x-reverse)))");
+        }
+    })
+    .with_theme("borderWidth")
+    .with_validator(PropertyId::BorderRightWidth);
 
-    add_rule!("divide", |_, value| {
-        // TODO: check corePlugins.divideOpacity
+    rules.add("divide-y", |_, value| {
+        css! {
+            "--tw-divide-y-reverse": "0";
+            "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
+            "border-bottom-width": format!("calc({value} * var(--tw-divide-y-reverse))");
+        }
+    })
+    .with_theme("borderWidth")
+    .with_validator(PropertyId::BorderTopWidth);
+
+    rules.add("divide", |_, value| {
         let r = Property::parse_string(
             PropertyId::Color,
             value.as_ref(),
@@ -213,48 +149,53 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
         }
     });
 
-    add_rule!("bg", |_, value| css!("background-color": value))
+    rules
+        .add("bg", |_, value| css!("background-color": value))
         .with_theme("colors")
         .with_validator(PropertyId::Color);
 
-    add_rule!("bg", |_, value| css!("background-position": value))
+    rules
+        .add("bg", |_, value| css!("background-position": value))
         .with_theme("backgroundPosition")
         .with_validator(PropertyId::BackgroundPosition);
 
-    add_rule!("bg", |_, value| css!("background-size": value))
+    rules
+        .add("bg", |_, value| css!("background-size": value))
         .with_theme("backgroundSize")
         .with_validator(PropertyId::BackgroundSize);
 
-    add_rule!("bg", |_, value| css!("background-image": value))
+    rules
+        .add("bg", |_, value| css!("background-image": value))
         .with_theme("backgroundImage")
         .with_validator(PropertyId::BackgroundImage);
 
-    add_rule!("text", |_, value| css!("color": value))
+    rules
+        .add("text", |_, value| css!("color": value))
         .with_theme("colors")
         .with_validator(PropertyId::Color);
 
-    let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
-    let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
-    add_rule!("text", move |meta, value| {
-        let mut font_size = css!("font-size": value.clone());
-        if let Some(modifier) = meta.modifier {
-            font_size.extend(css!("line-height": modifier));
-        } else if let Some(line_height) = meta
-            .candidate
-            .value
-            .and_then(|v| line_height_map.get(v.take_named()?))
-        {
+    rules
+        .add("text", move |meta, value| {
+            let mut font_size = css!("font-size": value.clone());
+            if let Some(modifier) = meta.modifier {
+                font_size.extend(css!("line-height": modifier));
+            } else if let Some(line_height) = meta
+                .candidate
+                .value
+                .and_then(|v| line_height_map.get(v.take_named()?))
+            {
+                font_size.extend(
+                    css!("line-height": line_height.clone().into_owned()),
+                );
+            }
             font_size
-                .extend(css!("line-height": line_height.clone().into_owned()));
-        }
-        font_size
-    })
-    .with_theme("fontSize")
-    .with_validator(PropertyId::FontSize)
-    .with_modifier(ModifierProcessor {
-        validator: Some(Box::new(PropertyId::LineHeight)),
-        allowed_values: Some(line_height_map2),
-    });
+        })
+        .with_theme("fontSize")
+        .with_validator(PropertyId::FontSize)
+        .with_modifier(ModifierProcessor {
+            validator: Some(Box::new(PropertyId::LineHeight)),
+            allowed_values: Some(line_height_map2),
+        });
 
     add_theme_rule!(ctx, {
         "spacing" => {

@@ -2,7 +2,9 @@ use lazy_static::lazy_static;
 use lightningcss::values::string::CowArcStr;
 
 use crate::{
-    css::Rule, parsing::UtilityCandidate, theme::ThemeValue,
+    css::{rule::RuleList, Rule},
+    parsing::UtilityCandidate,
+    theme::ThemeValue,
     types::TypeValidator,
 };
 
@@ -58,6 +60,7 @@ impl UtilityHandler {
     }
 }
 
+#[derive(Default)]
 pub struct UtilityProcessor<'i> {
     pub handler: UtilityHandler,
 
@@ -70,6 +73,14 @@ pub struct UtilityProcessor<'i> {
     pub modifier: Option<ModifierProcessor<'i>>,
 
     pub validator: Option<Box<dyn TypeValidator>>,
+
+    /// this will be use as generated Rule selector
+    /// default: '&'
+    pub wrapper: Option<String>,
+
+    /// additional css which append to stylesheet root
+    /// useful when utilities like `animate-spin`
+    pub additional_css: Option<RuleList<'i>>,
 }
 
 pub struct ModifierProcessor<'i> {
@@ -111,23 +122,8 @@ impl<'c> UtilityProcessor<'c> {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
             handler: UtilityHandler::Dynamic(Box::new(handler)),
-            supports_fraction: false,
-            supports_negative: false,
-            allowed_values: None,
-            modifier: None,
-            validator: None,
+            ..Default::default()
         }
-    }
-
-    pub fn infer_by(mut self, id: impl TypeValidator + 'static) -> Self {
-        self.validator = Some(Box::new(id));
-        self
-    }
-
-    #[allow(dead_code)]
-    pub fn support_negative(mut self) -> Self {
-        self.supports_negative = true;
-        self
     }
 
     pub fn allow_values(mut self, values: ThemeValue<'c>) -> Self {
@@ -135,24 +131,6 @@ impl<'c> UtilityProcessor<'c> {
         self
     }
 
-    #[allow(dead_code)]
-    pub fn allow_modifier(mut self, modifier: ModifierProcessor<'c>) -> Self {
-        self.modifier = Some(modifier);
-        self
-    }
-
-    // Rules:
-    // 1. try_apply can return a Vec of AstNode
-    // 2. this Vec can only contain one Rule, which will be flatten as root of this
-    //    e. g.
-    //    & > :not([hidden]) ~ :not([hidden]) {
-    //        color: #123456;
-    //    }
-    //    will be flatten as
-    //   .${value} > :not([hidden]) ~ :not([hidden]) {
-    //        color: #123456;
-    //    }
-    // 3. this Vec can contain multiple AtRule, and attach to the root
     pub fn apply_to<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
@@ -160,11 +138,12 @@ impl<'c> UtilityProcessor<'c> {
         if !self.supports_negative && candidate.negative {
             return None;
         }
+
         if candidate.is_fraction_like() && self.supports_fraction {
             todo!()
         }
-        let process_result =
-            candidate.value.and_then(|value| self.process(value))?;
+
+        let process_result = self.process(candidate.value?)?;
         let mut meta = MetaData::new(candidate);
 
         // handing modifier
@@ -174,7 +153,11 @@ impl<'c> UtilityProcessor<'c> {
             meta.modifier = modifier.process(candidate).map(|v| v.to_string());
         }
 
-        let node = self.handler.call(meta, process_result);
+        let mut node = self.handler.call(meta, process_result);
+
+        if let Some(wrapper) = &self.wrapper {
+            node.selector = wrapper.clone();
+        }
 
         Some(node)
     }

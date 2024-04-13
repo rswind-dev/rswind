@@ -24,6 +24,7 @@ impl TypeValidator for PropertyId<'_> {
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy, Debug)]
 pub enum CssDataType {
     Color,
     Length,
