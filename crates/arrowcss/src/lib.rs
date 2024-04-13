@@ -1,7 +1,6 @@
-#![feature(control_flow_enum)]
-#![feature(fn_traits)]
-#![feature(unboxed_closures)]
 #![feature(pattern)]
+
+use app::Application;
 
 pub mod config;
 pub mod context;
@@ -20,6 +19,8 @@ pub mod common;
 pub mod types;
 pub mod writer;
 
-pub fn generate(_input: String) -> String {
-    _input
+pub fn create_app() -> Application<'static> {
+    let mut app = Application::new().unwrap();
+    app.init();
+    app
 }

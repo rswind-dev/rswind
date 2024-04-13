@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use either::Either;
 use smallvec::SmallVec;
 
@@ -117,188 +115,145 @@ impl StaticHandler {
 #[derive(Debug, Clone)]
 pub struct DynamicHandler {}
 
-pub enum VariantHandler {
-    Nested(Box<dyn VariantMatchingFn>),
-    Selector(Box<dyn VariantMatchingFn>),
-}
+// #[rustfmt::skip]
+// pub trait ComposeVariantFn: Fn(VariantHandler) -> VariantHandler {}
 
-#[rustfmt::skip]
-pub trait ComposeVairantFn: Fn(VariantHandler) -> VariantHandler {}
+// impl VariantHandler {
+//     pub fn as_handler(&self) -> &Box<dyn VariantMatchingFn> {
+//         match self {
+//             Self::Nested(f) => f,
+//             Self::Selector(f) => f,
+//         }
+//     }
 
-impl VariantHandler {
-    pub fn as_handler(&self) -> &Box<dyn VariantMatchingFn> {
-        match self {
-            Self::Nested(f) => f,
-            Self::Selector(f) => f,
-        }
-    }
+//     pub fn create_constructor(
+//         &self,
+//     ) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
+//         match self {
+//             Self::Nested(_) => VariantHandler::Nested,
+//             Self::Selector(_) => VariantHandler::Selector,
+//         }
+//     }
+// }
 
-    pub fn create_constructor(
-        &self,
-    ) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
-        match self {
-            Self::Nested(_) => VariantHandler::Nested,
-            Self::Selector(_) => VariantHandler::Selector,
-        }
-    }
-}
+// fn variant_fn(matcher: String) -> Option<VariantHandler> {
+//     let m = matcher.get(1..)?.to_owned();
+//     match matcher.chars().next()? {
+//         '&' => Some(VariantHandler::Selector(Box::new(
+//             move |container: RuleList| {
+//                 Some(
+//                     container
+//                         .into_iter()
+//                         .map(|rule| Rule {
+//                             selector: rule.selector + &m,
+//                             decls: rule.decls,
+//                             rules: rule.rules,
+//                         })
+//                         .collect(),
+//                 )
+//             },
+//         ))),
+//         '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
+//             Some(
+//                 Rule {
+//                     selector: m.clone(),
+//                     decls: vec![],
+//                     rules: rule,
+//                 }
+//                 .into(),
+//             )
+//         }))),
+//         _ => None,
+//     }
+// }
 
-fn variant_fn(matcher: String) -> Option<VariantHandler> {
-    let m = matcher.get(1..)?.to_owned();
-    match matcher.chars().next()? {
-        '&' => Some(VariantHandler::Selector(Box::new(
-            move |container: RuleList| {
-                Some(
-                    container
-                        .into_iter()
-                        .map(|rule| Rule {
-                            selector: rule.selector + &m,
-                            decls: rule.decls,
-                            rules: rule.rules,
-                        })
-                        .collect(),
-                )
-            },
-        ))),
-        '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
-            Some(
-                Rule {
-                    selector: m.clone(),
-                    decls: vec![],
-                    rules: rule,
-                }
-                .into(),
-            )
-        }))),
-        _ => None,
-    }
-}
+// pub fn create_variant_fn<T>(_key: &str, matcher: T) -> Option<VariantHandler>
+// where
+//     T: IntoIterator,
+//     T::Item: AsRef<str>,
+//     T::IntoIter: ExactSizeIterator,
+// {
+//     let mut has_selector_handler = false;
+//     let fns = matcher
+//         .into_iter()
+//         // .map(|item| item.as_ref())
+//         .map(|s| {
+//             let s = s.as_ref();
+//             let this_fn: VariantHandler = if s.find('|').is_some() {
+//                 let mut fns = s
+//                     .split('|')
+//                     .map(|matcher| matcher.trim())
+//                     .map(|item| variant_fn(item.into()))
+//                     .collect::<Option<Vec<_>>>()?;
 
-pub fn create_variant_fn<T>(_key: &str, matcher: T) -> Option<VariantHandler>
-where
-    T: IntoIterator,
-    T::Item: AsRef<str>,
-    T::IntoIter: ExactSizeIterator,
-{
-    let mut has_selector_handler = false;
-    let fns = matcher
-        .into_iter()
-        // .map(|item| item.as_ref())
-        .map(|s| {
-            let s = s.as_ref();
-            let this_fn: VariantHandler = if s.find('|').is_some() {
-                let mut fns = s
-                    .split('|')
-                    .map(|matcher| matcher.trim())
-                    .map(|item| variant_fn(item.into()))
-                    .collect::<Option<Vec<_>>>()?;
+//                 fns.sort();
 
-                fns.sort();
+//                 let wrapper = VariantHandler::create_constructor(&fns[0]);
+//                 let composed_fn: Box<dyn VariantMatchingFn> =
+//                     Box::new(move |rules| {
+//                         fns.iter().try_fold(rules, |acc, f| f(acc))
+//                     });
+//                 wrapper(composed_fn)
+//             } else {
+//                 // Normal
+//                 variant_fn(s.into())?
+//             };
+//             if matches!(this_fn, VariantHandler::Selector(_)) {
+//                 has_selector_handler = true;
+//             }
+//             Some(this_fn)
+//         })
+//         .collect::<Option<Vec<_>>>()?;
 
-                let wrapper = VariantHandler::create_constructor(&fns[0]);
-                let composed_fn: Box<dyn VariantMatchingFn> =
-                    Box::new(move |rules| {
-                        fns.iter().try_fold(rules, |acc, f| f(acc))
-                    });
-                wrapper(composed_fn)
-            } else {
-                // Normal
-                variant_fn(s.into())?
-            };
-            if matches!(this_fn, VariantHandler::Selector(_)) {
-                has_selector_handler = true;
-            }
-            Some(this_fn)
-        })
-        .collect::<Option<Vec<_>>>()?;
+//     let handler: Box<dyn VariantMatchingFn> =
+//         Box::new(move |container: RuleList| {
+//             Some(
+//                 fns.iter()
+//                     .map(|f| f(container.clone()))
+//                     .collect::<Option<Vec<RuleList>>>()?
+//                     .into_iter()
+//                     .flatten()
+//                     .collect::<Vec<Rule>>()
+//                     .into(),
+//             )
+//         });
 
-    let handler: Box<dyn VariantMatchingFn> =
-        Box::new(move |container: RuleList| {
-            Some(
-                fns.iter()
-                    .map(|f| f(container.clone()))
-                    .collect::<Option<Vec<RuleList>>>()?
-                    .into_iter()
-                    .flatten()
-                    .collect::<Vec<Rule>>()
-                    .into(),
-            )
-        });
-
-    Some(if has_selector_handler {
-        VariantHandler::Selector(handler)
-    } else {
-        VariantHandler::Nested(handler)
-    })
-}
+//     Some(if has_selector_handler {
+//         VariantHandler::Selector(handler)
+//     } else {
+//         VariantHandler::Nested(handler)
+//     })
+// }
 
 // ----- Trait Implementations -----
 
-impl PartialEq for VariantHandler {
-    fn eq(&self, other: &Self) -> bool {
-        matches!(
-            (self, other),
-            (Self::Nested(_), Self::Nested(_))
-                | (Self::Selector(_), Self::Selector(_))
-        )
-    }
-}
+// impl PartialEq for VariantHandler {
+//     fn eq(&self, other: &Self) -> bool {
+//         matches!(
+//             (self, other),
+//             (Self::Nested(_), Self::Nested(_))
+//                 | (Self::Selector(_), Self::Selector(_))
+//         )
+//     }
+// }
 
-impl Eq for VariantHandler {}
+// impl Eq for VariantHandler {}
 
-impl PartialOrd for VariantHandler {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match (self, other) {
-            (Self::Nested(_), Self::Selector(_)) => Some(Ordering::Greater),
-            (Self::Selector(_), Self::Nested(_)) => Some(Ordering::Less),
-            _ => Some(Ordering::Equal),
-        }
-    }
-}
+// impl PartialOrd for VariantHandler {
+//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+//         match (self, other) {
+//             (Self::Nested(_), Self::Selector(_)) => Some(Ordering::Greater),
+//             (Self::Selector(_), Self::Nested(_)) => Some(Ordering::Less),
+//             _ => Some(Ordering::Equal),
+//         }
+//     }
+// }
 
-impl Ord for VariantHandler {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
-    }
-}
-
-impl<'a> Fn<(RuleList<'a>,)> for VariantHandler {
-    extern "rust-call" fn call(
-        &self,
-        args: (RuleList<'a>,),
-    ) -> Option<RuleList<'a>> {
-        match self {
-            VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Selector(f) => f(args.0),
-        }
-    }
-}
-
-impl<'a> FnOnce<(RuleList<'a>,)> for VariantHandler {
-    type Output = Option<RuleList<'a>>;
-
-    extern "rust-call" fn call_once(
-        self,
-        args: (RuleList<'a>,),
-    ) -> Self::Output {
-        match self {
-            VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Selector(f) => f(args.0),
-        }
-    }
-}
-
-impl<'a> FnMut<(RuleList<'a>,)> for VariantHandler {
-    extern "rust-call" fn call_mut(
-        &mut self,
-        args: (RuleList<'a>,),
-    ) -> Option<RuleList<'a>> {
-        match self {
-            VariantHandler::Nested(f) => f(args.0),
-            VariantHandler::Selector(f) => f(args.0),
-        }
-    }
-}
+// impl Ord for VariantHandler {
+//     fn cmp(&self, other: &Self) -> Ordering {
+//         self.partial_cmp(other).unwrap()
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
