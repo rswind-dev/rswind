@@ -41,10 +41,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
         )
     });
 
-    let node = ctx
-        .utilities
-        .try_apply(u)
-        .or(ctx.static_rules.try_apply(u))?;
+    let node = ctx.utilities.try_apply(u)?;
 
     let mut node =
         selector.into_iter().fold(node.to_rule_list(), |acc, cur| {
@@ -75,14 +72,14 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
 mod tests {
     use arrowcss_css_macro::css;
 
-    use crate::{context::AddRule, process::UtilityProcessor};
+    use crate::process::UtilityProcessor;
 
     use super::*;
 
     #[test]
     fn test_to_css_rule() {
         let mut ctx = Context::default();
-        ctx.add_rule("text", UtilityProcessor::new(|_, v| css!("color": v)));
+        ctx.add_utility("text", UtilityProcessor::new(|_, v| css!("color": v)));
         ctx.add_variant("hover", ["&:hover"]);
         ctx.add_variant("marker", ["&::marker", "& > *::marker"]);
 
@@ -100,12 +97,7 @@ mod tests {
             .collect::<Option<Vec<_>>>()
             .unwrap();
 
-        let node: RuleList = ctx
-            .utilities
-            .try_apply(u)
-            .or(ctx.static_rules.try_apply(u))
-            .unwrap()
-            .into();
+        let node: RuleList = ctx.utilities.try_apply(u).unwrap().into();
 
         let node = vs.into_iter().fold(node, |acc, cur| {
             let processor = ctx.variants.get(cur.key).unwrap();

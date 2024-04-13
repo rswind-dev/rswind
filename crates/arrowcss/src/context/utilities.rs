@@ -1,14 +1,18 @@
+use either::Either::{self, Left, Right};
 use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
 
-use crate::css::Rule;
+use crate::css::{DeclList, Rule};
 use crate::parsing::UtilityCandidate;
 use crate::process::UtilityProcessor;
 
+pub type Utility<'c> = Either<DeclList<'static>, UtilityProcessor<'c>>;
+
 #[enum_dispatch]
 pub trait UtilityStorage<'c>: Sync + Send {
-    fn insert(&mut self, key: String, value: UtilityProcessor<'c>);
-    fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>>;
+    fn add(&mut self, key: String, value: UtilityProcessor<'c>);
+    fn add_static(&mut self, key: String, value: DeclList<'static>);
+    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>>;
     fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<Rule<'c>>;
 }
 
@@ -25,15 +29,25 @@ impl Default for UtilityStorageImpl<'_> {
 
 #[derive(Default)]
 pub struct HashMapUtilityStorage<'c> {
-    utilities: HashMap<String, Vec<UtilityProcessor<'c>>>,
+    utilities: HashMap<String, Vec<Utility<'c>>>,
 }
 
 impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
-    fn insert(&mut self, key: String, value: UtilityProcessor<'c>) {
-        self.utilities.entry(key).or_default().push(value);
+    fn add(&mut self, key: String, value: UtilityProcessor<'c>) {
+        self.utilities
+            .entry(key)
+            .or_default()
+            .push(Either::Right(value));
     }
 
-    fn get(&self, key: &str) -> Option<&Vec<UtilityProcessor<'c>>> {
+    fn add_static(&mut self, key: String, value: DeclList<'static>) {
+        self.utilities
+            .entry(key)
+            .or_default()
+            .push(Either::Left(value));
+    }
+
+    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
         self.utilities.get(key)
     }
 
@@ -41,9 +55,12 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
         &self,
         candidate: UtilityCandidate<'a>,
     ) -> Option<Rule<'c>> {
-        self.get(candidate.key)?
-            .iter()
-            .find_map(|rule| rule.apply_to(candidate))
+        self.get(candidate.key)?.iter().find_map(|rule| match rule {
+            Left(decls) => {
+                Some(Rule::new_with_decls("&", decls.clone().0.into_vec()))
+            }
+            Right(handler) => handler.apply_to(candidate),
+        })
     }
 }
 
