@@ -8,7 +8,7 @@ use smallvec::SmallVec;
 
 use crate::context::utilities::UtilityStorage;
 use crate::css::rule::RuleList;
-use crate::process::{StaticHandler, VariantProcessor};
+use crate::process::{StaticHandler, Variant};
 use crate::{
     context::Context, parsing::UtilityParser, parsing::VariantParser,
     utils::TopLevelPattern,
@@ -34,7 +34,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     let (nested, selector): (Vec<_>, Vec<_>) = vs.into_iter().partition(|v| {
         matches!(
             v.processor,
-            VariantProcessor {
+            Variant {
                 handler: Either::Left(StaticHandler::Nested(_)),
                 ..
             }
@@ -72,14 +72,14 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
 mod tests {
     use arrowcss_css_macro::css;
 
-    use crate::process::UtilityProcessor;
+    use crate::process::Utility;
 
     use super::*;
 
     #[test]
     fn test_to_css_rule() {
         let mut ctx = Context::default();
-        ctx.add_utility("text", UtilityProcessor::new(|_, v| css!("color": v)));
+        ctx.add_utility("text", Utility::new(|_, v| css!("color": v)));
         ctx.add_variant("hover", ["&:hover"]);
         ctx.add_variant("marker", ["&::marker", "& > *::marker"]);
 

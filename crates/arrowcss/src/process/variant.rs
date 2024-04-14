@@ -14,12 +14,12 @@ impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T 
 
 // hover -> &:hover not-hover -> &:not(:hover)
 #[derive(Debug, Clone)]
-pub struct VariantProcessor {
+pub struct Variant {
     pub handler: Either<StaticHandler, DynamicHandler>,
     pub composable: bool,
 }
 
-impl VariantProcessor {
+impl Variant {
     pub fn new_static(
         matcher: impl IntoIterator<Item: Into<String>, IntoIter: ExactSizeIterator>,
     ) -> Self {

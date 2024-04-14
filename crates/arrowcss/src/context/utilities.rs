@@ -4,15 +4,15 @@ use fxhash::FxHashMap as HashMap;
 
 use crate::css::{DeclList, Rule};
 use crate::parsing::UtilityCandidate;
-use crate::process::UtilityProcessor;
+use crate::process::Utility;
 
-pub type Utility<'c> = Either<DeclList<'static>, UtilityProcessor<'c>>;
+pub type UtilityValue<'c> = Either<DeclList<'static>, Utility<'c>>;
 
 #[enum_dispatch]
 pub trait UtilityStorage<'c>: Sync + Send {
-    fn add(&mut self, key: String, value: UtilityProcessor<'c>);
+    fn add(&mut self, key: String, value: Utility<'c>);
     fn add_static(&mut self, key: String, value: DeclList<'static>);
-    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>>;
+    fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>>;
     fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<Rule<'c>>;
 }
 
@@ -29,11 +29,11 @@ impl Default for UtilityStorageImpl<'_> {
 
 #[derive(Default)]
 pub struct HashMapUtilityStorage<'c> {
-    utilities: HashMap<String, Vec<Utility<'c>>>,
+    utilities: HashMap<String, Vec<UtilityValue<'c>>>,
 }
 
 impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
-    fn add(&mut self, key: String, value: UtilityProcessor<'c>) {
+    fn add(&mut self, key: String, value: Utility<'c>) {
         self.utilities
             .entry(key)
             .or_default()
@@ -47,7 +47,7 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
             .push(Either::Left(value));
     }
 
-    fn get(&self, key: &str) -> Option<&Vec<Utility<'c>>> {
+    fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>> {
         self.utilities.get(key)
     }
 

@@ -1,4 +1,8 @@
-use std::ops::Deref;
+use std::{
+    collections::HashMap,
+    hash::{BuildHasher, Hash},
+    ops::Deref,
+};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum MaybeArbitrary<'a> {
@@ -36,5 +40,18 @@ impl<'a> Deref for MaybeArbitrary<'a> {
             MaybeArbitrary::Arbitrary(s) => s,
             MaybeArbitrary::Named(s) => s,
         }
+    }
+}
+
+pub trait MapExtendedExt<A> {
+    fn extended<T: IntoIterator<Item = A>>(self, other: T) -> Self;
+}
+
+impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)>
+    for HashMap<K, V, S>
+{
+    fn extended<T: IntoIterator<Item = (K, V)>>(mut self, other: T) -> Self {
+        self.extend(other);
+        self
     }
 }

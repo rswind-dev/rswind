@@ -8,22 +8,7 @@ use crate::{
     types::TypeValidator,
 };
 
-use super::ArbitraryValueProcessor;
-
-#[derive(Clone, Default)]
-pub struct MetaData<'a> {
-    pub candidate: UtilityCandidate<'a>,
-    pub modifier: Option<String>,
-}
-
-impl<'a> MetaData<'a> {
-    pub(crate) fn new(candidate: UtilityCandidate<'a>) -> Self {
-        Self {
-            candidate,
-            modifier: None,
-        }
-    }
-}
+use super::{ArbitraryValueProcessor, MetaData};
 
 #[rustfmt::skip]
 pub trait RuleMatchingFn: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
@@ -61,7 +46,7 @@ impl UtilityHandler {
 }
 
 #[derive(Default)]
-pub struct UtilityProcessor<'i> {
+pub struct Utility<'i> {
     pub handler: UtilityHandler,
 
     pub supports_negative: bool,
@@ -100,7 +85,7 @@ impl<'a> ArbitraryValueProcessor<'a> for ModifierProcessor<'a> {
     }
 }
 
-impl<'a> ArbitraryValueProcessor<'a> for UtilityProcessor<'a> {
+impl<'a> ArbitraryValueProcessor<'a> for Utility<'a> {
     fn validate(&self, value: &str) -> bool {
         self.validator
             .as_ref()
@@ -112,13 +97,13 @@ impl<'a> ArbitraryValueProcessor<'a> for UtilityProcessor<'a> {
     }
 }
 
-impl<'c, F: RuleMatchingFn + 'static> From<F> for UtilityProcessor<'c> {
+impl<'c, F: RuleMatchingFn + 'static> From<F> for Utility<'c> {
     fn from(handler: F) -> Self {
-        UtilityProcessor::new(handler)
+        Utility::new(handler)
     }
 }
 
-impl<'c> UtilityProcessor<'c> {
+impl<'c> Utility<'c> {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
             handler: UtilityHandler::Dynamic(Box::new(handler)),

@@ -2,9 +2,7 @@ use crate::{
     common::MaybeArbitrary,
     context::{utilities::UtilityStorage, Context},
     css::rule::RuleList,
-    process::{
-        ModifierProcessor, RuleMatchingFn, UtilityHandler, UtilityProcessor,
-    },
+    process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler},
     types::TypeValidator,
 };
 
@@ -273,7 +271,7 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
 
         self.ctx.add_utility(
             self.key,
-            UtilityProcessor {
+            Utility {
                 validator,
                 allowed_values,
                 handler,

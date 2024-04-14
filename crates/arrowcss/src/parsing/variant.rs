@@ -1,8 +1,6 @@
 use either::Either;
 
-use crate::{
-    common::MaybeArbitrary, context::Context, process::VariantProcessor,
-};
+use crate::{common::MaybeArbitrary, context::Context, process::Variant};
 
 use super::ParserPosition;
 
@@ -14,7 +12,7 @@ pub struct VariantCandidate<'a> {
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
     pub arbitrary: bool,
     pub compose: Either<bool, Box<VariantCandidate<'a>>>,
-    pub processor: VariantProcessor,
+    pub processor: Variant,
 }
 
 /// Parser

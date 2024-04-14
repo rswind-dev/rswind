@@ -3,7 +3,7 @@ use fxhash::FxHashMap as HashMap;
 use crate::{
     config::ArrowConfig,
     css::{Decl, DeclList, Rule},
-    process::{UtilityProcessor, VariantMatchingFn, VariantProcessor},
+    process::{Utility, Variant, VariantMatchingFn},
     theme::{Theme, ThemeValue},
     themes::theme,
 };
@@ -15,7 +15,7 @@ pub mod utilities;
 #[derive(Default)]
 pub struct Context<'c> {
     pub utilities: UtilityStorageImpl<'c>,
-    pub variants: HashMap<String, VariantProcessor>,
+    pub variants: HashMap<String, Variant>,
     pub theme: Theme<'static>,
     pub cache: HashMap<String, Option<String>>,
 }
@@ -45,7 +45,7 @@ impl<'c> Context<'c> {
         T::IntoIter: ExactSizeIterator,
     {
         self.variants
-            .insert(key.to_string(), VariantProcessor::new_static(matcher));
+            .insert(key.to_string(), Variant::new_static(matcher));
         self
     }
 
@@ -59,11 +59,7 @@ impl<'c> Context<'c> {
         self
     }
 
-    pub fn add_utility<'a: 'c>(
-        &mut self,
-        key: &str,
-        utility: UtilityProcessor<'a>,
-    ) {
+    pub fn add_utility<'a: 'c>(&mut self, key: &str, utility: Utility<'a>) {
         self.utilities.add(key.into(), utility);
     }
 
@@ -80,7 +76,7 @@ impl<'c> Context<'c> {
 
             self.utilities.add(
                 k,
-                UtilityProcessor::new(move |_, input| {
+                Utility::new(move |_, input| {
                     let decls = v
                         .clone()
                         .into_iter()
