@@ -1,5 +1,5 @@
 use lightningcss::{
-    properties::{Property, PropertyId},
+    properties::Property,
     traits::IntoOwned,
     values::color::{CssColor, RGBA},
 };
@@ -11,7 +11,7 @@ use crate::{
     context::Context,
     parsing::UtilityBuilder,
     process::{ModifierProcessor, RuleMatchingFn},
-    types::CssDataType,
+    types::{CssDataType, CssProperty},
 };
 
 struct RuleAdder<'a, 'c> {
@@ -35,6 +35,7 @@ impl<'a, 'c> RuleAdder<'a, 'c> {
 pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
     let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
     let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
+    let opacity = ctx.get_theme("opacity").unwrap();
     let mut rules = RuleAdder::new(ctx);
 
     rules
@@ -111,7 +112,7 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
         }
     })
     .with_theme("borderWidth")
-    .with_validator(PropertyId::BorderRightWidth);
+    .with_validator(CssProperty::BorderRightWidth);
 
     rules.add("divide-y", |_, value| {
         css! {
@@ -121,11 +122,11 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
         }
     })
     .with_theme("borderWidth")
-    .with_validator(PropertyId::BorderTopWidth);
+    .with_validator(CssProperty::BorderTopWidth);
 
     rules.add("divide", |_, value| {
         let r = Property::parse_string(
-            PropertyId::Color,
+            CssProperty::Color,
             value.as_ref(),
             Default::default(),
         )
@@ -147,32 +148,107 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
         css! {
             "border-color": value.clone();
         }
+    })
+    .with_theme("colors")
+    .with_validator(CssProperty::BorderColor)
+    .with_modifier(ModifierProcessor {
+        validator: Some(Box::new(CssProperty::Opacity)),
+        allowed_values: Some(opacity.clone()),
     });
+
+    rules
+        .add("border", |meta, value| {
+            // TODO: use color with opacity
+            if let Some(opacity) = meta.modifier {
+                return css! {
+                    "border-color": value;
+                    "border-opacity": opacity;
+                };
+            }
+            css!("border-color": value;)
+        })
+        .with_theme("colors")
+        .with_validator(CssProperty::BorderColor)
+        .with_modifier(ModifierProcessor {
+            validator: Some(Box::new(CssProperty::Opacity)),
+            allowed_values: Some(opacity.clone()),
+        });
+
+    rules
+        .add("from", |_, value| {
+            css! {
+                "--tw-gradient-from": format!("{value} var(--tw-gradient-from-position)");
+                // TODO: --tw-gradient-to
+                // TODO: properties
+                "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to)";
+            }
+        })
+        .with_theme("colors")
+        .with_validator(CssProperty::Color);
+
+    rules
+        .add(
+            "from",
+            |_, value| css!("--tw-gradient-from-position": value),
+        )
+        .with_theme("gradientColorStopPositions")
+        .with_validator(CssDataType::LengthPercentage);
+
+    rules.add("via", |_, value| {
+        css! {
+            "--tw-gradient-via": value;
+            "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)";
+            "--tw-gradient-stops": "var(--tw-gradient-via-stops)";
+        }
+    })
+    .with_theme("colors")
+    .with_validator(CssProperty::Color);
+
+    rules
+        .add("via", |_, value| css!("--tw-gradient-via-position": value))
+        .with_theme("gradientColorStopPositions")
+        .with_validator(CssDataType::LengthPercentage);
+
+    rules.add("to", |_, value| {
+        css! {
+            "--tw-gradient-to": value;
+            "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
+        }
+    });
+
+    // fill
+
+    // stoke
+
+    rules
+        .add("to", |_, value| css!("--tw-gradient-to-position": value))
+        .with_theme("gradientColorStopPositions")
+        .with_validator(CssDataType::LengthPercentage);
 
     rules
         .add("bg", |_, value| css!("background-color": value))
         .with_theme("colors")
-        .with_validator(PropertyId::Color);
+        .with_validator(CssProperty::Color);
 
     rules
         .add("bg", |_, value| css!("background-position": value))
         .with_theme("backgroundPosition")
-        .with_validator(PropertyId::BackgroundPosition);
+        .with_validator(CssProperty::BackgroundPosition);
 
     rules
         .add("bg", |_, value| css!("background-size": value))
         .with_theme("backgroundSize")
-        .with_validator(PropertyId::BackgroundSize);
+        .with_validator(CssProperty::BackgroundSize);
 
     rules
         .add("bg", |_, value| css!("background-image": value))
         .with_theme("backgroundImage")
-        .with_validator(PropertyId::BackgroundImage);
+        .with_validator(CssProperty::BackgroundImage);
 
     rules
         .add("text", |_, value| css!("color": value))
         .with_theme("colors")
-        .with_validator(PropertyId::Color);
+        .with_validator(CssProperty::Color);
 
     rules
         .add("text", move |meta, value| {
@@ -191,9 +267,9 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
             font_size
         })
         .with_theme("fontSize")
-        .with_validator(PropertyId::FontSize)
+        .with_validator(CssProperty::FontSize)
         .with_modifier(ModifierProcessor {
-            validator: Some(Box::new(PropertyId::LineHeight)),
+            validator: Some(Box::new(CssProperty::LineHeight)),
             allowed_values: Some(line_height_map2),
         });
 

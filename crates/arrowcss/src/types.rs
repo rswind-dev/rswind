@@ -14,7 +14,7 @@ pub trait TypeValidator: Sync + Send {
     fn validate(&self, value: &str) -> bool;
 }
 
-impl TypeValidator for PropertyId<'_> {
+impl TypeValidator for CssProperty {
     fn validate(&self, value: &str) -> bool {
         !matches!(
             Property::parse_string(self.clone(), value, Default::default()),
@@ -23,7 +23,8 @@ impl TypeValidator for PropertyId<'_> {
     }
 }
 
-#[allow(dead_code)]
+pub type CssProperty = PropertyId<'static>;
+
 #[derive(Clone, Copy, Debug)]
 pub enum CssDataType {
     Color,
@@ -55,25 +56,12 @@ impl TypeValidator for CssDataType {
     }
 }
 
-macro_rules! impl_type_validator {
-    ($($ty:ty),*) => {
-        $(
-            impl TypeValidator for $ty {
-                fn validate(&self, value: &str) -> bool {
-                    <$ty>::parse_string(value).is_ok()
-                }
-            }
-        )*
-    };
-}
-
-impl_type_validator!(
-    CssColor,
-    Length,
-    LengthPercentage,
-    Percentage,
-    CSSNumber,
-    Ident<'_>,
-    Image<'_>,
-    Time
-);
+// impl<T: IntoIterator<Item: TypeValidator> + Clone + Send + Sync> TypeValidator
+//     for T
+// {
+//     fn validate(&self, value: &str) -> bool {
+//         self.clone()
+//             .into_iter()
+//             .any(|validator| validator.validate(value))
+//     }
+// }
