@@ -36,6 +36,7 @@ pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
     let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
     let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
     let opacity = ctx.get_theme("opacity").unwrap();
+
     let mut rules = RuleAdder::new(ctx);
 
     rules

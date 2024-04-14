@@ -7,7 +7,6 @@ use crate::theme::Theme;
 #[allow(dead_code)]
 pub struct CorePlugins {
     pub preflight: bool,
-    pub text_opacity: bool,
 }
 
 #[derive(Debug, Deserialize, Default)]

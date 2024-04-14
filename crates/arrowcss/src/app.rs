@@ -14,6 +14,7 @@ use rayon::prelude::*;
 use walkdir::WalkDir;
 
 use crate::css::rule::RuleList;
+use crate::extract::Extractor;
 use crate::parser::to_css_rule;
 use crate::{
     config::ArrowConfig,
@@ -67,12 +68,12 @@ impl<'c> Application<'c> {
             .add_variant("last", ["&:last-child"])
             .add_variant("disabled", ["&:disabled"]);
 
-        self.ctx.get_theme("breakpoints").unwrap().iter().for_each(
-            |(key, value)| {
-                self.ctx
-                    .add_variant(key, [format!("@media (width >= {value})")]);
-            },
-        );
+        // self.ctx.get_theme("breakpoints").unwrap().iter().for_each(
+        //     |(key, value)| {
+        //         self.ctx
+        //             .add_variant(key, [format!("@media (width >= {value})")]);
+        //     },
+        // );
 
         STATIC_RULES.iter().for_each(|(key, value)| {
             self.ctx.add_static((*key, value.clone()));
@@ -85,13 +86,8 @@ impl<'c> Application<'c> {
         let buffer = std::fs::read_to_string("examples/test.html").unwrap();
         println!("read: {} us", start.elapsed().as_micros());
 
-        let parts = buffer
-            .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-            .filter(|s| {
-                s.starts_with(char::is_lowercase)
-                    && !self.ctx.cache.contains_key(*s)
-            })
-            .collect::<HashSet<_>>();
+        let parts = Extractor::new(&buffer).extract();
+
         println!("split: {} us", start.elapsed().as_micros());
 
         for token in parts {
@@ -157,7 +153,6 @@ impl<'c> Application<'c> {
         for (token, rule) in res {
             // if self.ctx.cache.contains_key(&token) {
             //     continue;
-            // }
             let mut w = String::with_capacity(100);
             let mut writer = Writer::default(&mut w);
             let _ = rule.to_css(&mut writer);
@@ -194,18 +189,15 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
     ctx: &'a Context<'c>,
     path: P,
 ) -> HashMap<String, RuleList<'c>> {
-    read_to_string(path.as_ref())
-        .unwrap()
-        .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-        .filter(|s| s.starts_with(char::is_lowercase) && s.len() > 3)
-        .collect::<HashSet<_>>()
+    Extractor::new(&read_to_string(path.as_ref()).unwrap())
+        .extract()
         .into_iter()
         .filter_map(|token| {
-            if !ctx.cache.contains_key(token) {
-                to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
-            } else {
-                None
-            }
+            // if !ctx.cache.contains_key(token) {
+            to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
+            // } else {
+            //     None
+            // }
         })
         .collect::<HashMap<String, RuleList>>()
 }
