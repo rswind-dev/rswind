@@ -32,7 +32,7 @@ impl<'a, 'c> RuleAdder<'a, 'c> {
     }
 }
 
-pub fn load_dynamic_rules(ctx: &mut Context<'_>) {
+pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
     let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
     let opacity = ctx.get_theme("opacity").unwrap();

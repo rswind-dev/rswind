@@ -32,9 +32,9 @@ impl Composer {
         self
     }
 
-    pub fn handle<'a>(
+    pub fn handle<'a, 'b>(
         &self,
-        candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         let rule = self.variant.handle(candidate.clone(), rule);
@@ -45,9 +45,9 @@ impl Composer {
 }
 
 impl VariantHandlerExt for Composer {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         self.handle(candidate, rule)
@@ -68,18 +68,14 @@ mod tests {
 
     #[test]
     fn test_compose() {
-        let mut composer = ComposableHandler::new(|rule| {
+        let mut composer = ComposableHandler::new(|rule, _| {
             rule.modify_with(|s| format!("&:has({})", s.replace('&', "*")))
         })
-        .composable()
         .compose(Variant::new_static(["&:hover"]));
 
-        composer.layer(
-            ComposableHandler::new(|rule| {
-                rule.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
-            })
-            .composable(),
-        );
+        composer.layer(ComposableHandler::new(|rule, _| {
+            rule.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
+        }));
 
         let rule =
             Rule::new_with_decls("&", vec![Decl::new("display", "flex")])

@@ -32,6 +32,21 @@ impl<'c> ThemeValue<'c> {
                 .for_each(|(k, v)| f((k, &CowArcStr::from(*v)))),
         }
     }
+
+    pub fn iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = (&str, CowArcStr<'c>)> + 'a> {
+        match self {
+            Self::Dynamic(map) => {
+                Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone())))
+            }
+            Self::Static(map) => Box::new(
+                map.clone()
+                    .into_iter()
+                    .map(|(k, v)| (*k, CowArcStr::from(*v))),
+            ),
+        }
+    }
 }
 
 impl<'a> From<HashMap<String, CowArcStr<'a>>> for ThemeValue<'a> {

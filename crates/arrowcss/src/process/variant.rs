@@ -12,9 +12,9 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 pub trait VariantHandlerExt {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a>;
 }
@@ -61,7 +61,9 @@ impl Variant {
         }
     }
 
-    pub fn new_composable(handler: fn(RuleList) -> RuleList) -> Self {
+    pub fn new_composable(
+        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+    ) -> Self {
         Self {
             handler: VariantHandler::Composable(ComposableHandler::new(
                 handler,
@@ -71,7 +73,9 @@ impl Variant {
         }
     }
 
-    pub fn new_dynamic(handler: fn(RuleList) -> RuleList) -> Self {
+    pub fn new_dynamic(
+        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+    ) -> Self {
         Self {
             handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
             composable: true,
@@ -79,9 +83,9 @@ impl Variant {
         }
     }
 
-    pub fn process<'a>(
+    pub fn process<'a, 'b>(
         &self,
-        candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         match &self.handler {
@@ -102,9 +106,9 @@ impl Variant {
 }
 
 impl VariantHandlerExt for Variant {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         self.process(candidate, rule)
@@ -155,9 +159,9 @@ impl StaticHandler {
 }
 
 impl VariantHandlerExt for StaticHandler {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        _candidate: VariantCandidate,
+        _candidate: VariantCandidate<'b>,
         rules: RuleList<'a>,
     ) -> RuleList<'a> {
         match self {
@@ -186,22 +190,24 @@ impl VariantHandlerExt for StaticHandler {
 
 #[derive(Debug, Clone)]
 pub struct DynamicHandler {
-    pub handler: fn(RuleList) -> RuleList,
+    pub handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
     pub composable: bool,
 }
 
 impl VariantHandlerExt for DynamicHandler {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        _candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
-        (self.handler)(rule)
+        (self.handler)(rule, candidate)
     }
 }
 
 impl DynamicHandler {
-    pub fn new(handler: fn(RuleList) -> RuleList) -> Self {
+    pub fn new(
+        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+    ) -> Self {
         Self {
             handler,
             composable: true,
@@ -211,12 +217,14 @@ impl DynamicHandler {
 
 #[derive(Debug, Clone)]
 pub struct ComposableHandler {
-    pub handler: fn(RuleList) -> RuleList,
+    pub handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
     pub composable: bool,
 }
 
 impl ComposableHandler {
-    pub fn new(handler: fn(RuleList) -> RuleList) -> Self {
+    pub fn new(
+        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+    ) -> Self {
         Self {
             handler,
             composable: true,
@@ -236,12 +244,12 @@ impl ComposableHandler {
 }
 
 impl VariantHandlerExt for ComposableHandler {
-    fn handle<'a>(
+    fn handle<'a, 'b>(
         &self,
-        _candidate: VariantCandidate,
+        candidate: VariantCandidate<'b>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
-        (self.handler)(rule)
+        (self.handler)(rule, candidate)
     }
 }
 
@@ -320,7 +328,7 @@ mod tests {
         }
         .to_rule_list();
         // @media (hover: hover) and (pointer: fine) | &:hover
-        let variant = DynamicHandler::new(|rule| {
+        let variant = DynamicHandler::new(|rule, _| {
             let hovered = rule
                 .into_iter()
                 .map(|rule| rule.modify_with(|s| s + ":hover"))

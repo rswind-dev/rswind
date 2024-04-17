@@ -8,7 +8,7 @@ use smallvec::SmallVec;
 
 use crate::context::utilities::UtilityStorage;
 use crate::css::rule::RuleList;
-use crate::process::{StaticHandler, Variant};
+use crate::process::{StaticHandler, Variant, VariantHandler};
 use crate::{
     context::Context, parsing::UtilityParser, parsing::VariantParser,
     utils::TopLevelPattern,
@@ -22,7 +22,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
-    let u = UtilityParser::new(utility).parse(ctx)?;
+    let utility_candidate = UtilityParser::new(utility).parse(ctx)?;
 
     let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
 
@@ -34,20 +34,18 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
     let (nested, selector): (Vec<_>, Vec<_>) = vs.into_iter().partition(|v| {
         matches!(
             v.processor,
-            Variant {
-                handler: Either::Left(StaticHandler::Nested(_)),
+            Either::Left(Variant {
+                handler: VariantHandler::Static(StaticHandler::Nested(_)),
                 ..
-            }
+            })
         )
     });
 
-    let node = ctx.utilities.try_apply(u)?;
+    let node = ctx.utilities.try_apply(utility_candidate)?;
 
-    let mut node =
-        selector.into_iter().fold(node.to_rule_list(), |acc, cur| {
-            let processor = ctx.variants.get(cur.key).unwrap();
-            processor.process(cur, acc)
-        });
+    let mut node = selector
+        .into_iter()
+        .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
     let mut w = String::with_capacity(value.len() + 5);
     w.write_char('.').ok()?;
@@ -57,15 +55,9 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
         rule.selector = rule.selector.replace('&', &w);
     });
 
-    let node = nested.into_iter().fold(node, |acc, cur| {
-        let processor = ctx.variants.get(cur.key).unwrap();
-        processor.process(cur, acc)
-    });
+    let node = nested.into_iter().fold(node, |acc, cur| cur.handle(acc));
 
     node.into()
-    // node.modify_with(|s| s.replace("&", &w))
-    //     .to_rule_list()
-    //     .into()
 }
 
 #[cfg(test)]

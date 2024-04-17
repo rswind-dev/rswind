@@ -65,11 +65,14 @@ impl<'a> RuleList<'a> {
         }
     }
 
-    pub fn modify_with(self, modifier: fn(String) -> String) -> Self {
+    pub fn modify_with(
+        self,
+        modifier: impl Fn(String) -> String + Clone,
+    ) -> Self {
         Self(
             self.0
                 .into_iter()
-                .map(|r| r.modify_with(modifier))
+                .map(|r| r.modify_with(modifier.clone()))
                 .collect(),
         )
     }

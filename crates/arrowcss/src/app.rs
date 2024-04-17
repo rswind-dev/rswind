@@ -7,7 +7,6 @@ use std::time::{Duration, Instant};
 
 use config::{Config, File};
 use fxhash::FxHashMap as HashMap;
-use fxhash::FxHashSet as HashSet;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
@@ -16,11 +15,13 @@ use walkdir::WalkDir;
 use crate::css::rule::RuleList;
 use crate::extract::Extractor;
 use crate::parser::to_css_rule;
+use crate::theme::ThemeValue;
+use crate::variant::create_variants;
 use crate::{
     config::ArrowConfig,
     context::Context,
     css::ToCss,
-    rules::{dynamics::load_dynamic_rules, statics::STATIC_RULES},
+    rules::{dynamics::load_dynamic_utilities, statics::STATIC_RULES},
     writer::Writer,
 };
 
@@ -51,29 +52,8 @@ impl<'c> Application<'c> {
     }
 
     pub fn init(&mut self) -> &mut Self {
-        load_dynamic_rules(&mut self.ctx);
-
-        #[rustfmt::skip]
-        self.ctx
-            .add_variant("first", ["&:first-child"])
-            .add_variant("last", ["&:last-child"])
-            .add_variant("motion-safe", ["@media(prefers-reduced-motion: no-preference)"])
-            // @media (hover: hover) and (pointer: fine) | &:hover
-            .add_variant("hover", ["&:hover"])
-            .add_variant("focus", ["&:focus"])
-            .add_variant("active", ["&:active"])
-            .add_variant("marker", ["& *::marker", "&::marker"])
-            .add_variant("*", ["& > *"])
-            .add_variant("first", ["&:first-child"])
-            .add_variant("last", ["&:last-child"])
-            .add_variant("disabled", ["&:disabled"]);
-
-        // self.ctx.get_theme("breakpoints").unwrap().iter().for_each(
-        //     |(key, value)| {
-        //         self.ctx
-        //             .add_variant(key, [format!("@media (width >= {value})")]);
-        //     },
-        // );
+        load_dynamic_utilities(&mut self.ctx);
+        create_variants(&mut self.ctx);
 
         STATIC_RULES.iter().for_each(|(key, value)| {
             self.ctx.add_static((*key, value.clone()));
@@ -144,21 +124,20 @@ impl<'c> Application<'c> {
         let res = paths
             .par_iter()
             .map(|x| generate_parallel(&self.ctx, x))
+            // .collect::<HashMap<_, _>>();
             .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
                 a
             });
         let res_len = res.len();
-
         for (token, rule) in res {
-            // if self.ctx.cache.contains_key(&token) {
-            //     continue;
             let mut w = String::with_capacity(100);
             let mut writer = Writer::default(&mut w);
             let _ = rule.to_css(&mut writer);
             let _ = self.writer.write_str(&w);
             self.ctx.cache.insert(token, Some(w));
         }
+        println!("Execution time: {:?}", start.elapsed());
 
         let mut w: Box<dyn Write> = if let Some(output) = output {
             Box::new(BufWriter::new(
@@ -193,11 +172,7 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
         .extract()
         .into_iter()
         .filter_map(|token| {
-            // if !ctx.cache.contains_key(token) {
             to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
-            // } else {
-            //     None
-            // }
         })
         .collect::<HashMap<String, RuleList>>()
 }

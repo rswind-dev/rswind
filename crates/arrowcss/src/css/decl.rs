@@ -4,8 +4,7 @@ use std::{fmt::Write, ops::Deref};
 use anyhow::Error;
 use lightningcss::traits::IntoOwned;
 use lightningcss::values::string::CowArcStr;
-use smallvec::smallvec;
-use smallvec::SmallVec;
+use smallvec::{smallvec, SmallVec};
 
 use crate::writer::Writer;
 

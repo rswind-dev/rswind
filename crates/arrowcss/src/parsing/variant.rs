@@ -23,8 +23,8 @@ pub struct VariantCandidate<'a> {
     pub processor: Either<Variant, Composer>,
 }
 
-impl VariantCandidate<'_> {
-    pub fn handle<'a>(&self, rule: RuleList<'a>) -> RuleList<'a> {
+impl<'a> VariantCandidate<'a> {
+    pub fn handle<'b>(&self, rule: RuleList<'b>) -> RuleList<'b> {
         for_both!(&self.processor, h => h.handle(self.clone(), rule))
     }
 }
@@ -185,7 +185,6 @@ impl<'a> VariantParser<'a> {
 
         // find value and modifier
         self.parse_value_and_modifier();
-
         if !composes.is_empty() {
             let variant = ctx.variants.get(self.value?.take_named()?).unwrap();
             let composer =
@@ -226,10 +225,10 @@ mod tests {
     fn test_parse_variant() {
         let mut ctx = Context::default();
         ctx.add_variant("hover", ["&:hover"]);
-        ctx.add_variant_composable("has", |r| {
+        ctx.add_variant_composable("has", |r, _| {
             r.modify_with(|s| format!("&:has({})", s.replace('&', "*")))
         });
-        ctx.add_variant_composable("not", |r| {
+        ctx.add_variant_composable("not", |r, _| {
             r.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
         });
 

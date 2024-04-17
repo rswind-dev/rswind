@@ -3,7 +3,8 @@ use fxhash::FxHashMap as HashMap;
 use crate::{
     config::ArrowConfig,
     css::{rule::RuleList, Decl, DeclList, Rule},
-    process::{Utility, Variant, VariantMatchingFn},
+    parsing::VariantCandidate,
+    process::{Utility, Variant},
     theme::{Theme, ThemeValue},
     themes::theme,
 };
@@ -51,18 +52,18 @@ impl<'c> Context<'c> {
 
     pub fn add_variant_fn(
         &mut self,
-        _key: &str,
-        _func: impl VariantMatchingFn + 'static,
+        key: &str,
+        func: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
     ) -> &Self {
-        // self.variants
-        //     .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));
+        self.variants
+            .insert(key.to_string(), Variant::new_dynamic(func));
         self
     }
 
     pub fn add_variant_composable(
         &mut self,
         key: &str,
-        handler: fn(RuleList) -> RuleList,
+        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
     ) -> &mut Self {
         self.variants
             .insert(key.to_string(), Variant::new_composable(handler));
