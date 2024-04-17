@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::{
     collections::HashMap,
     hash::{BuildHasher, Hash},
@@ -22,6 +23,13 @@ impl MaybeArbitrary<'_> {
         match self {
             MaybeArbitrary::Named(s) => Some(s),
             _ => None,
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            MaybeArbitrary::Arbitrary(s) => s,
+            MaybeArbitrary::Named(s) => s,
         }
     }
 }
@@ -52,6 +60,26 @@ impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)>
 {
     fn extended<T: IntoIterator<Item = (K, V)>>(mut self, other: T) -> Self {
         self.extend(other);
+        self
+    }
+}
+
+pub trait Inspector {
+    fn inspect(self) -> Self;
+    fn also(self, f: impl FnOnce(&Self)) -> Self;
+}
+
+impl<T> Inspector for T
+where
+    T: Debug,
+{
+    fn inspect(self) -> Self {
+        dbg!(&self);
+        self
+    }
+
+    fn also(self, f: impl FnOnce(&Self)) -> Self {
+        f(&self);
         self
     }
 }
