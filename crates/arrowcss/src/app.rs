@@ -14,7 +14,7 @@ use walkdir::WalkDir;
 
 use crate::css::rule::RuleList;
 use crate::extract::Extractor;
-use crate::ordering::{create_ordering, OrderingMap};
+use crate::ordering::create_ordering;
 use crate::parser::to_css_rule;
 use crate::rules::statics::load_static_utilities;
 use crate::variant::load_variants;

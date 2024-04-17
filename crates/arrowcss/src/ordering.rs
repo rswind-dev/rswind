@@ -29,7 +29,10 @@ impl<'a> OrderingMap<'a> {
         }
     }
 
-    pub fn insert_many(&mut self, items: impl IntoIterator<Item = &'static str>) {
+    pub fn insert_many(
+        &mut self,
+        items: impl IntoIterator<Item = &'static str>,
+    ) {
         for key in items {
             if let Some((item, len)) = self.ordering.ordering.get(key) {
                 self.map
@@ -48,6 +51,12 @@ impl<'a> OrderingMap<'a> {
             .flat_map(|(_, v)| v.iter())
             .flat_map(|v| v.iter())
             .chain(self.unordered.iter())
+    }
+}
+
+impl Default for UtilityOrdering {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

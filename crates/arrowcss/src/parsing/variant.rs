@@ -164,7 +164,7 @@ impl<'a> VariantParser<'a> {
                     self.pos.advance(key.len());
 
                     let mut prev_i = next;
-                    while let Some((i, _)) = iter.next() {
+                    for (i, _) in iter {
                         if let Some((next_key, Some(compose_handler))) =
                             key_str.get(prev_i + 1..i).and_then(|next_key| {
                                 ctx.variants

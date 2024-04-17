@@ -57,7 +57,7 @@ impl<'a> From<HashMap<String, CowArcStr<'a>>> for ThemeValue<'a> {
 
 impl<'a> From<&'static Map<&'static str, &'static str>> for ThemeValue<'a> {
     fn from(map: &'static Map<&'static str, &'static str>) -> Self {
-        Self::Static(Arc::new(&map))
+        Self::Static(Arc::new(map))
     }
 }
 

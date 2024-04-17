@@ -107,14 +107,14 @@ pub fn load_variants(ctx: &mut Context) {
         rule.modify_with(|s| format!("&:is({} ~ *)", s.replace('&', &selector)))
     });
 
-    ctx.get_theme("breakpoints").map(|theme| {
+    if let Some(theme) = ctx.get_theme("breakpoints") {
         theme.iter().for_each(|(k, v)| {
             ctx.add_variant(k, [format!("@media (width >= {})", v)]);
         })
-    });
+    }
 }
 
-fn take_or_default<'a, 'b>(value: &'b Option<MaybeArbitrary<'a>>) -> &'b str {
+fn take_or_default<'b>(value: &'b Option<MaybeArbitrary<'_>>) -> &'b str {
     value.as_ref().map(|m| m.as_str()).unwrap_or("")
 }
 

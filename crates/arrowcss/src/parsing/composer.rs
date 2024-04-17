@@ -32,9 +32,9 @@ impl Composer {
         self
     }
 
-    pub fn handle<'a, 'b>(
+    pub fn handle<'a>(
         &self,
-        candidate: VariantCandidate<'b>,
+        candidate: VariantCandidate<'_>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         let rule = self.variant.handle(candidate.clone(), rule);
@@ -45,9 +45,9 @@ impl Composer {
 }
 
 impl VariantHandlerExt for Composer {
-    fn handle<'a, 'b>(
+    fn handle<'a>(
         &self,
-        candidate: VariantCandidate<'b>,
+        candidate: VariantCandidate<'_>,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
         self.handle(candidate, rule)

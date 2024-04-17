@@ -1,5 +1,3 @@
-use lazy_static::lazy_static;
-
 use crate::{context::Context, css::DeclList, static_rules};
 
 pub fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
