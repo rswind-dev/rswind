@@ -19,6 +19,7 @@ pub mod common;
 pub mod extract;
 pub mod types;
 pub mod variant;
+pub mod ordering;
 pub mod writer;
 
 pub fn create_app() -> Application<'static> {
