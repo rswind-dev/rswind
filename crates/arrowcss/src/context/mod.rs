@@ -2,7 +2,7 @@ use fxhash::FxHashMap as HashMap;
 
 use crate::{
     config::ArrowConfig,
-    css::{Decl, DeclList, Rule},
+    css::{rule::RuleList, Decl, DeclList, Rule},
     process::{Utility, Variant, VariantMatchingFn},
     theme::{Theme, ThemeValue},
     themes::theme,
@@ -56,6 +56,16 @@ impl<'c> Context<'c> {
     ) -> &Self {
         // self.variants
         //     .insert(key.to_string(), VariantHandler::Nested(Box::new(func)));
+        self
+    }
+
+    pub fn add_variant_composable(
+        &mut self,
+        key: &str,
+        handler: fn(RuleList) -> RuleList,
+    ) -> &mut Self {
+        self.variants
+            .insert(key.to_string(), Variant::new_composable(handler));
         self
     }
 

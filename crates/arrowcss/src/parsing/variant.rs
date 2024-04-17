@@ -1,18 +1,32 @@
-use either::Either;
+use either::{
+    for_both,
+    Either::{self, Left, Right},
+};
 
-use crate::{common::MaybeArbitrary, context::Context, process::Variant};
+use crate::{
+    common::MaybeArbitrary,
+    context::Context,
+    css::rule::RuleList,
+    process::{Variant, VariantHandlerExt},
+};
 
-use super::ParserPosition;
+use super::{composer::Composer, ParserPosition};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VariantCandidate<'a> {
     pub key: &'a str,
     pub value: Option<MaybeArbitrary<'a>>,
     pub modifier: Option<MaybeArbitrary<'a>>,
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
     pub arbitrary: bool,
-    pub compose: Either<bool, Box<VariantCandidate<'a>>>,
-    pub processor: Variant,
+    pub compose: Option<()>,
+    pub processor: Either<Variant, Composer>,
+}
+
+impl VariantCandidate<'_> {
+    pub fn handle<'a>(&self, rule: RuleList<'a>) -> RuleList<'a> {
+        for_both!(&self.processor, h => h.handle(self.clone(), rule))
+    }
 }
 
 /// Parser
@@ -30,7 +44,7 @@ pub struct VariantCandidate<'a> {
 ///   <ident> | <arbitrary>
 ///
 /// arbitrary =
-///   '['<any>']'
+///   '[' <any> ']'
 ///
 /// modifier = <value>
 #[derive(Debug)]
@@ -108,7 +122,9 @@ impl<'a> VariantParser<'a> {
         self.value = if let Some(arbitrary) = self.cur_arbitrary {
             Some(MaybeArbitrary::Arbitrary(arbitrary))
         } else {
-            Some(MaybeArbitrary::Named(self.current()))
+            Some(MaybeArbitrary::Named(
+                self.current().trim_start_matches('-'),
+            ))
         };
     }
 
@@ -118,7 +134,8 @@ impl<'a> VariantParser<'a> {
             todo!("parse arbitrary")
         }
 
-        let mut processor = None;
+        let mut processor: Option<Variant> = None;
+        let mut composes = vec![];
 
         // find key
         if let Some(processor) = ctx.variants.get(self.current()) {
@@ -128,36 +145,68 @@ impl<'a> VariantParser<'a> {
                 value: None,
                 modifier: None,
                 arbitrary: false,
-                compose: Either::Left(true),
-                processor: processor.clone(),
+                compose: None,
+                processor: Left(processor.clone()),
             });
         } else if self.current().starts_with('@') {
             self.key = Some("@");
             self.pos.advance(1);
         } else {
-            for (i, _) in self.current().match_indices('-') {
-                let key = self.current().get(0..i)?;
-                if let Some(p) = ctx.variants.get(key) {
-                    processor = Some(p.clone());
-                    self.key = Some(key);
-                    self.pos.advance(i + 1);
-                    break;
+            let mut iter = self.current().match_indices('-');
+            let (next, _) = iter.next()?;
+            let key = self.current().get(0..next)?;
+            self.key = Some(key);
+            if let Some(v) = ctx.variants.get(key) {
+                processor = Some(v.clone());
+                if v.composable {
+                    composes.push(v.take_composable().unwrap().clone());
+                    let key_str = self.current();
+                    self.pos.advance(key.len());
+
+                    let mut prev_i = next;
+                    while let Some((i, _)) = iter.next() {
+                        if let Some((next_key, Some(compose_handler))) =
+                            key_str.get(prev_i + 1..i).and_then(|next_key| {
+                                ctx.variants
+                                    .get(next_key)
+                                    .map(|v| (next_key, v.take_composable()))
+                            })
+                        {
+                            composes.push(compose_handler.clone());
+                            self.pos.advance(1 + next_key.len());
+                        }
+                        prev_i = i;
+                    }
                 }
             }
         }
 
         self.key?;
 
-        // find value and modifier\
+        // find value and modifier
         self.parse_value_and_modifier();
+
+        if !composes.is_empty() {
+            let variant = ctx.variants.get(self.value?.take_named()?).unwrap();
+            let composer =
+                Composer::new_with_layers(composes.into(), variant.clone());
+            return Some(VariantCandidate {
+                key: self.key?,
+                value: self.value,
+                modifier: self.modifier,
+                arbitrary: false,
+                compose: None,
+                processor: Right(composer),
+            });
+        }
 
         let candidate = VariantCandidate {
             key: self.key?,
             value: self.value,
             arbitrary: false,
             modifier: self.modifier,
-            compose: Either::Left(false),
-            processor: processor?,
+            compose: None,
+            processor: Left(processor?),
         };
 
         Some(candidate)
@@ -166,6 +215,35 @@ impl<'a> VariantParser<'a> {
 
 #[cfg(test)]
 mod tests {
+
+    use crate::{
+        context::Context,
+        css::{Decl, Rule},
+        parsing::VariantParser,
+    };
+
+    #[test]
+    fn test_parse_variant() {
+        let mut ctx = Context::default();
+        ctx.add_variant("hover", ["&:hover"]);
+        ctx.add_variant_composable("has", |r| {
+            r.modify_with(|s| format!("&:has({})", s.replace('&', "*")))
+        });
+        ctx.add_variant_composable("not", |r| {
+            r.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
+        });
+
+        let mut input = VariantParser::new("has-not-hover");
+        let c = input.parse(&ctx).unwrap();
+
+        let rule =
+            Rule::new_with_decls("&", vec![Decl::new("display", "flex")])
+                .to_rule_list();
+
+        let res = c.handle(rule);
+
+        assert_eq!(res.as_single().unwrap().selector, "&:has(*:not(*:hover))")
+    }
 
     // #[test]
     // fn test_parse_variant() {

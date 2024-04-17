@@ -28,7 +28,7 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn modify_with(self, modifier: impl FnOnce(String) -> String) -> Self {
+    pub fn modify_with(self, modifier: impl Fn(String) -> String) -> Self {
         Self {
             selector: modifier(self.selector),
             decls: self.decls,
@@ -63,6 +63,19 @@ impl<'a> RuleList<'a> {
             decls: vec![],
             rules: self,
         }
+    }
+
+    pub fn modify_with(self, modifier: fn(String) -> String) -> Self {
+        Self(
+            self.0
+                .into_iter()
+                .map(|r| r.modify_with(modifier))
+                .collect(),
+        )
+    }
+
+    pub fn as_single(self) -> Option<Rule<'a>> {
+        self.0.into_iter().next()
     }
 }
 

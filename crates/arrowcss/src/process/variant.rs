@@ -1,9 +1,8 @@
-use either::Either;
 use smallvec::SmallVec;
 
 use crate::{
     css::{rule::RuleList, Rule},
-    parsing::VariantCandidate,
+    parsing::{composer::Composer, VariantCandidate},
 };
 
 #[rustfmt::skip]
@@ -12,11 +11,43 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 #[rustfmt::skip]
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
-// hover -> &:hover not-hover -> &:not(:hover)
+pub trait VariantHandlerExt {
+    fn handle<'a>(
+        &self,
+        candidate: VariantCandidate,
+        rule: RuleList<'a>,
+    ) -> RuleList<'a>;
+}
+
+#[derive(Debug, Clone)]
+pub enum VariantKind {
+    Arbitrary,
+    Static,
+    Dynamic,
+    Composable,
+}
+
+#[derive(Debug, Clone)]
+pub enum VariantHandler {
+    Static(StaticHandler),
+    Dynamic(DynamicHandler),
+    Composable(ComposableHandler),
+}
+
+impl VariantHandler {
+    pub fn take_composable(self) -> Option<ComposableHandler> {
+        match self {
+            Self::Composable(handler) => Some(handler),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Variant {
-    pub handler: Either<StaticHandler, DynamicHandler>,
+    pub handler: VariantHandler,
     pub composable: bool,
+    pub kind: VariantKind,
 }
 
 impl Variant {
@@ -24,8 +55,27 @@ impl Variant {
         matcher: impl IntoIterator<Item: Into<String>, IntoIter: ExactSizeIterator>,
     ) -> Self {
         Self {
-            handler: Either::Left(StaticHandler::new(matcher)),
+            handler: VariantHandler::Static(StaticHandler::new(matcher)),
             composable: true,
+            kind: VariantKind::Static,
+        }
+    }
+
+    pub fn new_composable(handler: fn(RuleList) -> RuleList) -> Self {
+        Self {
+            handler: VariantHandler::Composable(ComposableHandler::new(
+                handler,
+            )),
+            composable: true,
+            kind: VariantKind::Composable,
+        }
+    }
+
+    pub fn new_dynamic(handler: fn(RuleList) -> RuleList) -> Self {
+        Self {
+            handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
+            composable: true,
+            kind: VariantKind::Dynamic,
         }
     }
 
@@ -34,10 +84,30 @@ impl Variant {
         candidate: VariantCandidate,
         rule: RuleList<'a>,
     ) -> RuleList<'a> {
-        match self.handler {
-            Either::Left(ref handler) => handler.process(candidate, rule),
-            Either::Right(ref _handler) => todo!(),
+        match &self.handler {
+            VariantHandler::Static(handler) => handler.handle(candidate, rule),
+            VariantHandler::Dynamic(handler) => handler.handle(candidate, rule),
+            VariantHandler::Composable(handler) => {
+                handler.handle(candidate, rule)
+            }
         }
+    }
+
+    pub fn take_composable(&self) -> Option<&ComposableHandler> {
+        match &self.handler {
+            VariantHandler::Composable(handler) => Some(&handler),
+            _ => None,
+        }
+    }
+}
+
+impl VariantHandlerExt for Variant {
+    fn handle<'a>(
+        &self,
+        candidate: VariantCandidate,
+        rule: RuleList<'a>,
+    ) -> RuleList<'a> {
+        self.process(candidate, rule)
     }
 }
 
@@ -82,8 +152,10 @@ impl StaticHandler {
     ) -> Self {
         Self::Duplicate(matcher.into_iter().map(Into::into).collect())
     }
+}
 
-    pub fn process<'a>(
+impl VariantHandlerExt for StaticHandler {
+    fn handle<'a>(
         &self,
         _candidate: VariantCandidate,
         rules: RuleList<'a>,
@@ -113,147 +185,65 @@ impl StaticHandler {
 }
 
 #[derive(Debug, Clone)]
-pub struct DynamicHandler {}
+pub struct DynamicHandler {
+    pub handler: fn(RuleList) -> RuleList,
+    pub composable: bool,
+}
 
-// #[rustfmt::skip]
-// pub trait ComposeVariantFn: Fn(VariantHandler) -> VariantHandler {}
+impl VariantHandlerExt for DynamicHandler {
+    fn handle<'a>(
+        &self,
+        _candidate: VariantCandidate,
+        rule: RuleList<'a>,
+    ) -> RuleList<'a> {
+        (self.handler)(rule)
+    }
+}
 
-// impl VariantHandler {
-//     pub fn as_handler(&self) -> &Box<dyn VariantMatchingFn> {
-//         match self {
-//             Self::Nested(f) => f,
-//             Self::Selector(f) => f,
-//         }
-//     }
+impl DynamicHandler {
+    pub fn new(handler: fn(RuleList) -> RuleList) -> Self {
+        Self {
+            handler,
+            composable: true,
+        }
+    }
+}
 
-//     pub fn create_constructor(
-//         &self,
-//     ) -> impl Fn(Box<dyn VariantMatchingFn>) -> Self {
-//         match self {
-//             Self::Nested(_) => VariantHandler::Nested,
-//             Self::Selector(_) => VariantHandler::Selector,
-//         }
-//     }
-// }
+#[derive(Debug, Clone)]
+pub struct ComposableHandler {
+    pub handler: fn(RuleList) -> RuleList,
+    pub composable: bool,
+}
 
-// fn variant_fn(matcher: String) -> Option<VariantHandler> {
-//     let m = matcher.get(1..)?.to_owned();
-//     match matcher.chars().next()? {
-//         '&' => Some(VariantHandler::Selector(Box::new(
-//             move |container: RuleList| {
-//                 Some(
-//                     container
-//                         .into_iter()
-//                         .map(|rule| Rule {
-//                             selector: rule.selector + &m,
-//                             decls: rule.decls,
-//                             rules: rule.rules,
-//                         })
-//                         .collect(),
-//                 )
-//             },
-//         ))),
-//         '@' => Some(VariantHandler::Nested(Box::new(move |rule| {
-//             Some(
-//                 Rule {
-//                     selector: m.clone(),
-//                     decls: vec![],
-//                     rules: rule,
-//                 }
-//                 .into(),
-//             )
-//         }))),
-//         _ => None,
-//     }
-// }
+impl ComposableHandler {
+    pub fn new(handler: fn(RuleList) -> RuleList) -> Self {
+        Self {
+            handler,
+            composable: true,
+        }
+    }
 
-// pub fn create_variant_fn<T>(_key: &str, matcher: T) -> Option<VariantHandler>
-// where
-//     T: IntoIterator,
-//     T::Item: AsRef<str>,
-//     T::IntoIter: ExactSizeIterator,
-// {
-//     let mut has_selector_handler = false;
-//     let fns = matcher
-//         .into_iter()
-//         // .map(|item| item.as_ref())
-//         .map(|s| {
-//             let s = s.as_ref();
-//             let this_fn: VariantHandler = if s.find('|').is_some() {
-//                 let mut fns = s
-//                     .split('|')
-//                     .map(|matcher| matcher.trim())
-//                     .map(|item| variant_fn(item.into()))
-//                     .collect::<Option<Vec<_>>>()?;
+    pub fn composable(self) -> Self {
+        Self {
+            composable: true,
+            ..self
+        }
+    }
 
-//                 fns.sort();
+    pub fn compose(self, variant: Variant) -> Composer {
+        Composer::new(self, variant)
+    }
+}
 
-//                 let wrapper = VariantHandler::create_constructor(&fns[0]);
-//                 let composed_fn: Box<dyn VariantMatchingFn> =
-//                     Box::new(move |rules| {
-//                         fns.iter().try_fold(rules, |acc, f| f(acc))
-//                     });
-//                 wrapper(composed_fn)
-//             } else {
-//                 // Normal
-//                 variant_fn(s.into())?
-//             };
-//             if matches!(this_fn, VariantHandler::Selector(_)) {
-//                 has_selector_handler = true;
-//             }
-//             Some(this_fn)
-//         })
-//         .collect::<Option<Vec<_>>>()?;
-
-//     let handler: Box<dyn VariantMatchingFn> =
-//         Box::new(move |container: RuleList| {
-//             Some(
-//                 fns.iter()
-//                     .map(|f| f(container.clone()))
-//                     .collect::<Option<Vec<RuleList>>>()?
-//                     .into_iter()
-//                     .flatten()
-//                     .collect::<Vec<Rule>>()
-//                     .into(),
-//             )
-//         });
-
-//     Some(if has_selector_handler {
-//         VariantHandler::Selector(handler)
-//     } else {
-//         VariantHandler::Nested(handler)
-//     })
-// }
-
-// ----- Trait Implementations -----
-
-// impl PartialEq for VariantHandler {
-//     fn eq(&self, other: &Self) -> bool {
-//         matches!(
-//             (self, other),
-//             (Self::Nested(_), Self::Nested(_))
-//                 | (Self::Selector(_), Self::Selector(_))
-//         )
-//     }
-// }
-
-// impl Eq for VariantHandler {}
-
-// impl PartialOrd for VariantHandler {
-//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-//         match (self, other) {
-//             (Self::Nested(_), Self::Selector(_)) => Some(Ordering::Greater),
-//             (Self::Selector(_), Self::Nested(_)) => Some(Ordering::Less),
-//             _ => Some(Ordering::Equal),
-//         }
-//     }
-// }
-
-// impl Ord for VariantHandler {
-//     fn cmp(&self, other: &Self) -> Ordering {
-//         self.partial_cmp(other).unwrap()
-//     }
-// }
+impl VariantHandlerExt for ComposableHandler {
+    fn handle<'a>(
+        &self,
+        _candidate: VariantCandidate,
+        rule: RuleList<'a>,
+    ) -> RuleList<'a> {
+        (self.handler)(rule)
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -264,6 +254,8 @@ mod tests {
         css::{rule::RuleList, Decl, Rule},
         parsing::VariantParser,
     };
+
+    use super::{DynamicHandler, VariantHandlerExt};
 
     #[test]
     fn test_variant_process() {
@@ -312,5 +304,37 @@ mod tests {
         println!("{input:?}");
         println!("res: {:#?}", res);
         // expect: ".flex:hover"
+    }
+
+    #[test]
+    fn test_dynamic_process() {
+        let mut ctx = Context::default();
+        ctx.add_variant("hover", ["&:hover"]);
+        ctx.add_variant("active", ["&:active"]);
+
+        let candidate = VariantParser::new("hover").parse(&ctx).unwrap();
+        let input = css! {
+            ".flex" {
+                "display": "flex";
+            }
+        }
+        .to_rule_list();
+        // @media (hover: hover) and (pointer: fine) | &:hover
+        let variant = DynamicHandler::new(|rule| {
+            let hovered = rule
+                .into_iter()
+                .map(|rule| rule.modify_with(|s| s + ":hover"))
+                .collect();
+            Rule {
+                selector: "@media (hover: hover) and (pointer: fine)".into(),
+                decls: vec![],
+                rules: hovered,
+            }
+            .to_rule_list()
+        });
+
+        let res = variant.handle(candidate, input);
+
+        println!("{:#?}", res);
     }
 }
