@@ -54,7 +54,8 @@ impl<'c> Theme<'c> {
         for (key, value) in other.0 {
             self.0
                 .entry(key.clone())
-                .and_modify(|inner_map| {
+                .and_modify(|_inner_map| {
+                    // TODO: reopen this
                     // let inner_map = Arc::make_mut(inner_map);
                     // inner_map.reserve(value.len());
                     // inner_map.extend(value.deref().clone().into_iter());
