@@ -15,14 +15,11 @@ use walkdir::WalkDir;
 use crate::css::rule::RuleList;
 use crate::extract::Extractor;
 use crate::parser::to_css_rule;
-use crate::theme::ThemeValue;
-use crate::variant::create_variants;
+use crate::rules::statics::load_static_utilities;
+use crate::variant::load_variants;
 use crate::{
-    config::ArrowConfig,
-    context::Context,
-    css::ToCss,
-    rules::{dynamics::load_dynamic_utilities, statics::STATIC_RULES},
-    writer::Writer,
+    config::ArrowConfig, context::Context, css::ToCss,
+    rules::dynamics::load_dynamic_utilities, writer::Writer,
 };
 
 pub struct Application<'c> {
@@ -52,12 +49,9 @@ impl<'c> Application<'c> {
     }
 
     pub fn init(&mut self) -> &mut Self {
+        load_static_utilities(&mut self.ctx);
         load_dynamic_utilities(&mut self.ctx);
-        create_variants(&mut self.ctx);
-
-        STATIC_RULES.iter().for_each(|(key, value)| {
-            self.ctx.add_static((*key, value.clone()));
-        });
+        load_variants(&mut self.ctx);
         self
     }
 

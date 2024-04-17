@@ -1,6 +1,6 @@
 use crate::{common::MaybeArbitrary, context::Context};
 
-pub fn create_variants(ctx: &mut Context) {
+pub fn load_variants(ctx: &mut Context) {
     ctx
         // Positional
         .add_variant("first", ["&:first-child"])
@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn test_load_variants() {
         let mut ctx = Context::default();
-        create_variants(&mut ctx);
+        load_variants(&mut ctx);
 
         let rule = css!("display": "flex").to_rule_list();
 

@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::{css::DeclList, static_rules};
+use crate::{context::Context, css::DeclList, static_rules};
 
 pub fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     static_rules! {
@@ -270,9 +270,10 @@ pub fn get_all() -> Vec<(&'static str, DeclList<'static>)> {
         .collect()
 }
 
-lazy_static! {
-    pub static ref STATIC_RULES: Vec<(&'static str, DeclList<'static>)> =
-        get_all();
+pub fn load_static_utilities(ctx: &mut Context) {
+    get_all().into_iter().for_each(|(key, value)| {
+        ctx.add_static((key, value));
+    });
 }
 
 // unit tests
