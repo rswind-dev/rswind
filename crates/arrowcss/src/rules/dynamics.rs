@@ -9,6 +9,7 @@ use arrowcss_css_macro::css;
 use crate::{
     add_theme_rule,
     context::Context,
+    ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{ModifierProcessor, RuleMatchingFn},
     types::{CssDataType, CssProperty},
@@ -58,6 +59,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
         }
     })
+    .with_ordering(OrderingKey::BorderSpacing)
     .with_theme("spacing");
 
     rules.add("border-spacing-x", |_, value| {
@@ -66,6 +68,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
         }
     })
+    .with_ordering(OrderingKey::BorderSpacingAxis)
     .with_theme("spacing");
 
     rules.add("border-spacing-y", |_, value| {
@@ -74,6 +77,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
         }
     })
+    .with_ordering(OrderingKey::BorderSpacingAxis)
     .with_theme("spacing");
 
     rules

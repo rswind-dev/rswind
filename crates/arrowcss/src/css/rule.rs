@@ -158,7 +158,7 @@ where
     }
 }
 
-impl ToCss for RuleList<'_> {
+impl ToCss for &RuleList<'_> {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
     where
         W: Write,

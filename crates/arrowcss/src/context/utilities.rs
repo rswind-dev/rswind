@@ -3,6 +3,7 @@ use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
 
 use crate::css::{DeclList, Rule};
+use crate::ordering::OrderingKey;
 use crate::parsing::UtilityCandidate;
 use crate::process::Utility;
 
@@ -13,7 +14,10 @@ pub trait UtilityStorage<'c>: Sync + Send {
     fn add(&mut self, key: String, value: Utility<'c>);
     fn add_static(&mut self, key: String, value: DeclList<'static>);
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>>;
-    fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<Rule<'c>>;
+    fn try_apply<'a>(
+        &self,
+        input: UtilityCandidate<'a>,
+    ) -> Option<(Rule<'c>, OrderingKey)>;
 }
 
 #[enum_dispatch(UtilityStorage)]
@@ -54,11 +58,12 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
     fn try_apply<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
-    ) -> Option<Rule<'c>> {
+    ) -> Option<(Rule<'c>, OrderingKey)> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
-            Left(decls) => {
-                Some(Rule::new_with_decls("&", decls.clone().0.into_vec()))
-            }
+            Left(decls) => Some((
+                Rule::new_with_decls("&", decls.clone().0.into_vec()),
+                OrderingKey::Disorder,
+            )),
             Right(handler) => handler.apply_to(candidate),
         })
     }

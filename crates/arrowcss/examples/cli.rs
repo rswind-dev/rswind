@@ -52,11 +52,11 @@ fn main() {
             }
         }
         Some(SubCommand::Debug(cmd)) => {
-            let rule = to_css_rule(&cmd.input, &app.ctx).unwrap();
+            let (rule, _) = to_css_rule(&cmd.input, &app.ctx).unwrap();
             if cmd.print_ast {
                 println!("{:#?}", rule);
             }
-            println!("{}", write_to_string(rule));
+            println!("{}", write_to_string(&rule));
         }
     }
 }

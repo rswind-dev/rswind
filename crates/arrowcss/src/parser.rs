@@ -8,6 +8,7 @@ use smallvec::SmallVec;
 
 use crate::context::utilities::UtilityStorage;
 use crate::css::rule::RuleList;
+use crate::ordering::OrderingKey;
 use crate::process::{StaticHandler, Variant, VariantHandler};
 use crate::{
     context::Context, parsing::UtilityParser, parsing::VariantParser,
@@ -18,11 +19,15 @@ lazy_static! {
     pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
 }
 
-pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
+pub fn to_css_rule<'c>(
+    value: &str,
+    ctx: &Context<'c>,
+) -> Option<(RuleList<'c>, OrderingKey)> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
     let utility_candidate = UtilityParser::new(utility).parse(ctx)?;
+    dbg!(&utility_candidate);
 
     let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
 
@@ -41,7 +46,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
         )
     });
 
-    let node = ctx.utilities.try_apply(utility_candidate)?;
+    let (node, ordering) = ctx.utilities.try_apply(utility_candidate)?;
 
     let mut node = selector
         .into_iter()
@@ -57,7 +62,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<RuleList<'c>> {
 
     let node = nested.into_iter().fold(node, |acc, cur| cur.handle(acc));
 
-    node.into()
+    Some((node, ordering))
 }
 
 #[cfg(test)]
@@ -89,7 +94,8 @@ mod tests {
             .collect::<Option<Vec<_>>>()
             .unwrap();
 
-        let node: RuleList = ctx.utilities.try_apply(u).unwrap().into();
+        let (node, _) = ctx.utilities.try_apply(u).unwrap();
+        let node = node.to_rule_list();
 
         let node = vs.into_iter().fold(node, |acc, cur| {
             let processor = ctx.variants.get(cur.key).unwrap();

@@ -14,7 +14,7 @@ use walkdir::WalkDir;
 
 use crate::css::rule::RuleList;
 use crate::extract::Extractor;
-use crate::ordering::create_ordering;
+use crate::ordering::{create_ordering, OrderingKey, OrderingMap};
 use crate::parser::to_css_rule;
 use crate::rules::statics::load_static_utilities;
 use crate::variant::load_variants;
@@ -66,7 +66,7 @@ impl<'c> Application<'c> {
         println!("split: {} us", start.elapsed().as_micros());
 
         for token in parts {
-            if let Some(rule) = to_css_rule(token, &self.ctx) {
+            if let Some((rule, _)) = to_css_rule(token, &self.ctx) {
                 let mut w = String::with_capacity(100);
                 let mut writer = Writer::default(&mut w);
                 let _ = rule.to_css(&mut writer);
@@ -125,22 +125,22 @@ impl<'c> Application<'c> {
             });
 
         let ordering = create_ordering();
-        // let mut om = OrderingMap::new(&ordering);
-
-        // om.insert_many(res);
+        let mut om = OrderingMap::new(&ordering);
 
         let res_len = res.len();
-        for (token, rule) in res {
+        om.insert_many(res);
+
+        for (token, (rule, _)) in om.get_ordered() {
             let mut w = String::with_capacity(100);
             let mut writer = Writer::default(&mut w);
             let _ = rule.to_css(&mut writer);
             let _ = self.writer.write_str(&w);
-            self.ctx.cache.insert(token, Some(w));
+            self.ctx.cache.insert(token.to_owned(), Some(w));
         }
         println!("Execution time: {:?}", start.elapsed());
 
-        let mut w: Box<dyn Write> = if let Some(output) = output {
-            Box::new(BufWriter::new(
+        let w: &mut dyn Write = if let Some(output) = output {
+            &mut BufWriter::new(
                 OpenOptions::new()
                     .write(true)
                     .create(true)
@@ -148,9 +148,9 @@ impl<'c> Application<'c> {
                     .truncate(true)
                     .open(Path::new(output))
                     .unwrap(),
-            ))
+            )
         } else {
-            Box::new(std::io::stdout())
+            &mut std::io::stdout()
         };
 
         w.write_all(self.writer.dest.as_bytes()).unwrap();
@@ -167,14 +167,14 @@ impl<'c> Application<'c> {
 pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
     ctx: &'a Context<'c>,
     path: P,
-) -> HashMap<String, RuleList<'c>> {
+) -> HashMap<String, (RuleList<'c>, OrderingKey)> {
     Extractor::new(&read_to_string(path.as_ref()).unwrap())
         .extract()
         .into_iter()
         .filter_map(|token| {
             to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
         })
-        .collect::<HashMap<String, RuleList>>()
+        .collect::<HashMap<String, (RuleList, OrderingKey)>>()
 }
 
 pub fn get_files(dir: &str) -> Vec<PathBuf> {

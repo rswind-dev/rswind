@@ -3,6 +3,7 @@ use lightningcss::values::string::CowArcStr;
 
 use crate::{
     css::{rule::RuleList, Rule},
+    ordering::OrderingKey,
     parsing::UtilityCandidate,
     theme::ThemeValue,
     types::TypeValidator,
@@ -59,13 +60,15 @@ pub struct Utility<'i> {
 
     pub validator: Option<Box<dyn TypeValidator>>,
 
-    /// this will be use as generated Rule selector
+    /// This will be use as generated Rule selector
     /// default: '&'
     pub wrapper: Option<String>,
 
-    /// additional css which append to stylesheet root
+    /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
     pub additional_css: Option<RuleList<'i>>,
+
+    pub ordering_key: Option<OrderingKey>,
 }
 
 pub struct ModifierProcessor<'i> {
@@ -119,7 +122,7 @@ impl<'c> Utility<'c> {
     pub fn apply_to<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
-    ) -> Option<Rule<'c>> {
+    ) -> Option<(Rule<'c>, OrderingKey)> {
         if !self.supports_negative && candidate.negative {
             return None;
         }
@@ -144,7 +147,7 @@ impl<'c> Utility<'c> {
             node.selector = wrapper.clone();
         }
 
-        Some(node)
+        Some((node, self.ordering_key.unwrap_or(OrderingKey::Disorder)))
     }
 }
 

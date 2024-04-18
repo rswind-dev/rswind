@@ -2,6 +2,7 @@ use crate::{
     common::MaybeArbitrary,
     context::{utilities::UtilityStorage, Context},
     css::rule::RuleList,
+    ordering::OrderingKey,
     process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler},
     types::TypeValidator,
 };
@@ -139,7 +140,7 @@ impl<'a> UtilityParser<'a> {
                 negative: self.is_negative,
             });
         } else {
-            for (i, _) in self.current().match_indices('-') {
+            for (i, _) in self.current().match_indices('-').rev() {
                 let key = self.current().get(0..i)?;
                 if ctx.utilities.get(key).is_some() {
                     self.key = Some(key);
@@ -193,6 +194,7 @@ pub struct UtilityBuilder<'i, 'c> {
     wrapper: Option<String>,
     supports_negative: bool,
     supports_fraction: bool,
+    ordering_key: Option<OrderingKey>,
 }
 
 impl<'i, 'c> UtilityBuilder<'i, 'c> {
@@ -212,6 +214,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
             validator: None,
             additional_css: None,
             wrapper: None,
+            ordering_key: None,
         }
     }
 
@@ -253,6 +256,11 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self.wrapper = Some(wrapper.to_string());
         self
     }
+
+    pub fn with_ordering(mut self, key: OrderingKey) -> Self {
+        self.ordering_key = Some(key);
+        self
+    }
 }
 
 /// Automatically adds the rule to the context when dropped.
@@ -280,6 +288,7 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
                 supports_fraction: self.supports_fraction,
                 additional_css: std::mem::take(&mut self.additional_css),
                 wrapper: std::mem::take(&mut self.wrapper),
+                ordering_key: self.ordering_key,
             },
         );
     }

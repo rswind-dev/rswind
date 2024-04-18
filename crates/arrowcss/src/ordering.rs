@@ -1,5 +1,8 @@
 use fxhash::FxHashMap as HashMap;
 use smallvec::{smallvec, SmallVec};
+use std::hash::Hash;
+
+use crate::css::rule::RuleList;
 
 #[derive(Debug)]
 struct GroupItem {
@@ -8,20 +11,38 @@ struct GroupItem {
 }
 
 #[derive(Debug)]
-pub struct UtilityOrdering {
-    ordering: HashMap<&'static str, (GroupItem, usize)>,
+pub struct UtilityOrdering<T> {
+    ordering: HashMap<T, (GroupItem, usize)>,
     n: usize,
 }
 
-pub struct OrderingMap<'a> {
-    ordering: &'a UtilityOrdering,
+pub struct OrderingMap<'a, T, I> {
+    ordering: &'a UtilityOrdering<T>,
     // key: group_id
-    map: HashMap<usize, SmallVec<[Vec<&'static str>; 4]>>,
-    unordered: Vec<&'static str>,
+    map: HashMap<usize, SmallVec<[Vec<I>; 4]>>,
+    unordered: Vec<I>,
 }
 
-impl<'a> OrderingMap<'a> {
-    pub fn new(ordering: &'a UtilityOrdering) -> Self {
+pub trait Orderable<T> {
+    fn order_key(&self) -> T;
+}
+
+impl Orderable<OrderingKey> for OrderingKey {
+    fn order_key(&self) -> OrderingKey {
+        *self
+    }
+}
+
+impl<'a> Orderable<OrderingKey>
+    for (String, (RuleList<'a>, OrderingKey))
+{
+    fn order_key(&self) -> OrderingKey {
+        self.1 .1
+    }
+}
+
+impl<'a, T: Hash + Eq, Item: Orderable<T> + Clone> OrderingMap<'a, T, Item> {
+    pub fn new(ordering: &'a UtilityOrdering<T>) -> Self {
         Self {
             ordering,
             map: HashMap::default(),
@@ -29,12 +50,11 @@ impl<'a> OrderingMap<'a> {
         }
     }
 
-    pub fn insert_many(
-        &mut self,
-        items: impl IntoIterator<Item = &'static str>,
-    ) {
+    pub fn insert_many(&mut self, items: impl IntoIterator<Item = Item>) {
         for key in items {
-            if let Some((item, len)) = self.ordering.ordering.get(key) {
+            if let Some((item, len)) =
+                self.ordering.ordering.get(&key.order_key())
+            {
                 self.map
                     .entry(item.group_id)
                     .or_insert_with(|| smallvec![vec![]; *len])[item.id]
@@ -45,7 +65,7 @@ impl<'a> OrderingMap<'a> {
         }
     }
 
-    pub fn get_ordered(&self) -> impl Iterator<Item = &&'static str> {
+    pub fn get_ordered(&self) -> impl Iterator<Item = &Item> {
         self.map
             .iter()
             .flat_map(|(_, v)| v.iter())
@@ -54,13 +74,7 @@ impl<'a> OrderingMap<'a> {
     }
 }
 
-impl Default for UtilityOrdering {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl UtilityOrdering {
+impl<T: Hash + Eq> UtilityOrdering<T> {
     pub fn new() -> Self {
         Self {
             ordering: HashMap::default(),
@@ -70,7 +84,7 @@ impl UtilityOrdering {
 
     pub fn add_order<'a>(
         &mut self,
-        rule: impl IntoIterator<Item = &'static str, IntoIter: ExactSizeIterator>,
+        rule: impl IntoIterator<Item = T, IntoIter: ExactSizeIterator>,
     ) -> usize {
         self.n += 1;
         let mut inner_n = 0;
@@ -94,23 +108,61 @@ impl UtilityOrdering {
     }
 }
 
-pub fn create_ordering() -> UtilityOrdering {
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub enum OrderingKey {
+    Disorder,
+
+    Translate,
+    TranslateAxis,
+    Scale,
+    ScaleAxis,
+    Rotate,
+    RotateAxis,
+    Skew,
+    SkewAxis,
+    Transform,
+
+    Margin,
+    MarginAxis,
+    MarginSide,
+
+    Padding,
+    PaddingAxis,
+    PaddingSide,
+
+    Rounded,
+    RoundedSide,
+    RoundedCorner,
+
+    Inset,
+    InsetAxis,
+    InsetSide,
+    PositionSide,
+
+    BorderSpacing,
+    BorderSpacingAxis,
+}
+
+pub fn create_ordering() -> UtilityOrdering<OrderingKey> {
+    use crate::ordering::OrderingKey::*;
+
     let mut ordering = UtilityOrdering::new();
-    ordering.add_order(["inset", "inset-axis", "inset-side", "position-side"]);
-    ordering.add_order(["margin", "margin-axis", "margin-side"]);
-    ordering.add_order(["padding", "padding-axis", "padding-side"]);
+    ordering.add_order([Inset, InsetAxis, InsetSide, PositionSide]);
     ordering.add_order([
-        "translate",
-        "translate-axis",
-        "scale",
-        "scale-axis",
-        "rotate",
-        "rotate-axis",
-        "skew",
-        "skew-axis",
-        "transform",
+        Translate,
+        TranslateAxis,
+        Scale,
+        ScaleAxis,
+        Rotate,
+        RotateAxis,
+        Skew,
+        SkewAxis,
+        Transform,
     ]);
-    ordering.add_order(["rounded", "rounded-side", "rounded-corner"]);
+    ordering.add_order([Margin, MarginAxis, MarginSide]);
+    ordering.add_order([Padding, PaddingAxis, PaddingSide]);
+    ordering.add_order([Rounded, RoundedSide, RoundedCorner]);
+    ordering.add_order([BorderSpacing, BorderSpacingAxis]);
 
     ordering
 }
