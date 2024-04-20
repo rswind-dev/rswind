@@ -1,6 +1,7 @@
 import type { Plugin, ViteDevServer } from 'vite'
-import { gen } from 'arrowcss'
+import { createApp } from 'arrowcss'
 
+let app = createApp()
 
 function sendUpdate(server: ViteDevServer) {
   const id = '/__arrow.css';
@@ -24,7 +25,7 @@ function sendUpdate(server: ViteDevServer) {
 }
 
 export default function arrowCSSPlugin(): Plugin[] {
-  let modules = new Map();
+  let modules: Map<string, string> = new Map();
   let server: ViteDevServer | null = null;
   let entry = '';
   return [
@@ -37,15 +38,14 @@ export default function arrowCSSPlugin(): Plugin[] {
         }
         if (modules.get(id) !== code) {
           modules.set(id, code);
-          console.log(modules.keys())
+          // console.log(modules.keys())
           server && sendUpdate(server);
         }
       },
       load(id) {
         if (id.includes("arrow.css")) {
           entry = id;
-          const res = gen([...modules.values()].join('\n'));
-          return res
+          return app.generate([...modules.values()].join('\n'));
         }
       },
     },
@@ -56,12 +56,12 @@ export default function arrowCSSPlugin(): Plugin[] {
         server = _server;
 
         _server.ws.on('arrow:hmr', async (msg) => {
-          console.log('arrow:hmr', msg)
+          // console.log('arrow:hmr', msg)
         });
       },
       resolveId(id) {
         if (id.endsWith("arrow.css")) {
-          console.log({ id })
+          // console.log({ id })
           return '/__arrow.css'
         }
       },

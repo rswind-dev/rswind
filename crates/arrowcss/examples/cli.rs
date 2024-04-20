@@ -1,7 +1,7 @@
 use arrowcss::{
     app::{get_files, Application},
+    css::ToCssString,
     parser::to_css_rule,
-    writer::write_to_string,
 };
 use clap::{arg, command, Parser};
 
@@ -56,7 +56,7 @@ fn main() {
             if cmd.print_ast {
                 println!("{:#?}", rule);
             }
-            println!("{}", write_to_string(&rule));
+            println!("{}", &rule.to_css_string().unwrap());
         }
     }
 }
