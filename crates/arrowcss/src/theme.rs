@@ -24,15 +24,6 @@ impl<'c> ThemeValue<'c> {
         }
     }
 
-    pub fn for_each(&self, f: impl Fn((&str, &CowArcStr<'c>))) {
-        match self {
-            Self::Dynamic(map) => map.iter().for_each(|(k, v)| f((k, v))),
-            Self::Static(map) => map
-                .into_iter()
-                .for_each(|(k, v)| f((k, &CowArcStr::from(*v)))),
-        }
-    }
-
     pub fn iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = (&str, CowArcStr<'c>)> + 'a> {

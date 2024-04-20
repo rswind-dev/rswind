@@ -27,7 +27,6 @@ pub fn to_css_rule<'c>(
 
     let utility = parts.next().unwrap();
     let utility_candidate = UtilityParser::new(utility).parse(ctx)?;
-    dbg!(&utility_candidate);
 
     let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
 
