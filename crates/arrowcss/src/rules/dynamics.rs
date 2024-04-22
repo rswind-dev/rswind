@@ -248,62 +248,62 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             allowed_values: Some(line_height_map2),
         });
 
+    use lightningcss::properties::PropertyId::*;
     add_theme_rule!(ctx, {
         "spacing" => {
             // TODO: types, order
-            "m" : CssProperty::Margin       => ["margin"]                      in OrderingKey::Margin
-            "mx": CssProperty::MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
-            "my": CssProperty::MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
-            "mt": CssProperty::MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
-            "mr": CssProperty::MarginRight  => ["margin-right"]                in OrderingKey::MarginSide
-            "mb": CssProperty::MarginBottom => ["margin-bottom"]               in OrderingKey::MarginSide
-            "ml": CssProperty::MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
-            "ms": CssProperty::MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
-            "me": CssProperty::MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
+            "m" : Margin       => ["margin"]                      in OrderingKey::Margin
+            "mx": MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
+            "my": MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
+            "mt": MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
+            "mr": MarginRight  => ["margin-right"]                in OrderingKey::MarginSide
+            "mb": MarginBottom => ["margin-bottom"]               in OrderingKey::MarginSide
+            "ml": MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
+            "ms": MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
+            "me": MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
 
-            "p" : CssProperty::Padding            => ["padding"]                       in OrderingKey::Padding
-            "px": CssProperty::PaddingLeft        => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
-            "py": CssProperty::PaddingTop         => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
-            "pt": CssProperty::PaddingTop         => ["padding-top"]                   in OrderingKey::PaddingSide
-            "pr": CssProperty::PaddingRight       => ["padding-right"]                 in OrderingKey::PaddingSide
-            "pb": CssProperty::PaddingBottom      => ["padding-bottom"]                in OrderingKey::PaddingSide
-            "pl": CssProperty::PaddingLeft        => ["padding-left"]                  in OrderingKey::PaddingSide
-            "ps": CssProperty::PaddingInlineStart => ["padding-inline-start"]          in OrderingKey::PaddingSide
-            "pe": CssProperty::PaddingInlineEnd   => ["padding-inline-end"]            in OrderingKey::PaddingSide
+            "p" : Padding    => ["padding"]                       in OrderingKey::Padding
+            "px": PaddingTop => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
+            "py": PaddingTop => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
+            "pt": PaddingTop => ["padding-top"]                   in OrderingKey::PaddingSide
+            "pr": PaddingTop => ["padding-right"]                 in OrderingKey::PaddingSide
+            "pb": PaddingTop => ["padding-bottom"]                in OrderingKey::PaddingSide
+            "pl": PaddingTop => ["padding-left"]                  in OrderingKey::PaddingSide
+            "ps": PaddingTop => ["padding-inline-start"]          in OrderingKey::PaddingSide
+            "pe": PaddingTop => ["padding-inline-end"]            in OrderingKey::PaddingSide
 
-            "inset"   : CssProperty::Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset
-            "inset-x" : CssProperty::Left  => ["left", "right"]                  in OrderingKey::InsetAxis
-            "inset-y" : CssProperty::Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis
+            "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset
+            "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis
+            "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis
 
-            "top":    CssProperty::Top => ["top"]    in OrderingKey::InsetSide
-            "right":  CssProperty::Top => ["right"]  in OrderingKey::InsetSide
-            "bottom": CssProperty::Top => ["bottom"] in OrderingKey::InsetSide
-            "left":   CssProperty::Top => ["left"]   in OrderingKey::InsetSide
+            "top":    Top => ["top"]    in OrderingKey::InsetSide
+            "right":  Top => ["right"]  in OrderingKey::InsetSide
+            "bottom": Top => ["bottom"] in OrderingKey::InsetSide
+            "left":   Top => ["left"]   in OrderingKey::InsetSide
 
-            "gap": CssProperty::Gap => ["gap"]
+            "gap": Gap => ["gap"]
 
-            "size" : CssProperty::Width => ["width", "height"] in OrderingKey::Size
-            "w"    : CssProperty::Width => ["width"]           in OrderingKey::SizeAxis
-            "h"    : CssProperty::Width => ["height"]          in OrderingKey::SizeAxis
+            "size" : Width => ["width", "height"] in OrderingKey::Size
+            "w"    : Width => ["width"]           in OrderingKey::SizeAxis
+            "h"    : Width => ["height"]          in OrderingKey::SizeAxis
         },
         "lineHeight" => {
-            "leading" => ["line-height"]
+            "leading": LineHeight => ["line-height"]
         },
         "colors" => {
-            "border" => ["border-color"]
-            "border-x" => ["border-right-color", "border-left-color"]
-            "border-y" => ["border-top-color", "border-bottom-color"]
-            "border-s" => ["border-inline-start-color"]
-            "border-e" => ["border-inline-end-color"]
-            "border-t" => ["border-top-color"]
-            "border-r" => ["border-right-color"]
-            "border-b" => ["border-bottom-color"]
-            "border-l" => ["border-left-color"]
+            // TODO: as_color
+            "border"  : BorderColor => ["border-color"]                            in OrderingKey::BorderColor
+            "border-x": BorderColor => ["border-right-color", "border-left-color"] in OrderingKey::BorderColorAxis
+            "border-y": BorderColor => ["border-top-color", "border-bottom-color"] in OrderingKey::BorderColorAxis
+            "border-s": BorderColor => ["border-inline-start-color"]               in OrderingKey::BorderColorSide
+            "border-e": BorderColor => ["border-inline-end-color"]                 in OrderingKey::BorderColorSide
+            "border-t": BorderColor => ["border-top-color"]                        in OrderingKey::BorderColorSide
+            "border-r": BorderColor => ["border-right-color"]                      in OrderingKey::BorderColorSide
+            "border-b": BorderColor => ["border-bottom-color"]                     in OrderingKey::BorderColorSide
+            "border-l": BorderColor => ["border-left-color"]                       in OrderingKey::BorderColorSide
         },
         "opacity" => {
-            "opacity" => ["opacity"]
-            "text" => ["text-opacity"]
-            "border" => ["border-opacity"]
+            "opacity": Opacity => ["opacity"]
             "divide" => ["--tw-divide-opacity"]
         }
     });
