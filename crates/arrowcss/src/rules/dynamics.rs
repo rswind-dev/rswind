@@ -1,8 +1,4 @@
-use lightningcss::{
-    properties::Property,
-    traits::IntoOwned,
-    values::color::{CssColor, RGBA},
-};
+use lightningcss::traits::IntoOwned;
 
 use arrowcss_css_macro::css;
 
@@ -129,49 +125,23 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     .with_theme("borderWidth")
     .with_validator(CssProperty::BorderTopWidth);
 
-    rules.add("divide", |_, value| {
-        let r = Property::parse_string(
-            CssProperty::Color,
-            value.as_ref(),
-            Default::default(),
+    rules
+        .add(
+            "divide",
+            |meta, value| css!("border-color": as_color(&value, meta.modifier)),
         )
-        .unwrap();
-        if let Property::Color(a) = r {
-            if let Ok(CssColor::RGBA(RGBA {
-                red,
-                green,
-                blue,
-                alpha,
-            })) = a.to_rgb()
-            {
-                return css! {
-                    "--tw-divide-opacity": alpha.to_string();
-                    "border-color": format!("rgb({} {} {} / var(--tw-divide-opacity))", red, green, blue);
-                };
-            }
-        }
-        css! {
-            "border-color": value.clone();
-        }
-    })
-    .with_theme("colors")
-    .with_validator(CssProperty::BorderColor)
-    .with_modifier(ModifierProcessor {
-        validator: Some(Box::new(CssProperty::Opacity)),
-        allowed_values: Some(opacity.clone()),
-    });
+        .with_theme("colors")
+        .with_validator(CssProperty::BorderColor)
+        .with_modifier(ModifierProcessor {
+            validator: Some(Box::new(CssProperty::Opacity)),
+            allowed_values: Some(opacity.clone()),
+        });
 
     rules
-        .add("border", |meta, value| {
-            // TODO: use color with opacity
-            if let Some(opacity) = meta.modifier {
-                return css! {
-                    "border-color": value;
-                    "border-opacity": opacity;
-                };
-            }
-            css!("border-color": value;)
-        })
+        .add(
+            "border",
+            |meta, value| css!("border-width": as_color(&value, meta.modifier)),
+        )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
         .with_modifier(ModifierProcessor {
@@ -280,44 +250,45 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
 
     add_theme_rule!(ctx, {
         "spacing" => {
-            "m" => ["margin"]
-            "mx" => ["margin-left", "margin-right"]
-            "my" => ["margin-top", "margin-bottom"]
-            "mt" => ["margin-top"]
-            "mr" => ["margin-right"]
-            "mb" => ["margin-bottom"]
-            "ml" => ["margin-left"]
-            "ms" => ["margin-inline-start"]
-            "me" => ["margin-inline-end"]
+            // TODO: types, order
+            "m" : CssProperty::Margin       => ["margin"]                      in OrderingKey::Margin
+            "mx": CssProperty::MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
+            "my": CssProperty::MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
+            "mt": CssProperty::MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
+            "mr": CssProperty::MarginRight  => ["margin-right"]                in OrderingKey::MarginSide
+            "mb": CssProperty::MarginBottom => ["margin-bottom"]               in OrderingKey::MarginSide
+            "ml": CssProperty::MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
+            "ms": CssProperty::MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
+            "me": CssProperty::MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
 
-            "p" => ["padding"]
-            "px" => ["padding-left", "padding-right"]
-            "py" => ["padding-top", "padding-bottom"]
-            "pt" => ["padding-top"]
-            "pr" => ["padding-right"]
-            "pb" => ["padding-bottom"]
-            "pl" => ["padding-left"]
-            "ps" => ["padding-inline-start"]
-            "pe" => ["padding-inline-end"]
+            "p" : CssProperty::Padding            => ["padding"]                       in OrderingKey::Padding
+            "px": CssProperty::PaddingLeft        => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
+            "py": CssProperty::PaddingTop         => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
+            "pt": CssProperty::PaddingTop         => ["padding-top"]                   in OrderingKey::PaddingSide
+            "pr": CssProperty::PaddingRight       => ["padding-right"]                 in OrderingKey::PaddingSide
+            "pb": CssProperty::PaddingBottom      => ["padding-bottom"]                in OrderingKey::PaddingSide
+            "pl": CssProperty::PaddingLeft        => ["padding-left"]                  in OrderingKey::PaddingSide
+            "ps": CssProperty::PaddingInlineStart => ["padding-inline-start"]          in OrderingKey::PaddingSide
+            "pe": CssProperty::PaddingInlineEnd   => ["padding-inline-end"]            in OrderingKey::PaddingSide
 
-            "inset" => ["top", "right", "bottom", "left"]
-            "inset-x" => ["left", "right"]
-            "inset-y" => ["top", "bottom"]
+            "inset"   : CssProperty::Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset
+            "inset-x" : CssProperty::Left  => ["left", "right"]                  in OrderingKey::InsetAxis
+            "inset-y" : CssProperty::Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis
 
-            "top" => ["top"]
-            "right" => ["right"]
-            "bottom" => ["bottom"]
-            "left" => ["left"]
+            "top":    CssProperty::Top => ["top"]    in OrderingKey::InsetSide
+            "right":  CssProperty::Top => ["right"]  in OrderingKey::InsetSide
+            "bottom": CssProperty::Top => ["bottom"] in OrderingKey::InsetSide
+            "left":   CssProperty::Top => ["left"]   in OrderingKey::InsetSide
 
-            "gap" => ["gap"]
+            "gap": CssProperty::Gap => ["gap"]
 
-            "w" => ["width"]
-            "h" => ["height"]
-            "size" => ["width", "height"]
-        }
+            "size" : CssProperty::Width => ["width", "height"] in OrderingKey::Size
+            "w"    : CssProperty::Width => ["width"]           in OrderingKey::SizeAxis
+            "h"    : CssProperty::Width => ["height"]          in OrderingKey::SizeAxis
+        },
         "lineHeight" => {
             "leading" => ["line-height"]
-        }
+        },
         "colors" => {
             "border" => ["border-color"]
             "border-x" => ["border-right-color", "border-left-color"]
@@ -328,13 +299,21 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "border-r" => ["border-right-color"]
             "border-b" => ["border-bottom-color"]
             "border-l" => ["border-left-color"]
-        }
+        },
         "opacity" => {
             "opacity" => ["opacity"]
             "text" => ["text-opacity"]
-            "bg" => ["background-opacity"]
             "border" => ["border-opacity"]
             "divide" => ["--tw-divide-opacity"]
         }
     });
+}
+
+fn as_color(value: &str, modifier: Option<String>) -> String {
+    modifier
+        .and_then(|m| m.parse::<f32>().ok())
+        .map(|n| {
+            format!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0)
+        })
+        .unwrap_or_else(|| value.to_string())
 }

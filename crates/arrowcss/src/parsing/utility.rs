@@ -194,7 +194,7 @@ pub struct UtilityBuilder<'i, 'c> {
     wrapper: Option<String>,
     supports_negative: bool,
     supports_fraction: bool,
-    ordering_key: Option<OrderingKey<String>>,
+    ordering_key: Option<OrderingKey>,
 }
 
 impl<'i, 'c> UtilityBuilder<'i, 'c> {
@@ -257,7 +257,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    pub fn with_ordering(mut self, key: OrderingKey<String>) -> Self {
+    pub fn with_ordering(mut self, key: OrderingKey) -> Self {
         self.ordering_key = Some(key);
         self
     }

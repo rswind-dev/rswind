@@ -5,10 +5,12 @@ use fxhash::FxHashMap as HashMap;
 use crate::{
     config::ArrowConfig,
     css::{rule::RuleList, Decl, DeclList, Rule},
+    ordering::OrderingKey,
     parsing::VariantCandidate,
     process::{Utility, Variant},
     theme::{Theme, ThemeValue},
     themes::theme,
+    types::TypeValidator,
 };
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
@@ -82,33 +84,40 @@ impl<'c> Context<'c> {
         &mut self,
         key: &'a str,
         values: Vec<(String, Vec<String>)>,
-        // typ: Option<impl TypeValidator>,
+        ord: Option<OrderingKey>,
+        typ: Option<impl TypeValidator + 'static + Clone>,
     ) -> &Self {
         for (k, v) in values {
             let theme = self
                 .get_theme(key)
                 .unwrap_or_else(|| panic!("Theme {} not found", &k));
 
-            self.utilities.add(
-                k,
-                Utility::new(move |_, input| {
-                    let decls = v
-                        .clone()
-                        .into_iter()
-                        .map(|k| Decl {
-                            name: k.into(),
-                            value: input.clone(),
-                        })
-                        .collect();
+            let mut utility = Utility::new(move |_, input| {
+                let decls = v
+                    .clone()
+                    .into_iter()
+                    .map(|k| Decl {
+                        name: k.into(),
+                        value: input.clone(),
+                    })
+                    .collect();
 
-                    Rule {
-                        selector: "&".into(),
-                        decls,
-                        rules: vec![].into(),
-                    }
-                })
-                .allow_values(theme),
-            );
+                Rule {
+                    selector: "&".into(),
+                    decls,
+                    rules: vec![].into(),
+                }
+            })
+            .allow_values(theme);
+
+            if let Some(ord) = ord {
+                utility.ordering(ord);
+            }
+            if let Some(ref ty) = typ {
+                utility.validator(ty.clone());
+            }
+
+            self.utilities.add(k, utility);
         }
         self
     }
@@ -119,16 +128,41 @@ impl<'c> Context<'c> {
 }
 
 #[macro_export]
+macro_rules! get_ord(
+    ($ord:expr) => {
+        Some($ord)
+    };
+    () => {
+        None
+    };
+);
+
+#[macro_export]
+macro_rules! get_typ(
+    ($typ:expr) => {
+        Some($typ)
+    };
+    () => {
+        None::<CssDataType>
+    };
+);
+
+#[macro_export]
 macro_rules! add_theme_rule {
-  ($ctx:expr, {
-    $($theme_key:literal => {
-      $($key:literal => [$($decl_key:literal),+])+
-    })+
-  }) => {
-    $(
-      $ctx.add_theme_rule($theme_key, vec![
-        $(($key.to_string(), vec![$($decl_key.into()),+]),)+
-      ]);
-    )+
-  };
+    ($ctx:expr, {
+        $($theme_key:literal => {
+            $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? )*
+        }),+
+    }) => {
+        $(
+            $(
+                $ctx.add_theme_rule(
+                    $theme_key,
+                    vec![($key.to_string(), vec![$($decl_key.into()),+])],
+                    crate::get_ord!($($ord)?),
+                    crate::get_typ!($($typ)?),
+                );
+            )*
+        )+
+    };
 }

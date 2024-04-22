@@ -13,7 +13,7 @@ struct GroupItem {
 
 #[derive(Debug)]
 pub struct UtilityOrdering {
-    ordering: HashMap<OrderingKey<String>, (GroupItem, usize)>,
+    ordering: HashMap<OrderingKey, (GroupItem, usize)>,
     n: usize,
 }
 
@@ -48,13 +48,16 @@ impl Eq for OrderingItem<'_> {}
 
 impl PartialOrd for OrderingItem<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.variant_ordering.cmp(&other.variant_ordering))
+        Some(self.cmp(other))
     }
 }
 
 impl Ord for OrderingItem<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.variant_ordering.cmp(&other.variant_ordering)
+        match self.variant_ordering.cmp(&other.variant_ordering) {
+            std::cmp::Ordering::Equal => self.name.cmp(&other.name),
+            other => other,
+        }
     }
 }
 
@@ -117,10 +120,7 @@ impl UtilityOrdering {
 
     pub fn add_order<'a>(
         &mut self,
-        rule: impl IntoIterator<
-            Item = OrderingKey<String>,
-            IntoIter: ExactSizeIterator,
-        >,
+        rule: impl IntoIterator<Item = OrderingKey, IntoIter: ExactSizeIterator>,
     ) -> usize {
         self.n += 1;
         let mut inner_n = 0;
@@ -144,9 +144,9 @@ impl UtilityOrdering {
     }
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd)]
-pub enum OrderingKey<T> {
-    Disorder(T),
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+pub enum OrderingKey {
+    Disorder,
 
     Translate,
     TranslateAxis,
@@ -177,15 +177,9 @@ pub enum OrderingKey<T> {
 
     BorderSpacing,
     BorderSpacingAxis,
-}
 
-impl Ord for OrderingKey<String> {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        let a = ORDERING.ordering.get(self);
-        let b = ORDERING.ordering.get(other);
-
-        todo!()
-    }
+    Size,
+    SizeAxis,
 }
 
 lazy_static! {
@@ -212,6 +206,7 @@ pub fn create_ordering() -> UtilityOrdering {
     ordering.add_order([Padding, PaddingAxis, PaddingSide]);
     ordering.add_order([Rounded, RoundedSide, RoundedCorner]);
     ordering.add_order([BorderSpacing, BorderSpacingAxis]);
+    ordering.add_order([Size, SizeAxis]);
 
     ordering
 }

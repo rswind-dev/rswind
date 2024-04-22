@@ -22,7 +22,7 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct GenerateResult<'c> {
     pub rule: RuleList<'c>,
-    pub ordering: OrderingKey<String>,
+    pub ordering: OrderingKey,
     pub variants: BTreeSet<Variant>,
 }
 

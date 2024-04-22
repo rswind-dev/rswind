@@ -1,8 +1,4 @@
-use arrowcss::{
-    app::{get_files, Application},
-    css::ToCssString,
-    parser::to_css_rule,
-};
+use arrowcss::{app::Application, css::ToCssString, parser::to_css_rule};
 use clap::{arg, command, Parser};
 
 #[derive(Debug, Parser)]

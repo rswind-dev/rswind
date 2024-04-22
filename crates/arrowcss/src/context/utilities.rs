@@ -17,7 +17,7 @@ pub trait UtilityStorage<'c>: Sync + Send {
     fn try_apply<'a>(
         &self,
         input: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey<String>)>;
+    ) -> Option<(Rule<'c>, OrderingKey)>;
 }
 
 #[enum_dispatch(UtilityStorage)]
@@ -58,11 +58,11 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
     fn try_apply<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey<String>)> {
+    ) -> Option<(Rule<'c>, OrderingKey)> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(decls) => Some((
                 Rule::new_with_decls("&", decls.clone().0.into_vec()),
-                OrderingKey::Disorder(candidate.key.to_string()),
+                OrderingKey::Disorder,
             )),
             Right(handler) => handler.apply_to(candidate),
         })

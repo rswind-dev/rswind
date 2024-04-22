@@ -1,4 +1,8 @@
-use crate::{common::MaybeArbitrary, context::Context, process::{Variant, VariantOrdering}};
+use crate::{
+    common::MaybeArbitrary,
+    context::Context,
+    process::{Variant, VariantOrdering},
+};
 
 pub fn load_variants(ctx: &mut Context) {
     ctx
