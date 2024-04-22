@@ -5,9 +5,8 @@ use std::{
 
 use anyhow::Error;
 
-use crate::writer::Writer;
-
 use super::{Decl, ToCss};
+use crate::writer::Writer;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rule<'a> {
@@ -17,10 +16,7 @@ pub struct Rule<'a> {
 }
 
 impl<'a> Rule<'a> {
-    pub fn new_with_decls(
-        selector: impl Into<String>,
-        decls: Vec<Decl<'a>>,
-    ) -> Self {
+    pub fn new_with_decls(selector: impl Into<String>, decls: Vec<Decl<'a>>) -> Self {
         Self {
             selector: selector.into(),
             decls,
@@ -65,10 +61,7 @@ impl<'a> RuleList<'a> {
         }
     }
 
-    pub fn modify_with(
-        self,
-        modifier: impl Fn(String) -> String + Clone,
-    ) -> Self {
+    pub fn modify_with(self, modifier: impl Fn(String) -> String + Clone) -> Self {
         Self(
             self.0
                 .into_iter()

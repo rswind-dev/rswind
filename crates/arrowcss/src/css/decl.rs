@@ -1,14 +1,14 @@
-use std::ops::DerefMut;
-use std::{fmt::Write, ops::Deref};
+use std::{
+    fmt::Write,
+    ops::{Deref, DerefMut},
+};
 
 use anyhow::Error;
-use lightningcss::traits::IntoOwned;
-use lightningcss::values::string::CowArcStr;
+use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 use smallvec::{smallvec, SmallVec};
 
-use crate::writer::Writer;
-
 use super::ToCss;
+use crate::writer::Writer;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Decl<'a> {
@@ -17,10 +17,7 @@ pub struct Decl<'a> {
 }
 
 impl<'a> Decl<'a> {
-    pub fn new<S: Into<CowArcStr<'a>>, SS: Into<CowArcStr<'a>>>(
-        name: S,
-        value: SS,
-    ) -> Self {
+    pub fn new<S: Into<CowArcStr<'a>>, SS: Into<CowArcStr<'a>>>(name: S, value: SS) -> Self {
         Self {
             name: name.into(),
             value: value.into(),
@@ -43,17 +40,13 @@ impl<'a> IntoOwned<'a> for Decl<'a> {
 //     CssDecl::new(name, value)
 // }
 
-impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> From<(A, B)>
-    for Decl<'a>
-{
+impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> From<(A, B)> for Decl<'a> {
     fn from(val: (A, B)) -> Self {
         Decl::new(val.0.into(), val.1.into())
     }
 }
 
-impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> FromIterator<(A, B)>
-    for DeclList<'a>
-{
+impl<'a, A: Into<CowArcStr<'a>>, B: Into<CowArcStr<'a>>> FromIterator<(A, B)> for DeclList<'a> {
     fn from_iter<T: IntoIterator<Item = (A, B)>>(iter: T) -> Self {
         Self(iter.into_iter().map(Into::into).collect())
     }
@@ -121,9 +114,7 @@ impl<'a> DeclList<'a> {
         Self(smallvec![])
     }
 
-    pub fn multi<D: Into<Decl<'a>>, I: IntoIterator<Item = D>>(
-        decls: I,
-    ) -> Self {
+    pub fn multi<D: Into<Decl<'a>>, I: IntoIterator<Item = D>>(decls: I) -> Self {
         Self(decls.into_iter().map(Into::into).collect())
     }
 }

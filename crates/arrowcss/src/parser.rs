@@ -1,17 +1,16 @@
-use std::collections::BTreeSet;
-use std::fmt::Write;
+use std::{collections::BTreeSet, fmt::Write};
 
 use cssparser::serialize_identifier;
 use lazy_static::lazy_static;
 use regex::Regex;
 use smallvec::SmallVec;
 
-use crate::context::utilities::UtilityStorage;
-use crate::css::rule::RuleList;
-use crate::ordering::OrderingKey;
-use crate::process::{StaticHandler, Variant, VariantHandler};
 use crate::{
-    context::Context, parsing::UtilityParser, parsing::VariantParser,
+    context::{utilities::UtilityStorage, Context},
+    css::rule::RuleList,
+    ordering::OrderingKey,
+    parsing::{UtilityParser, VariantParser},
+    process::{StaticHandler, Variant, VariantHandler},
     utils::TopLevelPattern,
 };
 
@@ -26,10 +25,7 @@ pub struct GenerateResult<'c> {
     pub variants: BTreeSet<Variant>,
 }
 
-pub fn to_css_rule<'c>(
-    value: &str,
-    ctx: &Context<'c>,
-) -> Option<GenerateResult<'c>> {
+pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<'c>> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
@@ -83,9 +79,8 @@ pub fn to_css_rule<'c>(
 mod tests {
     use arrowcss_css_macro::css;
 
-    use crate::process::Utility;
-
     use super::*;
+    use crate::process::Utility;
 
     #[test]
     fn test_to_css_rule() {

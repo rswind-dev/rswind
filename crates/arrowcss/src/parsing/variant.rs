@@ -1,13 +1,12 @@
 use smallvec::{smallvec, SmallVec};
 
+use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
     context::Context,
     css::rule::RuleList,
     process::{ComposableHandler, Variant, VariantHandlerExt},
 };
-
-use super::ParserPosition;
 
 #[derive(Debug, Clone)]
 pub struct VariantCandidate<'a> {
@@ -240,9 +239,7 @@ mod tests {
         let mut input = VariantParser::new("has-not-hover");
         let c = input.parse(&ctx).unwrap();
 
-        let rule =
-            Rule::new_with_decls("&", vec![Decl::new("display", "flex")])
-                .to_rule_list();
+        let rule = Rule::new_with_decls("&", vec![Decl::new("display", "flex")]).to_rule_list();
 
         let res = c.handle(rule);
 

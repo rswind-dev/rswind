@@ -49,10 +49,7 @@ pub fn load_variants(ctx: &mut Context) {
             "motion-safe",
             ["@media (prefers-reduced-motion: no-preference)"],
         )
-        .add_variant(
-            "motion-reduce",
-            ["@media (prefers-reduced-motion: reduce)"],
-        )
+        .add_variant("motion-reduce", ["@media (prefers-reduced-motion: reduce)"])
         .add_variant("contrast-more", ["@media (prefers-contrast: more)"])
         .add_variant("contrast-less", ["@media (prefers-contrast: less)"])
         // Others
@@ -76,9 +73,7 @@ pub fn load_variants(ctx: &mut Context) {
     });
 
     ctx.add_variant_fn("data", |rule, candidate| {
-        rule.modify_with(|s| {
-            format!("{}[data-{}]", s, take_or_default(&candidate.value))
-        })
+        rule.modify_with(|s| format!("{}[data-{}]", s, take_or_default(&candidate.value)))
     });
 
     ctx.add_variant_composable("has", |rule, _| {
@@ -140,8 +135,7 @@ mod tests {
 
         let rule = css!("display": "flex").to_rule_list();
 
-        let candidate =
-            VariantParser::new("group-hover/aaa").parse(&ctx).unwrap();
+        let candidate = VariantParser::new("group-hover/aaa").parse(&ctx).unwrap();
 
         let res = candidate.handle(rule);
 

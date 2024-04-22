@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use lightningcss::values::string::CowArcStr;
 
+use super::{ArbitraryValueProcessor, MetaData};
 use crate::{
     css::{rule::RuleList, Rule},
     ordering::OrderingKey,
@@ -8,8 +9,6 @@ use crate::{
     theme::ThemeValue,
     types::TypeValidator,
 };
-
-use super::{ArbitraryValueProcessor, MetaData};
 
 #[rustfmt::skip]
 pub trait RuleMatchingFn: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
@@ -34,11 +33,7 @@ impl Default for UtilityHandler {
 }
 
 impl UtilityHandler {
-    pub fn call<'a>(
-        &self,
-        meta: MetaData<'_>,
-        value: CowArcStr<'a>,
-    ) -> Rule<'a> {
+    pub fn call<'a>(&self, meta: MetaData<'_>, value: CowArcStr<'a>) -> Rule<'a> {
         match self {
             Self::Static(handler) => handler(meta, value),
             Self::Dynamic(handler) => handler(meta, value),
@@ -124,18 +119,12 @@ impl<'c> Utility<'c> {
         self
     }
 
-    pub fn validator(
-        &mut self,
-        validator: impl TypeValidator + 'static,
-    ) -> &mut Self {
+    pub fn validator(&mut self, validator: impl TypeValidator + 'static) -> &mut Self {
         self.validator = Some(Box::new(validator));
         self
     }
 
-    pub fn apply_to<'a>(
-        &self,
-        candidate: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey)>
+    pub fn apply_to<'a>(&self, candidate: UtilityCandidate<'a>) -> Option<(Rule<'c>, OrderingKey)>
     where
         'c: 'a,
     {
@@ -151,9 +140,7 @@ impl<'c> Utility<'c> {
         let mut meta = MetaData::new(candidate);
 
         // handing modifier
-        if let (Some(modifier), Some(candidate)) =
-            (&self.modifier, candidate.modifier)
-        {
+        if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
             meta.modifier = modifier.process(candidate).map(|v| v.to_string());
         }
 

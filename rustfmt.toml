@@ -1,3 +1,4 @@
 tab_spaces = 4
 edition = "2021"
-max_width = 80
+imports_granularity = "Crate"
+group_imports = "StdExternalCrate"

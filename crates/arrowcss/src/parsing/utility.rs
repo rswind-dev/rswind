@@ -1,3 +1,4 @@
+use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
     context::{utilities::UtilityStorage, Context},
@@ -6,8 +7,6 @@ use crate::{
     process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler},
     types::TypeValidator,
 };
-
-use super::ParserPosition;
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct UtilityCandidate<'a> {
@@ -239,10 +238,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    pub fn with_validator(
-        mut self,
-        validator: impl TypeValidator + 'static,
-    ) -> Self {
+    pub fn with_validator(mut self, validator: impl TypeValidator + 'static) -> Self {
         self.validator = Some(Box::new(validator));
         self
     }

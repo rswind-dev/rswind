@@ -1,6 +1,5 @@
-use lightningcss::traits::IntoOwned;
-
 use arrowcss_css_macro::css;
+use lightningcss::traits::IntoOwned;
 
 use crate::{
     add_theme_rule,
@@ -48,33 +47,36 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_validator(CssDataType::Number)
         .with_theme("lineClamp");
 
-    rules.add("border-spacing", |_, value| {
-        css! {
-            "--tw-border-spacing-x": value.clone();
-            "--tw-border-spacing-y": value.clone();
-            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-        }
-    })
-    .with_ordering(OrderingKey::BorderSpacing)
-    .with_theme("spacing");
+    rules
+        .add("border-spacing", |_, value| {
+            css! {
+                "--tw-border-spacing-x": value.clone();
+                "--tw-border-spacing-y": value.clone();
+                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
+            }
+        })
+        .with_ordering(OrderingKey::BorderSpacing)
+        .with_theme("spacing");
 
-    rules.add("border-spacing-x", |_, value| {
-        css! {
-            "--tw-border-spacing-x": value;
-            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-        }
-    })
-    .with_ordering(OrderingKey::BorderSpacingAxis)
-    .with_theme("spacing");
+    rules
+        .add("border-spacing-x", |_, value| {
+            css! {
+                "--tw-border-spacing-x": value;
+                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
+            }
+        })
+        .with_ordering(OrderingKey::BorderSpacingAxis)
+        .with_theme("spacing");
 
-    rules.add("border-spacing-y", |_, value| {
-        css! {
-            "--tw-border-spacing-y": value;
-            "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
-        }
-    })
-    .with_ordering(OrderingKey::BorderSpacingAxis)
-    .with_theme("spacing");
+    rules
+        .add("border-spacing-y", |_, value| {
+            css! {
+                "--tw-border-spacing-y": value;
+                "border-spacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)";
+            }
+        })
+        .with_ordering(OrderingKey::BorderSpacingAxis)
+        .with_theme("spacing");
 
     rules
         .add("animate", |_, value| {
@@ -84,26 +86,28 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         })
         .with_theme("animate");
 
-    rules.add("space-x", |_, value| {
-        css! {
-            "--tw-space-x-reverse": "0";
-            "margin-right": format!("calc({value} * var(--tw-space-x-reverse))");
-            "margin-left":  format!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
-        }
-    })
-    .with_theme("spacing")
-    .with_wrapper("& > :not([hidden]) ~ :not([hidden])")
-    .support_negative();
+    rules
+        .add("space-x", |_, value| {
+            css! {
+                "--tw-space-x-reverse": "0";
+                "margin-right": format!("calc({value} * var(--tw-space-x-reverse))");
+                "margin-left":  format!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
+            }
+        })
+        .with_theme("spacing")
+        .with_wrapper("& > :not([hidden]) ~ :not([hidden])")
+        .support_negative();
 
-    rules.add("space-y", |_, value| {
-        css! {
-            "--tw-space-y-reverse": "0";
-            "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
-            "margin-bottom": format!("calc({value} * var(--tw-space-y-reverse))");
-        }
-    })
-    .with_theme("spacing")
-    .support_negative();
+    rules
+        .add("space-y", |_, value| {
+            css! {
+                "--tw-space-y-reverse": "0";
+                "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
+                "margin-bottom": format!("calc({value} * var(--tw-space-y-reverse))");
+            }
+        })
+        .with_theme("spacing")
+        .support_negative();
 
     rules.add("divide-x", |_, value| {
         css! {
@@ -115,15 +119,16 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     .with_theme("borderWidth")
     .with_validator(CssProperty::BorderRightWidth);
 
-    rules.add("divide-y", |_, value| {
-        css! {
-            "--tw-divide-y-reverse": "0";
-            "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
-            "border-bottom-width": format!("calc({value} * var(--tw-divide-y-reverse))");
-        }
-    })
-    .with_theme("borderWidth")
-    .with_validator(CssProperty::BorderTopWidth);
+    rules
+        .add("divide-y", |_, value| {
+            css! {
+                "--tw-divide-y-reverse": "0";
+                "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
+                "border-bottom-width": format!("calc({value} * var(--tw-divide-y-reverse))");
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderTopWidth);
 
     rules
         .add(
@@ -235,9 +240,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
                 .value
                 .and_then(|v| line_height_map.get(v.take_named()?))
             {
-                font_size.extend(
-                    css!("line-height": line_height.clone().into_owned()),
-                );
+                font_size.extend(css!("line-height": line_height.clone().into_owned()));
             }
             font_size
         })
@@ -312,8 +315,6 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
 fn as_color(value: &str, modifier: Option<String>) -> String {
     modifier
         .and_then(|m| m.parse::<f32>().ok())
-        .map(|n| {
-            format!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0)
-        })
+        .map(|n| format!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
         .unwrap_or_else(|| value.to_string())
 }

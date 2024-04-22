@@ -12,11 +12,7 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 pub trait VariantHandlerExt {
-    fn handle<'a>(
-        &self,
-        candidate: VariantCandidate<'_>,
-        rule: RuleList<'a>,
-    ) -> RuleList<'a>;
+    fn handle<'a>(&self, candidate: VariantCandidate<'_>, rule: RuleList<'a>) -> RuleList<'a>;
 }
 
 #[derive(Debug, Clone)]
@@ -98,9 +94,7 @@ impl Variant {
         handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
     ) -> Self {
         Self {
-            handler: VariantHandler::Composable(ComposableHandler::new(
-                handler,
-            )),
+            handler: VariantHandler::Composable(ComposableHandler::new(handler)),
             composable: true,
             kind: VariantKind::Composable,
             ordering: None,
@@ -125,17 +119,11 @@ impl Variant {
         }
     }
 
-    pub fn process<'a>(
-        &self,
-        candidate: VariantCandidate<'_>,
-        rule: RuleList<'a>,
-    ) -> RuleList<'a> {
+    pub fn process<'a>(&self, candidate: VariantCandidate<'_>, rule: RuleList<'a>) -> RuleList<'a> {
         match &self.handler {
             VariantHandler::Static(handler) => handler.handle(candidate, rule),
             VariantHandler::Dynamic(handler) => handler.handle(candidate, rule),
-            VariantHandler::Composable(handler) => {
-                handler.handle(candidate, rule)
-            }
+            VariantHandler::Composable(handler) => handler.handle(candidate, rule),
         }
     }
 
@@ -148,11 +136,7 @@ impl Variant {
 }
 
 impl VariantHandlerExt for Variant {
-    fn handle<'a>(
-        &self,
-        candidate: VariantCandidate<'_>,
-        rule: RuleList<'a>,
-    ) -> RuleList<'a> {
+    fn handle<'a>(&self, candidate: VariantCandidate<'_>, rule: RuleList<'a>) -> RuleList<'a> {
         self.process(candidate, rule)
     }
 }
@@ -193,25 +177,17 @@ impl StaticHandler {
         }
     }
 
-    pub fn new_duplicate(
-        matcher: impl IntoIterator<Item: Into<String>>,
-    ) -> Self {
+    pub fn new_duplicate(matcher: impl IntoIterator<Item: Into<String>>) -> Self {
         Self::Duplicate(matcher.into_iter().map(Into::into).collect())
     }
 }
 
 impl VariantHandlerExt for StaticHandler {
-    fn handle<'a>(
-        &self,
-        _candidate: VariantCandidate<'_>,
-        rules: RuleList<'a>,
-    ) -> RuleList<'a> {
+    fn handle<'a>(&self, _candidate: VariantCandidate<'_>, rules: RuleList<'a>) -> RuleList<'a> {
         match self {
             Self::Selector(a) | Self::PseudoElement(a) => rules
                 .into_iter()
-                .map(|rule| {
-                    rule.modify_with(|selector| selector.replace('&', a))
-                })
+                .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
                 .collect(),
             Self::Nested(a) => RuleList::new(Rule {
                 selector: a.clone(),
@@ -221,9 +197,10 @@ impl VariantHandlerExt for StaticHandler {
             Self::Duplicate(list) => list
                 .iter()
                 .flat_map(move |a| {
-                    rules.clone().into_iter().map(|rule| {
-                        rule.modify_with(|selector| selector.replace('&', a))
-                    })
+                    rules
+                        .clone()
+                        .into_iter()
+                        .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
                 })
                 .collect(),
         }
@@ -237,19 +214,13 @@ pub struct DynamicHandler {
 }
 
 impl VariantHandlerExt for DynamicHandler {
-    fn handle<'a>(
-        &self,
-        candidate: VariantCandidate<'_>,
-        rule: RuleList<'a>,
-    ) -> RuleList<'a> {
+    fn handle<'a>(&self, candidate: VariantCandidate<'_>, rule: RuleList<'a>) -> RuleList<'a> {
         (self.handler)(rule, candidate)
     }
 }
 
 impl DynamicHandler {
-    pub fn new(
-        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
-    ) -> Self {
+    pub fn new(handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>) -> Self {
         Self {
             handler,
             composable: true,
@@ -264,9 +235,7 @@ pub struct ComposableHandler {
 }
 
 impl ComposableHandler {
-    pub fn new(
-        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
-    ) -> Self {
+    pub fn new(handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>) -> Self {
         Self {
             handler,
             composable: true,
@@ -282,11 +251,7 @@ impl ComposableHandler {
 }
 
 impl VariantHandlerExt for ComposableHandler {
-    fn handle<'a>(
-        &self,
-        candidate: VariantCandidate<'_>,
-        rule: RuleList<'a>,
-    ) -> RuleList<'a> {
+    fn handle<'a>(&self, candidate: VariantCandidate<'_>, rule: RuleList<'a>) -> RuleList<'a> {
         (self.handler)(rule, candidate)
     }
 }
@@ -295,13 +260,12 @@ impl VariantHandlerExt for ComposableHandler {
 mod tests {
     use arrowcss_css_macro::css;
 
+    use super::{DynamicHandler, VariantHandlerExt};
     use crate::{
         context::Context,
         css::{rule::RuleList, Decl, Rule},
         parsing::VariantParser,
     };
-
-    use super::{DynamicHandler, VariantHandlerExt};
 
     #[test]
     fn test_variant_process() {

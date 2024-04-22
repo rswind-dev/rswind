@@ -1,7 +1,8 @@
+use std::hash::Hash;
+
 use fxhash::FxHashMap as HashMap;
 use lazy_static::lazy_static;
 use smallvec::{smallvec, SmallVec};
-use std::hash::Hash;
 
 use crate::parser::GenerateResult;
 
@@ -25,11 +26,7 @@ pub struct OrderingItem<'a> {
 }
 
 impl<'a> OrderingItem<'a> {
-    pub fn new(
-        name: String,
-        item: GenerateResult<'a>,
-        variant_ordering: u128,
-    ) -> Self {
+    pub fn new(name: String, item: GenerateResult<'a>, variant_ordering: u128) -> Self {
         Self {
             name,
             item,
@@ -76,14 +73,9 @@ impl<'a, 'i> OrderingMap<'a, 'i> {
         }
     }
 
-    pub fn insert_many(
-        &mut self,
-        items: impl IntoIterator<Item = OrderingItem<'i>>,
-    ) {
+    pub fn insert_many(&mut self, items: impl IntoIterator<Item = OrderingItem<'i>>) {
         for key in items {
-            if let Some((item, len)) =
-                self.ordering.ordering.get(&key.item.ordering)
-            {
+            if let Some((item, len)) = self.ordering.ordering.get(&key.item.ordering) {
                 self.map
                     .entry(item.group_id)
                     .or_insert_with(|| smallvec![vec![]; *len])[item.id]
@@ -181,7 +173,6 @@ pub enum OrderingKey {
     BorderColor,
     BorderColorAxis,
     BorderColorSide,
-
 
     Size,
     SizeAxis,

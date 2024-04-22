@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use fxhash::FxHashMap as HashMap;
 
+use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
     config::ArrowConfig,
     css::{rule::RuleList, Decl, DeclList, Rule},
@@ -12,8 +13,6 @@ use crate::{
     themes::theme,
     types::TypeValidator,
 };
-
-use self::utilities::{UtilityStorage, UtilityStorageImpl};
 
 pub mod utilities;
 

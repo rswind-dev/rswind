@@ -1,6 +1,6 @@
-use std::fmt::Debug;
 use std::{
     collections::HashMap,
+    fmt::Debug,
     hash::{BuildHasher, Hash},
     ops::Deref,
 };
@@ -55,9 +55,7 @@ pub trait MapExtendedExt<A> {
     fn extended<T: IntoIterator<Item = A>>(self, other: T) -> Self;
 }
 
-impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)>
-    for HashMap<K, V, S>
-{
+impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)> for HashMap<K, V, S> {
     fn extended<T: IntoIterator<Item = (K, V)>>(mut self, other: T) -> Self {
         self.extend(other);
         self

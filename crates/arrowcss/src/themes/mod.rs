@@ -1,8 +1,9 @@
 use phf::Map;
 
-use crate::theme::Theme;
-use crate::themes::colors::COLORS;
-use crate::themes::spacing::SPACING;
+use crate::{
+    theme::Theme,
+    themes::{colors::COLORS, spacing::SPACING},
+};
 
 mod colors;
 mod spacing;

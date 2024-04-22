@@ -1,14 +1,16 @@
-pub use lightningcss::properties::PropertyId;
-pub use lightningcss::values::{
-    color::CssColor,
-    ident::Ident,
-    image::Image,
-    length::{Length, LengthPercentage},
-    number::CSSNumber,
-    percentage::Percentage,
-    time::Time,
-};
 use lightningcss::{properties::Property, traits::Parse};
+pub use lightningcss::{
+    properties::PropertyId,
+    values::{
+        color::CssColor,
+        ident::Ident,
+        image::Image,
+        length::{Length, LengthPercentage},
+        number::CSSNumber,
+        percentage::Percentage,
+        time::Time,
+    },
+};
 
 pub trait TypeValidator: Sync + Send {
     fn validate(&self, value: &str) -> bool;
@@ -43,9 +45,7 @@ impl TypeValidator for CssDataType {
         match self {
             CssDataType::Color => CssColor::parse_string(value).is_ok(),
             CssDataType::Length => Length::parse_string(value).is_ok(),
-            CssDataType::LengthPercentage => {
-                LengthPercentage::parse_string(value).is_ok()
-            }
+            CssDataType::LengthPercentage => LengthPercentage::parse_string(value).is_ok(),
             CssDataType::Percentage => Percentage::parse_string(value).is_ok(),
             CssDataType::Number => CSSNumber::parse_string(value).is_ok(),
             CssDataType::Ident => Ident::parse_string(value).is_ok(),

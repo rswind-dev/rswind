@@ -1,9 +1,11 @@
-use std::fmt::Write as _;
-use std::fs::{read_to_string, OpenOptions};
-use std::io::{BufWriter, Write};
-use std::path::{Path, PathBuf};
-use std::sync::mpsc;
-use std::time::{Duration, Instant};
+use std::{
+    fmt::Write as _,
+    fs::{read_to_string, OpenOptions},
+    io::{BufWriter, Write},
+    path::{Path, PathBuf},
+    sync::mpsc,
+    time::{Duration, Instant},
+};
 
 use config::{Config, File};
 use fxhash::FxHashMap as HashMap;
@@ -12,14 +14,16 @@ use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
-use crate::extract::Extractor;
-use crate::ordering::{create_ordering, OrderingItem, OrderingMap};
-use crate::parser::{to_css_rule, GenerateResult};
-use crate::rules::statics::load_static_utilities;
-use crate::variant::load_variants;
 use crate::{
-    config::ArrowConfig, context::Context, css::ToCss,
-    rules::dynamics::load_dynamic_utilities, writer::Writer,
+    config::ArrowConfig,
+    context::Context,
+    css::ToCss,
+    extract::Extractor,
+    ordering::{create_ordering, OrderingItem, OrderingMap},
+    parser::{to_css_rule, GenerateResult},
+    rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
+    variant::load_variants,
+    writer::Writer,
 };
 
 pub struct Application<'c> {
@@ -58,8 +62,7 @@ impl<'c> Application<'c> {
     pub fn watch(&mut self, dir: &str, output: Option<&str>) {
         let (tx, rx) = mpsc::channel();
 
-        let mut debouncer =
-            new_debouncer(Duration::from_millis(0), tx).unwrap();
+        let mut debouncer = new_debouncer(Duration::from_millis(0), tx).unwrap();
 
         debouncer
             .watcher()
@@ -87,11 +90,7 @@ impl<'c> Application<'c> {
         }
     }
 
-    pub fn run_parallel(
-        &mut self,
-        path: impl AsRef<Path>,
-        output: Option<&str>,
-    ) -> String {
+    pub fn run_parallel(&mut self, path: impl AsRef<Path>, output: Option<&str>) -> String {
         self.run_parallel_with(
             get_files(path.as_ref())
                 .par_iter()
@@ -122,9 +121,7 @@ impl<'c> Application<'c> {
         let get_key = |r: &GenerateResult| {
             r.variants
                 .iter()
-                .map(|v| {
-                    self.ctx.seen_variants.iter().position(|x| x == v).unwrap()
-                })
+                .map(|v| self.ctx.seen_variants.iter().position(|x| x == v).unwrap())
                 .fold(0u128, |order, o| order | (1 << o))
         };
 
@@ -177,9 +174,7 @@ pub fn generate_parallel<'a, 'c: 'a>(
     Extractor::new(&input)
         .extract()
         .into_iter()
-        .filter_map(|token| {
-            to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
-        })
+        .filter_map(|token| to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule)))
         .collect::<HashMap<String, GenerateResult>>()
 }
 

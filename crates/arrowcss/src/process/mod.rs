@@ -1,14 +1,10 @@
 pub mod utility;
 pub mod variant;
 
-use crate::common::MaybeArbitrary;
-use crate::parsing::UtilityCandidate;
-use crate::theme::ThemeValue;
-use lightningcss::traits::IntoOwned;
-use lightningcss::values::string::CowArcStr;
+use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 
-pub use self::utility::*;
-pub use self::variant::*;
+pub use self::{utility::*, variant::*};
+use crate::{common::MaybeArbitrary, parsing::UtilityCandidate, theme::ThemeValue};
 
 pub trait ArbitraryValueProcessor<'a> {
     fn validate(&self, value: &str) -> bool;

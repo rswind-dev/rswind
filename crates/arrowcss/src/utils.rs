@@ -1,6 +1,4 @@
-use std::str::pattern::{
-    DoubleEndedSearcher, Pattern, ReverseSearcher, SearchStep, Searcher,
-};
+use std::str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher, SearchStep, Searcher};
 
 pub fn decode_arbitrary_value(input: &str) -> String {
     let mut output = String::with_capacity(input.len());
@@ -72,9 +70,7 @@ unsafe impl<'a> Searcher<'a> for TopLevelCharSearcher<'a> {
     fn next(&mut self) -> SearchStep {
         let old_finger = self.finger;
 
-        let slice = unsafe {
-            self.haystack.get_unchecked(old_finger..self.finger_back)
-        };
+        let slice = unsafe { self.haystack.get_unchecked(old_finger..self.finger_back) };
         let mut iter = slice.chars();
         let local_iter: &LocalChars = unsafe { std::mem::transmute(&iter) };
         let old_len = local_iter.iter.len();
@@ -107,8 +103,7 @@ unsafe impl<'a> ReverseSearcher<'a> for TopLevelCharSearcher<'a> {
     fn next_back(&mut self) -> SearchStep {
         let old_finger = self.finger_back;
         // SAFETY: see the comment for next() above
-        let slice =
-            unsafe { self.haystack.get_unchecked(self.finger..old_finger) };
+        let slice = unsafe { self.haystack.get_unchecked(self.finger..old_finger) };
         let mut iter = slice.chars();
         let local_iter: &LocalChars = unsafe { std::mem::transmute(&iter) };
 

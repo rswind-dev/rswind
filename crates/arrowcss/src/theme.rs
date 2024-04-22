@@ -1,5 +1,8 @@
-use std::ops::{Deref, DerefMut};
-use std::{fmt, sync::Arc};
+use std::{
+    fmt,
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use fxhash::FxHashMap as HashMap;
 use lightningcss::values::string::CowArcStr;
@@ -24,13 +27,9 @@ impl<'c> ThemeValue<'c> {
         }
     }
 
-    pub fn iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = (&str, CowArcStr<'c>)> + 'a> {
+    pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = (&str, CowArcStr<'c>)> + 'a> {
         match self {
-            Self::Dynamic(map) => {
-                Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone())))
-            }
+            Self::Dynamic(map) => Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone()))),
             Self::Static(map) => Box::new(
                 map.clone()
                     .into_iter()
@@ -115,8 +114,7 @@ impl<'de> Visitor<'de> for ThemeVisitor {
         while let Some(key) = map.next_key::<String>()? {
             match map.next_value::<serde_json::Value>()? {
                 value @ Value::Object(_) => {
-                    let mut theme_map: HashMap<String, CowArcStr<'de>> =
-                        HashMap::default();
+                    let mut theme_map: HashMap<String, CowArcStr<'de>> = HashMap::default();
                     if key == "colors" {
                         match FlattenedColors::deserialize(value) {
                             Ok(b) => {
@@ -129,21 +127,13 @@ impl<'de> Visitor<'de> for ThemeVisitor {
                     } else {
                         for (k, v) in value.as_object().unwrap() {
                             if let Value::String(s) = v {
-                                theme_map.insert(
-                                    k.to_string(),
-                                    s.to_string().into(),
-                                );
+                                theme_map.insert(k.to_string(), s.to_string().into());
                             }
                         }
                     }
-                    themes
-                        .insert(key, ThemeValue::Dynamic(Arc::new(theme_map)));
+                    themes.insert(key, ThemeValue::Dynamic(Arc::new(theme_map)));
                 }
-                _ => {
-                    return Err(de::Error::custom(
-                        "theme only accepts object value",
-                    ))
-                }
+                _ => return Err(de::Error::custom("theme only accepts object value")),
             }
         }
         Ok(Theme(themes))

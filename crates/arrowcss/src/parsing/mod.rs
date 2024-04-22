@@ -1,8 +1,7 @@
 pub mod utility;
 pub mod variant;
 
-pub use self::utility::*;
-pub use self::variant::*;
+pub use self::{utility::*, variant::*};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ParserPosition {

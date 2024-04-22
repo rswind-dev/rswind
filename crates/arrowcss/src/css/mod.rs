@@ -1,10 +1,10 @@
 use anyhow::Error;
 
+pub use self::{
+    decl::{Decl, DeclList},
+    rule::Rule,
+};
 use crate::writer::Writer;
-
-pub use self::decl::Decl;
-pub use self::decl::DeclList;
-pub use self::rule::Rule;
 
 pub mod decl;
 pub mod rule;
