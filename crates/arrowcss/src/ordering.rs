@@ -1,8 +1,9 @@
 use fxhash::FxHashMap as HashMap;
+use lazy_static::lazy_static;
 use smallvec::{smallvec, SmallVec};
 use std::hash::Hash;
 
-use crate::css::rule::RuleList;
+use crate::parser::GenerateResult;
 
 #[derive(Debug)]
 struct GroupItem {
@@ -11,38 +12,60 @@ struct GroupItem {
 }
 
 #[derive(Debug)]
-pub struct UtilityOrdering<T> {
-    ordering: HashMap<T, (GroupItem, usize)>,
+pub struct UtilityOrdering {
+    ordering: HashMap<OrderingKey<String>, (GroupItem, usize)>,
     n: usize,
 }
 
-pub struct OrderingMap<'a, T, I> {
-    ordering: &'a UtilityOrdering<T>,
-    // key: group_id
-    map: HashMap<usize, SmallVec<[Vec<I>; 4]>>,
-    unordered: Vec<I>,
+#[derive(Debug, Clone)]
+pub struct OrderingItem<'a> {
+    pub name: String,
+    pub item: GenerateResult<'a>,
+    variant_ordering: u128,
 }
 
-pub trait Orderable<T> {
-    fn order_key(&self) -> T;
-}
-
-impl Orderable<OrderingKey> for OrderingKey {
-    fn order_key(&self) -> OrderingKey {
-        *self
+impl<'a> OrderingItem<'a> {
+    pub fn new(
+        name: String,
+        item: GenerateResult<'a>,
+        variant_ordering: u128,
+    ) -> Self {
+        Self {
+            name,
+            item,
+            variant_ordering,
+        }
     }
 }
 
-impl<'a> Orderable<OrderingKey>
-    for (String, (RuleList<'a>, OrderingKey))
-{
-    fn order_key(&self) -> OrderingKey {
-        self.1 .1
+impl PartialEq for OrderingItem<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.variant_ordering == other.variant_ordering
     }
 }
 
-impl<'a, T: Hash + Eq, Item: Orderable<T> + Clone> OrderingMap<'a, T, Item> {
-    pub fn new(ordering: &'a UtilityOrdering<T>) -> Self {
+impl Eq for OrderingItem<'_> {}
+
+impl PartialOrd for OrderingItem<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.variant_ordering.cmp(&other.variant_ordering))
+    }
+}
+
+impl Ord for OrderingItem<'_> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.variant_ordering.cmp(&other.variant_ordering)
+    }
+}
+
+pub struct OrderingMap<'a, 'i> {
+    ordering: &'a UtilityOrdering,
+    map: HashMap<usize, SmallVec<[Vec<OrderingItem<'i>>; 4]>>,
+    unordered: Vec<OrderingItem<'i>>,
+}
+
+impl<'a, 'i> OrderingMap<'a, 'i> {
+    pub fn new(ordering: &'a UtilityOrdering) -> Self {
         Self {
             ordering,
             map: HashMap::default(),
@@ -50,10 +73,13 @@ impl<'a, T: Hash + Eq, Item: Orderable<T> + Clone> OrderingMap<'a, T, Item> {
         }
     }
 
-    pub fn insert_many(&mut self, items: impl IntoIterator<Item = Item>) {
+    pub fn insert_many(
+        &mut self,
+        items: impl IntoIterator<Item = OrderingItem<'i>>,
+    ) {
         for key in items {
             if let Some((item, len)) =
-                self.ordering.ordering.get(&key.order_key())
+                self.ordering.ordering.get(&key.item.ordering)
             {
                 self.map
                     .entry(item.group_id)
@@ -63,18 +89,25 @@ impl<'a, T: Hash + Eq, Item: Orderable<T> + Clone> OrderingMap<'a, T, Item> {
                 self.unordered.push(key);
             }
         }
+        self.unordered.sort();
     }
 
-    pub fn get_ordered(&self) -> impl Iterator<Item = &Item> {
-        self.map
+    pub fn get_ordered(&self) -> impl Iterator<Item = &OrderingItem<'i>> {
+        let (bare, mut variant): (Vec<_>, Vec<_>) = self
+            .map
             .iter()
             .flat_map(|(_, v)| v.iter())
             .flat_map(|v| v.iter())
             .chain(self.unordered.iter())
+            .partition(|v| v.variant_ordering == 0);
+
+        variant.sort();
+
+        bare.into_iter().chain(variant.into_iter())
     }
 }
 
-impl<T: Hash + Eq> UtilityOrdering<T> {
+impl UtilityOrdering {
     pub fn new() -> Self {
         Self {
             ordering: HashMap::default(),
@@ -84,7 +117,10 @@ impl<T: Hash + Eq> UtilityOrdering<T> {
 
     pub fn add_order<'a>(
         &mut self,
-        rule: impl IntoIterator<Item = T, IntoIter: ExactSizeIterator>,
+        rule: impl IntoIterator<
+            Item = OrderingKey<String>,
+            IntoIter: ExactSizeIterator,
+        >,
     ) -> usize {
         self.n += 1;
         let mut inner_n = 0;
@@ -108,9 +144,9 @@ impl<T: Hash + Eq> UtilityOrdering<T> {
     }
 }
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq)]
-pub enum OrderingKey {
-    Disorder,
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd)]
+pub enum OrderingKey<T> {
+    Disorder(T),
 
     Translate,
     TranslateAxis,
@@ -143,7 +179,20 @@ pub enum OrderingKey {
     BorderSpacingAxis,
 }
 
-pub fn create_ordering() -> UtilityOrdering<OrderingKey> {
+impl Ord for OrderingKey<String> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let a = ORDERING.ordering.get(self);
+        let b = ORDERING.ordering.get(other);
+
+        todo!()
+    }
+}
+
+lazy_static! {
+    pub static ref ORDERING: UtilityOrdering = create_ordering();
+}
+
+pub fn create_ordering() -> UtilityOrdering {
     use crate::ordering::OrderingKey::*;
 
     let mut ordering = UtilityOrdering::new();

@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use fxhash::FxHashMap as HashMap;
 
 use crate::{
@@ -19,6 +21,7 @@ pub struct Context<'c> {
     pub variants: HashMap<String, Variant>,
     pub theme: Theme<'static>,
     pub cache: HashMap<String, Option<String>>,
+    pub seen_variants: BTreeSet<Variant>,
 }
 
 impl<'c> Context<'c> {
@@ -28,6 +31,7 @@ impl<'c> Context<'c> {
             utilities: UtilityStorageImpl::HashMap(Default::default()),
             theme: theme().merge(config.theme),
             cache: HashMap::default(),
+            seen_variants: BTreeSet::new(),
         }
     }
 

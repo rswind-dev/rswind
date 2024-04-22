@@ -1,7 +1,7 @@
+use std::collections::BTreeSet;
 use std::fmt::Write;
 
 use cssparser::serialize_identifier;
-use either::Either;
 use lazy_static::lazy_static;
 use regex::Regex;
 use smallvec::SmallVec;
@@ -19,10 +19,17 @@ lazy_static! {
     pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
 }
 
+#[derive(Debug, Clone)]
+pub struct GenerateResult<'c> {
+    pub rule: RuleList<'c>,
+    pub ordering: OrderingKey<String>,
+    pub variants: BTreeSet<Variant>,
+}
+
 pub fn to_css_rule<'c>(
     value: &str,
     ctx: &Context<'c>,
-) -> Option<(RuleList<'c>, OrderingKey)> {
+) -> Option<GenerateResult<'c>> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
@@ -38,17 +45,17 @@ pub fn to_css_rule<'c>(
     let (nested, selector): (Vec<_>, Vec<_>) = vs.into_iter().partition(|v| {
         matches!(
             v.processor,
-            Either::Left(Variant {
+            Variant {
                 handler: VariantHandler::Static(StaticHandler::Nested(_)),
                 ..
-            })
+            }
         )
     });
 
     let (node, ordering) = ctx.utilities.try_apply(utility_candidate)?;
 
     let mut node = selector
-        .into_iter()
+        .iter()
         .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
     let mut w = String::with_capacity(value.len() + 5);
@@ -59,9 +66,17 @@ pub fn to_css_rule<'c>(
         rule.selector = rule.selector.replace('&', &w);
     });
 
-    let node = nested.into_iter().fold(node, |acc, cur| cur.handle(acc));
+    let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
-    Some((node, ordering))
+    Some(GenerateResult {
+        rule: node,
+        ordering,
+        variants: nested
+            .into_iter()
+            .chain(selector)
+            .map(|p| p.processor)
+            .collect(),
+    })
 }
 
 #[cfg(test)]

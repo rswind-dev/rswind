@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fmt::Write as _;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::{BufWriter, Write};
@@ -12,10 +13,9 @@ use notify_debouncer_mini::new_debouncer;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
-use crate::css::rule::RuleList;
 use crate::extract::Extractor;
-use crate::ordering::{create_ordering, OrderingKey, OrderingMap};
-use crate::parser::to_css_rule;
+use crate::ordering::{create_ordering, OrderingItem, OrderingMap};
+use crate::parser::{to_css_rule, GenerateResult};
 use crate::rules::statics::load_static_utilities;
 use crate::variant::load_variants;
 use crate::{
@@ -66,10 +66,10 @@ impl<'c> Application<'c> {
         println!("split: {} us", start.elapsed().as_micros());
 
         for token in parts {
-            if let Some((rule, _)) = to_css_rule(token, &self.ctx) {
+            if let Some(r) = to_css_rule(token, &self.ctx) {
                 let mut w = String::with_capacity(100);
                 let mut writer = Writer::default(&mut w);
-                let _ = rule.to_css(&mut writer);
+                let _ = r.rule.to_css(&mut writer);
                 let _ = self.writer.write_str(&w);
                 self.ctx.cache.insert(String::from(token), Some(w));
             } else {
@@ -124,18 +124,34 @@ impl<'c> Application<'c> {
                 a
             });
 
+        for (_, v) in res.iter() {
+            self.ctx.seen_variants.extend(v.variants.clone());
+        }
+
+        let get_key = |r: &GenerateResult| {
+            r.variants
+                .iter()
+                .map(|v| {
+                    self.ctx.seen_variants.iter().position(|x| x == v).unwrap()
+                })
+                .fold(0u128, |order, o| order | (1 << o))
+        };
+
         let ordering = create_ordering();
-        let mut om = OrderingMap::new(&ordering);
-
         let res_len = res.len();
-        om.insert_many(res);
 
-        for (token, (rule, _)) in om.get_ordered() {
+        let mut om = OrderingMap::new(&ordering);
+        om.insert_many(res.into_iter().map(|r| {
+            let key = get_key(&r.1);
+            OrderingItem::new(r.0, r.1, key)
+        }));
+
+        for r in om.get_ordered() {
             let mut w = String::with_capacity(100);
             let mut writer = Writer::default(&mut w);
-            let _ = rule.to_css(&mut writer);
+            let _ = r.item.rule.to_css(&mut writer);
             let _ = self.writer.write_str(&w);
-            self.ctx.cache.insert(token.to_owned(), Some(w));
+            self.ctx.cache.insert(r.name.to_owned(), Some(w));
         }
         println!("Execution time: {:?}", start.elapsed());
 
@@ -167,14 +183,14 @@ impl<'c> Application<'c> {
 pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
     ctx: &'a Context<'c>,
     path: P,
-) -> HashMap<String, (RuleList<'c>, OrderingKey)> {
+) -> HashMap<String, GenerateResult<'c>> {
     Extractor::new(&read_to_string(path.as_ref()).unwrap())
         .extract()
         .into_iter()
         .filter_map(|token| {
             to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule))
         })
-        .collect::<HashMap<String, (RuleList, OrderingKey)>>()
+        .collect::<HashMap<String, GenerateResult>>()
 }
 
 pub fn get_files(dir: &str) -> Vec<PathBuf> {

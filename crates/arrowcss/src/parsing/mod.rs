@@ -1,4 +1,3 @@
-pub mod composer;
 pub mod utility;
 pub mod variant;
 

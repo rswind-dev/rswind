@@ -2,7 +2,7 @@ use smallvec::SmallVec;
 
 use crate::{
     css::{rule::RuleList, Rule},
-    parsing::{composer::Composer, VariantCandidate},
+    parsing::VariantCandidate,
 };
 
 #[rustfmt::skip]
@@ -48,6 +48,38 @@ pub struct Variant {
     pub handler: VariantHandler,
     pub composable: bool,
     pub kind: VariantKind,
+    pub ordering: Option<VariantOrdering>,
+}
+
+impl PartialEq for Variant {
+    fn eq(&self, other: &Self) -> bool {
+        self.ordering == other.ordering
+    }
+}
+
+impl Eq for Variant {}
+
+impl PartialOrd for Variant {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Variant {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.ordering.cmp(&other.ordering)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
+pub enum VariantOrdering {
+    Length(i32),
+}
+
+impl VariantOrdering {
+    pub fn from_px(s: &str) -> Self {
+        Self::Length(s.strip_suffix("px").unwrap().parse().unwrap())
+    }
 }
 
 impl Variant {
@@ -58,6 +90,7 @@ impl Variant {
             handler: VariantHandler::Static(StaticHandler::new(matcher)),
             composable: true,
             kind: VariantKind::Static,
+            ordering: None,
         }
     }
 
@@ -70,6 +103,7 @@ impl Variant {
             )),
             composable: true,
             kind: VariantKind::Composable,
+            ordering: None,
         }
     }
 
@@ -80,6 +114,14 @@ impl Variant {
             handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
             composable: true,
             kind: VariantKind::Dynamic,
+            ordering: None,
+        }
+    }
+
+    pub fn with_ordering(self, ordering: VariantOrdering) -> Self {
+        Self {
+            ordering: Some(ordering),
+            ..self
         }
     }
 
@@ -236,10 +278,6 @@ impl ComposableHandler {
             composable: true,
             ..self
         }
-    }
-
-    pub fn compose(self, variant: Variant) -> Composer {
-        Composer::new(self, variant)
     }
 }
 

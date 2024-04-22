@@ -1,16 +1,13 @@
-use either::{
-    for_both,
-    Either::{self, Left, Right},
-};
+use smallvec::{smallvec, SmallVec};
 
 use crate::{
     common::MaybeArbitrary,
     context::Context,
     css::rule::RuleList,
-    process::{Variant, VariantHandlerExt},
+    process::{ComposableHandler, Variant, VariantHandlerExt},
 };
 
-use super::{composer::Composer, ParserPosition};
+use super::ParserPosition;
 
 #[derive(Debug, Clone)]
 pub struct VariantCandidate<'a> {
@@ -19,13 +16,18 @@ pub struct VariantCandidate<'a> {
     pub modifier: Option<MaybeArbitrary<'a>>,
     // fully arbitrary, e.g. [@media(min-width:300px)] [&:nth-child(3)]
     pub arbitrary: bool,
-    pub compose: Option<()>,
-    pub processor: Either<Variant, Composer>,
+    pub processor: Variant,
+    pub layers: SmallVec<[ComposableHandler; 1]>,
+    pub ordering_key: Option<&'a str>,
 }
 
 impl<'a> VariantCandidate<'a> {
     pub fn handle<'b>(&self, rule: RuleList<'b>) -> RuleList<'b> {
-        for_both!(&self.processor, h => h.handle(self.clone(), rule))
+        let rule = self.processor.handle(self.clone(), rule);
+        self.layers
+            .iter()
+            .rev()
+            .fold(rule, |rule, handler| handler.handle(self.clone(), rule))
     }
 }
 
@@ -135,7 +137,7 @@ impl<'a> VariantParser<'a> {
         }
 
         let mut processor: Option<Variant> = None;
-        let mut composes = vec![];
+        let mut composes = smallvec![];
 
         // find key
         if let Some(processor) = ctx.variants.get(self.current()) {
@@ -145,8 +147,9 @@ impl<'a> VariantParser<'a> {
                 value: None,
                 modifier: None,
                 arbitrary: false,
-                compose: None,
-                processor: Left(processor.clone()),
+                ordering_key: None,
+                layers: SmallVec::new(),
+                processor: processor.clone(),
             });
         } else if self.current().starts_with('@') {
             self.key = Some("@");
@@ -187,15 +190,16 @@ impl<'a> VariantParser<'a> {
         self.parse_value_and_modifier();
         if !composes.is_empty() {
             let variant = ctx.variants.get(self.value?.take_named()?).unwrap();
-            let composer =
-                Composer::new_with_layers(composes.into(), variant.clone());
+            // let composer =
+            //     Composer::new_with_layers(composes.into(), variant.clone());
             return Some(VariantCandidate {
                 key: self.key?,
                 value: self.value,
                 modifier: self.modifier,
                 arbitrary: false,
-                compose: None,
-                processor: Right(composer),
+                ordering_key: None,
+                layers: composes,
+                processor: variant.clone(),
             });
         }
 
@@ -204,8 +208,9 @@ impl<'a> VariantParser<'a> {
             value: self.value,
             arbitrary: false,
             modifier: self.modifier,
-            compose: None,
-            processor: Left(processor?),
+            ordering_key: None,
+            layers: smallvec![],
+            processor: processor?,
         };
 
         Some(candidate)

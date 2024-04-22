@@ -68,7 +68,7 @@ pub struct Utility<'i> {
     /// useful when utilities like `animate-spin`
     pub additional_css: Option<RuleList<'i>>,
 
-    pub ordering_key: Option<OrderingKey>,
+    pub ordering_key: Option<OrderingKey<String>>,
 }
 
 pub struct ModifierProcessor<'i> {
@@ -122,7 +122,10 @@ impl<'c> Utility<'c> {
     pub fn apply_to<'a>(
         &self,
         candidate: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey)> {
+    ) -> Option<(Rule<'c>, OrderingKey<String>)>
+    where
+        'c: 'a,
+    {
         if !self.supports_negative && candidate.negative {
             return None;
         }
@@ -147,7 +150,12 @@ impl<'c> Utility<'c> {
             node.selector = wrapper.clone();
         }
 
-        Some((node, self.ordering_key.unwrap_or(OrderingKey::Disorder)))
+        Some((
+            node,
+            self.ordering_key
+                .clone()
+                .unwrap_or(OrderingKey::Disorder(candidate.key.to_string())),
+        ))
     }
 }
 

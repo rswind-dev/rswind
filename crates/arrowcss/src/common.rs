@@ -65,7 +65,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)>
 }
 
 pub trait Inspector {
-    fn inspect(self) -> Self;
+    fn dbg(self) -> Self;
     fn also(self, f: impl FnOnce(&Self)) -> Self;
 }
 
@@ -73,7 +73,7 @@ impl<T> Inspector for T
 where
     T: Debug,
 {
-    fn inspect(self) -> Self {
+    fn dbg(self) -> Self {
         dbg!(&self);
         self
     }

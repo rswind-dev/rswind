@@ -1,4 +1,4 @@
-use crate::{common::MaybeArbitrary, context::Context};
+use crate::{common::MaybeArbitrary, context::Context, process::{Variant, VariantOrdering}};
 
 pub fn load_variants(ctx: &mut Context) {
     ctx
@@ -109,7 +109,11 @@ pub fn load_variants(ctx: &mut Context) {
 
     if let Some(theme) = ctx.get_theme("breakpoints") {
         theme.iter().for_each(|(k, v)| {
-            ctx.add_variant(k, [format!("@media (width >= {})", v)]);
+            ctx.variants.insert(
+                k.into(),
+                Variant::new_static([format!("@media (width >= {})", v)])
+                    .with_ordering(VariantOrdering::from_px(&v)),
+            );
         })
     }
 }

@@ -194,7 +194,7 @@ pub struct UtilityBuilder<'i, 'c> {
     wrapper: Option<String>,
     supports_negative: bool,
     supports_fraction: bool,
-    ordering_key: Option<OrderingKey>,
+    ordering_key: Option<OrderingKey<String>>,
 }
 
 impl<'i, 'c> UtilityBuilder<'i, 'c> {
@@ -257,7 +257,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    pub fn with_ordering(mut self, key: OrderingKey) -> Self {
+    pub fn with_ordering(mut self, key: OrderingKey<String>) -> Self {
         self.ordering_key = Some(key);
         self
     }
@@ -288,7 +288,7 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
                 supports_fraction: self.supports_fraction,
                 additional_css: std::mem::take(&mut self.additional_css),
                 wrapper: std::mem::take(&mut self.wrapper),
-                ordering_key: self.ordering_key,
+                ordering_key: std::mem::take(&mut self.ordering_key),
             },
         );
     }
