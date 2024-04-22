@@ -152,7 +152,7 @@ impl<'c> Utility<'c> {
 
         Some((
             node,
-            self.ordering_key.clone().unwrap_or(OrderingKey::Disorder),
+            self.ordering_key.unwrap_or(OrderingKey::Disorder),
         ))
     }
 }

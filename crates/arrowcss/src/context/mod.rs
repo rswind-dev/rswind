@@ -158,8 +158,8 @@ macro_rules! add_theme_rule {
                 $ctx.add_theme_rule(
                     $theme_key,
                     vec![($key.to_string(), vec![$($decl_key.into()),+])],
-                    crate::get_ord!($($ord)?),
-                    crate::get_typ!($($typ)?),
+                    $crate::get_ord!($($ord)?),
+                    $crate::get_typ!($($typ)?),
                 );
             )*
         )+

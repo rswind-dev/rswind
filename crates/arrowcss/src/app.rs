@@ -171,7 +171,7 @@ pub fn generate_parallel<'a, 'c: 'a>(
     ctx: &'a Context<'c>,
     input: &str,
 ) -> HashMap<String, GenerateResult<'c>> {
-    Extractor::new(&input)
+    Extractor::new(input)
         .extract()
         .into_iter()
         .filter_map(|token| to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule)))
