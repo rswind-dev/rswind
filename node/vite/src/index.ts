@@ -9,7 +9,7 @@ function sendUpdate(server: ViteDevServer) {
   if (!mod) {
     return;
   }
-  console.log('sendUpdate', id)
+
   server.moduleGraph.invalidateModule(mod);
   setTimeout(() => {
     server.ws.send({
@@ -24,55 +24,35 @@ function sendUpdate(server: ViteDevServer) {
   }, 10)
 }
 
-export default function arrowCSSPlugin(): Plugin[] {
-  let modules: Map<string, string> = new Map();
+export default function arrowcssPlugin(): Plugin[] {
+  let modulesQueue: Map<string, string> = new Map();
   let server: ViteDevServer | null = null;
-  let entry = '';
   return [
     {
       name: "arrowcss:pre",
       enforce: 'pre',
+      configureServer(_server) {
+        server = _server;
+      },
       transform(code, id) {
         if (id.includes("arrow.css")) {
           return null
         }
-        if (modules.get(id) !== code) {
-          modules.set(id, code);
-          // console.log(modules.keys())
+        if (modulesQueue.get(id) !== code) {
+          modulesQueue.set(id, code);
           server && sendUpdate(server);
         }
       },
       load(id) {
         if (id.includes("arrow.css")) {
-          entry = id;
-          return app.generate([...modules.values()].join('\n'));
+          let res = app.generate([...modulesQueue.values()].join('\n'));
+          modulesQueue.clear();
+          return res;
         }
-      },
-    },
-    {
-      name: "arrowcss",
-      enforce: 'post',
-      configureServer(_server) {
-        server = _server;
-
-        _server.ws.on('arrow:hmr', async (msg) => {
-          // console.log('arrow:hmr', msg)
-        });
       },
       resolveId(id) {
         if (id.endsWith("arrow.css")) {
-          // console.log({ id })
           return '/__arrow.css'
-        }
-      },
-      transform(code, id) {
-        if (id.includes("arrow.css")) {
-          const hmr = `
-        // import.meta.hot.send('arrow:hmr', ['hello']);
-        `
-          return {
-            code: code + hmr,
-          }
         }
       },
     },

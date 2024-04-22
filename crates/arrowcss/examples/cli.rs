@@ -45,10 +45,7 @@ fn main() {
             if opts.watch {
                 app.watch(&opts.input, opts.output.as_deref());
             } else {
-                app.run_parallel(
-                    get_files(&opts.input).as_slice(),
-                    opts.output.as_deref(),
-                );
+                app.run_parallel(&opts.input, opts.output.as_deref());
             }
         }
         Some(SubCommand::Debug(cmd)) => {

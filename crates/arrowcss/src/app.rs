@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::fmt::Write as _;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::{BufWriter, Write};
@@ -56,40 +55,6 @@ impl<'c> Application<'c> {
         self
     }
 
-    pub fn generate(&mut self, _: Vec<PathBuf>) {
-        let start = Instant::now();
-        let buffer = std::fs::read_to_string("examples/test.html").unwrap();
-        println!("read: {} us", start.elapsed().as_micros());
-
-        let parts = Extractor::new(&buffer).extract();
-
-        println!("split: {} us", start.elapsed().as_micros());
-
-        for token in parts {
-            if let Some(r) = to_css_rule(token, &self.ctx) {
-                let mut w = String::with_capacity(100);
-                let mut writer = Writer::default(&mut w);
-                let _ = r.rule.to_css(&mut writer);
-                let _ = self.writer.write_str(&w);
-                self.ctx.cache.insert(String::from(token), Some(w));
-            } else {
-                self.ctx.cache.insert(String::from(token), None);
-            }
-        }
-
-        let mut w = BufWriter::new(
-            OpenOptions::new()
-                .write(true)
-                .create(true)
-                .append(false)
-                .open(Path::new("examples/test.css"))
-                .unwrap(),
-        );
-
-        println!("Execution time: {} us", start.elapsed().as_micros());
-        w.write_all(self.writer.dest.as_bytes()).unwrap();
-    }
-
     pub fn watch(&mut self, dir: &str, output: Option<&str>) {
         let (tx, rx) = mpsc::channel();
 
@@ -102,23 +67,49 @@ impl<'c> Application<'c> {
             .unwrap();
 
         let files = get_files(dir);
-        self.run_parallel(files.as_slice(), output);
+        let files = files
+            .par_iter()
+            .into_par_iter()
+            .map(|f| read_to_string(f).unwrap());
+        // .map(|f| generate_parallel(&self.ctx, &f))
+        // .collect_vec_list();
+
+        self.run_parallel_with(files, output);
 
         for change in rx {
-            let files = change
-                .unwrap()
-                .into_iter()
-                .map(|e| e.path)
-                .collect::<Vec<_>>();
-            self.run_parallel(files.as_slice(), output);
+            self.run_parallel_with(
+                change
+                    .unwrap()
+                    .into_par_iter()
+                    .map(|f| read_to_string(f.path).unwrap()),
+                output,
+            );
         }
     }
 
-    pub fn run_parallel(&mut self, paths: &[PathBuf], output: Option<&str>) {
+    pub fn run_parallel(
+        &mut self,
+        path: impl AsRef<Path>,
+        output: Option<&str>,
+    ) -> String {
+        self.run_parallel_with(
+            get_files(path.as_ref())
+                .par_iter()
+                .into_par_iter()
+                .map(|f| read_to_string(f).unwrap()),
+            output,
+        )
+    }
+
+    pub fn run_parallel_with(
+        &mut self,
+        input: impl IntoParallelIterator<Item = String>,
+        output: Option<&str>,
+    ) -> String {
         let start = Instant::now();
-        let res = paths
-            .par_iter()
-            .map(|x| generate_parallel(&self.ctx, x))
+        let res = input
+            .into_par_iter()
+            .map(|x| generate_parallel(&self.ctx, &x))
             .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
                 a
@@ -171,20 +162,19 @@ impl<'c> Application<'c> {
 
         w.write_all(self.writer.dest.as_bytes()).unwrap();
         println!(
-            "Parsed {:3} file{:1} in {:>8.2?}, {} rules generated",
-            paths.len(),
-            if paths.len() > 1 { "s" } else { "" },
+            "Parsed in {:>8.2?}, {} rules generated",
             start.elapsed(),
             res_len,
         );
+        self.writer.dest.clone()
     }
 }
 
-pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
+pub fn generate_parallel<'a, 'c: 'a>(
     ctx: &'a Context<'c>,
-    path: P,
+    input: &str,
 ) -> HashMap<String, GenerateResult<'c>> {
-    Extractor::new(&read_to_string(path.as_ref()).unwrap())
+    Extractor::new(&input)
         .extract()
         .into_iter()
         .filter_map(|token| {
@@ -193,7 +183,7 @@ pub fn generate_parallel<'a, 'c: 'a, P: AsRef<Path>>(
         .collect::<HashMap<String, GenerateResult>>()
 }
 
-pub fn get_files(dir: &str) -> Vec<PathBuf> {
+pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .max_depth(1)
         .into_iter()
