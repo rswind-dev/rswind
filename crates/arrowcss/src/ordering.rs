@@ -178,6 +178,11 @@ pub enum OrderingKey {
     BorderSpacing,
     BorderSpacingAxis,
 
+    BorderColor,
+    BorderColorAxis,
+    BorderColorSide,
+
+
     Size,
     SizeAxis,
 }
@@ -206,6 +211,7 @@ pub fn create_ordering() -> UtilityOrdering {
     ordering.add_order([Padding, PaddingAxis, PaddingSide]);
     ordering.add_order([Rounded, RoundedSide, RoundedCorner]);
     ordering.add_order([BorderSpacing, BorderSpacingAxis]);
+    ordering.add_order([BorderColor, BorderColorAxis, BorderColorSide]);
     ordering.add_order([Size, SizeAxis]);
 
     ordering
