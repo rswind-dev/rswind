@@ -17,7 +17,7 @@ pub struct Decl<'a> {
 }
 
 impl<'a> Decl<'a> {
-    pub fn new<S: Into<CowArcStr<'a>>, SS: Into<CowArcStr<'a>>>(name: S, value: SS) -> Self {
+    pub fn new(name: impl Into<CowArcStr<'a>>, value: impl Into<CowArcStr<'a>>) -> Self {
         Self {
             name: name.into(),
             value: value.into(),

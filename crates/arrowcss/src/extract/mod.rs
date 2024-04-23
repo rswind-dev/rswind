@@ -12,7 +12,7 @@ impl<'i> Extractor<'i> {
     pub fn extract(&self) -> HashSet<&'i str> {
         self.haystack
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-            .filter(|s| s.starts_with(char::is_lowercase) && s.len() > 3)
+            .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
             .collect::<HashSet<_>>()
     }
 }

@@ -240,6 +240,219 @@ pub fn grid_auto_flow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
+pub fn flex<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "flex-row" => { "flex-direction": "row"; }
+        "flex-row-reverse" => { "flex-direction": "row-reverse"; }
+        "flex-col" => { "flex-direction": "column"; }
+        "flex-col-reverse" => { "flex-direction": "column-reverse"; }
+        "flex-wrap" => { "flex-wrap": "wrap"; }
+        "flex-wrap-reverse" => { "flex-wrap": "wrap-reverse"; }
+        "flex-nowrap" => { "flex-wrap": "nowrap"; }
+    }
+}
+
+pub fn place_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "place-content-center" => { "place-content": "center"; }
+        "place-content-start" => { "place-content": "start"; }
+        "place-content-end" => { "place-content": "end"; }
+        "place-content-space-between" => { "place-content": "space-between"; }
+        "place-content-space-around" => { "place-content": "space-around"; }
+        "place-content-space-evenly" => { "place-content": "space-evenly"; }
+        "place-content-baseline" => { "place-content": "baseline"; }
+        "place-content-stretch" => { "place-content": "stretch"; }
+    }
+}
+
+pub fn place_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "place-items-center" => { "place-items": "center"; }
+        "place-items-start" => { "place-items": "start"; }
+        "place-items-end" => { "place-items": "end"; }
+        "place-items-baseline" => { "place-items": "baseline"; }
+        "place-items-stretch" => { "place-items": "stretch"; }
+    }
+}
+
+pub fn align_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "content-normal" => { "align-content": "normal"; }
+        "content-center" => { "align-content": "center"; }
+        "content-start" => { "align-content": "start"; }
+        "content-end" => { "align-content": "end"; }
+        "content-between" => { "align-content": "space-between"; }
+        "content-around" => { "align-content": "space-around"; }
+        "content-evenly" => { "align-content": "space-evenly"; }
+        "content-baseline" => { "align-content": "baseline"; }
+        "content-stretch" => { "align-content": "stretch"; }
+    }
+}
+
+pub fn align_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "items-center" => { "align-items": "center"; }
+        "items-start" => { "align-items": "start"; }
+        "items-end" => { "align-items": "end"; }
+        "items-baseline" => { "align-items": "baseline"; }
+        "items-stretch" => { "align-items": "stretch"; }
+    }
+}
+
+pub fn justify_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "justify-normal" => { "justify-content": "normal"; }
+        "justify-center" => { "justify-content": "center"; }
+        "justify-start" => { "justify-content": "start"; }
+        "justify-end" => { "justify-content": "end"; }
+        "justify-between" => { "justify-content": "space-between"; }
+        "justify-around" => { "justify-content": "space-around"; }
+        "justify-evenly" => { "justify-content": "space-evenly"; }
+        "justify-baseline" => { "justify-content": "baseline"; }
+        "justify-stretch" => { "justify-content": "stretch"; }
+    }
+}
+
+pub fn justify_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "items-normal" => { "justify-items": "normal"; }
+        "items-center" => { "justify-items": "center"; }
+        "items-start" => { "justify-items": "start"; }
+        "items-end" => { "justify-items": "end"; }
+        "items-stretch" => { "justify-items": "stretch"; }
+    }
+}
+
+pub fn object_fit<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "object-contain" => { "object-fit": "contain"; }
+        "object-cover" => { "object-fit": "cover"; }
+        "object-fill" => { "object-fit": "fill"; }
+        "object-none" => { "object-fit": "none"; }
+        "object-scale-down" => { "object-fit": "scale-down"; }
+    }
+}
+
+pub fn object_position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "object-bottom" => { "object-position": "bottom"; }
+        "object-center" => { "object-position": "center"; }
+        "object-left" => { "object-position": "left"; }
+        "object-left-bottom" => { "object-position": "left bottom"; }
+        "object-left-top" => { "object-position": "left top"; }
+        "object-right" => { "object-position": "right"; }
+        "object-right-bottom" => { "object-position": "right bottom"; }
+        "object-right-top" => { "object-position": "right top"; }
+        "object-top" => { "object-position": "top"; }
+    }
+}
+
+pub fn text_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "text-left" => { "text-align": "left"; }
+        "text-center" => { "text-align": "center"; }
+        "text-right" => { "text-align": "right"; }
+        "text-justify" => { "text-align": "justify"; }
+        "text-start" => { "text-align": "start"; }
+        "text-end" => { "text-align": "end"; }
+    }
+}
+
+pub fn vertical_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "align-baseline" => { "vertical-align": "baseline"; }
+        "align-top" => { "vertical-align": "top"; }
+        "align-middle" => { "vertical-align": "middle"; }
+        "align-bottom" => { "vertical-align": "bottom"; }
+        "align-text-top" => { "vertical-align": "text-top"; }
+        "align-text-bottom" => { "vertical-align": "text-bottom"; }
+        "align-sub" => { "vertical-align": "sub"; }
+        "align-super" => { "vertical-align": "super"; }
+    }
+}
+
+pub fn text_transform<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "uppercase" => { "text-transform": "uppercase"; }
+        "lowercase" => { "text-transform": "lowercase"; }
+        "capitalize" => { "text-transform": "capitalize"; }
+        "normal-case" => { "text-transform": "none"; }
+    }
+}
+
+pub fn text_italic<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "italic" => { "font-style": "italic"; }
+        "not-italic" => { "font-style": "normal"; }
+    }
+}
+
+pub fn font_stretch<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "font-stretch-normal" => { "font-stretch": "normal"; }
+        "font-stretch-ultra-condensed" => { "font-stretch": "ultra-condensed"; }
+        "font-stretch-extra-condensed" => { "font-stretch": "extra-condensed"; }
+        "font-stretch-condensed" => { "font-stretch": "condensed"; }
+        "font-stretch-semi-condensed" => { "font-stretch": "semi-condensed"; }
+        "font-stretch-semi-expanded" => { "font-stretch": "semi-expanded"; }
+        "font-stretch-expanded" => { "font-stretch": "expanded"; }
+        "font-stretch-extra-expanded" => { "font-stretch": "extra-expanded"; }
+        "font-stretch-ultra-expanded" => { "font-stretch": "ultra-expanded"; }
+    }
+}
+
+pub fn text_decoration<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "underline" => { "text-decoration": "underline"; }
+        "overline" => { "text-decoration": "overline"; }
+        "line-through" => { "text-decoration": "line-through"; }
+        "no-underline" => { "text-decoration": "none"; }
+    }
+}
+
+pub fn text_decoration_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "decoration-solid" => { "text-decoration-style": "solid"; }
+        "decoration-double" => { "text-decoration-style": "double"; }
+        "decoration-dotted" => { "text-decoration-style": "dotted"; }
+        "decoration-dashed" => { "text-decoration-style": "dashed"; }
+        "decoration-wavy" => { "text-decoration-style": "wavy"; }
+    }
+}
+
+pub fn text_decoration_thickness<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "decoration-auto" => { "text-decoration-thickness": "auto"; }
+        "decoration-from-font" => { "text-decoration-thickness": "from-font"; }
+    }
+}
+
+pub fn animate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "animate-none" => { "animation": "none"; }
+    }
+}
+
+pub fn filter<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "filter" => { "filter": "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"; }
+        "filter-none" => { "filter": "none"; }
+    }
+}
+
+pub fn backdrop_filter<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+    static_rules! {
+        "backdrop-filter" => {
+            "-webkit-backdrop-filter": "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
+            "backdrop-filter": "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
+        }
+        "backdrop-filter-none" => {
+            "-webkit-backdrop-filter": "none";
+            "backdrop-filter": "none";
+        }
+    }
+}
+
 pub fn get_all() -> Vec<(&'static str, DeclList<'static>)> {
     vec![]
         .into_iter()
@@ -265,6 +478,21 @@ pub fn get_all() -> Vec<(&'static str, DeclList<'static>)> {
         .chain(break_inside())
         .chain(break_after())
         .chain(grid_auto_flow())
+        .chain(flex())
+        .chain(place_content())
+        .chain(place_items())
+        .chain(align_content())
+        .chain(align_items())
+        .chain(justify_content())
+        .chain(justify_items())
+        .chain(object_fit())
+        .chain(object_position())
+        .chain(text_align())
+        .chain(vertical_align())
+        .chain(text_transform())
+        .chain(text_italic())
+        .chain(font_stretch())
+        .chain(text_decoration())
         .collect()
 }
 

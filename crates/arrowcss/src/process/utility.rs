@@ -66,9 +66,63 @@ pub struct Utility<'i> {
     pub ordering_key: Option<OrderingKey>,
 }
 
+pub struct UtilityOptions {
+    pub ordering_key: Option<OrderingKey>,
+    pub validator: Option<Box<dyn TypeValidator>>,
+    pub supports_negative: bool,
+    pub supports_fraction: bool,
+}
+
+impl UtilityOptions {
+    pub fn new() -> Self {
+        Self {
+            ordering_key: None,
+            validator: None,
+            supports_negative: false,
+            supports_fraction: false,
+        }
+    }
+
+    pub fn ordering(&mut self, key: Option<OrderingKey>) -> &mut Self {
+        self.ordering_key = key;
+        self
+    }
+
+    pub fn validator(&mut self, validator: Option<impl TypeValidator + 'static>) -> &mut Self {
+        self.validator = validator.map(|v| Box::new(v) as _);
+        self
+    }
+
+    pub fn support_negative(&mut self, value: bool) -> &mut Self {
+        self.supports_negative = value;
+        self
+    }
+
+    pub fn support_fraction(&mut self, value: bool) -> &mut Self {
+        self.supports_fraction = value;
+        self
+    }
+}
+
 pub struct ModifierProcessor<'i> {
     pub validator: Option<Box<dyn TypeValidator>>,
     pub allowed_values: Option<ThemeValue<'i>>,
+}
+
+impl<'i> ModifierProcessor<'i> {
+    pub fn new(allowed_values: ThemeValue<'i>) -> Self {
+        Self {
+            validator: None,
+            allowed_values: Some(allowed_values),
+        }
+    }
+
+    pub fn with_validator(self, validator: impl TypeValidator + 'static) -> Self {
+        Self {
+            validator: Some(Box::new(validator)),
+            allowed_values: self.allowed_values,
+        }
+    }
 }
 
 impl<'a> ArbitraryValueProcessor<'a> for ModifierProcessor<'a> {
@@ -114,13 +168,11 @@ impl<'c> Utility<'c> {
         self
     }
 
-    pub fn ordering(&mut self, key: OrderingKey) -> &mut Self {
-        self.ordering_key = Some(key);
-        self
-    }
-
-    pub fn validator(&mut self, validator: impl TypeValidator + 'static) -> &mut Self {
-        self.validator = Some(Box::new(validator));
+    pub fn apply_options(mut self, options: UtilityOptions) -> Self {
+        self.supports_negative = options.supports_negative;
+        self.supports_fraction = options.supports_fraction;
+        self.validator = options.validator;
+        self.ordering_key = options.ordering_key;
         self
     }
 
@@ -132,16 +184,22 @@ impl<'c> Utility<'c> {
             return None;
         }
 
-        if candidate.is_fraction_like() && self.supports_fraction {
-            todo!()
-        }
-
-        let process_result = self.process(candidate.value?)?;
+        let mut process_result = self.process(candidate.value?)?;
         let mut meta = MetaData::new(candidate);
+
+        if self.supports_fraction {
+            if let Some(fraction) = candidate.take_fraction() {
+                process_result = format!("calc({} * 100%)", fraction).into();
+            }
+        }
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
             meta.modifier = modifier.process(candidate).map(|v| v.to_string());
+        }
+
+        if candidate.negative {
+            process_result = format!("-{}", process_result).into();
         }
 
         let mut node = self.handler.call(meta, process_result);
@@ -150,10 +208,7 @@ impl<'c> Utility<'c> {
             node.selector = wrapper.clone();
         }
 
-        Some((
-            node,
-            self.ordering_key.unwrap_or(OrderingKey::Disorder),
-        ))
+        Some((node, self.ordering_key.unwrap_or(OrderingKey::Disorder)))
     }
 }
 

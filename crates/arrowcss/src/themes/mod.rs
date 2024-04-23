@@ -39,7 +39,9 @@ pub fn theme() -> Theme<'static> {
         "animate" => &ANIMATE,
         "fontSize" => &FONT_SIZE,
         "fontSize:lineHeight" => &FONT_SIZE_LINE_HEIGHT,
-        "gradientColorStopPositions" => &GRADIENT_COLOR_STOP_POSITIONS
+        "fontWeight" => &FONT_WEIGHT,
+        "gradientColorStopPositions" => &GRADIENT_COLOR_STOP_POSITIONS,
+        "stokeWidth" => &STROKE_WIDTH
     }
 }
 
@@ -206,6 +208,17 @@ define_theme!(
         "5xl" => "1.25",
         "6xl" => "1.125"
     },
+    FONT_WEIGHT => {
+        "thin" => "100",
+        "extralight" => "200",
+        "light" => "300",
+        "normal" => "400",
+        "medium" => "500",
+        "semibold" => "600",
+        "bold" => "700",
+        "extrabold" => "800",
+        "black" => "900"
+    },
     GRADIENT_COLOR_STOP_POSITIONS => {
         "0%" => "0%",
         "5%" => "5%",
@@ -228,5 +241,11 @@ define_theme!(
         "90%" => "90%",
         "95%" => "95%",
         "100%" => "100%"
+    },
+    STROKE_WIDTH => {
+        "0" => "0",
+        "1" => "1",
+        "2" => "2",
+        "3" => "3"
     }
 );

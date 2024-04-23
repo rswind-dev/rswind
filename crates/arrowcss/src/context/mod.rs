@@ -79,9 +79,9 @@ impl<'c> Context<'c> {
         self.utilities.add(key.into(), utility);
     }
 
-    pub fn add_theme_rule<'a: 'c>(
+    pub fn add_theme_utility(
         &mut self,
-        key: &'a str,
+        key: &str,
         values: Vec<(String, Vec<String>)>,
         ord: Option<OrderingKey>,
         typ: Option<impl TypeValidator + 'static + Clone>,
@@ -91,30 +91,18 @@ impl<'c> Context<'c> {
                 .get_theme(key)
                 .unwrap_or_else(|| panic!("Theme {} not found", &k));
 
-            let mut utility = Utility::new(move |_, input| {
-                let decls = v
-                    .clone()
-                    .into_iter()
-                    .map(|k| Decl {
-                        name: k.into(),
-                        value: input.clone(),
-                    })
-                    .collect();
-
-                Rule {
-                    selector: "&".into(),
-                    decls,
-                    rules: vec![].into(),
-                }
+            let mut utility = Utility::new(move |_meta, input| {
+                Rule::new_with_decls(
+                    "&",
+                    v.clone()
+                        .into_iter()
+                        .map(|k| Decl::new(k, input.clone()))
+                        .collect(),
+                )
             })
             .allow_values(theme);
-
-            if let Some(ord) = ord {
-                utility.ordering(ord);
-            }
-            if let Some(ref ty) = typ {
-                utility.validator(ty.clone());
-            }
+            utility.ordering_key = ord;
+            utility.validator = typ.clone().map(|v| Box::new(v) as _);
 
             self.utilities.add(k, utility);
         }
@@ -147,20 +135,49 @@ macro_rules! get_typ(
 );
 
 #[macro_export]
-macro_rules! add_theme_rule {
+macro_rules! get_bool(
+    ($bool:literal) => {
+        true
+    };
+    () => {
+        false
+    };
+);
+
+#[macro_export]
+macro_rules! add_theme_utility {
     ($ctx:expr, {
         $($theme_key:literal => {
-            $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? )*
+            $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
         }),+
     }) => {
+        use crate::context::utilities::UtilityStorage;
         $(
             $(
-                $ctx.add_theme_rule(
-                    $theme_key,
-                    vec![($key.to_string(), vec![$($decl_key.into()),+])],
-                    $crate::get_ord!($($ord)?),
-                    $crate::get_typ!($($typ)?),
-                );
+                let theme = $ctx
+                    .get_theme($theme_key)
+                    .unwrap_or_else(|| panic!("Theme {} not found", &$key));
+
+                let utility = $crate::process::Utility::new(move |_meta, input| {
+                    $crate::css::Rule::new_with_decls(
+                        "&",
+                        [$($decl_key),+].clone()
+                            .into_iter()
+                            .map(|k| $crate::css::Decl::new(k, input.clone()))
+                            .collect(),
+                    )
+                })
+                .allow_values(theme);
+
+                let mut options = $crate::process::UtilityOptions::new();
+                options
+                    .ordering($crate::get_ord!($($ord)?))
+                    .validator($crate::get_typ!($($typ)?))
+                    $(.support_negative($crate::get_bool!($($negative)?)))?
+                    $(.support_fraction($crate::get_bool!($($fraction)?)))?
+                    ;
+
+                $ctx.utilities.add($key.into(), utility.apply_options(options));
             )*
         )+
     };

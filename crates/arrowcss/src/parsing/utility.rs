@@ -21,14 +21,13 @@ pub struct UtilityCandidate<'a> {
 
 impl UtilityCandidate<'_> {
     // only if value and modifier are both named
-    pub fn is_fraction_like(&self) -> bool {
-        matches!(
-            (self.value, self.modifier),
-            (
-                Some(MaybeArbitrary::Named(_)),
-                Some(MaybeArbitrary::Named(_))
-            )
-        )
+    pub fn take_fraction(&self) -> Option<String> {
+        match (self.value, self.modifier) {
+            (Some(MaybeArbitrary::Named(v)), Some(MaybeArbitrary::Named(m))) => {
+                Some(format!("{v}/{m}",))
+            }
+            _ => None,
+        }
     }
 }
 

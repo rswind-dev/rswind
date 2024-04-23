@@ -2,7 +2,7 @@ use arrowcss_css_macro::css;
 use lightningcss::traits::IntoOwned;
 
 use crate::{
-    add_theme_rule,
+    add_theme_utility,
     context::Context,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
@@ -29,8 +29,8 @@ impl<'a, 'c> RuleAdder<'a, 'c> {
 }
 
 pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
-    let line_height_map = ctx.get_theme("fontSize:lineHeight").unwrap();
-    let line_height_map2 = ctx.get_theme("lineHeight").unwrap();
+    let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap();
+    let line_height = ctx.get_theme("lineHeight").unwrap();
     let opacity = ctx.get_theme("opacity").unwrap();
 
     let mut rules = RuleAdder::new(ctx);
@@ -95,7 +95,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             }
         })
         .with_theme("spacing")
-        .with_wrapper("& > :not([hidden]) ~ :not([hidden])")
+        .with_wrapper("&:where(& > :not(:last-child))")
         .support_negative();
 
     rules
@@ -107,6 +107,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             }
         })
         .with_theme("spacing")
+        .with_wrapper("&:where(& > :not(:last-child))")
         .support_negative();
 
     rules.add("divide-x", |_, value| {
@@ -133,26 +134,24 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     rules
         .add(
             "divide",
-            |meta, value| css!("border-color": as_color(&value, meta.modifier)),
+            |m, v| css!("border-color": as_color(&v, m.modifier.as_deref())),
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(ModifierProcessor {
-            validator: Some(Box::new(CssProperty::Opacity)),
-            allowed_values: Some(opacity.clone()),
-        });
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add(
             "border",
-            |meta, value| css!("border-width": as_color(&value, meta.modifier)),
+            |meta, value| css!("border-width": as_color(&value, meta.modifier.as_deref())),
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(ModifierProcessor {
-            validator: Some(Box::new(CssProperty::Opacity)),
-            allowed_values: Some(opacity.clone()),
-        });
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add("from", |_, value| {
@@ -174,9 +173,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_theme("gradientColorStopPositions")
         .with_validator(CssDataType::LengthPercentage);
 
-    rules.add("via", |_, value| {
+    rules.add("via", |meta, value| {
         css! {
-            "--tw-gradient-via": value;
+            "--tw-gradient-via": as_color(&value, meta.modifier.as_deref());
             "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)";
             "--tw-gradient-stops": "var(--tw-gradient-via-stops)";
         }
@@ -189,16 +188,27 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_theme("gradientColorStopPositions")
         .with_validator(CssDataType::LengthPercentage);
 
-    rules.add("to", |_, value| {
+    rules.add("to", |meta, value| {
         css! {
-            "--tw-gradient-to": value;
+            "--tw-gradient-to": as_color(&value, meta.modifier.as_deref());
             "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
         }
     });
 
-    // fill
+    rules.add(
+        "fill",
+        |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())),
+    );
 
-    // stoke
+    rules
+        .add("stoke", |_, value| css!("stroke-width": value))
+        .with_theme("stokeWidth")
+        .with_validator(CssDataType::LengthPercentage);
+
+    rules.add(
+        "stroke",
+        |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())),
+    );
 
     rules
         .add("to", |_, value| css!("--tw-gradient-to-position": value))
@@ -206,7 +216,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_validator(CssDataType::LengthPercentage);
 
     rules
-        .add("bg", |_, value| css!("background-color": value))
+        .add(
+            "bg",
+            |meta, value| css!("background-color": as_color(&value, meta.modifier.as_deref())),
+        )
         .with_theme("colors")
         .with_validator(CssProperty::Color);
 
@@ -226,7 +239,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_validator(CssProperty::BackgroundImage);
 
     rules
-        .add("text", |_, value| css!("color": value))
+        .add(
+            "text",
+            |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())),
+        )
         .with_theme("colors")
         .with_validator(CssProperty::Color);
 
@@ -238,7 +254,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             } else if let Some(line_height) = meta
                 .candidate
                 .value
-                .and_then(|v| line_height_map.get(v.take_named()?))
+                .and_then(|v| font_size_lh.get(v.take_named()?))
             {
                 font_size.extend(css!("line-height": line_height.clone().into_owned()));
             }
@@ -246,16 +262,50 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         })
         .with_theme("fontSize")
         .with_validator(CssProperty::FontSize)
-        .with_modifier(ModifierProcessor {
-            validator: Some(Box::new(CssProperty::LineHeight)),
-            allowed_values: Some(line_height_map2),
-        });
+        .with_modifier(
+            ModifierProcessor::new(line_height.clone()).with_validator(CssProperty::LineHeight),
+        );
+
+    rules
+        .add("font", |_, value| css!("font-weight": value))
+        .with_theme("fontWeight")
+        .with_validator(CssProperty::FontWeight);
+
+    rules
+        .add("font-stretch", |_, value| css!("font-stretch": value))
+        .with_validator(CssProperty::FontStretch);
+
+    rules
+        .add(
+            "placeholder",
+            |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())),
+        )
+        .with_wrapper("&::placeholder")
+        .with_theme("colors")
+        .with_validator(CssProperty::Color);
+
+    rules
+        .add("decoration", |meta, value| {
+            css! {
+                "text-decoration-color": as_color(&value, meta.modifier.as_deref());
+            }
+        })
+        .with_theme("colors")
+        .with_validator(CssProperty::Color);
+
+    rules
+        .add(
+            "decoration",
+            |_, value| css!("text-decoration-thickness": value),
+        )
+        .with_theme("textDecorationThickness")
+        .with_validator(CssDataType::LengthPercentage);
 
     use lightningcss::properties::PropertyId::*;
-    add_theme_rule!(ctx, {
+    add_theme_utility!(ctx, {
         "spacing" => {
             // TODO: types, order
-            "m" : Margin       => ["margin"]                      in OrderingKey::Margin
+            "m" : Margin       => ["margin"]                      in OrderingKey::Margin, negative: true fraction: true
             "mx": MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
             "my": MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
             "mt": MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
@@ -275,20 +325,20 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "ps": PaddingTop => ["padding-inline-start"]          in OrderingKey::PaddingSide
             "pe": PaddingTop => ["padding-inline-end"]            in OrderingKey::PaddingSide
 
-            "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset
-            "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis
-            "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis
+            "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset, negative: true fraction: true
+            "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis, negative: true fraction: true
+            "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis, negative: true fraction: true
 
-            "top":    Top => ["top"]    in OrderingKey::InsetSide
-            "right":  Top => ["right"]  in OrderingKey::InsetSide
-            "bottom": Top => ["bottom"] in OrderingKey::InsetSide
-            "left":   Top => ["left"]   in OrderingKey::InsetSide
+            "top":    Top => ["top"]    in OrderingKey::InsetSide, negative: true fraction: true
+            "right":  Top => ["right"]  in OrderingKey::InsetSide, negative: true fraction: true
+            "bottom": Top => ["bottom"] in OrderingKey::InsetSide, negative: true fraction: true
+            "left":   Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
 
             "gap": Gap => ["gap"]
 
-            "size" : Width => ["width", "height"] in OrderingKey::Size
-            "w"    : Width => ["width"]           in OrderingKey::SizeAxis
-            "h"    : Width => ["height"]          in OrderingKey::SizeAxis
+            "size" : Width => ["width", "height"] in OrderingKey::Size, fraction: true
+            "w"    : Width => ["width"]           in OrderingKey::SizeAxis, fraction: true
+            "h"    : Width => ["height"]          in OrderingKey::SizeAxis, fraction: true
         },
         "lineHeight" => {
             "leading": LineHeight => ["line-height"]
@@ -312,7 +362,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     });
 }
 
-fn as_color(value: &str, modifier: Option<String>) -> String {
+pub fn as_color(value: &str, modifier: Option<&str>) -> String {
     modifier
         .and_then(|m| m.parse::<f32>().ok())
         .map(|n| format!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
