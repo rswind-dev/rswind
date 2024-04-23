@@ -1,11 +1,6 @@
 use super::ParserPosition;
 use crate::{
-    common::MaybeArbitrary,
-    context::{utilities::UtilityStorage, Context},
-    css::rule::RuleList,
-    ordering::OrderingKey,
-    process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler},
-    types::TypeValidator,
+    common::MaybeArbitrary, context::{utilities::UtilityStorage, Context}, css::rule::RuleList, ordering::OrderingKey, process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler}, theme::ThemeValue, types::TypeValidator
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
@@ -265,7 +260,10 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
         let allowed_values = self.theme_key.map(|key| {
             self.ctx
                 .get_theme(key)
-                .unwrap_or_else(|| panic!("theme key `{key}` not found"))
+                .unwrap_or_else(|| {
+                    eprintln!("Theme {} not found", key);
+                    ThemeValue::default()
+                })
                 .clone()
         });
         let validator = std::mem::take(&mut self.validator);

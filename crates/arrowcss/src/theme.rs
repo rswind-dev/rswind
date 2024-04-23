@@ -6,7 +6,7 @@ use std::{
 
 use fxhash::FxHashMap as HashMap;
 use lightningcss::values::string::CowArcStr;
-use phf::Map;
+use phf::{phf_map, Map};
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
@@ -17,6 +17,12 @@ use serde_json::Value;
 pub enum ThemeValue<'c> {
     Dynamic(Arc<HashMap<String, CowArcStr<'c>>>),
     Static(Arc<&'static Map<&'static str, &'static str>>),
+}
+
+impl Default for ThemeValue<'_> {
+    fn default() -> Self {
+        Self::Static(Arc::new(&phf_map! {}))
+    }
 }
 
 impl<'c> ThemeValue<'c> {
