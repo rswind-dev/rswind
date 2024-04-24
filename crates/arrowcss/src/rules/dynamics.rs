@@ -163,7 +163,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             }
         })
         .with_theme("colors")
-        .with_validator(CssProperty::Color);
+        .with_validator(CssProperty::Color)
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add(
@@ -181,7 +184,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         }
     })
     .with_theme("colors")
-    .with_validator(CssProperty::Color);
+    .with_validator(CssProperty::Color)
+    .with_modifier(
+        ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+    );
 
     rules
         .add("via", |_, value| css!("--tw-gradient-via-position": value))
@@ -221,7 +227,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             |meta, value| css!("background-color": as_color(&value, meta.modifier.as_deref())),
         )
         .with_theme("colors")
-        .with_validator(CssProperty::Color);
+        .with_validator(CssProperty::Color)
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add("bg", |_, value| css!("background-position": value))
@@ -244,7 +253,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())),
         )
         .with_theme("colors")
-        .with_validator(CssProperty::Color);
+        .with_validator(CssProperty::Color)
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add("text", move |meta, value| {
@@ -282,7 +294,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         )
         .with_wrapper("&::placeholder")
         .with_theme("colors")
-        .with_validator(CssProperty::Color);
+        .with_validator(CssProperty::Color)
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add("decoration", |meta, value| {
@@ -291,7 +306,10 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             }
         })
         .with_theme("colors")
-        .with_validator(CssProperty::Color);
+        .with_validator(CssProperty::Color)
+        .with_modifier(
+            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        );
 
     rules
         .add(

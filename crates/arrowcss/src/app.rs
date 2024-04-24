@@ -107,6 +107,7 @@ impl<'c> Application<'c> {
         output: Option<&str>,
     ) -> String {
         let start = Instant::now();
+        self.writer.dest.clear();
         let res = input
             .into_par_iter()
             .map(|x| generate_parallel(&self.ctx, &x))
@@ -167,7 +168,6 @@ impl<'c> Application<'c> {
             );
             let _ = rule.to_css(&mut self.writer);
         }
-        println!("Execution time: {:?}", start.elapsed());
 
         let w: &mut dyn Write = if let Some(output) = output {
             &mut BufWriter::new(
@@ -185,8 +185,8 @@ impl<'c> Application<'c> {
 
         w.write_all(self.writer.dest.as_bytes()).unwrap();
         println!(
-            "Parsed in {:>8.2?}, {} rules generated",
-            start.elapsed(),
+            "Parsed in {:>8.2?}ms, {} rules generated",
+            start.elapsed().as_micros() as f32 / 1000f32,
             res_len,
         );
         self.writer.dest.clone()

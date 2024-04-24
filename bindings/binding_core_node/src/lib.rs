@@ -9,12 +9,6 @@ pub struct ArrowCss {
 }
 
 #[napi]
-impl Default for ArrowCss {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl ArrowCss {
     pub fn new() -> Self {
         ArrowCss { app: _create_app() }

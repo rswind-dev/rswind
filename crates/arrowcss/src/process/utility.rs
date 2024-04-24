@@ -210,7 +210,6 @@ impl<'c> Utility<'c> {
             return None;
         }
 
-        dbg!(&candidate);
         let mut process_result = self.process(candidate.value)?;
         let mut meta = MetaData::new(candidate);
 
