@@ -41,7 +41,14 @@ pub fn theme() -> Theme<'static> {
         "fontSize:lineHeight" => &FONT_SIZE_LINE_HEIGHT,
         "fontWeight" => &FONT_WEIGHT,
         "gradientColorStopPositions" => &GRADIENT_COLOR_STOP_POSITIONS,
-        "stokeWidth" => &STROKE_WIDTH
+        "stokeWidth" => &STROKE_WIDTH,
+        "brightness" => &BRIGHTNESS,
+        "contrast" => &CONTRAST,
+        "grayscale" => &GRAYSCALE,
+        "hueRotate" => &HUE_ROTATE,
+        "invert" => &INVERT,
+        "saturate" => &SATURATE,
+        "sepia" => &SEPIA
     }
 }
 
@@ -247,5 +254,54 @@ define_theme!(
         "1" => "1",
         "2" => "2",
         "3" => "3"
+    },
+    BRIGHTNESS => {
+        "0" => "0",
+        "50" => ".5",
+        "75" => ".75",
+        "90" => ".9",
+        "95" => ".95",
+        "100" => "1.0",
+        "105" => "1.05",
+        "110" => "1.1",
+        "125" => "1.25",
+        "150" => "1.5",
+        "200" => "2"
+    },
+    CONTRAST => {
+        "0" => "0",
+        "50" => ".5",
+        "75" => ".75",
+        "100" => "1.0",
+        "125" => "1.25",
+        "150" => "1.5",
+        "200" => "2"
+    },
+    GRAYSCALE => {
+        "0" => "0",
+        "DEFAULT" => "100%"
+    },
+    HUE_ROTATE => {
+        "0" => "0deg",
+        "15" => "15deg",
+        "30" => "30deg",
+        "60" => "60deg",
+        "90" => "90deg",
+        "180" => "180deg"
+    },
+    INVERT => {
+        "0" => "0",
+        "DEFAULT" => "100%"
+    },
+    SATURATE => {
+        "0" => "0",
+        "50" => ".5",
+        "100" => "1",
+        "150" => "1.5",
+        "200" => "2"
+    },
+    SEPIA => {
+        "0" => "0",
+        "DEFAULT" => "100%"
     }
 );

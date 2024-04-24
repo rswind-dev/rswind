@@ -6,7 +6,7 @@ use crate::{
     context::Context,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
-    process::{ModifierProcessor, RuleMatchingFn},
+    process::{ModifierProcessor, RuleMatchingFn, UtilityGroup},
     types::{CssDataType, CssProperty},
 };
 
@@ -300,6 +300,171 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         )
         .with_theme("textDecorationThickness")
         .with_validator(CssDataType::LengthPercentage);
+
+    rules
+        .add(
+            "blur",
+            |_, value| css!("--tw-blur": format!("blur({})", value)),
+        )
+        .with_theme("blur")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-blur",
+            |_, value| css!("--tw-backdrop-blur": format!("blur({})", value)),
+        )
+        .with_theme("blur")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "brightness",
+            |_, value| css!("--tw-brightness": format!("brightness({})", value)),
+        )
+        .with_theme("brightness")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-brightness",
+            |_, value| css!("--tw-backdrop-brightness": format!("brightness({})", value)),
+        )
+        .with_theme("brightness")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "contrast",
+            |_, value| css!("--tw-contrast": format!("contrast({})", value)),
+        )
+        .with_theme("contrast")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-contrast",
+            |_, value| css!("--tw-backdrop-contrast": format!("contrast({})", value)),
+        )
+        .with_theme("contrast")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "grayscale",
+            |_, value| css!("--tw-grayscale": format!("grayscale({})", value)),
+        )
+        .with_theme("grayscale")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-grayscale",
+            |_, value| css!("--tw-backdrop-grayscale": format!("grayscale({})", value)),
+        )
+        .with_theme("grayscale")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    //hue-rotate
+
+    rules
+        .add(
+            "invert",
+            |_, value| css!("--tw-invert": format!("invert({})", value)),
+        )
+        .with_theme("invert")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-invert",
+            |_, value| css!("--tw-backdrop-invert": format!("invert({})", value)),
+        )
+        .with_theme("invert")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "invert",
+            |_, value| css!("--tw-invert": format!("invert({})", value)),
+        )
+        .with_theme("invert")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-invert",
+            |_, value| css!("--tw-backdrop-invert": format!("invert({})", value)),
+        )
+        .with_theme("invert")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "saturate",
+            |_, value| css!("--tw-saturate": format!("saturate({})", value)),
+        )
+        .with_theme("saturate")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-saturate",
+            |_, value| css!("--tw-backdrop-saturate": format!("saturate({})", value)),
+        )
+        .with_theme("saturate")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "sepia",
+            |_, value| css!("--tw-sepia": format!("sepia({})", value)),
+        )
+        .with_theme("sepia")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-sepia",
+            |_, value| css!("--tw-backdrop-sepia": format!("sepia({})", value)),
+        )
+        .with_theme("sepia")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
+
+    rules
+        .add(
+            "drop-shadow",
+            // TODO: split by `,`
+            |_, value| css!("--tw-drop-shadow": value),
+        )
+        .with_theme("dropShadow")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::Filter);
+
+    rules
+        .add(
+            "backdrop-opacity",
+            |_, value| css!("--tw-backdrop-opacity": value),
+        )
+        .with_theme("opacity")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_group(UtilityGroup::BackdropFilter);
 
     use lightningcss::properties::PropertyId::*;
     add_theme_utility!(ctx, {
