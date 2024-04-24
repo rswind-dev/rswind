@@ -3,7 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use anyhow::Error;
 
 use super::{Decl, ToCss};
 use crate::writer::Writer;
@@ -108,7 +107,7 @@ impl<'a> Rule<'a> {
 }
 
 impl<'a> ToCss for &Rule<'a> {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
     {
@@ -135,7 +134,7 @@ where
     'a: 'b,
     T: IntoIterator<Item = &'b Rule<'a>>,
 {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
     {
@@ -152,7 +151,7 @@ where
 }
 
 impl ToCss for &RuleList<'_> {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
     {

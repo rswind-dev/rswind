@@ -1,6 +1,5 @@
 use std::fmt::Write;
 
-use anyhow::Error;
 
 #[allow(clippy::upper_case_acronyms, unused)]
 pub enum LineFeed {
@@ -69,7 +68,7 @@ where
         }
     }
 
-    pub fn whitespace(&mut self) -> Result<(), Error> {
+    pub fn whitespace(&mut self) -> Result<(), std::fmt::Error> {
         if self.minify {
             return Ok(());
         }
@@ -79,7 +78,7 @@ where
         Ok(())
     }
 
-    pub fn newline(&mut self) -> Result<(), Error> {
+    pub fn newline(&mut self) -> Result<(), std::fmt::Error> {
         if self.minify {
             return Ok(());
         }

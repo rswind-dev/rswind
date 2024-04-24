@@ -3,7 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use anyhow::Error;
 use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 use smallvec::{smallvec, SmallVec};
 
@@ -120,7 +119,7 @@ impl<'a> DeclList<'a> {
 }
 
 impl<'a> ToCss for &Decl<'a> {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), Error>
+    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
     {
