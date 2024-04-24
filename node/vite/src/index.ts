@@ -3,26 +3,35 @@ import { createApp } from 'arrowcss'
 
 let app = createApp()
 
+function debounce(fn: Function, delay: number) {
+  let timer: NodeJS.Timeout;
+  return function (...args: any) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  }
+}
+
 function sendUpdate(server: ViteDevServer) {
-  const id = '/__arrow.css';
-  const mod = server.moduleGraph.getModuleById(id);
+  const mod = server.moduleGraph.getModuleById('/__arrow.css');
   if (!mod) {
     return;
   }
 
   server.moduleGraph.invalidateModule(mod);
-  setTimeout(() => {
-    server.ws.send({
-      type: "update",
-      updates: [{
-        acceptedPath: mod.url,
-        path: mod.url,
-        type: "js-update",
-        timestamp: Date.now(),
-      }]
-    });
-  }, 10)
+  server.ws.send({
+    type: "update",
+    updates: [{
+      acceptedPath: mod.url,
+      path: mod.url,
+      type: "js-update",
+      timestamp: Date.now(),
+    }]
+  });
 }
+
+const sendUpdateDebounced = debounce(sendUpdate, 10);
 
 export default function arrowcssPlugin(): Plugin[] {
   let modulesQueue: Map<string, string> = new Map();
@@ -40,7 +49,7 @@ export default function arrowcssPlugin(): Plugin[] {
         }
         if (modulesQueue.get(id) !== code) {
           modulesQueue.set(id, code);
-          server && sendUpdate(server);
+          server && sendUpdateDebounced(server);
         }
       },
       load(id) {
