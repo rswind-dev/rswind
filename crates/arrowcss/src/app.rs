@@ -8,6 +8,7 @@ use std::{
 };
 
 use config::{Config, File};
+use cssparser::serialize_name;
 use fxhash::FxHashMap as HashMap;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
@@ -17,7 +18,7 @@ use walkdir::WalkDir;
 use crate::{
     config::ArrowConfig,
     context::Context,
-    css::ToCss,
+    css::{Rule, ToCss},
     extract::Extractor,
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
@@ -114,8 +115,15 @@ impl<'c> Application<'c> {
                 a
             });
 
-        for (_, v) in res.iter() {
+        let mut groups = HashMap::default();
+        for (name, v) in res.iter() {
             self.ctx.seen_variants.extend(v.variants.clone());
+            if let Some(group) = &v.group {
+                groups
+                    .entry(group.clone())
+                    .or_insert_with(Vec::new)
+                    .push(name.to_owned());
+            }
         }
 
         let get_key = |r: &GenerateResult| {
@@ -140,6 +148,24 @@ impl<'c> Application<'c> {
             let _ = r.item.rule.to_css(&mut writer);
             let _ = self.writer.write_str(&w);
             self.ctx.cache.insert(r.name.to_owned(), Some(w));
+        }
+
+        for (group, names) in groups {
+            let rule = Rule::new_with_decls(
+                names
+                    .iter()
+                    .map(|s| {
+                        format!(".{}", {
+                            let mut w = String::new();
+                            serialize_name(&s, &mut w).unwrap();
+                            w
+                        })
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                group.as_decls(),
+            );
+            let _ = rule.to_css(&mut self.writer);
         }
         println!("Execution time: {:?}", start.elapsed());
 

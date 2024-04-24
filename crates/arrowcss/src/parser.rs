@@ -10,7 +10,7 @@ use crate::{
     css::rule::RuleList,
     ordering::OrderingKey,
     parsing::{UtilityParser, VariantParser},
-    process::{StaticHandler, Variant, VariantHandler},
+    process::{StaticHandler, UtilityGroup, Variant, VariantHandler},
     utils::TopLevelPattern,
 };
 
@@ -21,6 +21,7 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct GenerateResult<'c> {
     pub rule: RuleList<'c>,
+    pub group: Option<UtilityGroup>,
     pub ordering: OrderingKey,
     pub variants: BTreeSet<Variant>,
 }
@@ -48,7 +49,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<
         )
     });
 
-    let (node, ordering) = ctx.utilities.try_apply(utility_candidate)?;
+    let (node, ordering, group) = ctx.utilities.try_apply(utility_candidate)?;
 
     let mut node = selector
         .iter()
@@ -65,6 +66,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<
     let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
     Some(GenerateResult {
+        group,
         rule: node,
         ordering,
         variants: nested
@@ -103,7 +105,7 @@ mod tests {
             .collect::<Option<Vec<_>>>()
             .unwrap();
 
-        let (node, _) = ctx.utilities.try_apply(u).unwrap();
+        let (node, _, _) = ctx.utilities.try_apply(u).unwrap();
         let node = node.to_rule_list();
 
         let node = vs.into_iter().fold(node, |acc, cur| {

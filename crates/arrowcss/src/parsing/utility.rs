@@ -1,6 +1,12 @@
 use super::ParserPosition;
 use crate::{
-    common::MaybeArbitrary, context::{utilities::UtilityStorage, Context}, css::rule::RuleList, ordering::OrderingKey, process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityHandler}, theme::ThemeValue, types::TypeValidator
+    common::MaybeArbitrary,
+    context::{utilities::UtilityStorage, Context},
+    css::rule::RuleList,
+    ordering::OrderingKey,
+    process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityGroup, UtilityHandler},
+    theme::ThemeValue,
+    types::TypeValidator,
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
@@ -188,6 +194,7 @@ pub struct UtilityBuilder<'i, 'c> {
     supports_negative: bool,
     supports_fraction: bool,
     ordering_key: Option<OrderingKey>,
+    group: Option<UtilityGroup>,
 }
 
 impl<'i, 'c> UtilityBuilder<'i, 'c> {
@@ -208,6 +215,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
             additional_css: None,
             wrapper: None,
             ordering_key: None,
+            group: None,
         }
     }
 
@@ -251,6 +259,11 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self.ordering_key = Some(key);
         self
     }
+
+    pub fn with_group(mut self, group: UtilityGroup) -> Self {
+        self.group = Some(group);
+        self
+    }
 }
 
 /// Automatically adds the rule to the context when dropped.
@@ -282,6 +295,7 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
                 additional_css: std::mem::take(&mut self.additional_css),
                 wrapper: std::mem::take(&mut self.wrapper),
                 ordering_key: std::mem::take(&mut self.ordering_key),
+                group: self.group,
             },
         );
     }

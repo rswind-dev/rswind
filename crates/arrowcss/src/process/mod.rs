@@ -6,18 +6,24 @@ use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
 pub use self::{utility::*, variant::*};
 use crate::{common::MaybeArbitrary, parsing::UtilityCandidate, theme::ThemeValue};
 
+static DEFAULT: &str = "DEFAULT";
+
 pub trait ArbitraryValueProcessor<'a> {
     fn validate(&self, value: &str) -> bool;
     fn allowed_values(&self) -> Option<&ThemeValue<'a>>;
 
-    fn process(&self, value: MaybeArbitrary<'_>) -> Option<CowArcStr<'static>> {
+    fn process(&self, value: Option<MaybeArbitrary<'_>>) -> Option<CowArcStr<'static>> {
         match value {
-            MaybeArbitrary::Arbitrary(value) => self
+            Some(MaybeArbitrary::Arbitrary(value)) => self
                 .validate(value)
                 .then(|| CowArcStr::from(value).into_owned()),
-            MaybeArbitrary::Named(value) => self
+            Some(MaybeArbitrary::Named(value)) => self
                 .allowed_values()?
                 .get(value)
+                .map(|v| v.clone().into_owned()),
+            None => self
+                .allowed_values()?
+                .get(DEFAULT)
                 .map(|v| v.clone().into_owned()),
         }
     }

@@ -6,7 +6,7 @@ use crate::{
     css::{DeclList, Rule},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
-    process::Utility,
+    process::{Utility, UtilityGroup},
 };
 
 pub type UtilityValue<'c> = Either<DeclList<'static>, Utility<'c>>;
@@ -16,7 +16,10 @@ pub trait UtilityStorage<'c>: Sync + Send {
     fn add(&mut self, key: String, value: Utility<'c>);
     fn add_static(&mut self, key: String, value: DeclList<'static>);
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>>;
-    fn try_apply<'a>(&self, input: UtilityCandidate<'a>) -> Option<(Rule<'c>, OrderingKey)>;
+    fn try_apply<'a>(
+        &self,
+        input: UtilityCandidate<'a>,
+    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)>;
 }
 
 #[enum_dispatch(UtilityStorage)]
@@ -54,11 +57,15 @@ impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
         self.utilities.get(key)
     }
 
-    fn try_apply<'a>(&self, candidate: UtilityCandidate<'a>) -> Option<(Rule<'c>, OrderingKey)> {
+    fn try_apply<'a>(
+        &self,
+        candidate: UtilityCandidate<'a>,
+    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(decls) => Some((
                 Rule::new_with_decls("&", decls.clone().0.into_vec()),
                 OrderingKey::Disorder,
+                None,
             )),
             Right(handler) => handler.apply_to(candidate),
         })

@@ -3,7 +3,7 @@ use lightningcss::values::string::CowArcStr;
 
 use super::{ArbitraryValueProcessor, MetaData};
 use crate::{
-    css::{rule::RuleList, Rule},
+    css::{rule::RuleList, Decl, Rule},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     theme::ThemeValue,
@@ -64,6 +64,29 @@ pub struct Utility<'i> {
     pub additional_css: Option<RuleList<'i>>,
 
     pub ordering_key: Option<OrderingKey>,
+
+    pub group: Option<UtilityGroup>,
+}
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum UtilityGroup {
+    Filter,
+    BackdropFilter,
+}
+
+impl UtilityGroup {
+    pub fn as_decls(&self) -> Vec<Decl> {
+        match self {
+            Self::Filter => vec![Decl::new(
+                "filter", "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"
+
+            )],
+            Self::BackdropFilter => vec![
+                Decl::new("-webkit-backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)"),
+                Decl::new("backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)")
+            ],
+        }
+    }
 }
 
 pub struct UtilityOptions {
@@ -176,7 +199,10 @@ impl<'c> Utility<'c> {
         self
     }
 
-    pub fn apply_to<'a>(&self, candidate: UtilityCandidate<'a>) -> Option<(Rule<'c>, OrderingKey)>
+    pub fn apply_to<'a>(
+        &self,
+        candidate: UtilityCandidate<'a>,
+    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)>
     where
         'c: 'a,
     {
@@ -184,8 +210,14 @@ impl<'c> Utility<'c> {
             return None;
         }
 
-        let mut process_result = self.process(candidate.value?)?;
+        dbg!(&candidate);
+        let mut process_result = self.process(candidate.value)?;
         let mut meta = MetaData::new(candidate);
+
+        // handing modifier
+        if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
+            meta.modifier = modifier.process(Some(candidate)).map(|v| v.to_string());
+        }
 
         if self.supports_fraction {
             if let Some(fraction) = candidate.take_fraction() {
@@ -193,13 +225,8 @@ impl<'c> Utility<'c> {
             }
         }
 
-        // handing modifier
-        if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
-            meta.modifier = modifier.process(candidate).map(|v| v.to_string());
-        }
-
         if candidate.negative {
-            process_result = format!("-{}", process_result).into();
+            process_result = format!("calc({} * -1)", process_result).into();
         }
 
         let mut node = self.handler.call(meta, process_result);
@@ -208,7 +235,11 @@ impl<'c> Utility<'c> {
             node.selector = wrapper.clone();
         }
 
-        Some((node, self.ordering_key.unwrap_or(OrderingKey::Disorder)))
+        Some((
+            node,
+            self.ordering_key.unwrap_or(OrderingKey::Disorder),
+            self.group,
+        ))
     }
 }
 
