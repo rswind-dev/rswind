@@ -1,5 +1,5 @@
 use arrowcss_css_macro::css;
-use lightningcss::traits::IntoOwned;
+use lightningcss::{traits::IntoOwned, vendor_prefix::VendorPrefix};
 
 use crate::{
     add_theme_utility,
@@ -34,6 +34,187 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
     let opacity = ctx.get_theme("opacity").unwrap();
 
     let mut rules = RuleAdder::new(ctx);
+
+    rules
+        .add("flex", |_, value| css!("flex": value))
+        .support_fraction()
+        .with_theme("flex")
+        .with_validator(CssProperty::Flex(VendorPrefix::None));
+
+    rules
+        .add("shrink", |_, value| css!("flex-shrink": value))
+        .with_theme("flexShrink")
+        .with_validator(CssProperty::FlexShrink(VendorPrefix::None));
+
+    rules
+        .add("grow", |_, value| css!("flex-grow": value))
+        .with_theme("flexGrow")
+        .with_validator(CssProperty::FlexGrow(VendorPrefix::None));
+
+    rules
+        .add("basis", |_, value| css!("flex-basis": value))
+        .with_theme("flexBasis")
+        .with_validator(CssProperty::FlexBasis(VendorPrefix::None));
+
+    rules
+        .add("origin", |_, value| css!("transform-origin": value))
+        .with_theme("transformOrigin")
+        .with_validator(CssProperty::TransformOrigin(VendorPrefix::None));
+
+    rules
+        .add("perspective", |_, value| css!("perspective": value))
+        .with_validator(CssDataType::Length);
+
+    rules
+        .add("translate", |_, value| {
+            css! {
+                "--tw-translate-x": value.clone();
+                "--tw-translate-y": value.clone();
+                "--tw-translate-z": value.clone();
+                "transform": "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))";
+            }
+        })
+        .support_fraction()
+        .support_negative();
+
+    rules
+        .add("translate-x", |_, value| {
+            css! {
+                "--tw-translate-x": value;
+                "transform": "var(--tw-translate-x) var(--tw-translate-y)";
+            }
+        })
+        .with_theme("translate")
+        .with_validator(CssDataType::LengthPercentage)
+        .support_fraction()
+        .support_negative();
+
+    rules
+        .add("translate-y", |_, value| {
+            css! {
+                "--tw-translate-y": value;
+                "transform": "var(--tw-translate-x) var(--tw-translate-y)";
+            }
+        })
+        .with_theme("translate")
+        .with_validator(CssDataType::LengthPercentage)
+        .support_fraction()
+        .support_negative();
+
+    rules
+        .add("translate-z", |_, value| {
+            css! {
+                "--tw-translate-z": value;
+                "transform": "translateZ(var(--tw-translate-z))";
+            }
+        })
+        .with_theme("translate")
+        .with_validator(CssDataType::LengthPercentage)
+        .support_negative();
+
+    rules
+        .add("scale", |_, value| {
+            css! {
+                "--tw-scale-x": value.clone();
+                "--tw-scale-y": value.clone();
+                "--tw-scale-z": value.clone();
+                "scale": "var(--tw-scale-x) var(--tw-scale-y)";
+            }
+        })
+        .support_negative()
+        .with_theme("scale")
+        .with_validator(CssDataType::Percentage);
+
+    rules
+        .add("scale-x", |_, value| {
+            css! {
+                "--tw-scale-x": value;
+                "transform": "var(--tw-scale-x) var(--tw-scale-y)";
+            }
+        })
+        .with_theme("scale")
+        .with_validator(CssDataType::Percentage)
+        .support_negative();
+
+    rules
+        .add("scale-y", |_, value| {
+            css! {
+                "--tw-scale-y": value;
+                "transform": "var(--tw-scale-x) var(--tw-scale-y)";
+            }
+        })
+        .with_theme("scale")
+        .with_validator(CssDataType::Percentage)
+        .support_negative();
+
+    rules
+        .add("scale-z", |_, value| {
+            css! {
+                "--tw-scale-z": value;
+                "transform": "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)";
+            }
+        })
+        .with_theme("scale")
+        .with_validator(CssDataType::Percentage)
+        .support_negative();
+
+    rules
+        .add("rotate", |_, value| css!("rotate": value))
+        .with_theme("rotate")
+        .support_negative()
+        .with_validator(CssProperty::Rotate);
+
+    rules
+        .add("rotate-x", |_, value| css!("--tw-rotate-x": value))
+        .with_theme("rotate")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("rotate-y", |_, value| css!("--tw-rotate-y": value))
+        .with_theme("rotate")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("rotate-z", |_, value| css!("--tw-rotate-z": value))
+        .with_theme("rotate")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("skew", |_, value| {
+            css! {
+                "--tw-skew-x": value.clone();
+                "--tw-skew-y": value;
+            }
+        })
+        .with_theme("skew")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("skew-x", |_, value| css!("--tw-skew-x": value))
+        .with_theme("skew")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("skew-y", |_, value| css!("--tw-skew-y": value))
+        .with_theme("skew")
+        .support_negative()
+        .with_validator(CssDataType::Angle)
+        .with_group(UtilityGroup::Transform);
+
+    rules
+        .add("transform", |_, value| css!("transform": value))
+        .with_validator(CssProperty::Transform(VendorPrefix::None))
+        .with_group(UtilityGroup::Transform);
 
     rules
         .add("line-clamp", |_, value| {
@@ -484,6 +665,179 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
+    rules
+        .add("cursor", |_, value| css!("cursor": value))
+        .with_validator(CssProperty::Cursor);
+
+    rules
+        .add("list", |_, value| css!("list-style-type": value))
+        .with_validator(CssProperty::ListStyleType);
+
+    rules
+        .add("list-image", |_, value| css!("list-style-image": value))
+        .with_validator(CssProperty::ListStyleImage);
+
+    rules
+        .add("columns", |_, value| css!("columns": value))
+        // TODO: types
+        .with_validator(CssDataType::Any);
+
+    rules
+        .add("auto-cols", |_, value| css!("grid-auto-columns": value))
+        .with_theme("gridAutoColumns")
+        .with_validator(CssProperty::GridAutoColumns);
+
+    rules
+        .add("auto-rows", |_, value| css!("grid-auto-rows": value))
+        .with_theme("gridAutoRows")
+        .with_validator(CssProperty::GridAutoRows);
+
+    rules
+        .add("gap", |_, value| css!("gap": value))
+        .with_theme("spacing")
+        .with_validator(CssProperty::Gap);
+
+    rules
+        .add("gap-x", |_, value| css!("column-gap": value))
+        .with_theme("spacing")
+        .with_validator(CssProperty::Gap);
+
+    rules
+        .add("gap-y", |_, value| css!("row-gap": value))
+        .with_theme("spacing")
+        .with_validator(CssProperty::Gap);
+
+    rules
+        .add(
+            "accent",
+            |meta, value| css!("accent-color": as_color(&value, meta.modifier.as_deref())),
+        )
+        .with_theme("colors")
+        .with_validator(CssProperty::AccentColor);
+
+    rules
+        .add(
+            "caret",
+            |meta, value| css!("caret-color": as_color(&value, meta.modifier.as_deref())),
+        )
+        .with_theme("colors")
+        .with_validator(CssProperty::AccentColor);
+
+    rules
+        .add("border", |_, value| {
+            css! {
+                "border-style": "var(--tw-border-style)";
+                "border-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidth);
+
+    rules
+        .add("border-x", |_, value| {
+            css! {
+                "border-left-style": "var(--tw-border-style)";
+                "border-right-style": "var(--tw-border-style)";
+                "border-left-width": value.clone();
+                "border-right-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthAxis);
+
+    rules
+        .add("border-y", |_, value| {
+            css! {
+                "border-top-style": "var(--tw-border-style)";
+                "border-bottom-style": "var(--tw-border-style)";
+                "border-top-width": value.clone();
+                "border-bottom-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthAxis);
+
+    rules
+        .add("border-s", |_, value| {
+            css! {
+                "border-inline-start-style": "var(--tw-border-style)";
+                "border-inline-end-style": "var(--tw-border-style)";
+                "border-inline-start-width": value.clone();
+                "border-inline-end-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
+    rules
+        .add("border-e", |_, value| {
+            css! {
+                "border-inline-start-style": "var(--tw-border-style)";
+                "border-inline-end-style": "var(--tw-border-style)";
+                "border-inline-start-width": value.clone();
+                "border-inline-end-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
+    rules
+        .add("border-t", |_, value| {
+            css! {
+                "border-top-style": "var(--tw-border-style)";
+                "border-bottom-style": "var(--tw-border-style)";
+                "border-top-width": value.clone();
+                "border-bottom-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
+    rules
+        .add("border-r", |_, value| {
+            css! {
+                "border-right-style": "var(--tw-border-style)";
+                "border-left-style": "var(--tw-border-style)";
+                "border-right-width": value.clone();
+                "border-left-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
+    rules
+        .add("border-b", |_, value| {
+            css! {
+                "border-top-style": "var(--tw-border-style)";
+                "border-bottom-style": "var(--tw-border-style)";
+                "border-top-width": value.clone();
+                "border-bottom-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
+    rules
+        .add("border-l", |_, value| {
+            css! {
+                "border-right-style": "var(--tw-border-style)";
+                "border-left-style": "var(--tw-border-style)";
+                "border-right-width": value.clone();
+                "border-left-width": value;
+            }
+        })
+        .with_theme("borderWidth")
+        .with_validator(CssProperty::BorderWidth)
+        .with_ordering(OrderingKey::BorderWidthSide);
+
     use lightningcss::properties::PropertyId::*;
     add_theme_utility!(ctx, {
         "spacing" => {
@@ -512,16 +866,31 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
             "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis, negative: true fraction: true
             "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis, negative: true fraction: true
 
-            "top":    Top => ["top"]    in OrderingKey::InsetSide, negative: true fraction: true
-            "right":  Top => ["right"]  in OrderingKey::InsetSide, negative: true fraction: true
+            "top"   : Top => ["top"]    in OrderingKey::InsetSide, negative: true fraction: true
+            "right" : Top => ["right"]  in OrderingKey::InsetSide, negative: true fraction: true
             "bottom": Top => ["bottom"] in OrderingKey::InsetSide, negative: true fraction: true
-            "left":   Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
+            "left"  : Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
 
-            "gap": Gap => ["gap"]
-
-            "size" : Width => ["width", "height"] in OrderingKey::Size, fraction: true
-            "w"    : Width => ["width"]           in OrderingKey::SizeAxis, fraction: true
-            "h"    : Width => ["height"]          in OrderingKey::SizeAxis, fraction: true
+            "size": Width => ["width", "height"] in OrderingKey::Size, fraction: true
+            "w"   : Width => ["width"]           in OrderingKey::SizeAxis, fraction: true
+            "h"   : Width => ["height"]          in OrderingKey::SizeAxis, fraction: true
+        },
+        "borderRadius" => {
+            "rounded"   : BorderRadius(VendorPrefix::None) => ["border-radius"] in OrderingKey::Rounded
+            "rounded-s" : BorderRadius(VendorPrefix::None) => ["border-start-start-radius", "border-end-start-radius"] in OrderingKey::RoundedSide
+            "rounded-e" : BorderRadius(VendorPrefix::None) => ["border-start-end-radius", "border-end-end-radius"] in OrderingKey::RoundedSide
+            "rounded-t" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-top-right-radius"] in OrderingKey::RoundedSide
+            "rounded-r" : BorderRadius(VendorPrefix::None) => ["border-top-right-radius", "border-bottom-right-radius"] in OrderingKey::RoundedSide
+            "rounded-b" : BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
+            "rounded-l" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
+            "rounded-ss": BorderRadius(VendorPrefix::None) => ["border-start-start-radius"] in OrderingKey::RoundedCorner
+            "rounded-se": BorderRadius(VendorPrefix::None) => ["border-start-end-radius"] in OrderingKey::RoundedCorner
+            "rounded-ee": BorderRadius(VendorPrefix::None) => ["border-end-end-radius"] in OrderingKey::RoundedCorner
+            "rounded-es": BorderRadius(VendorPrefix::None) => ["border-end-start-radius"] in OrderingKey::RoundedCorner
+            "rounded-tl": BorderRadius(VendorPrefix::None) => ["border-top-left-radius"] in OrderingKey::RoundedCorner
+            "rounded-tr": BorderRadius(VendorPrefix::None) => ["border-top-right-radius"] in OrderingKey::RoundedCorner
+            "rounded-br": BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius"] in OrderingKey::RoundedCorner
+            "rounded-bl": BorderRadius(VendorPrefix::None) => ["border-bottom-left-radius"] in OrderingKey::RoundedCorner
         },
         "lineHeight" => {
             "leading": LineHeight => ["line-height"]

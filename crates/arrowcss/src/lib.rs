@@ -1,4 +1,5 @@
 #![feature(pattern)]
+#![recursion_limit = "256"]
 
 use app::Application;
 

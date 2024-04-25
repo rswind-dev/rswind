@@ -1,6 +1,11 @@
 use phf::{phf_map, Map};
 
 pub(crate) static COLORS: Map<&'static str, &'static str> = phf_map! {
+    "inherit" =>  "inherit",
+    "current" =>  "currentColor",
+    "transparent" =>  "transparent",
+    "black" =>  "#000",
+    "white" =>  "#fff",
     "slate-50" =>  "#f8fafc",
     "slate-100" =>  "#f1f5f9",
     "slate-200" =>  "#e2e8f0",

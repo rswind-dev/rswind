@@ -48,7 +48,17 @@ pub fn theme() -> Theme<'static> {
         "hueRotate" => &HUE_ROTATE,
         "invert" => &INVERT,
         "saturate" => &SATURATE,
-        "sepia" => &SEPIA
+        "sepia" => &SEPIA,
+        "flex" => &FLEX,
+        "flexShrink" => &FLEX_SHRINK,
+        "flexGrow" => &FLEX_GROW,
+        "borderRadius" => &BORDER_RADIUS,
+        "scale" => &SCALE,
+        "rotate" => &ROTATE,
+        "skew" => &SKEW,
+        "textDecorationThickness" => &TEXT_DECORATION_THICKNESS,
+        "gridAutoColumns" => &GRID_AUTO_COLUMNS,
+        "gridAutoRows" => &GRID_AUTO_ROWS
     }
 }
 
@@ -120,14 +130,14 @@ define_theme!(
     },
     BACKGROUND_IMAGE => {
         "none" => "none",
-        "gradient-to-t" => "linear-gradient(to top, var(--tw-gradient-stops))",
-        "gradient-to-tr" => "linear-gradient(to top right, var(--tw-gradient-stops))",
-        "gradient-to-r" => "linear-gradient(to right, var(--tw-gradient-stops))",
-        "gradient-to-br" => "linear-gradient(to bottom right, var(--tw-gradient-stops))",
-        "gradient-to-b" => "linear-gradient(to bottom, var(--tw-gradient-stops))",
-        "gradient-to-bl" => "linear-gradient(to bottom left, var(--tw-gradient-stops))",
-        "gradient-to-l" => "linear-gradient(to left, var(--tw-gradient-stops))",
-        "gradient-to-tl" => "linear-gradient(to top left, var(--tw-gradient-stops))"
+        "gradient-to-t" => "linear-gradient(to top, var(--tw-gradient-stops,))",
+        "gradient-to-tr" => "linear-gradient(to top right, var(--tw-gradient-stops,))",
+        "gradient-to-r" => "linear-gradient(to right, var(--tw-gradient-stops,))",
+        "gradient-to-br" => "linear-gradient(to bottom right, var(--tw-gradient-stops,))",
+        "gradient-to-b" => "linear-gradient(to bottom, var(--tw-gradient-stops,))",
+        "gradient-to-bl" => "linear-gradient(to bottom left, var(--tw-gradient-stops,))",
+        "gradient-to-l" => "linear-gradient(to left, var(--tw-gradient-stops,))",
+        "gradient-to-tl" => "linear-gradient(to top left, var(--tw-gradient-stops,))"
     },
     OPACITY => {
         "0" => "0",
@@ -303,5 +313,110 @@ define_theme!(
     SEPIA => {
         "0" => "0",
         "DEFAULT" => "100%"
+    },
+    FLEX => {
+        "1" => "1 1 0%",
+        "auto" => "1 1 auto",
+        "initial" => "0 1 auto",
+        "none" => "none"
+    },
+    FLEX_SHRINK => {
+        "0" => "0",
+        "DEFAULT" => "1"
+    },
+    FLEX_GROW => {
+        "0" => "0",
+        "DEFAULT" => "1"
+    },
+    // FLEX_BASIS => {
+    BORDER_RADIUS => {
+        "none" => "0",
+        "sm" => "0.125rem",
+        "DEFAULT" => "0.25rem",
+        "md" => "0.375rem",
+        "lg" => "0.5rem",
+        "xl" => "0.75rem",
+        "2xl" => "1rem",
+        "3xl" => "1.5rem",
+        "full" => "9999px"
+    },
+    // scale: {
+    //     0: '0',
+    //     50: '.5',
+    //     75: '.75',
+    //     90: '.9',
+    //     95: '.95',
+    //     100: '1',
+    //     105: '1.05',
+    //     110: '1.1',
+    //     125: '1.25',
+    //     150: '1.5',
+    //   },
+    SCALE => {
+        "0" => "0",
+        "50" => ".5",
+        "75" => ".75",
+        "90" => ".9",
+        "95" => ".95",
+        "100" => "1",
+        "105" => "1.05",
+        "110" => "1.1",
+        "125" => "1.25",
+        "150" => "1.5"
+    },
+    // 0: '0deg',
+    // 1: '1deg',
+    // 2: '2deg',
+    // 3: '3deg',
+    // 6: '6deg',
+    // 12: '12deg',
+    // 45: '45deg',
+    // 90: '90deg',
+    // 180: '180deg',
+    ROTATE => {
+        "0" => "0deg",
+        "1" => "1deg",
+        "2" => "2deg",
+        "3" => "3deg",
+        "6" => "6deg",
+        "12" => "12deg",
+        "45" => "45deg",
+        "90" => "90deg",
+        "180" => "180deg"
+    },
+    // 0: '0deg',
+    // 1: '1deg',
+    // 2: '2deg',
+    // 3: '3deg',
+    // 6: '6deg',
+    // 12: '12deg',
+    SKEW => {
+        "0" => "0deg",
+        "1" => "1deg",
+        "2" => "2deg",
+        "3" => "3deg",
+        "6" => "6deg",
+        "12" => "12deg"
+    },
+    TEXT_DECORATION_THICKNESS => {
+        "auto" => "auto",
+        "from-font" => "from-font",
+        "0" => "0px",
+        "1" => "1px",
+        "2" => "2px",
+        "4" => "4px",
+        "8" => "8px"
+    },
+    GRID_AUTO_COLUMNS => {
+        "auto" => "auto",
+        "min" => "min-content",
+        "max" => "max-content",
+        "fr" => "minmax(0, 1fr)"
+    },
+    GRID_AUTO_ROWS => {
+        "auto" => "auto",
+        "min" => "min-content",
+        "max" => "max-content",
+        "fr" => "minmax(0, 1fr)"
     }
 );

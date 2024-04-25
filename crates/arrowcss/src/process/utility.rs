@@ -70,6 +70,7 @@ pub struct Utility<'i> {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UtilityGroup {
+    Transform,
     Filter,
     BackdropFilter,
 }
@@ -85,6 +86,9 @@ impl UtilityGroup {
                 Decl::new("-webkit-backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)"),
                 Decl::new("backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)")
             ],
+            Self::Transform => vec![Decl::new(
+                "transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"
+            )],
         }
     }
 }
