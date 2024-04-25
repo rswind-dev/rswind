@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
@@ -229,7 +231,6 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    #[allow(dead_code)]
     pub fn support_fraction(mut self) -> Self {
         self.supports_fraction = true;
         self
@@ -274,7 +275,10 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
             self.ctx
                 .get_theme(key)
                 .unwrap_or_else(|| {
-                    eprintln!("Theme {} not found", key);
+                    let warning = format!("Theme key {} not found", key.bold())
+                        .as_str()
+                        .yellow();
+                    eprintln!("{}", warning);
                     ThemeValue::default()
                 })
                 .clone()
