@@ -12,7 +12,7 @@ struct GroupItem {
     id: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UtilityOrdering {
     ordering: HashMap<OrderingKey, (GroupItem, usize)>,
     n: usize,
@@ -58,14 +58,15 @@ impl Ord for OrderingItem<'_> {
     }
 }
 
-pub struct OrderingMap<'a, 'i> {
-    ordering: &'a UtilityOrdering,
+#[derive(Default)]
+pub struct OrderingMap<'i> {
+    ordering: UtilityOrdering,
     map: HashMap<usize, SmallVec<[Vec<OrderingItem<'i>>; 4]>>,
     unordered: Vec<OrderingItem<'i>>,
 }
 
-impl<'a, 'i> OrderingMap<'a, 'i> {
-    pub fn new(ordering: &'a UtilityOrdering) -> Self {
+impl<'i> OrderingMap<'i> {
+    pub fn new(ordering: UtilityOrdering) -> Self {
         Self {
             ordering,
             map: HashMap::default(),
@@ -174,6 +175,10 @@ pub enum OrderingKey {
     BorderColorAxis,
     BorderColorSide,
 
+    BorderWidth,
+    BorderWidthAxis,
+    BorderWidthSide,
+
     Size,
     SizeAxis,
 }
@@ -203,6 +208,7 @@ pub fn create_ordering() -> UtilityOrdering {
     ordering.add_order([Rounded, RoundedSide, RoundedCorner]);
     ordering.add_order([BorderSpacing, BorderSpacingAxis]);
     ordering.add_order([BorderColor, BorderColorAxis, BorderColorSide]);
+    ordering.add_order([BorderWidth, BorderWidthAxis, BorderWidthSide]);
     ordering.add_order([Size, SizeAxis]);
 
     ordering

@@ -75,8 +75,6 @@ impl<'c> Application<'c> {
             .par_iter()
             .into_par_iter()
             .map(|f| read_to_string(f).unwrap());
-        // .map(|f| generate_parallel(&self.ctx, &f))
-        // .collect_vec_list();
 
         self.run_parallel_with(files, output);
 
@@ -137,7 +135,7 @@ impl<'c> Application<'c> {
         let ordering = create_ordering();
         let res_len = res.len();
 
-        let mut om = OrderingMap::new(&ordering);
+        let mut om = OrderingMap::new(ordering);
         om.insert_many(res.into_iter().map(|r| {
             let key = get_key(&r.1);
             OrderingItem::new(r.0, r.1, key)
