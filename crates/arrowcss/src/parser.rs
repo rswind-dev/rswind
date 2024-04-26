@@ -59,9 +59,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<
     w.write_char('.').ok()?;
     serialize_identifier(value, &mut w).ok()?;
 
-    node.iter_mut().for_each(|rule| {
-        rule.selector = rule.selector.replace('&', &w);
-    });
+    node = node.modify_with(|s| s.replace('&', &w));
 
     let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
