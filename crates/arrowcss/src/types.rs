@@ -1,4 +1,4 @@
-use lightningcss::{properties::Property, traits::Parse};
+use lightningcss::{properties::Property, traits::Parse, values::angle::Angle};
 pub use lightningcss::{
     properties::PropertyId,
     values::{
@@ -37,6 +37,7 @@ pub enum CssDataType {
     Ident,
     Image,
     Time,
+    Angle,
     Any,
 }
 
@@ -51,17 +52,28 @@ impl TypeValidator for CssDataType {
             CssDataType::Ident => Ident::parse_string(value).is_ok(),
             CssDataType::Image => Image::parse_string(value).is_ok(),
             CssDataType::Time => Time::parse_string(value).is_ok(),
+            CssDataType::Angle => Angle::parse_string(value).is_ok(),
             CssDataType::Any => true,
         }
     }
 }
 
-// impl<T: IntoIterator<Item: TypeValidator> + Clone + Send + Sync> TypeValidator
-//     for T
-// {
-//     fn validate(&self, value: &str) -> bool {
-//         self.clone()
-//             .into_iter()
-//             .any(|validator| validator.validate(value))
-//     }
-// }
+impl<T: TypeValidator, const N: usize> TypeValidator for [T; N] {
+    fn validate(&self, value: &str) -> bool {
+        self.iter().any(|validator| validator.validate(value))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Vector;
+
+impl<'i> Parse<'i> for Vector {
+    fn parse<'t>(
+        input: &mut cssparser::Parser<'i, 't>,
+    ) -> Result<Self, cssparser::ParseError<'i, lightningcss::error::ParserError<'i>>> {
+        input.try_parse(|input| {
+            (f32::parse(input)?, f32::parse(input)?, f32::parse(input)?);
+            Ok(Self)
+        })
+    }
+}
