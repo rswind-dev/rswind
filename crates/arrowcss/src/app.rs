@@ -19,7 +19,7 @@ use crate::{
     config::ArrowConfig,
     context::Context,
     css::{Rule, ToCss},
-    extract::Extractor,
+    extract::BasicExtractor,
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
     rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
@@ -195,7 +195,7 @@ pub fn generate_parallel<'a, 'c: 'a>(
     ctx: &'a Context<'c>,
     input: &str,
 ) -> HashMap<String, GenerateResult<'c>> {
-    Extractor::new(input)
+    BasicExtractor::new(input)
         .extract()
         .into_iter()
         .filter_map(|token| to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule)))
