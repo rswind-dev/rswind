@@ -1,8 +1,74 @@
+use std::{fs::read_to_string, path::PathBuf};
+
+use arrowcss_extractor::{ecma::EcmaExtractor, html::HtmlExtractor};
 use cssparser_macros::match_byte;
 use fxhash::FxHashSet as HashSet;
 
+use crate::common::BasicParser;
+
+pub enum SourceType<T = String> {
+    Html(T),
+    Ecma(T),
+    Unknown(T),
+}
+
+impl Default for SourceType {
+    fn default() -> Self {
+        Self::Unknown(String::new())
+    }
+}
+
+impl SourceType<String> {
+    pub fn new(source: String, typ: &str) -> Self {
+        match typ {
+            "html" => Self::Html(source),
+            "js" | "ts" | "jsx" | "tsx" | "mjs" | "mts" | "cjs" | "cts" => Self::Ecma(source),
+            _ => Self::Unknown(source),
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Html(s) => s,
+            Self::Ecma(s) => s,
+            Self::Unknown(s) => s,
+        }
+    }
+
+    pub fn from_file(f: &PathBuf) -> Self {
+        Self::new(
+            read_to_string(f).unwrap(),
+            f.extension().unwrap().to_str().unwrap_or_default(),
+        )
+    }
+
+    pub fn as_unknown(self) -> Self {
+        match self {
+            Self::Unknown(_) => self,
+            Self::Html(s) => Self::Unknown(s),
+            Self::Ecma(s) => Self::Unknown(s),
+        }
+    }
+}
+
+impl<'i> Extractor<'i> for SourceType<String> {
+    fn extract(&'i self) -> Box<dyn Iterator<Item = &'i str> + 'i> {
+        match self {
+            Self::Html(s) => Box::new(
+                HtmlExtractor::new(s)
+                    .into_iter()
+                    .flat_map(|s| StringExtractor::new(s))
+                    .collect::<HashSet<_>>()
+                    .into_iter(),
+            ),
+            Self::Ecma(s) => Box::new(EcmaExtractor::new(s).flat_map(|s| StringExtractor::new(s))),
+            Self::Unknown(s) => Box::new(BasicExtractor::new(s)._extract()),
+        }
+    }
+}
+
 pub trait Extractor<'i> {
-    fn extract(&self) -> Box<dyn Iterator<Item = &'i str> + 'i>;
+    fn extract(&'i self) -> Box<dyn Iterator<Item = &'i str> + 'i>;
 }
 
 pub struct BasicExtractor<'i> {
@@ -14,24 +80,19 @@ impl<'i> BasicExtractor<'i> {
         Self { haystack }
     }
 
-    pub fn extract(&self) -> HashSet<&'i str> {
+    fn _extract(&self) -> impl Iterator<Item = &'i str> + 'i {
         self.haystack
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
             .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
             .collect::<HashSet<_>>()
+            .into_iter()
     }
 }
 
 impl<'i> Extractor<'i> for BasicExtractor<'i> {
     fn extract(&self) -> Box<dyn Iterator<Item = &'i str> + 'i> {
-        Box::new(self.extract().into_iter())
+        Box::new(self._extract())
     }
-}
-
-pub trait BasicParser {
-    fn advance(&mut self, n: usize);
-    fn is_eof(&self) -> bool;
-    fn next_byte(&self) -> u8;
 }
 
 impl BasicParser for StringExtractor<'_> {
@@ -127,14 +188,14 @@ impl<'a> StringExtractor<'a> {
             match_byte! { self.next_byte(),
                 b'@' | b'-' | b':' | b'/' | b'!' => {
                     self.advance(1);
-                    if self.next_byte() == b'[' {
+                    if !self.is_eof() && self.next_byte() == b'[' {
                         self.consume_arbitrary();
                     }
                 }
                 // b'[' => {
                 //     self.consume_arbitrary();
                 // }
-                b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' | b'@' => {
+                b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'.' | b'-' | b'_' | b'@' => {
                     self.advance(1);
                 }
                 _ => {

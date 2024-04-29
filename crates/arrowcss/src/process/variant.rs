@@ -311,8 +311,8 @@ mod tests {
         //     })
         //     .collect::<Vec<_>>();
 
-        println!("{input:?}");
-        println!("res: {:#?}", res);
+        // println!("{input:?}");
+        // println!("res: {:#?}", res);
         // expect: ".flex:hover"
     }
 

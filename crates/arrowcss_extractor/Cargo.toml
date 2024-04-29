@@ -1,0 +1,9 @@
+[package]
+name = "arrowcss_extractor"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+
+[dependencies]
+cssparser-macros = "0.6.1"

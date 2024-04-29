@@ -1,6 +1,6 @@
 use std::{
     fmt::Write as _,
-    fs::{read_to_string, OpenOptions},
+    fs::OpenOptions,
     io::{BufWriter, Write},
     path::{Path, PathBuf},
     sync::mpsc,
@@ -16,10 +16,11 @@ use rayon::prelude::*;
 use walkdir::WalkDir;
 
 use crate::{
+    common::ScopeFunctions,
     config::ArrowConfig,
     context::Context,
     css::{Rule, ToCss},
-    extract::BasicExtractor,
+    extract::{BasicExtractor, Extractor, SourceType},
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
     rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
@@ -32,24 +33,28 @@ pub struct Application<'c> {
     pub writer: Writer<'c, String>,
     pub buffer: String,
     pub cache: String,
+    pub strict_mode: bool,
 }
 
 impl<'c> Application<'c> {
     pub fn new() -> Result<Self, config::ConfigError> {
-        let config = Config::builder()
-            .add_source(File::with_name("arrow.config"))
-            .build()
-            .map(|c| c.try_deserialize::<ArrowConfig>())
-            .unwrap_or_else(|_| Ok(ArrowConfig::default()))?;
+        // TODO: temporarily disable this because of the wasm build
+        // let config = Config::builder()
+        //     .add_source(File::with_name("arrow.config"))
+        //     .build()
+        //     .map(|c| c.try_deserialize::<ArrowConfig>())
+        //     .unwrap_or_else(|_| Ok(ArrowConfig::default()))?;
+        let config = ArrowConfig::default();
 
         let w = String::new();
         let writer = Writer::default(w);
 
         Ok(Self {
-            ctx: Context::new(config),
+            ctx: Context::new(config.theme),
             writer,
             buffer: String::new(),
             cache: String::new(),
+            strict_mode: config.features.strict_mode,
         })
     }
 
@@ -70,20 +75,18 @@ impl<'c> Application<'c> {
             .watch(Path::new(dir), RecursiveMode::NonRecursive)
             .unwrap();
 
-        let files = get_files(dir);
-        let files = files
-            .par_iter()
+        let strict_mode = self.strict_mode;
+        let files = get_files(dir)
             .into_par_iter()
-            .map(|f| read_to_string(f).unwrap());
+            .map(|f| SourceType::from_file(&f).run_if(strict_mode, |s| s.as_unknown()));
 
         self.run_parallel_with(files, output);
 
         for change in rx {
             self.run_parallel_with(
-                change
-                    .unwrap()
-                    .into_par_iter()
-                    .map(|f| read_to_string(f.path).unwrap()),
+                change.unwrap().into_par_iter().map(|f| {
+                    SourceType::from_file(&f.path).run_if(strict_mode, |s| s.as_unknown())
+                }),
                 output,
             );
         }
@@ -93,22 +96,28 @@ impl<'c> Application<'c> {
         self.run_parallel_with(
             get_files(path.as_ref())
                 .par_iter()
-                .into_par_iter()
-                .map(|f| read_to_string(f).unwrap()),
+                .map(|f| SourceType::from_file(&f)),
             output,
         )
     }
 
     pub fn run_parallel_with(
         &mut self,
-        input: impl IntoParallelIterator<Item = String>,
+        input: impl IntoParallelIterator<Item = SourceType>,
         output: Option<&str>,
     ) -> String {
-        let start = Instant::now();
+        // let start = Instant::now();
         self.writer.dest.clear();
         let res = input
             .into_par_iter()
-            .map(|x| generate_parallel(&self.ctx, &x))
+            .map(|x| {
+                x.extract()
+                    .into_iter()
+                    .filter_map(|token| {
+                        to_css_rule(token, &self.ctx).map(|rule| (token.to_owned(), rule))
+                    })
+                    .collect::<HashMap<String, GenerateResult>>()
+            })
             .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
                 a
@@ -167,39 +176,29 @@ impl<'c> Application<'c> {
             let _ = rule.to_css(&mut self.writer);
         }
 
-        let w: &mut dyn Write = if let Some(output) = output {
-            &mut BufWriter::new(
-                OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .append(false)
-                    .truncate(true)
-                    .open(Path::new(output))
-                    .unwrap(),
-            )
-        } else {
-            &mut std::io::stdout()
-        };
+        // TODO: temporarily disable this because of the wasm build
+        // let w: &mut dyn Write = if let Some(output) = output {
+        //     &mut BufWriter::new(
+        //         OpenOptions::new()
+        //             .write(true)
+        //             .create(true)
+        //             .append(false)
+        //             .truncate(true)
+        //             .open(Path::new(output))
+        //             .unwrap(),
+        //     )
+        // } else {
+        //     &mut std::io::stdout()
+        // };
 
-        w.write_all(self.writer.dest.as_bytes()).unwrap();
-        println!(
-            "Parsed in {:>8.2?}ms, {} rules generated",
-            start.elapsed().as_micros() as f32 / 1000f32,
-            res_len,
-        );
+        // w.write_all(self.writer.dest.as_bytes()).unwrap();
+        // println!(
+        //     "Parsed in {:>8.2?}ms, {} rules generated",
+        //     start.elapsed().as_micros() as f32 / 1000f32,
+        //     res_len,
+        // );
         self.writer.dest.clone()
     }
-}
-
-pub fn generate_parallel<'a, 'c: 'a>(
-    ctx: &'a Context<'c>,
-    input: &str,
-) -> HashMap<String, GenerateResult<'c>> {
-    BasicExtractor::new(input)
-        .extract()
-        .into_iter()
-        .filter_map(|token| to_css_rule(token, ctx).map(|rule| (token.to_owned(), rule)))
-        .collect::<HashMap<String, GenerateResult>>()
 }
 
 pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {

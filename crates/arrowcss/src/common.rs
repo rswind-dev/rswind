@@ -5,6 +5,12 @@ use std::{
     ops::Deref,
 };
 
+pub trait BasicParser {
+    fn advance(&mut self, n: usize);
+    fn is_eof(&self) -> bool;
+    fn next_byte(&self) -> u8;
+}
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum MaybeArbitrary<'a> {
     Arbitrary(&'a str),
@@ -79,5 +85,22 @@ where
     fn also(self, f: impl FnOnce(&Self)) -> Self {
         f(&self);
         self
+    }
+}
+
+pub trait ScopeFunctions: Sized {
+    fn run_if<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self;
+    fn run_unless<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self {
+        self.run_if(!predictor, block)
+    }
+}
+
+impl<T> ScopeFunctions for T {
+    fn run_if<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self {
+        if predictor {
+            block(self)
+        } else {
+            self
+        }
     }
 }

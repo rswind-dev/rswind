@@ -11,17 +11,25 @@ pub struct CorePlugins {
 
 #[derive(Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct ArrowConfig<'d> {
-    #[serde(bound(deserialize = "'d: 'de, 'de: 'd"))]
-    pub theme: Theme<'d>,
-    #[serde(flatten)]
+pub struct ArrowConfig {
+    #[serde(bound(deserialize = "'de: 'static"), default)]
+    pub theme: Theme<'static>,
+    #[serde(flatten, default)]
     pub config: Config,
+    pub features: Features,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct Features {
+    pub strict_mode: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[allow(dead_code)]
 pub struct Config {
+    #[serde(default)]
     pub dark_mode: String,
+    #[serde(default)]
     pub core_plugins: CorePlugins,
 }

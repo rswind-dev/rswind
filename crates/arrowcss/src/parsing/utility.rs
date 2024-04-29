@@ -278,7 +278,7 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
                     let warning = format!("Theme key {} not found", key.bold())
                         .as_str()
                         .yellow();
-                    eprintln!("{}", warning);
+                    // eprintln!("{}", warning);
                     ThemeValue::default()
                 })
                 .clone()
