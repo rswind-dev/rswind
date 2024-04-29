@@ -56,12 +56,11 @@ impl<'i> Extractor<'i> for SourceType<String> {
         match self {
             Self::Html(s) => Box::new(
                 HtmlExtractor::new(s)
-                    .into_iter()
-                    .flat_map(|s| StringExtractor::new(s))
+                    .flat_map(StringExtractor::new)
                     .collect::<HashSet<_>>()
                     .into_iter(),
             ),
-            Self::Ecma(s) => Box::new(EcmaExtractor::new(s).flat_map(|s| StringExtractor::new(s))),
+            Self::Ecma(s) => Box::new(EcmaExtractor::new(s).flat_map(StringExtractor::new)),
             Self::Unknown(s) => Box::new(BasicExtractor::new(s)._extract()),
         }
     }

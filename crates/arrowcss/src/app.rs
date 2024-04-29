@@ -1,13 +1,10 @@
 use std::{
     fmt::Write as _,
-    fs::OpenOptions,
-    io::{BufWriter, Write},
     path::{Path, PathBuf},
     sync::mpsc,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
-use config::{Config, File};
 use cssparser::serialize_name;
 use fxhash::FxHashMap as HashMap;
 use notify::RecursiveMode;
@@ -20,7 +17,7 @@ use crate::{
     config::ArrowConfig,
     context::Context,
     css::{Rule, ToCss},
-    extract::{BasicExtractor, Extractor, SourceType},
+    extract::{Extractor, SourceType},
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
     rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
@@ -96,7 +93,7 @@ impl<'c> Application<'c> {
         self.run_parallel_with(
             get_files(path.as_ref())
                 .par_iter()
-                .map(|f| SourceType::from_file(&f)),
+                .map(SourceType::from_file),
             output,
         )
     }
@@ -104,7 +101,7 @@ impl<'c> Application<'c> {
     pub fn run_parallel_with(
         &mut self,
         input: impl IntoParallelIterator<Item = SourceType>,
-        output: Option<&str>,
+        _output: Option<&str>,
     ) -> String {
         // let start = Instant::now();
         self.writer.dest.clear();
@@ -112,7 +109,6 @@ impl<'c> Application<'c> {
             .into_par_iter()
             .map(|x| {
                 x.extract()
-                    .into_iter()
                     .filter_map(|token| {
                         to_css_rule(token, &self.ctx).map(|rule| (token.to_owned(), rule))
                     })
@@ -128,7 +124,7 @@ impl<'c> Application<'c> {
             self.ctx.seen_variants.extend(v.variants.clone());
             if let Some(group) = &v.group {
                 groups
-                    .entry(group.clone())
+                    .entry(*group)
                     .or_insert_with(Vec::new)
                     .push(name.to_owned());
             }
@@ -142,7 +138,6 @@ impl<'c> Application<'c> {
         };
 
         let ordering = create_ordering();
-        let res_len = res.len();
 
         let mut om = OrderingMap::new(ordering);
         om.insert_many(res.into_iter().map(|r| {
@@ -165,7 +160,7 @@ impl<'c> Application<'c> {
                     .map(|s| {
                         format!(".{}", {
                             let mut w = String::new();
-                            serialize_name(&s, &mut w).unwrap();
+                            serialize_name(s, &mut w).unwrap();
                             w
                         })
                     })

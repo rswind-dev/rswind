@@ -1,12 +1,8 @@
-use std::{
-    cell::RefCell,
-    sync::{Arc, RwLock},
-};
+use std::sync::{Arc, RwLock};
 
 use arrowcss::{app::Application, create_app, extract::SourceType};
 use wasm_bindgen::prelude::*;
 
-mod utils;
 extern crate console_error_panic_hook;
 
 #[wasm_bindgen(start)]
@@ -20,8 +16,6 @@ lazy_static::lazy_static! {
 
 #[wasm_bindgen]
 pub fn generate(css: String, typ: String) -> String {
-    console_error_panic_hook::set_once();
-
     APP.write()
         .unwrap()
         .run_parallel_with([SourceType::new(css, &typ)], None)

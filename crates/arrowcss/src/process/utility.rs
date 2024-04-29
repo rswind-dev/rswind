@@ -100,6 +100,12 @@ pub struct UtilityOptions {
     pub supports_fraction: bool,
 }
 
+impl Default for UtilityOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl UtilityOptions {
     pub fn new() -> Self {
         Self {

@@ -88,7 +88,7 @@ impl<'a> HtmlExtractor<'a> {
     }
 
     pub fn consume_string(&mut self) -> Option<&'a str> {
-        let quote = self.next_byte();
+        // let quote = self.next_byte();
         self.advance(1);
         let start = self.position;
         while !self.is_eof() {

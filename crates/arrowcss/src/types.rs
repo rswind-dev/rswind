@@ -72,7 +72,9 @@ impl<'i> Parse<'i> for Vector {
         input: &mut cssparser::Parser<'i, 't>,
     ) -> Result<Self, cssparser::ParseError<'i, lightningcss::error::ParserError<'i>>> {
         input.try_parse(|input| {
-            (f32::parse(input)?, f32::parse(input)?, f32::parse(input)?);
+            f32::parse(input)?;
+            f32::parse(input)?;
+            f32::parse(input)?;
             Ok(Self)
         })
     }

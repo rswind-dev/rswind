@@ -275,9 +275,10 @@ impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
             self.ctx
                 .get_theme(key)
                 .unwrap_or_else(|| {
-                    let warning = format!("Theme key {} not found", key.bold())
+                    let _warning = format!("Theme key {} not found", key.bold())
                         .as_str()
                         .yellow();
+                    // TODO: reopen when we have logging, both on stdout and console
                     // eprintln!("{}", warning);
                     ThemeValue::default()
                 })

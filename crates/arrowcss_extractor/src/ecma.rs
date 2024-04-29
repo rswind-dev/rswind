@@ -157,7 +157,7 @@ impl<'a> EcmaExtractor<'a> {
 
 #[inline]
 #[cold]
-fn consume_hex_digit_once<'a>(parser: &mut EcmaExtractor<'a>) {
+fn consume_hex_digit_once(parser: &mut EcmaExtractor<'_>) {
     match_byte! { parser.next_byte(),
         b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F' => {
             parser.advance(1);
@@ -167,7 +167,7 @@ fn consume_hex_digit_once<'a>(parser: &mut EcmaExtractor<'a>) {
 }
 
 #[cold]
-fn consume_hex_digit<'a>(parser: &mut EcmaExtractor<'a>, time: usize) -> Result<(), ()> {
+fn consume_hex_digit(parser: &mut EcmaExtractor<'_>, time: usize) -> Result<(), ()> {
     for _ in 0..time {
         if parser.is_eof() {
             return Err(());
@@ -201,7 +201,7 @@ fn consume_code_point<'a>(parser: &mut EcmaExtractor<'a>) -> Result<&'a str, ()>
 }
 
 #[cold]
-fn consume_escape_sequence<'a>(parser: &mut EcmaExtractor<'a>) -> Result<(), ()> {
+fn consume_escape_sequence(parser: &mut EcmaExtractor<'_>) -> Result<(), ()> {
     parser.advance(1);
     match_byte! { parser.next_byte(),
         b'\'' | b'"' | b'\\' | b'b' | b'f' | b'n' | b'r' | b't' | b'v' => {
@@ -225,7 +225,7 @@ fn consume_escape_sequence<'a>(parser: &mut EcmaExtractor<'a>) -> Result<(), ()>
         }
         b'x' => {
             parser.advance(1);
-            consume_hex_digit(parser, 2);
+            let _ = consume_hex_digit(parser, 2);
         }
         b'u' => {
             parser.advance(1);
@@ -235,7 +235,7 @@ fn consume_escape_sequence<'a>(parser: &mut EcmaExtractor<'a>) -> Result<(), ()>
                     consume_code_point(parser)?;
                 }
                 _ => {
-                    consume_hex_digit(parser, 4);
+                    let _ = consume_hex_digit(parser, 4);
                 }
             }
         }
@@ -259,24 +259,5 @@ impl<'a> Iterator for EcmaExtractor<'a> {
             }
             Some(_) => self.consume_string().ok(),
         }
-    }
-}
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-
-    #[test]
-    fn test_basic_usage() {
-        let input = r#"context-['jd hello'] "world" '' "#;
-        let mut extractor = EcmaExtractor {
-            input,
-            position: 0,
-            at_start_of: None,
-        };
-        extractor.into_iter().for_each(|item| {
-            // println!("{:?}", item);
-            // let ce = StringExtractor::new(item);
-        });
     }
 }

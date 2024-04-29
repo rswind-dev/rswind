@@ -99,7 +99,7 @@ impl<'i> OrderingMap<'i> {
 
         variant.sort();
 
-        bare.into_iter().chain(variant.into_iter())
+        bare.into_iter().chain(variant)
     }
 }
 

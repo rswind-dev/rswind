@@ -4,7 +4,6 @@ use fxhash::FxHashMap as HashMap;
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
-    config::ArrowConfig,
     css::{rule::RuleList, Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::VariantCandidate,
@@ -26,11 +25,11 @@ pub struct Context<'c> {
 }
 
 impl<'c> Context<'c> {
-    pub fn new(config: ArrowConfig<'static>) -> Self {
+    pub fn new(t: Theme<'static>) -> Self {
         Self {
             variants: HashMap::default(),
             utilities: UtilityStorageImpl::HashMap(Default::default()),
-            theme: theme().merge(config.theme),
+            theme: theme().merge(t),
             cache: HashMap::default(),
             seen_variants: BTreeSet::new(),
         }
@@ -151,7 +150,7 @@ macro_rules! add_theme_utility {
             $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
         }),+
     }) => {
-        use crate::context::utilities::UtilityStorage;
+        use $crate::context::utilities::UtilityStorage;
         $(
             $(
                 let theme = $ctx
