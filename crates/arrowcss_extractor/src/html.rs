@@ -43,8 +43,8 @@ impl FileType {
 
 #[derive(Default)]
 pub struct HtmlExtractOptions {
-    class_only: bool,
-    file_type: FileType,
+    pub class_only: bool,
+    pub file_type: FileType,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,11 +69,7 @@ impl<'a> HtmlExtractor<'a> {
     }
 
     pub fn str_from(&self, start: usize) -> &'a str {
-        self.str_from_to(start, self.cursor.pos())
-    }
-
-    fn str_from_to(&self, from: usize, to: usize) -> &'a str {
-        &self.input[from..to]
+        &self.input[start..self.cursor.pos()]
     }
 
     fn consume(&mut self, f: impl FnOnce(&mut Cursor<'a>)) -> &'a str {
@@ -84,7 +80,9 @@ impl<'a> HtmlExtractor<'a> {
 
     fn consume_tag_name(&mut self) -> &'a str {
         self.consume(|s| {
-            s.eat_while(|c| c != '>' && !c.is_whitespace());
+            // first char is always valid start char
+            s.bump();
+            s.eat_while(|c| is_name_char(c));
         })
     }
 
@@ -108,25 +106,31 @@ impl<'a> HtmlExtractor<'a> {
         // move to start tag, skip end tag
         // e.g. <div>
         self.cursor
-            .eat_while_cursor(|c| c.first() != '<' || (c.first() == '<' && c.second() == '/'));
+            .eat_until_cursor(|c| 
+                // valid start tag
+                c.first() == '<' && is_name_start_char(c.second())
+            );
         self.cursor.bump();
         self.in_start_tag = true;
 
         // eat tag name
         let tag_name = self.consume_tag_name();
-        self.cursor.bump();
+        let end_or_space = self.cursor.bump().unwrap_or('\0');
 
         match tag_name {
             // use `EcmaExtractor` to extract JS str lit
             "script" => {
                 // skip start tag
-                self.cursor.eat_while(|c| c != '>');
-                self.cursor.bump();
+                // TODO: handle class name here?
+                if end_or_space != '>' {
+                    self.cursor.eat_until(|c| c == '>').bump();
+                }
 
                 // read js content
                 let js = self.consume(|c| {
-                    c.eat_while_cursor(|c| c.first() != '<' && c.second() != '/');
+                    c.eat_until_cursor(|c| c.first() == '<' && c.second() == '/' && c.as_str().starts_with("</script>"));
                 });
+                dbg!(self.cursor.as_str());
 
                 // skip end tag
                 self.cursor.eat_while(|c| c != '>');
@@ -173,6 +177,12 @@ impl<'a> HtmlExtractor<'a> {
                 self.cursor.bump();
                 // jump the `"` or `{` (svelte)
                 let start = self.cursor.bump().unwrap_or('\0');
+
+                // filter out invalid start
+                if start != '"' && start != '{' {
+                    return None;
+                }
+
                 let end = if start == '{' { '}' } else { '"' };
 
                 let value = self.consume(|c| c.eat_while(|c| c != end));
@@ -193,12 +203,13 @@ impl<'a> HtmlExtractor<'a> {
                 return Some(CandidateValue::Plain(value));
             }
             _ => {
-                self.cursor.bump();
-                self.cursor.eat_while(|c| c.is_whitespace());
                 if self.cursor.first() == '>' {
                     self.cursor.bump();
                     self.in_start_tag = false;
                     return None;
+                } else {
+                    self.cursor.bump();
+                    self.consume_whitespace();
                 }
             }
         }
@@ -253,6 +264,21 @@ impl<'a> Iterator for HtmlExtractor<'a> {
         None
     }
 }
+
+fn is_name_start_char(c: char) -> bool {
+    matches!(
+        c,
+        'a'..='z' | 'A'..='Z' | ':' | '_' | '\u{C0}'..='\u{D6}' | '\u{D8}'..='\u{F6}' | '\u{F8}'..='\u{2FF}' | '\u{370}'..='\u{37D}' | '\u{37F}'..='\u{1FFF}' | '\u{200C}'..='\u{200D}' | '\u{2070}'..='\u{218F}' | '\u{2C00}'..='\u{2FEF}' | '\u{3001}'..='\u{D7FF}' | '\u{F900}'..='\u{FDCF}' | '\u{FDF0}'..='\u{FFFD}' | '\u{10000}'..='\u{EFFFF}'
+    )
+}
+
+fn is_name_char(c: char) -> bool {
+    matches!(
+        c,
+        'a'..='z' | 'A'..='Z' | ':' | '_' | '-' | '.' | '0'..='9' | '\u{B7}' | '\u{0300}'..='\u{036F}' | '\u{203F}'..='\u{2040}'
+    ) || is_name_start_char(c)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

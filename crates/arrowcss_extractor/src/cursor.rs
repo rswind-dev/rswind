@@ -56,8 +56,21 @@ impl<'a> Cursor<'a> {
         }
     }
 
+    pub(crate) fn eat_until(&mut self, mut predicate: impl FnMut(char) -> bool) -> &mut Self {
+        while !predicate(self.first()) && !self.is_eof() {
+            self.bump();
+        }
+        self
+    }
+
     pub(crate) fn eat_while_cursor(&mut self, mut predicate: impl FnMut(&Cursor) -> bool) {
         while predicate(self) && !self.is_eof() {
+            self.bump();
+        }
+    }
+
+    pub(crate) fn eat_until_cursor(&mut self, mut predicate: impl FnMut(&Cursor) -> bool) {
+        while !predicate(self) && !self.is_eof() {
             self.bump();
         }
     }
