@@ -8,13 +8,13 @@ pub struct ArrowCss {
     app: Application<'static>,
 }
 
-#[napi]
 impl Default for ArrowCss {
     fn default() -> Self {
         Self::new()
     }
 }
 
+#[napi]
 impl ArrowCss {
     pub fn new() -> Self {
         ArrowCss { app: _create_app() }
