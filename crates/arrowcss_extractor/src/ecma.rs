@@ -1,4 +1,7 @@
+
 use cssparser_macros::match_byte;
+
+use crate::cursor::Cursor;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringType {
@@ -7,257 +10,208 @@ pub enum StringType {
     // Template,
 }
 
-#[derive(Debug, Clone)]
 pub struct EcmaExtractor<'a> {
+    cursor: Cursor<'a>,
     input: &'a str,
     position: usize,
     at_start_of: Option<StringType>,
 }
 
-// impl BasicParser for Extractor<'_> {
-
-// }
-
 impl<'a> EcmaExtractor<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
+            cursor: Cursor::new(input),
             input,
             position: 0,
             at_start_of: None,
         }
     }
 
-    fn next_byte(&self) -> u8 {
-        self.byte_at(0)
+    pub fn str_from(&self, start: usize) -> &'a str {
+        self.str_from_to(start, self.position)
     }
 
-    fn is_eof(&self) -> bool {
-        !self.has_at_least(0)
-    }
-
-    fn advance(&mut self, n: usize) {
-        self.position += n;
-    }
-
-    fn byte_at(&self, offset: usize) -> u8 {
-        self.input.as_bytes()[self.position + offset]
-    }
-
-    fn has_at_least(&self, n: usize) -> bool {
-        self.position + n < self.input.len()
+    fn str_from_to(&self, from: usize, to: usize) -> &'a str {
+        &self.input[from..to]
     }
 
     pub(crate) fn consume_until_string(&mut self) -> Result<StringType, ()> {
-        while !self.is_eof() {
-            match_byte! { self.next_byte(),
+        while let Some(c) = self.cursor.bump() {
+            match_byte! { c,
+                b'/' => {
+                    match self.cursor.first() {
+                        '/' => self.consume_comment(),
+                        '*' => { self.consume_block_comment(); },
+                        _ => (),
+                    }
+                }
                 b'\'' => {
                     self.at_start_of = Some(StringType::SingleQuote);
-                    self.advance(1);
-                    return Ok(StringType::SingleQuote)
+                    return Ok(StringType::SingleQuote);
                 }
                 b'"' => {
                     self.at_start_of = Some(StringType::DoubleQuote);
-                    self.advance(1);
-                    return Ok(StringType::DoubleQuote)
+                    return Ok(StringType::DoubleQuote);
                 }
-                b'/' => {
-                    self.advance(1);
-                    match_byte! { self.next_byte(),
-                        b'/' => {
-                            self.advance(1);
-                            self.consume_comment();
-                        }
-                        b'*' => {
-                            self.advance(1);
-                            self.consume_multiline_comment();
-                        }
-                        _ => {}
-                    }
-                }
-                _ => {
-                    self.advance(1);
-                }
+                _ => (),
             }
         }
         Err(())
     }
 
     pub fn consume_comment(&mut self) {
-        while !self.is_eof() {
-            match_byte! { self.next_byte(),
-                b'\n' => {
-                    self.advance(1);
-                    break;
-                }
-                _ => {
-                    self.advance(1);
-                }
-            }
-        }
+        self.cursor.eat_while(|c| c != '\n');
     }
 
     // for /* */
-    pub fn consume_multiline_comment(&mut self) {
-        while !self.is_eof() {
-            match_byte! { self.next_byte(),
-                b'*' => {
-                    self.advance(1);
-                    if self.next_byte() == b'/' {
-                        self.advance(1);
+    pub fn consume_block_comment(&mut self) -> bool {
+        self.cursor.bump();
+
+        let mut depth = 1usize;
+        while let Some(c) = self.cursor.bump() {
+            match c {
+                '/' if self.cursor.first() == '*' => {
+                    self.cursor.bump();
+                    depth += 1;
+                }
+                '*' if self.cursor.first() == '/' => {
+                    self.cursor.bump();
+                    depth -= 1;
+                    if depth == 0 {
                         break;
                     }
                 }
-                _ => {
-                    self.advance(1);
-                }
+                _ => (),
             }
         }
+        depth == 0
     }
 
-    pub fn consume_string(&mut self) -> Result<&'a str, ()> {
+    pub fn consume_string(&mut self) -> bool {
         let string_type = self.at_start_of.expect(
             "consume_string should only be called after consume_until_string has been called",
         );
-        let start = self.position;
+        self.at_start_of = None;
 
-        while !self.is_eof() {
-            let byte = self.next_byte();
-            match_byte! { byte,
-                    b'\'' => {
-                        if string_type == StringType::SingleQuote {
-                            self.at_start_of = None;
-                            let res = Ok(&self.input[start..self.position]);
-                            self.advance(1);
-                            return res;
-                        } else {
-                            self.advance(1);
-                        }
-                    }
-                    b'"' => {
-                        if string_type == StringType::DoubleQuote {
-                            self.at_start_of = None;
-                            let res =  Ok(&self.input[start..self.position]);
-                            self.advance(1);
-                            return res;
-                        } else {
-                            self.advance(1);
-                        }
-                    }
-                    b'\\' => {
-                        consume_escape_sequence(self)?;
-                    }
-                    _ => {
-                        self.advance(1);
-                    }
-            }
+        match string_type {
+            StringType::SingleQuote => self.consume_single_quoted_string(),
+            StringType::DoubleQuote => self.consume_double_quoted_string(),
         }
-        Err(())
     }
-}
 
-#[inline]
-#[cold]
-fn consume_hex_digit_once(parser: &mut EcmaExtractor<'_>) {
-    match_byte! { parser.next_byte(),
-        b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F' => {
-            parser.advance(1);
-        }
-        _ => {}
-    }
-}
-
-#[cold]
-fn consume_hex_digit(parser: &mut EcmaExtractor<'_>, time: usize) -> Result<(), ()> {
-    for _ in 0..time {
-        if parser.is_eof() {
-            return Err(());
-        }
-        consume_hex_digit_once(parser);
-    }
-    Ok(())
-}
-
-#[cold]
-fn consume_code_point<'a>(parser: &mut EcmaExtractor<'a>) -> Result<&'a str, ()> {
-    let start = parser.position;
-    while !parser.is_eof() {
-        match_byte! { parser.next_byte(),
-            b'}' => {
-                let cp = &parser.input[start..parser.position];
-                let code_point = u32::from_str_radix(cp, 16).unwrap();
-                return if code_point <= 0x10FFFF {
-                    parser.advance(1);
-                    Ok(cp)
-                } else {
-                    Err(())
+    pub fn consume_single_quoted_string(&mut self) -> bool {
+        while let Some(c) = self.cursor.bump() {
+            match c {
+                '\'' => {
+                    return true;
                 }
-            }
-            _ => {
-                consume_hex_digit_once(parser);
-            }
-        }
-    }
-    Err(())
-}
-
-#[cold]
-fn consume_escape_sequence(parser: &mut EcmaExtractor<'_>) -> Result<(), ()> {
-    parser.advance(1);
-    match_byte! { parser.next_byte(),
-        b'\'' | b'"' | b'\\' | b'b' | b'f' | b'n' | b'r' | b't' | b'v' => {
-            parser.advance(1);
-            return Ok(());
-        }
-        b'0'..=b'3' => {
-            if !parser.is_eof() {
-                consume_hex_digit_once(parser);
-                return Ok(());
-            } else {
-                return Err(());
-            }
-        }
-        b'4'..=b'7' => {
-            consume_hex_digit_once(parser);
-            return Ok(());
-        }
-        b'8'..=b'9' => {
-            return Ok(());
-        }
-        b'x' => {
-            parser.advance(1);
-            let _ = consume_hex_digit(parser, 2);
-        }
-        b'u' => {
-            parser.advance(1);
-            match_byte! { parser.next_byte(),
-                b'{' => {
-                    parser.advance(1);
-                    consume_code_point(parser)?;
+                '\\' if self.cursor.first() == '\\' || self.cursor.first() == '\'' => {
+                    self.cursor.bump();
                 }
-                _ => {
-                    let _ = consume_hex_digit(parser, 4);
-                }
+                _ => (),
             }
         }
-        _ => {}
+        false
     }
 
-    Ok(())
+    pub fn consume_double_quoted_string(&mut self) -> bool {
+        while let Some(c) = self.cursor.bump() {
+            match c {
+                '"' => {
+                    return true;
+                }
+                '\\' if self.cursor.first() == '\\' || self.cursor.first() == '"' => {
+                    self.cursor.bump();
+                }
+                _ => (),
+            }
+        }
+        false
+    }
 }
 
 impl<'a> Iterator for EcmaExtractor<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.is_eof() {
+        if self.cursor.is_eof() {
             return None;
         }
-        match self.at_start_of {
+        let res = match self.at_start_of {
             None => {
                 self.consume_until_string().ok()?;
                 self.next()
             }
-            Some(_) => self.consume_string().ok(),
-        }
+            Some(_) => {
+                let start = self.cursor.pos();
+                self.consume_string();
+                let end = self.cursor.pos() - 1;
+                Some(self.str_from_to(start, end))
+            }
+        };
+        res
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_consume_until_string() {
+        let input = r#" 'string' "string" "#;
+        let mut extractor = EcmaExtractor::new(input);
+        assert_eq!(extractor.next(), Some("string"));
+        assert_eq!(extractor.next(), Some("string"));
+    }
+
+    #[test]
+    fn test_consume_line_comment() {
+        let input = r#"
+        // comment 'test'
+        // comment "test"
+        'this is a string'
+        "this is a string"
+        "#;
+        let mut extractor = EcmaExtractor::new(input);
+        assert_eq!(extractor.next(), Some("this is a string"));
+        assert_eq!(extractor.next(), Some("this is a string"));
+    }
+
+    #[test]
+    fn test_consume_block_comment() {
+        let input = r#"
+        /* comment 'test' */
+        /*
+        comment "test"
+        /* nested comment "test" */
+        /* nested comment 'test' */
+
+        */
+        */
+        'this is a string'
+        "this is a string"
+        "#;
+        let mut extractor = EcmaExtractor::new(input);
+        assert_eq!(extractor.next(), Some("this is a string"));
+        assert_eq!(extractor.next(), Some("this is a string"));
+    }
+
+    #[test]
+    fn test_jsx() {
+        let input = r#"
+        <div
+            className='this is string'
+            className="this is string"
+            className={"this is string"}
+        >
+            this is not a string
+        </div>
+        "#;
+        let mut extractor = EcmaExtractor::new(input);
+        assert_eq!(extractor.next(), Some("this is string"));
+        assert_eq!(extractor.next(), Some("this is string"));
+        assert_eq!(extractor.next(), Some("this is string"));
+        assert_eq!(extractor.next(), None);
     }
 }
