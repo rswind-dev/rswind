@@ -111,16 +111,15 @@ impl UtilityOrdering {
         }
     }
 
-    pub fn add_order<'a>(
+    pub fn add_order(
         &mut self,
         rule: impl IntoIterator<Item = OrderingKey, IntoIter: ExactSizeIterator>,
     ) -> usize {
         self.n += 1;
-        let mut inner_n = 0;
         let iter = rule.into_iter();
         let len = iter.len();
 
-        for key in iter {
+        for (inner_n, key) in iter.enumerate() {
             self.ordering.insert(
                 key,
                 (
@@ -131,7 +130,6 @@ impl UtilityOrdering {
                     len,
                 ),
             );
-            inner_n += 1;
         }
         self.n
     }

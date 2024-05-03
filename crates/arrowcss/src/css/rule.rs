@@ -3,7 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-
 use super::{Decl, ToCss};
 use crate::writer::Writer;
 

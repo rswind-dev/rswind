@@ -1,6 +1,5 @@
 use std::fmt::Write;
 
-
 #[allow(clippy::upper_case_acronyms, unused)]
 pub enum LineFeed {
     LF,

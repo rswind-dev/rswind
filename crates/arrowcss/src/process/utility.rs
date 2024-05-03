@@ -241,7 +241,7 @@ impl<'c> Utility<'c> {
         let mut node = self.handler.call(meta, process_result);
 
         if let Some(wrapper) = &self.wrapper {
-            node.selector = wrapper.clone();
+            node.selector.clone_from(wrapper);
         }
 
         Some((

@@ -1,4 +1,3 @@
-
 pub use self::{
     decl::{Decl, DeclList},
     rule::Rule,
