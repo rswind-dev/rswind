@@ -1,7 +1,7 @@
 [workspace]
 members = [
-  "bindings/binding_core_node",
-  "bindings/binding_core_wasm",
+  "bindings/core_node",
+  "bindings/core_wasm",
   "crates/arrowcss",
   "crates/arrowcss_css_macro",
   "crates/arrowcss_extractor",

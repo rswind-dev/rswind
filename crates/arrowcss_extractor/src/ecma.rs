@@ -1,4 +1,3 @@
-
 use cssparser_macros::match_byte;
 
 use crate::cursor::Cursor;

@@ -1,0 +1,78 @@
+<li class="text-gray-900 text-sm font-medium">
+  <ol class="text-gray-200">
+    <li class="h-6 text-blue-600 w-6 flex-shrink-0">
+      <img class="items-center flex" alt="Profile picture of user 7578a35a-7597-479b-8d23-86d5be0b7cf7"
+        src="https://example.org/pictures/2808c876-d8d5-42b9-bc12-a73ddb108f74" />
+    </li>
+    <li class="lg:space-y-10">
+      <ol class="text-indigo-600">
+        <li class="pr-3 text-gray-900 font-semibold text-left text-sm py-3.5 sm:pl-6 pl-4">
+          This is item c8f8d8b9-5e91-4c61-ab59-86f04cc9a0cb
+        </li>
+        <li class="gap-8 grid grid-cols-2 grid-rows-1 text-sm">
+          This is item 2425ec41-b191-47ba-83b4-787c054dbff0
+        </li>
+        <li class="flex space-x-2">
+          This is item f7b7c335-cb9b-42ab-a8b2-7112664997e9
+        </li>
+        <li class="sr-only">
+          This is item 099ecd96-bb4f-4068-8d81-282be8f26084
+        </li>
+        <li class="text-base ml-4 font-medium text-gray-900">
+          This is item 112c918e-06aa-4f52-b8cf-327a1db2016c
+        </li>
+      </ol>
+    </li>
+    <li class="text-sm font-medium text-gray-700 block">
+      <ul class="max-w-7xl lg:grid-cols-2 grid-cols-1 gap-x-16 relative lg:px-8 xl:gap-x-48 grid mx-auto">
+        <li class="text-indigo-600">
+          This is item 8db212f9-4ce9-4b6c-b89a-946c72dd7c78
+        </li>
+        <li class="inset-0 fixed overflow-hidden">
+          This is item 8475e9af-1e98-4b7d-8a64-28e3c95d4d58
+        </li>
+      </ul>
+      <a href="#" target="_blank" class="flex justify-center rounded-full items-center h-7 w-7 mx-auto">
+        This is link 8a093de5-a93b-4701-82ec-3155f5aa0389
+      </a>
+    </li>
+  </ol>
+  <ul
+    class="border-warm-gray-300 rounded-md text-warm-gray-900 focus:border-teal-500 px-4 w-full py-3 shadow-sm block focus:ring-teal-500">
+    <li class="focus-within:ring-2 relative focus-within:ring-cyan-500">
+      <a href="#" target="_blank" class="text-xl font-medium text-gray-900">
+        This is link 019135ca-dd54-4d1f-8c8d-b91ad51c16c7
+      </a>
+      <img class="bg-white divide-gray-200 divide-y" alt="Profile picture of user f317aec8-1a5f-4828-b8d2-8cd7fdf72281"
+        src="https://example.org/pictures/a0ced817-cb1a-47c8-8629-c96c7c51957e" />
+    </li>
+    <li class="flex-shrink-0">
+      <img class="bg-white" alt="Profile picture of user f381df2b-be18-499b-8eaa-d40542a5a7f8"
+        src="https://example.org/pictures/82f9c270-a91b-467a-9cd2-22644b4f1136" />
+      <img class="xl:relative xl:col-start-2 h-full" alt="Profile picture of user 88e57568-c795-4e07-bbae-60dc1611bf80"
+        src="https://example.org/pictures/ca39811d-a025-4e42-9391-cce27738a973" />
+      <img class="max-w-7xl lg:px-8 sm:px-6 px-4 mx-auto relative"
+        alt="Profile picture of user a4622cef-e271-45e7-8ade-a307c2540813"
+        src="https://example.org/pictures/faeee5a4-4858-4db0-b6b5-c99fc846a1d4" />
+      <ol class="mt-1">
+        <li class="flex w-7 h-7 justify-center rounded-full mx-auto items-center">
+          This is item db2152e3-7e28-4bf2-b742-94c8302e0f7f
+        </li>
+        <li class="sr-only">
+          This is item 4af0c1ef-50d4-4d87-99ea-933985c6923f
+        </li>
+        <li class="min-h-[600px] bg-cover bg-center bg-gray-300">
+          This is item 3c0198d4-cc9a-4120-be8a-723c64d26d23
+        </li>
+        <li class="border-gray-300 flex pl-4 border-l">
+          This is item c768d2ac-08ad-4058-b8b4-a8df4a746f1b
+        </li>
+      </ol>
+    </li>
+  </ul>
+  <img class="w-6 h-6 text-green-500 flex-shrink-0" alt="Profile picture of user 4897766e-3a43-469c-8743-14c6f31a715b"
+    src="https://example.org/pictures/e0cbe27f-c4a2-43cd-aa7b-99332f2ac6e6" />
+  <a href="#" rel="noreferrer" class="font-sans">
+    This is link a7bfeda4-c9ff-4aa0-9462-032a85de3df6
+  </a>
+</li>

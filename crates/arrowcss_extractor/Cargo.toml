@@ -7,3 +7,16 @@ edition = "2021"
 
 [dependencies]
 cssparser-macros = "0.6.1"
+cssparser = "0.34.0"
+rustc-hash = "1.1.0"
+
+[dev-dependencies]
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "html_extract"
+harness = false
+
+[[bench]]
+name = "css_extract"
+harness = false

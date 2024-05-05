@@ -2,6 +2,7 @@
 #![recursion_limit = "256"]
 
 use app::Application;
+use config::ArrowConfig;
 
 pub mod config;
 pub mod context;
@@ -24,7 +25,8 @@ pub mod variant;
 pub mod writer;
 
 pub fn create_app() -> Application<'static> {
-    let mut app = Application::new().unwrap();
+    let config = ArrowConfig::default();
+    let mut app = Application::new(config);
     app.init();
     app
 }

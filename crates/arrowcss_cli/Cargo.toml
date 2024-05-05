@@ -1,0 +1,14 @@
+[package]
+name = "arrowcss_cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrowcss ={ path = "../arrowcss" }
+config = "0.13.4"
+clap = { version = "4.5.4", features = ["derive"] }
+cssparser = "0.34.0"
+notify = "6.1.1"
+notify-debouncer-mini = "0.4.1"
+rayon = "1.10.0"
+walkdir = "2.5.0"

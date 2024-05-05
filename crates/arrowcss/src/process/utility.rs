@@ -11,18 +11,18 @@ use crate::{
 };
 
 #[rustfmt::skip]
-pub trait RuleMatchingFn: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
+pub trait RuleMatchingFn: for<'b> Fn(MetaData, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
 
 #[rustfmt::skip]
-impl<T> RuleMatchingFn for T where T: for<'a, 'b> Fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
+impl<T> RuleMatchingFn for T where T: for<'b> Fn(MetaData, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
 
 pub enum UtilityHandler {
-    Static(for<'a, 'b> fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b>),
+    Static(for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b>),
     Dynamic(Box<dyn RuleMatchingFn>),
 }
 
 lazy_static! {
-    pub static ref NOOP: for<'a, 'b> fn(MetaData<'a>, CowArcStr<'b>) -> Rule<'b> =
+    pub static ref NOOP: for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b> =
         |_, _| Rule::default();
 }
 
@@ -33,7 +33,7 @@ impl Default for UtilityHandler {
 }
 
 impl UtilityHandler {
-    pub fn call<'a>(&self, meta: MetaData<'_>, value: CowArcStr<'a>) -> Rule<'a> {
+    pub fn call<'a>(&self, meta: MetaData, value: CowArcStr<'a>) -> Rule<'a> {
         match self {
             Self::Static(handler) => handler(meta, value),
             Self::Dynamic(handler) => handler(meta, value),

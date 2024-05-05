@@ -7,13 +7,9 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.75"
-config = "0.13.4"
 cssparser = "0.33.0"
 lazy_static = "1.4.0"
 lightningcss = { version = "1.0.0-alpha.55", features = ["into_owned"] }
-notify = "6.1.1"
-notify-debouncer-mini = "0.4.1"
-regex = "1.10.2"
 serde = "1.0.193"
 serde_json = "1.0.108"
 smallvec = { version = "1.11.2", features = ["const_generics"] }
@@ -21,13 +17,18 @@ arrowcss_css_macro = { version = "0.1.0", path = "../arrowcss_css_macro" }
 arrowcss_extractor = { version = "0.1.0", path = "../arrowcss_extractor" }
 fxhash = "0.2.1"
 rayon = "1.10.0"
-walkdir = "2.5.0"
 either = "1.10.0"
 enum_dispatch = "0.3.13"
-clap = { version = "4.5.4", features = ["derive"] }
 phf = { version = "0.11.2", features = ["macros"] }
 colored = "2.1.0"
 cssparser-macros = "0.6.1"
 
+[dev-dependencies]
+criterion = { version = "0.4", features = ["html_reports"] }
+
 [lib]
 bench = false
+
+[[bench]]
+name = "parse"
+harness = false

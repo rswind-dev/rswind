@@ -1,45 +1,57 @@
-use std::{fs::read_to_string, path::PathBuf};
-
 use arrowcss_extractor::{ecma::EcmaExtractor, html::HtmlExtractor};
 use cssparser_macros::match_byte;
 use fxhash::FxHashSet as HashSet;
 
 use crate::common::BasicParser;
 
-pub enum SourceType<T = String> {
+#[derive(Debug, Clone, Copy)]
+pub enum SourceInput<T: AsRef<str>> {
     Html(T),
     Ecma(T),
     Unknown(T),
 }
 
-impl Default for SourceType {
-    fn default() -> Self {
-        Self::Unknown(String::new())
+pub enum SourceType {
+    Html,
+    Ecma,
+    Unknown,
+}
+
+impl SourceType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Html => "html",
+            Self::Ecma => "ecma",
+            Self::Unknown => "unknown",
+        }
     }
 }
 
-impl SourceType<String> {
-    pub fn new(source: String, typ: &str) -> Self {
-        match typ {
-            "html" => Self::Html(source),
-            "js" | "ts" | "jsx" | "tsx" | "mjs" | "mts" | "cjs" | "cts" => Self::Ecma(source),
-            _ => Self::Unknown(source),
+impl From<&str> for SourceType {
+    fn from(s: &str) -> Self {
+        match s {
+            "html" | "vue" | "svelte" => Self::Html,
+            "js" | "ts" | "jsx" | "tsx" | "mjs" | "mts" | "cjs" | "cts" => Self::Ecma,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl<T: AsRef<str>> SourceInput<T> {
+    pub fn new(source: T, typ: impl Into<SourceType>) -> Self {
+        match typ.into() {
+            SourceType::Html => Self::Html(source),
+            SourceType::Ecma => Self::Ecma(source),
+            SourceType::Unknown => Self::Unknown(source),
         }
     }
 
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Html(s) => s,
-            Self::Ecma(s) => s,
-            Self::Unknown(s) => s,
+            Self::Html(s) => s.as_ref(),
+            Self::Ecma(s) => s.as_ref(),
+            Self::Unknown(s) => s.as_ref(),
         }
-    }
-
-    pub fn from_file(f: &PathBuf) -> Self {
-        Self::new(
-            read_to_string(f).unwrap(),
-            f.extension().unwrap().to_str().unwrap_or_default(),
-        )
     }
 
     pub fn as_unknown(self) -> Self {
@@ -51,17 +63,20 @@ impl SourceType<String> {
     }
 }
 
-impl<'i> Extractor<'i> for SourceType<String> {
+impl<'i, T: AsRef<str>> Extractor<'i> for SourceInput<T> {
     fn extract(&'i self) -> Box<dyn Iterator<Item = &'i str> + 'i> {
         match self {
             Self::Html(s) => Box::new(
-                HtmlExtractor::new(s)
-                    .flat_map(StringExtractor::new)
+                HtmlExtractor::new(s.as_ref())
+                    .flat_map(|s| s.split_ascii_whitespace())
+                    .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
                     .collect::<HashSet<_>>()
                     .into_iter(),
             ),
-            Self::Ecma(s) => Box::new(EcmaExtractor::new(s).flat_map(StringExtractor::new)),
-            Self::Unknown(s) => Box::new(BasicExtractor::new(s)._extract()),
+            Self::Ecma(s) => {
+                Box::new(EcmaExtractor::new(s.as_ref()).flat_map(|s| s.split_ascii_whitespace()))
+            }
+            Self::Unknown(s) => Box::new(BasicExtractor::new(s.as_ref())._extract()),
         }
     }
 }

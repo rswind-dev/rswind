@@ -1,8 +1,6 @@
 use std::{collections::BTreeSet, fmt::Write};
 
 use cssparser::serialize_identifier;
-use lazy_static::lazy_static;
-use regex::Regex;
 use smallvec::SmallVec;
 
 use crate::{
@@ -13,10 +11,6 @@ use crate::{
     process::{StaticHandler, UtilityGroup, Variant, VariantHandler},
     utils::TopLevelPattern,
 };
-
-lazy_static! {
-    pub static ref EXTRACT_RE: Regex = Regex::new(r#"[\s"';{}`]+"#).unwrap();
-}
 
 #[derive(Debug, Clone)]
 pub struct GenerateResult<'c> {
@@ -67,11 +61,12 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<
         group,
         rule: node,
         ordering,
-        variants: nested
-            .into_iter()
-            .chain(selector)
-            .map(|p| p.processor)
-            .collect(),
+        variants: BTreeSet::new(),
+        // variants: nested
+        //     .into_iter()
+        //     .chain(selector)
+        //     .map(|p| p.processor)
+        //     .collect(),
     })
 }
 

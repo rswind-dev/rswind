@@ -105,11 +105,9 @@ impl<'a> HtmlExtractor<'a> {
     fn consume_until_value(&mut self) -> Option<CandidateValue<'a>> {
         // move to start tag, skip end tag
         // e.g. <div>
-        self.cursor
-            .eat_until_cursor(|c| 
+        self.cursor.eat_until_cursor(|c| 
                 // valid start tag
-                c.first() == '<' && is_name_start_char(c.second())
-            );
+                c.first() == '<' && is_name_start_char(c.second()));
         self.cursor.bump();
         self.in_start_tag = true;
 
@@ -128,7 +126,9 @@ impl<'a> HtmlExtractor<'a> {
 
                 // read js content
                 let js = self.consume(|c| {
-                    c.eat_until_cursor(|c| c.first() == '<' && c.second() == '/' && c.as_str().starts_with("</script>"));
+                    c.eat_until_cursor(|c| {
+                        c.first() == '<' && c.second() == '/' && c.as_str().starts_with("</script>")
+                    });
                 });
                 dbg!(self.cursor.as_str());
 

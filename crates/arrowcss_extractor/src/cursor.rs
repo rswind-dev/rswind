@@ -50,10 +50,30 @@ impl<'a> Cursor<'a> {
         self.chars.next()
     }
 
+    /// Eat a str if it matches the current cursor position
+    /// Returns true if the str was eaten
+    /// Returns false if the str was not eaten
+    ///
+    /// self.chars will be at the position after the str
+    /// when not match,
+    pub(crate) fn eat_str(&mut self, s: &str) -> bool {
+        let state = self.chars.clone();
+        if s.chars().all(|c| self.bump() == Some(c)) {
+            true
+        } else {
+            self.chars = state;
+            false
+        }
+    }
+
     pub(crate) fn eat_while(&mut self, mut predicate: impl FnMut(char) -> bool) {
         while predicate(self.first()) && !self.is_eof() {
             self.bump();
         }
+    }
+
+    pub(crate) fn eat_whitespace(&mut self) {
+        self.eat_while(char::is_whitespace);
     }
 
     pub(crate) fn eat_until(&mut self, mut predicate: impl FnMut(char) -> bool) -> &mut Self {
