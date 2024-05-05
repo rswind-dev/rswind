@@ -48,12 +48,13 @@ impl<'c> Application<'c> {
 
     pub fn run_parallel<'a, T: AsRef<str>>(
         &mut self,
-        input: impl IntoParallelIterator<Item = SourceInput<T>>,
+        input: impl IntoParallelIterator<Item: AsRef<SourceInput<T>>>,
     ) -> String {
         let res = input
             .into_par_iter()
             .map(|x| {
-                x.extract()
+                x.as_ref()
+                    .extract()
                     .filter_map(|token| {
                         to_css_rule(token, &self.ctx).map(|rule| (token.to_owned(), rule))
                     })

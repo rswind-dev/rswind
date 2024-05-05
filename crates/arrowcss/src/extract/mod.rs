@@ -14,6 +14,12 @@ pub enum SourceType {
     Unknown,
 }
 
+impl<T: AsRef<str>> AsRef<SourceInput<T>> for SourceInput<T> {
+    fn as_ref(&self) -> &SourceInput<T> {
+        self
+    }
+}
+
 impl SourceType {
     pub fn as_str(&self) -> &str {
         match self {
