@@ -11,7 +11,15 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("parse basic", |b| {
         b.iter(|| {
             let mut app = arrowcss::create_app();
-            let input = SourceInput::new(r#"<div class="flex">"#, "html");
+            let input = SourceInput::Html(r#"<div class="flex">"#);
+            let _a = app.run(input);
+        });
+    });
+
+    c.bench_function("Large File", |b| {
+        b.iter(|| {
+            let mut app = arrowcss::create_app();
+            let input = SourceInput::Html(include_str!("fixtures/template_html"));
             let _a = app.run(input);
         });
     });
