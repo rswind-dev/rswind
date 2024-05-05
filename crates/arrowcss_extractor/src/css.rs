@@ -127,7 +127,7 @@ mod tests {
     fn test_consume() {
         let input = INPUT;
         println!("{:?}", input);
-        let e = CssExtractor::new(&input);
+        let e = CssExtractor::new(input);
         println!("{:#?}", e.collect::<Vec<_>>());
     }
 }

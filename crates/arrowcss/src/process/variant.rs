@@ -278,7 +278,7 @@ mod tests {
             VariantParser::new("active").parse(&ctx).unwrap(),
         ];
 
-        let input = css! {
+        let _input = css! {
             ".flex" {
                 "display": "flex";
             }
@@ -293,7 +293,7 @@ mod tests {
             }],
         });
 
-        let res = candidates
+        let _res = candidates
             .into_iter()
             .map(|candidate| {
                 let processor = ctx.variants.get(candidate.key).unwrap();

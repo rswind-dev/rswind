@@ -1,5 +1,4 @@
 use arrowcss_extractor::html::HtmlExtractor;
-use rustc_hash::FxHashSet;
 
 fn run(input: &str) -> Vec<&str> {
     HtmlExtractor::new(input).collect()

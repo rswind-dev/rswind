@@ -26,7 +26,7 @@ impl WatchApp for Application<'_> {
         let files = get_files(dir);
         let files = files
             .par_iter()
-            .map(|f| SourceInput::from_file(&f).run_if(strict_mode, |s| s.as_unknown()));
+            .map(|f| SourceInput::from_file(f).run_if(strict_mode, |s| s.as_unknown()));
 
         self.run_parallel(files);
 

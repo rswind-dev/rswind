@@ -5,7 +5,7 @@ static HTML: &str = include_str!("fixtures/html_input");
 
 fn extract_split(input: &str) -> impl Iterator<Item = &str> {
     input
-        .split(['\n', ' ', '"', '\'', ';', '{', '}', '`', '\r', '\t', ])
+        .split(['\n', ' ', '"', '\'', ';', '{', '}', '`', '\r', '\t'])
         .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
 }
 

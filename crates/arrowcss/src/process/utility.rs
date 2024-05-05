@@ -22,8 +22,7 @@ pub enum UtilityHandler {
 }
 
 lazy_static! {
-    pub static ref NOOP: for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b> =
-        |_, _| Rule::default();
+    pub static ref NOOP: for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b> = |_, _| Rule::default();
 }
 
 impl Default for UtilityHandler {

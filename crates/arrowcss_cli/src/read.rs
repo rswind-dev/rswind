@@ -26,7 +26,7 @@ pub(crate) fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
         .into_iter()
         .filter_entry(|e| {
             e.file_type().is_file()
-                && !e.file_name().to_str().unwrap_or_default().starts_with(".")
+                && !e.file_name().to_str().unwrap_or_default().starts_with('.')
                 && e.file_name() != "node_modules"
         })
         .map(|e| e.unwrap().into_path())

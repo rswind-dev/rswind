@@ -82,7 +82,7 @@ impl<'a> HtmlExtractor<'a> {
         self.consume(|s| {
             // first char is always valid start char
             s.bump();
-            s.eat_while(|c| is_name_char(c));
+            s.eat_while(is_name_char);
         })
     }
 
@@ -105,9 +105,10 @@ impl<'a> HtmlExtractor<'a> {
     fn consume_until_value(&mut self) -> Option<CandidateValue<'a>> {
         // move to start tag, skip end tag
         // e.g. <div>
-        self.cursor.eat_until_cursor(|c| 
-                // valid start tag
-                c.first() == '<' && is_name_start_char(c.second()));
+
+        // valid start tag
+        self.cursor
+            .eat_until_cursor(|c| c.first() == '<' && is_name_start_char(c.second()));
         self.cursor.bump();
         self.in_start_tag = true;
 
@@ -195,7 +196,7 @@ impl<'a> HtmlExtractor<'a> {
 
                 // vue
                 if self.options.file_type == FileType::Vue
-                    && (name.starts_with(":") || name.starts_with("v-"))
+                    && (name.starts_with(':') || name.starts_with("v-"))
                 {
                     self.extend_js_extractor(EcmaExtractor::new(value));
                     return Some(CandidateValue::Ecma);
