@@ -29,9 +29,9 @@ impl<'a, 'c> RuleAdder<'a, 'c> {
 }
 
 pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
-    let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap();
-    let line_height = ctx.get_theme("lineHeight").unwrap();
-    let opacity = ctx.get_theme("opacity").unwrap();
+    let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
+    let line_height = ctx.get_theme("lineHeight").unwrap_or_default();
+    let opacity = ctx.get_theme("opacity").unwrap_or_default();
 
     let mut rules = RuleAdder::new(ctx);
 
