@@ -1,6 +1,7 @@
 use either::Either::{self, Left, Right};
 use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
+use smol_str::SmolStr;
 
 use crate::{
     css::{DeclList, Rule},
@@ -9,58 +10,58 @@ use crate::{
     process::{Utility, UtilityGroup},
 };
 
-pub type UtilityValue<'c> = Either<DeclList<'static>, Utility<'c>>;
+pub type UtilityValue = Either<DeclList, Utility>;
 
 #[enum_dispatch]
-pub trait UtilityStorage<'c>: Sync + Send {
-    fn add(&mut self, key: String, value: Utility<'c>);
-    fn add_static(&mut self, key: String, value: DeclList<'static>);
-    fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>>;
-    fn try_apply<'a>(
+pub trait UtilityStorage: Sync + Send {
+    fn add(&mut self, key: SmolStr, value: Utility);
+    fn add_static(&mut self, key: SmolStr, value: DeclList);
+    fn get(&self, key: &str) -> Option<&Vec<UtilityValue>>;
+    fn try_apply(
         &self,
-        input: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)>;
+        input: UtilityCandidate<'_>,
+    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)>;
 }
 
 #[enum_dispatch(UtilityStorage)]
-pub enum UtilityStorageImpl<'c> {
-    HashMap(HashMapUtilityStorage<'c>),
+pub enum UtilityStorageImpl {
+    HashMap(HashMapUtilityStorage),
 }
 
-impl Default for UtilityStorageImpl<'_> {
+impl Default for UtilityStorageImpl {
     fn default() -> Self {
         Self::HashMap(HashMapUtilityStorage::default())
     }
 }
 
 #[derive(Default)]
-pub struct HashMapUtilityStorage<'c> {
-    utilities: HashMap<String, Vec<UtilityValue<'c>>>,
+pub struct HashMapUtilityStorage {
+    utilities: HashMap<SmolStr, Vec<UtilityValue>>,
 }
 
-impl<'c> UtilityStorage<'c> for HashMapUtilityStorage<'c> {
-    fn add(&mut self, key: String, value: Utility<'c>) {
+impl UtilityStorage for HashMapUtilityStorage {
+    fn add(&mut self, key: SmolStr, value: Utility) {
         self.utilities
             .entry(key)
             .or_default()
             .push(Either::Right(value));
     }
 
-    fn add_static(&mut self, key: String, value: DeclList<'static>) {
+    fn add_static(&mut self, key: SmolStr, value: DeclList) {
         self.utilities
             .entry(key)
             .or_default()
             .push(Either::Left(value));
     }
 
-    fn get(&self, key: &str) -> Option<&Vec<UtilityValue<'c>>> {
+    fn get(&self, key: &str) -> Option<&Vec<UtilityValue>> {
         self.utilities.get(key)
     }
 
-    fn try_apply<'a>(
+    fn try_apply(
         &self,
-        candidate: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)> {
+        candidate: UtilityCandidate<'_>,
+    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(decls) => Some((
                 Rule::new_with_decls("&", decls.clone().0.into_vec()),

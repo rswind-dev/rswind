@@ -12,8 +12,8 @@ pub struct CorePlugins {
 #[derive(Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ArrowConfig {
-    #[serde(bound(deserialize = "'de: 'static"), default)]
-    pub theme: Theme<'static>,
+    #[serde(default)]
+    pub theme: Theme,
     #[serde(flatten, default)]
     pub config: Config,
     pub features: Features,

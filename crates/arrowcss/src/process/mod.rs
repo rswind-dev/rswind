@@ -1,30 +1,26 @@
 pub mod utility;
 pub mod variant;
 
-use lightningcss::{traits::IntoOwned, values::string::CowArcStr};
+use smol_str::SmolStr;
 
 pub use self::{utility::*, variant::*};
 use crate::{common::MaybeArbitrary, parsing::UtilityCandidate, theme::ThemeValue};
 
 static DEFAULT: &str = "DEFAULT";
 
-pub trait ArbitraryValueProcessor<'a> {
+pub trait ArbitraryValueProcessor {
     fn validate(&self, value: &str) -> bool;
-    fn allowed_values(&self) -> Option<&ThemeValue<'a>>;
+    fn allowed_values(&self) -> Option<&ThemeValue>;
 
-    fn process(&self, value: Option<MaybeArbitrary<'_>>) -> Option<CowArcStr<'static>> {
+    fn process(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
         match value {
-            Some(MaybeArbitrary::Arbitrary(value)) => self
-                .validate(value)
-                .then(|| CowArcStr::from(value).into_owned()),
-            Some(MaybeArbitrary::Named(value)) => self
-                .allowed_values()?
-                .get(value)
-                .map(|v| v.clone().into_owned()),
-            None => self
-                .allowed_values()?
-                .get(DEFAULT)
-                .map(|v| v.clone().into_owned()),
+            Some(MaybeArbitrary::Arbitrary(value)) => {
+                self.validate(value).then(|| SmolStr::from(value))
+            }
+            Some(MaybeArbitrary::Named(value)) => {
+                self.allowed_values()?.get(value)
+            }
+            None => self.allowed_values()?.get(DEFAULT),
         }
     }
 }
@@ -32,7 +28,7 @@ pub trait ArbitraryValueProcessor<'a> {
 #[derive(Clone, Default)]
 pub struct MetaData<'a> {
     pub candidate: UtilityCandidate<'a>,
-    pub modifier: Option<String>,
+    pub modifier: Option<SmolStr>,
 }
 
 impl<'a> MetaData<'a> {

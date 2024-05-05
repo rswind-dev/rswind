@@ -12,7 +12,7 @@ pub(crate) trait ReadFromFile {
     fn from_file(f: &PathBuf) -> Self;
 }
 
-impl<'a> ReadFromFile for SourceInput<String> {
+impl ReadFromFile for SourceInput<String> {
     fn from_file(f: &PathBuf) -> Self {
         Self::new(
             read_to_string(f).unwrap(),
@@ -23,6 +23,7 @@ impl<'a> ReadFromFile for SourceInput<String> {
 
 pub(crate) fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
     WalkDir::new(dir)
+        .min_depth(1)
         .into_iter()
         .filter_entry(|e| {
             e.file_type().is_file()

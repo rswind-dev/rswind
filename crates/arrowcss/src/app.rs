@@ -3,6 +3,7 @@ use std::fmt::Write as _;
 use cssparser::serialize_name;
 use fxhash::FxHashMap as HashMap;
 use rayon::prelude::*;
+use smol_str::SmolStr;
 
 use crate::{
     config::ArrowConfig,
@@ -16,13 +17,13 @@ use crate::{
     writer::Writer,
 };
 
-pub struct Application<'c> {
-    pub ctx: Context<'c>,
+pub struct Application {
+    pub ctx: Context,
     pub cache: String,
     pub strict_mode: bool,
 }
 
-impl<'c> Application<'c> {
+impl Application {
     pub fn new(config: ArrowConfig) -> Self {
         Self {
             ctx: Context::new(config.theme),
@@ -41,12 +42,14 @@ impl<'c> Application<'c> {
     pub fn run<T: AsRef<str>>(&mut self, input: SourceInput<T>) -> String {
         let res = input
             .extract()
-            .filter_map(|token| to_css_rule(token, &self.ctx).map(|rule| (token.to_owned(), rule)))
-            .collect::<HashMap<String, GenerateResult>>();
+            .filter_map(|token| {
+                to_css_rule(token, &self.ctx).map(|rule| (SmolStr::from(token), rule))
+            })
+            .collect::<HashMap<SmolStr, GenerateResult>>();
         self.run_inner(res)
     }
 
-    pub fn run_parallel<'a, T: AsRef<str>>(
+    pub fn run_parallel<T: AsRef<str>>(
         &mut self,
         input: impl IntoParallelIterator<Item: AsRef<SourceInput<T>>>,
     ) -> String {
@@ -56,9 +59,9 @@ impl<'c> Application<'c> {
                 x.as_ref()
                     .extract()
                     .filter_map(|token| {
-                        to_css_rule(token, &self.ctx).map(|rule| (token.to_owned(), rule))
+                        to_css_rule(token, &self.ctx).map(|rule| (SmolStr::from(token), rule))
                     })
-                    .collect::<HashMap<String, GenerateResult>>()
+                    .collect::<HashMap<SmolStr, GenerateResult>>()
             })
             .reduce(HashMap::default, |mut a, b| {
                 a.extend(b);
@@ -67,7 +70,7 @@ impl<'c> Application<'c> {
         self.run_inner(res)
     }
 
-    pub fn run_inner<'a>(&mut self, res: HashMap<String, GenerateResult>) -> String {
+    pub fn run_inner(&mut self, res: HashMap<SmolStr, GenerateResult>) -> String {
         let mut writer = Writer::default(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
@@ -99,7 +102,7 @@ impl<'c> Application<'c> {
             let mut w = Writer::default(String::with_capacity(100));
             let _ = r.item.rule.to_css(&mut w);
             let _ = writer.write_str(&w.dest);
-            self.ctx.cache.insert(r.name.to_owned(), Some(w.dest));
+            self.ctx.cache.insert(r.name.clone(), Some(w.dest));
         }
 
         for (group, names) in groups {

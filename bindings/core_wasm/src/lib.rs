@@ -11,7 +11,7 @@ pub fn set_panic_hook() {
 }
 
 lazy_static::lazy_static! {
-    static ref APP: Arc<RwLock<Application<'static>>> = Arc::new(RwLock::new(create_app()));
+    static ref APP: Arc<RwLock<Application>> = Arc::new(RwLock::new(create_app()));
 }
 
 #[wasm_bindgen]

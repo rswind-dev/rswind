@@ -2,6 +2,7 @@ use std::{collections::BTreeSet, fmt::Write};
 
 use cssparser::serialize_identifier;
 use smallvec::SmallVec;
+use smol_str::SmolStr;
 
 use crate::{
     context::{utilities::UtilityStorage, Context},
@@ -13,14 +14,14 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct GenerateResult<'c> {
-    pub rule: RuleList<'c>,
+pub struct GenerateResult {
+    pub rule: RuleList,
     pub group: Option<UtilityGroup>,
     pub ordering: OrderingKey,
     pub variants: BTreeSet<Variant>,
 }
 
-pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<'c>> {
+pub fn to_css_rule(value: &str, ctx: &Context) -> Option<GenerateResult> {
     let mut parts = value.split(TopLevelPattern::new(':')).rev();
 
     let utility = parts.next().unwrap();
@@ -53,7 +54,7 @@ pub fn to_css_rule<'c>(value: &str, ctx: &Context<'c>) -> Option<GenerateResult<
     w.write_char('.').ok()?;
     serialize_identifier(value, &mut w).ok()?;
 
-    node = node.modify_with(|s| s.replace('&', &w));
+    node = node.modify_with(|s| SmolStr::from(s.replace('&', &w)));
 
     let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 

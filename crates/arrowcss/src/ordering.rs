@@ -3,6 +3,7 @@ use std::hash::Hash;
 use fxhash::FxHashMap as HashMap;
 use lazy_static::lazy_static;
 use smallvec::{smallvec, SmallVec};
+use smol_str::SmolStr;
 
 use crate::parser::GenerateResult;
 
@@ -19,14 +20,14 @@ pub struct UtilityOrdering {
 }
 
 #[derive(Debug, Clone)]
-pub struct OrderingItem<'a> {
-    pub name: String,
-    pub item: GenerateResult<'a>,
+pub struct OrderingItem {
+    pub name: SmolStr,
+    pub item: GenerateResult,
     variant_ordering: u128,
 }
 
-impl<'a> OrderingItem<'a> {
-    pub fn new(name: String, item: GenerateResult<'a>, variant_ordering: u128) -> Self {
+impl OrderingItem {
+    pub fn new(name: SmolStr, item: GenerateResult, variant_ordering: u128) -> Self {
         Self {
             name,
             item,
@@ -35,21 +36,21 @@ impl<'a> OrderingItem<'a> {
     }
 }
 
-impl PartialEq for OrderingItem<'_> {
+impl PartialEq for OrderingItem {
     fn eq(&self, other: &Self) -> bool {
         self.variant_ordering == other.variant_ordering
     }
 }
 
-impl Eq for OrderingItem<'_> {}
+impl Eq for OrderingItem {}
 
-impl PartialOrd for OrderingItem<'_> {
+impl PartialOrd for OrderingItem {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for OrderingItem<'_> {
+impl Ord for OrderingItem {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match self.variant_ordering.cmp(&other.variant_ordering) {
             std::cmp::Ordering::Equal => self.name.cmp(&other.name),
@@ -59,13 +60,13 @@ impl Ord for OrderingItem<'_> {
 }
 
 #[derive(Default)]
-pub struct OrderingMap<'i> {
+pub struct OrderingMap {
     ordering: UtilityOrdering,
-    map: HashMap<usize, SmallVec<[Vec<OrderingItem<'i>>; 4]>>,
-    unordered: Vec<OrderingItem<'i>>,
+    map: HashMap<usize, SmallVec<[Vec<OrderingItem>; 4]>>,
+    unordered: Vec<OrderingItem>,
 }
 
-impl<'i> OrderingMap<'i> {
+impl OrderingMap {
     pub fn new(ordering: UtilityOrdering) -> Self {
         Self {
             ordering,
@@ -74,7 +75,7 @@ impl<'i> OrderingMap<'i> {
         }
     }
 
-    pub fn insert_many(&mut self, items: impl IntoIterator<Item = OrderingItem<'i>>) {
+    pub fn insert_many(&mut self, items: impl IntoIterator<Item = OrderingItem>) {
         for key in items {
             if let Some((item, len)) = self.ordering.ordering.get(&key.item.ordering) {
                 self.map
@@ -88,7 +89,7 @@ impl<'i> OrderingMap<'i> {
         self.unordered.sort();
     }
 
-    pub fn get_ordered(&self) -> impl Iterator<Item = &OrderingItem<'i>> {
+    pub fn get_ordered(&self) -> impl Iterator<Item = &OrderingItem> {
         let (bare, mut variant): (Vec<_>, Vec<_>) = self
             .map
             .iter()

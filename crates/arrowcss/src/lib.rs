@@ -24,7 +24,7 @@ pub mod types;
 pub mod variant;
 pub mod writer;
 
-pub fn create_app() -> Application<'static> {
+pub fn create_app() -> Application {
     let config = ArrowConfig::default();
     let mut app = Application::new(config);
     app.init();

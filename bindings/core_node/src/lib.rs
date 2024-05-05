@@ -5,7 +5,7 @@ extern crate napi_derive;
 
 #[napi]
 pub struct ArrowCss {
-    app: Application<'static>,
+    app: Application,
 }
 
 impl Default for ArrowCss {

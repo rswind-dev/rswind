@@ -1,4 +1,5 @@
 use colored::Colorize;
+use smol_str::{format_smolstr, SmolStr};
 
 use super::ParserPosition;
 use crate::{
@@ -24,10 +25,10 @@ pub struct UtilityCandidate<'a> {
 
 impl UtilityCandidate<'_> {
     // only if value and modifier are both named
-    pub fn take_fraction(&self) -> Option<String> {
+    pub fn take_fraction(&self) -> Option<SmolStr> {
         match (self.value, self.modifier) {
             (Some(MaybeArbitrary::Named(v)), Some(MaybeArbitrary::Named(m))) => {
-                Some(format!("{v}/{m}",))
+                Some(format_smolstr!("{v}/{m}",))
             }
             _ => None,
         }
@@ -184,27 +185,23 @@ impl<'a> UtilityParser<'a> {
     }
 }
 
-pub struct UtilityBuilder<'i, 'c> {
-    ctx: &'i mut Context<'c>,
+pub struct UtilityBuilder<'i> {
+    ctx: &'i mut Context,
     key: &'i str,
     theme_key: Option<&'i str>,
     handler: UtilityHandler,
-    modifier: Option<ModifierProcessor<'c>>,
+    modifier: Option<ModifierProcessor>,
     validator: Option<Box<dyn TypeValidator>>,
-    additional_css: Option<RuleList<'c>>,
-    wrapper: Option<String>,
+    additional_css: Option<RuleList>,
+    wrapper: Option<SmolStr>,
     supports_negative: bool,
     supports_fraction: bool,
     ordering_key: Option<OrderingKey>,
     group: Option<UtilityGroup>,
 }
 
-impl<'i, 'c> UtilityBuilder<'i, 'c> {
-    pub fn new(
-        ctx: &'i mut Context<'c>,
-        key: &'i str,
-        handler: impl RuleMatchingFn + 'static,
-    ) -> Self {
+impl<'i> UtilityBuilder<'i> {
+    pub fn new(ctx: &'i mut Context, key: &'i str, handler: impl RuleMatchingFn + 'static) -> Self {
         Self {
             ctx,
             key,
@@ -236,7 +233,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    pub fn with_modifier(mut self, modifier: ModifierProcessor<'c>) -> Self {
+    pub fn with_modifier(mut self, modifier: ModifierProcessor) -> Self {
         self.modifier = Some(modifier);
         self
     }
@@ -246,13 +243,13 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
         self
     }
 
-    pub fn with_additional_css(mut self, css: RuleList<'c>) -> Self {
+    pub fn with_additional_css(mut self, css: RuleList) -> Self {
         self.additional_css = Some(css);
         self
     }
 
     pub fn with_wrapper(mut self, wrapper: &str) -> Self {
-        self.wrapper = Some(wrapper.to_string());
+        self.wrapper = Some(wrapper.into());
         self
     }
 
@@ -269,7 +266,7 @@ impl<'i, 'c> UtilityBuilder<'i, 'c> {
 
 /// Automatically adds the rule to the context when dropped.
 /// This is useful for defining rules in a more declarative way.
-impl<'i, 'c> Drop for UtilityBuilder<'i, 'c> {
+impl<'i> Drop for UtilityBuilder<'i> {
     fn drop(&mut self) {
         let allowed_values = self.theme_key.map(|key| {
             self.ctx

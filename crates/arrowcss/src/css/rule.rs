@@ -3,18 +3,20 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+use smol_str::SmolStr;
+
 use super::{Decl, ToCss};
 use crate::writer::Writer;
 
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct Rule<'a> {
-    pub selector: String,
-    pub decls: Vec<Decl<'a>>,
-    pub rules: RuleList<'a>,
+pub struct Rule {
+    pub selector: SmolStr,
+    pub decls: Vec<Decl>,
+    pub rules: RuleList,
 }
 
-impl<'a> Rule<'a> {
-    pub fn new_with_decls(selector: impl Into<String>, decls: Vec<Decl<'a>>) -> Self {
+impl Rule {
+    pub fn new_with_decls(selector: impl Into<SmolStr>, decls: Vec<Decl>) -> Self {
         Self {
             selector: selector.into(),
             decls,
@@ -22,7 +24,7 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn modify_with(self, modifier: impl Fn(String) -> String) -> Self {
+    pub fn modify_with(self, modifier: impl Fn(SmolStr) -> SmolStr) -> Self {
         Self {
             selector: modifier(self.selector),
             decls: self.decls,
@@ -30,7 +32,7 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn wrap(self, wrapper: String) -> Self {
+    pub fn wrap(self, wrapper: SmolStr) -> Self {
         Self {
             selector: wrapper,
             decls: vec![],
@@ -38,20 +40,20 @@ impl<'a> Rule<'a> {
         }
     }
 
-    pub fn to_rule_list(self) -> RuleList<'a> {
+    pub fn to_rule_list(self) -> RuleList {
         RuleList::new(self)
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct RuleList<'a>(pub Vec<Rule<'a>>);
+pub struct RuleList(pub Vec<Rule>);
 
-impl<'a> RuleList<'a> {
-    pub fn new(rule: Rule<'a>) -> Self {
+impl RuleList {
+    pub fn new(rule: Rule) -> Self {
         Self(vec![rule])
     }
 
-    pub fn wrap(self, wrapper: String) -> Rule<'a> {
+    pub fn wrap(self, wrapper: SmolStr) -> Rule {
         Rule {
             selector: wrapper,
             decls: vec![],
@@ -59,7 +61,7 @@ impl<'a> RuleList<'a> {
         }
     }
 
-    pub fn modify_with(self, modifier: impl Fn(String) -> String + Clone) -> Self {
+    pub fn modify_with(self, modifier: impl Fn(SmolStr) -> SmolStr + Clone) -> Self {
         Self(
             self.0
                 .into_iter()
@@ -68,13 +70,13 @@ impl<'a> RuleList<'a> {
         )
     }
 
-    pub fn as_single(self) -> Option<Rule<'a>> {
+    pub fn as_single(self) -> Option<Rule> {
         self.0.into_iter().next()
     }
 }
 
-impl<'a> IntoIterator for RuleList<'a> {
-    type Item = Rule<'a>;
+impl IntoIterator for RuleList {
+    type Item = Rule;
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -82,30 +84,30 @@ impl<'a> IntoIterator for RuleList<'a> {
     }
 }
 
-impl<'a> FromIterator<Rule<'a>> for RuleList<'a> {
-    fn from_iter<T: IntoIterator<Item = Rule<'a>>>(iter: T) -> Self {
+impl FromIterator<Rule> for RuleList {
+    fn from_iter<T: IntoIterator<Item = Rule>>(iter: T) -> Self {
         Self(iter.into_iter().collect())
     }
 }
 
-impl<'a> RuleList<'a> {
-    pub fn extend(&mut self, other: RuleList<'a>) {
+impl RuleList {
+    pub fn extend(&mut self, other: RuleList) {
         self.0.extend(other.0);
     }
 }
 
-impl<'a> Rule<'a> {
+impl Rule {
     pub fn is_at_rule(&self) -> bool {
         self.selector.starts_with('@')
     }
 
-    pub fn extend(&mut self, other: Rule<'a>) {
+    pub fn extend(&mut self, other: Rule) {
         self.decls.extend(other.decls);
         self.rules.extend(other.rules);
     }
 }
 
-impl<'a> ToCss for &Rule<'a> {
+impl ToCss for &Rule {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
@@ -131,7 +133,7 @@ impl<'a> ToCss for &Rule<'a> {
 impl<'a, 'b, T> ToCss for T
 where
     'a: 'b,
-    T: IntoIterator<Item = &'b Rule<'a>>,
+    T: IntoIterator<Item = &'b Rule>,
 {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
@@ -149,7 +151,7 @@ where
     }
 }
 
-impl ToCss for &RuleList<'_> {
+impl ToCss for &RuleList {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where
         W: Write,
@@ -160,28 +162,28 @@ impl ToCss for &RuleList<'_> {
 
 // region: impl Traits for RuleList
 
-impl<'a> Deref for RuleList<'a> {
-    type Target = Vec<Rule<'a>>;
+impl Deref for RuleList {
+    type Target = Vec<Rule>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for RuleList<'_> {
+impl DerefMut for RuleList {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl<'a> From<Rule<'a>> for RuleList<'a> {
-    fn from(rule: Rule<'a>) -> Self {
+impl From<Rule> for RuleList {
+    fn from(rule: Rule) -> Self {
         Self(vec![rule])
     }
 }
 
-impl<'a> From<Vec<Rule<'a>>> for RuleList<'a> {
-    fn from(rule: Vec<Rule<'a>>) -> Self {
+impl From<Vec<Rule>> for RuleList {
+    fn from(rule: Vec<Rule>) -> Self {
         Self(rule)
     }
 }

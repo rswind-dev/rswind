@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use lightningcss::values::string::CowArcStr;
+use smol_str::SmolStr;
 
 use super::{ArbitraryValueProcessor, MetaData};
 use crate::{
@@ -11,18 +11,18 @@ use crate::{
 };
 
 #[rustfmt::skip]
-pub trait RuleMatchingFn: for<'b> Fn(MetaData, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
+pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync {}
 
 #[rustfmt::skip]
-impl<T> RuleMatchingFn for T where T: for<'b> Fn(MetaData, CowArcStr<'b>) -> Rule<'b> + Send + Sync {}
+impl<T> RuleMatchingFn for T where T: Fn(MetaData, SmolStr) -> Rule + Send + Sync {}
 
 pub enum UtilityHandler {
-    Static(for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b>),
+    Static(fn(MetaData, SmolStr) -> Rule),
     Dynamic(Box<dyn RuleMatchingFn>),
 }
 
 lazy_static! {
-    pub static ref NOOP: for<'b> fn(MetaData, CowArcStr<'b>) -> Rule<'b> = |_, _| Rule::default();
+    pub static ref NOOP: fn(MetaData, SmolStr) -> Rule = |_, _| Rule::default();
 }
 
 impl Default for UtilityHandler {
@@ -32,7 +32,7 @@ impl Default for UtilityHandler {
 }
 
 impl UtilityHandler {
-    pub fn call<'a>(&self, meta: MetaData, value: CowArcStr<'a>) -> Rule<'a> {
+    pub fn call(&self, meta: MetaData, value: SmolStr) -> Rule {
         match self {
             Self::Static(handler) => handler(meta, value),
             Self::Dynamic(handler) => handler(meta, value),
@@ -41,26 +41,26 @@ impl UtilityHandler {
 }
 
 #[derive(Default)]
-pub struct Utility<'i> {
+pub struct Utility {
     pub handler: UtilityHandler,
 
     pub supports_negative: bool,
 
     pub supports_fraction: bool,
 
-    pub allowed_values: Option<ThemeValue<'i>>,
+    pub allowed_values: Option<ThemeValue>,
 
-    pub modifier: Option<ModifierProcessor<'i>>,
+    pub modifier: Option<ModifierProcessor>,
 
     pub validator: Option<Box<dyn TypeValidator>>,
 
     /// This will be use as generated Rule selector
     /// default: '&'
-    pub wrapper: Option<String>,
+    pub wrapper: Option<SmolStr>,
 
     /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
-    pub additional_css: Option<RuleList<'i>>,
+    pub additional_css: Option<RuleList>,
 
     pub ordering_key: Option<OrderingKey>,
 
@@ -136,13 +136,13 @@ impl UtilityOptions {
     }
 }
 
-pub struct ModifierProcessor<'i> {
+pub struct ModifierProcessor {
     pub validator: Option<Box<dyn TypeValidator>>,
-    pub allowed_values: Option<ThemeValue<'i>>,
+    pub allowed_values: Option<ThemeValue>,
 }
 
-impl<'i> ModifierProcessor<'i> {
-    pub fn new(allowed_values: ThemeValue<'i>) -> Self {
+impl ModifierProcessor {
+    pub fn new(allowed_values: ThemeValue) -> Self {
         Self {
             validator: None,
             allowed_values: Some(allowed_values),
@@ -157,37 +157,37 @@ impl<'i> ModifierProcessor<'i> {
     }
 }
 
-impl<'a> ArbitraryValueProcessor<'a> for ModifierProcessor<'a> {
+impl ArbitraryValueProcessor for ModifierProcessor {
     fn validate(&self, value: &str) -> bool {
         self.validator
             .as_ref()
             .map_or(true, |validator| validator.validate(value))
     }
 
-    fn allowed_values(&self) -> Option<&ThemeValue<'a>> {
+    fn allowed_values(&self) -> Option<&ThemeValue> {
         self.allowed_values.as_ref()
     }
 }
 
-impl<'a> ArbitraryValueProcessor<'a> for Utility<'a> {
+impl ArbitraryValueProcessor for Utility {
     fn validate(&self, value: &str) -> bool {
         self.validator
             .as_ref()
             .map_or(true, |validator| validator.validate(value))
     }
 
-    fn allowed_values(&self) -> Option<&ThemeValue<'a>> {
+    fn allowed_values(&self) -> Option<&ThemeValue> {
         self.allowed_values.as_ref()
     }
 }
 
-impl<'c, F: RuleMatchingFn + 'static> From<F> for Utility<'c> {
+impl<F: RuleMatchingFn + 'static> From<F> for Utility {
     fn from(handler: F) -> Self {
         Utility::new(handler)
     }
 }
 
-impl<'c> Utility<'c> {
+impl Utility {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
             handler: UtilityHandler::Dynamic(Box::new(handler)),
@@ -195,7 +195,7 @@ impl<'c> Utility<'c> {
         }
     }
 
-    pub fn allow_values(mut self, values: ThemeValue<'c>) -> Self {
+    pub fn allow_values(mut self, values: ThemeValue) -> Self {
         self.allowed_values = Some(values);
         self
     }
@@ -208,13 +208,10 @@ impl<'c> Utility<'c> {
         self
     }
 
-    pub fn apply_to<'a>(
+    pub fn apply_to(
         &self,
-        candidate: UtilityCandidate<'a>,
-    ) -> Option<(Rule<'c>, OrderingKey, Option<UtilityGroup>)>
-    where
-        'c: 'a,
-    {
+        candidate: UtilityCandidate<'_>,
+    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)> {
         if !self.supports_negative && candidate.negative {
             return None;
         }
@@ -224,7 +221,7 @@ impl<'c> Utility<'c> {
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
-            meta.modifier = modifier.process(Some(candidate)).map(|v| v.to_string());
+            meta.modifier = modifier.process(Some(candidate));
         }
 
         if self.supports_fraction {

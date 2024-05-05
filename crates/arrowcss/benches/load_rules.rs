@@ -8,7 +8,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("Load Static", |b| {
         b.iter(|| {
             let mut ctx = Context::default();
-            black_box(load_static_utilities(&mut ctx));
+            load_static_utilities(&mut ctx);
+            black_box(());
         });
     });
 

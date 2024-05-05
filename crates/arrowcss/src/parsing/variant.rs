@@ -21,7 +21,7 @@ pub struct VariantCandidate<'a> {
 }
 
 impl<'a> VariantCandidate<'a> {
-    pub fn handle<'b>(&self, rule: RuleList<'b>) -> RuleList<'b> {
+    pub fn handle(&self, rule: RuleList) -> RuleList {
         let rule = self.processor.handle(self.clone(), rule);
         self.layers
             .iter()
@@ -76,10 +76,7 @@ impl<'a> VariantParser<'a> {
         }
     }
 
-    fn current<'b>(&self) -> &'b str
-    where
-        'a: 'b,
-    {
+    fn current(&self) -> &'a str {
         self.input.get(self.pos.start..self.pos.end).unwrap()
     }
 
@@ -219,6 +216,8 @@ impl<'a> VariantParser<'a> {
 #[cfg(test)]
 mod tests {
 
+    use smol_str::format_smolstr;
+
     use crate::{
         context::Context,
         css::{Decl, Rule},
@@ -230,10 +229,10 @@ mod tests {
         let mut ctx = Context::default();
         ctx.add_variant("hover", ["&:hover"]);
         ctx.add_variant_composable("has", |r, _| {
-            r.modify_with(|s| format!("&:has({})", s.replace('&', "*")))
+            r.modify_with(|s| format_smolstr!("&:has({})", s.replace('&', "*")))
         });
         ctx.add_variant_composable("not", |r, _| {
-            r.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
+            r.modify_with(|s| format_smolstr!("&:not({})", s.replace('&', "*")))
         });
 
         let mut input = VariantParser::new("has-not-hover");

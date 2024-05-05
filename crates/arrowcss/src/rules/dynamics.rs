@@ -1,5 +1,5 @@
 use arrowcss_css_macro::css;
-use lightningcss::{traits::IntoOwned, vendor_prefix::VendorPrefix};
+use lightningcss::vendor_prefix::VendorPrefix;
 
 use crate::{
     add_theme_utility,
@@ -10,12 +10,12 @@ use crate::{
     types::{CssDataType, CssProperty},
 };
 
-struct RuleAdder<'a, 'c> {
-    ctx: &'a mut Context<'c>,
+struct RuleAdder<'a> {
+    ctx: &'a mut Context,
 }
 
-impl<'a, 'c> RuleAdder<'a, 'c> {
-    pub fn new(ctx: &'a mut Context<'c>) -> Self {
+impl<'a> RuleAdder<'a> {
+    pub fn new(ctx: &'a mut Context) -> Self {
         Self { ctx }
     }
 
@@ -23,12 +23,12 @@ impl<'a, 'c> RuleAdder<'a, 'c> {
         &'b mut self,
         key: &'b str,
         handler: impl RuleMatchingFn + 'static,
-    ) -> UtilityBuilder<'b, 'c> {
+    ) -> UtilityBuilder<'b> {
         UtilityBuilder::new(self.ctx, key, handler)
     }
 }
 
-pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
+pub fn load_dynamic_utilities(ctx: &mut Context) {
     let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
     let line_height = ctx.get_theme("lineHeight").unwrap_or_default();
     let opacity = ctx.get_theme("opacity").unwrap_or_default();
@@ -449,7 +449,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context<'_>) {
                 .value
                 .and_then(|v| font_size_lh.get(v.take_named()?))
             {
-                font_size.extend(css!("line-height": line_height.clone().into_owned()));
+                font_size.extend(css!("line-height": line_height.clone()));
             }
             font_size
         })

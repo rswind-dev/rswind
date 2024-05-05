@@ -11,7 +11,7 @@ pub(crate) trait WatchApp {
     fn watch(&mut self, dir: &str);
 }
 
-impl WatchApp for Application<'_> {
+impl WatchApp for Application {
     fn watch(&mut self, dir: &str) {
         let (tx, rx) = mpsc::channel();
 

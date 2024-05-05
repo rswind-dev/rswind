@@ -1,6 +1,6 @@
 use crate::{context::Context, css::DeclList, static_rules};
 
-fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn accessibility() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "sr-only" => {
             "position": "absolute";
@@ -26,14 +26,14 @@ fn accessibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn pointer_events<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn pointer_events() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "pointer-events-none" => { "pointer-events": "none"; }
         "pointer-events-auto" => { "pointer-events": "auto"; }
     }
 }
 
-fn visibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn visibility() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "visible" => { "visibility": "visible"; }
         "invisible" => { "visibility": "hidden"; }
@@ -41,7 +41,7 @@ fn visibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn position() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "static" => { "position": "static"; }
         "fixed" => { "position": "fixed"; }
@@ -51,14 +51,14 @@ fn position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn isolation<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn isolation() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "isolate" => { "isolation": "isolate"; }
         "isolation-auto" => { "isolation": "auto"; }
     }
 }
 
-fn float<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn float() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "float-right" => { "float": "right"; }
         "float-left" => { "float": "left"; }
@@ -66,7 +66,7 @@ fn float<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn clear<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn clear() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "clear-start" => { "clear": "inline-start"; }
         "clear-end" => { "clear": "inline-end"; }
@@ -77,14 +77,14 @@ fn clear<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn box_sizing<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn box_sizing() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "box-border" => { "box-sizing": "border-box"; }
         "box-content" => { "box-sizing": "content-box"; }
     }
 }
 
-fn display<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn display() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "block" => { "display": "block"; }
         "inline-block" => { "display": "inline-block"; }
@@ -109,28 +109,28 @@ fn display<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn table_layout<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn table_layout() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "table-auto" => { "table-layout": "auto"; }
         "table-fixed" => { "table-layout": "fixed"; }
     }
 }
 
-fn caption_side<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn caption_side() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "caption-top" => { "caption-side": "top"; }
         "caption-bottom" => { "caption-side": "bottom"; }
     }
 }
 
-fn border_collapse<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn border_collapse() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "border-collapse" => { "border-collapse": "collapse"; }
         "border-separate" => { "border-collapse": "separate"; }
     }
 }
 
-fn user_select<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn user_select() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "select-none" => { "user-select": "none"; }
         "select-text" => { "user-select": "text"; }
@@ -139,7 +139,7 @@ fn user_select<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn resize<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn resize() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "resize-none" => { "resize": "none"; }
         "resize-y" => { "resize": "vertical"; }
@@ -148,7 +148,7 @@ fn resize<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn scroll_snap_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn scroll_snap_align() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "snap-start" => { "scroll-snap-align": "start"; }
         "snap-end" => { "scroll-snap-align": "end"; }
@@ -157,21 +157,21 @@ fn scroll_snap_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn scroll_snap_stop<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn scroll_snap_stop() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "snap-normal" => { "scroll-snap-stop": "normal"; }
         "snap-always" => { "scroll-snap-stop": "always"; }
     }
 }
 
-fn list_style_position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn list_style_position() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "list-inside" => { "list-style-position": "inside"; }
         "list-outside" => { "list-style-position": "outside"; }
     }
 }
 
-fn list_style_type<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn list_style_type() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "list-none" => { "list-style-type": "none"; }
         "list-disc" => { "list-style-type": "disc"; }
@@ -179,26 +179,26 @@ fn list_style_type<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn list_image<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn list_image() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "list-image-none" => { "list-style-image": "none"; }
     }
 }
 
-fn appearance<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn appearance() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "appearance-none" => { "appearance": "none"; }
         "appearance-auto" => { "appearance": "auto"; }
     }
 }
 
-fn columns<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn columns() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "columns-auto" => { "columns": "auto"; }
     }
 }
 
-fn break_before<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn break_before() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "break-before-auto" => { "break-before": "auto"; }
         "break-before-avoid" => { "break-before": "avoid"; }
@@ -217,7 +217,7 @@ fn break_before<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn break_inside<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn break_inside() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "break-inside-auto" => { "break-inside": "auto"; }
         "break-inside-avoid" => { "break-inside": "avoid"; }
@@ -229,7 +229,7 @@ fn break_inside<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn break_after<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn break_after() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "break-after-auto" => { "break-after": "auto"; }
         "break-after-avoid" => { "break-after": "avoid"; }
@@ -250,7 +250,7 @@ fn break_after<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn grid_auto_flow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn grid_auto_flow() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "grid-flow-row" => { "grid-auto-flow": "row"; }
         "grid-flow-col" => { "grid-auto-flow": "column"; }
@@ -260,7 +260,7 @@ fn grid_auto_flow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn flex<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn flex() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "flex-row" => { "flex-direction": "row"; }
         "flex-row-reverse" => { "flex-direction": "row-reverse"; }
@@ -272,7 +272,7 @@ fn flex<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn place_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn place_content() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "place-content-center" => { "place-content": "center"; }
         "place-content-start" => { "place-content": "start"; }
@@ -285,7 +285,7 @@ fn place_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn place_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn place_items() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "place-items-center" => { "place-items": "center"; }
         "place-items-start" => { "place-items": "start"; }
@@ -295,7 +295,7 @@ fn place_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn align_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn align_content() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "content-normal" => { "align-content": "normal"; }
         "content-center" => { "align-content": "center"; }
@@ -309,7 +309,7 @@ fn align_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn align_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn align_items() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "items-center" => { "align-items": "center"; }
         "items-start" => { "align-items": "start"; }
@@ -319,7 +319,7 @@ fn align_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn justify_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn justify_content() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "justify-normal" => { "justify-content": "normal"; }
         "justify-center" => { "justify-content": "center"; }
@@ -333,7 +333,7 @@ fn justify_content<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn justify_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn justify_items() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "items-normal" => { "justify-items": "normal"; }
         "items-center" => { "justify-items": "center"; }
@@ -343,7 +343,7 @@ fn justify_items<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn object_fit<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn object_fit() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "object-contain" => { "object-fit": "contain"; }
         "object-cover" => { "object-fit": "cover"; }
@@ -353,7 +353,7 @@ fn object_fit<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn object_position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn object_position() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "object-bottom" => { "object-position": "bottom"; }
         "object-center" => { "object-position": "center"; }
@@ -367,7 +367,7 @@ fn object_position<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_align() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "text-left" => { "text-align": "left"; }
         "text-center" => { "text-align": "center"; }
@@ -378,7 +378,7 @@ fn text_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn vertical_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn vertical_align() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "align-baseline" => { "vertical-align": "baseline"; }
         "align-top" => { "vertical-align": "top"; }
@@ -391,7 +391,7 @@ fn vertical_align<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_transform<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_transform() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "uppercase" => { "text-transform": "uppercase"; }
         "lowercase" => { "text-transform": "lowercase"; }
@@ -400,14 +400,14 @@ fn text_transform<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_italic<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_italic() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "italic" => { "font-style": "italic"; }
         "not-italic" => { "font-style": "normal"; }
     }
 }
 
-fn font_stretch<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn font_stretch() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "font-stretch-normal" => { "font-stretch": "normal"; }
         "font-stretch-ultra-condensed" => { "font-stretch": "ultra-condensed"; }
@@ -421,7 +421,7 @@ fn font_stretch<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_decoration<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_decoration() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "underline" => { "text-decoration": "underline"; }
         "overline" => { "text-decoration": "overline"; }
@@ -430,7 +430,7 @@ fn text_decoration<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_decoration_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_decoration_style() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "decoration-solid" => { "text-decoration-style": "solid"; }
         "decoration-double" => { "text-decoration-style": "double"; }
@@ -440,27 +440,27 @@ fn text_decoration_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_decoration_thickness<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_decoration_thickness() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "decoration-auto" => { "text-decoration-thickness": "auto"; }
         "decoration-from-font" => { "text-decoration-thickness": "from-font"; }
     }
 }
 
-fn animate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn animate() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "animate-none" => { "animation": "none"; }
     }
 }
 
-fn filter<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn filter() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "filter" => { "filter": "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"; }
         "filter-none" => { "filter": "none"; }
     }
 }
 
-fn backdrop_filter<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn backdrop_filter() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "backdrop-filter" => {
             "-webkit-backdrop-filter": "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
@@ -473,7 +473,7 @@ fn backdrop_filter<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn transform_origin<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn transform_origin() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "origin-center" => { "transform-origin": "center"; }
         "origin-top" => { "transform-origin": "top"; }
@@ -487,7 +487,7 @@ fn transform_origin<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn perspective_origin<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn perspective_origin() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "perspective-origin-center" => { "perspective-origin": "center"; }
         "perspective-origin-top" => { "perspective-origin": "top"; }
@@ -501,13 +501,13 @@ fn perspective_origin<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn perspective<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn perspective() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "perspective-none" => { "perspective": "none"; }
     }
 }
 
-fn translate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn translate() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "translate-3d" => {
             "translate": "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)";
@@ -515,7 +515,7 @@ fn translate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn scale<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn scale() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "scale-3d" => {
             "scale": "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)";
@@ -523,7 +523,7 @@ fn scale<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn cursor<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn cursor() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "cursor-auto" => { "cursor": "auto"; }
         "cursor-default" => { "cursor": "default"; }
@@ -564,7 +564,7 @@ fn cursor<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn touch_action<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn touch_action() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "touch-auto" => { "touch-action": "auto"; }
         "touch-none" => { "touch-action": "none"; }
@@ -572,7 +572,7 @@ fn touch_action<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn transform<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn transform() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "transform-cpu" => { "transform": "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"; }
         "transform-gpu" => { "transform": "translateZ(0) var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"; }
@@ -580,14 +580,14 @@ fn transform<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn transform_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn transform_style() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "transform-flat" => { "transform-style": "flat"; }
         "transform-preserve-3d" => { "transform-style": "preserve-3d"; }
     }
 }
 
-fn transform_box<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn transform_box() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "transform-content" => { "transform-box": "content-box"; }
         "transform-border" => { "transform-box": "border-box"; }
@@ -597,14 +597,14 @@ fn transform_box<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn backface_visibility<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn backface_visibility() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "backface-visible" => { "backface-visibility": "visible"; }
         "backface-hidden" => { "backface-visibility": "hidden"; }
     }
 }
 
-fn scroll_snap<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn scroll_snap() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "snap-none" => { "scroll-snap-type": "none"; }
         // TODO: snapProperties
@@ -617,7 +617,7 @@ fn scroll_snap<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn touch_pan<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn touch_pan() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "touch-pan-x" => {
             "--tw-pan-x": "pan-x";
@@ -650,7 +650,7 @@ fn touch_pan<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn space<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn space() -> Vec<(&'static str, DeclList)> {
     // TODO: :where(& > :not(:last-child)
     static_rules! {
         "space-x-reverse" => {
@@ -662,7 +662,7 @@ fn space<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn overflow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn overflow() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "overflow-auto" => { "overflow": "auto"; }
         "overflow-hidden" => { "overflow": "hidden"; }
@@ -672,7 +672,7 @@ fn overflow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn overscroll_behavior<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn overscroll_behavior() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "overscroll-auto" => { "overscroll-behavior": "auto"; }
         "overscroll-contain" => { "overscroll-behavior": "contain"; }
@@ -680,14 +680,14 @@ fn overscroll_behavior<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn scroll_behavior<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn scroll_behavior() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "scroll-auto" => { "scroll-behavior": "auto"; }
         "scroll-smooth" => { "scroll-behavior": "smooth"; }
     }
 }
 
-fn truncate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn truncate() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "truncate" => {
             "overflow": "hidden";
@@ -697,14 +697,14 @@ fn truncate<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_overflow<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_overflow() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "text-ellipsis" => { "text-overflow": "ellipsis"; }
         "text-clip" => { "text-overflow": "clip"; }
     }
 }
 
-fn hyphens<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn hyphens() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "hyphens-none" => {
             "-webkit-hyphens": "none";
@@ -721,7 +721,7 @@ fn hyphens<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn white_space<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn white_space() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "whitespace-normal" => { "white-space": "normal"; }
         "whitespace-nowrap" => { "white-space": "nowrap"; }
@@ -732,7 +732,7 @@ fn white_space<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn text_wrap<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn text_wrap() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "text-wrap" => { "overflow-wrap": "break-word"; }
         "text-nowrap" => { "overflow-wrap": "normal"; }
@@ -741,7 +741,7 @@ fn text_wrap<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn word_break<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn word_break() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "break-normal" => {
             "overflow-wrap": "normal";
@@ -753,7 +753,7 @@ fn word_break<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn border_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn border_style() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "border-solid" => {
             "--tw-border-style": "solid";
@@ -782,7 +782,7 @@ fn border_style<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn background_attachment<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn background_attachment() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "bg-fixed" => { "background-attachment": "fixed"; }
         "bg-local" => { "background-attachment": "local"; }
@@ -790,7 +790,7 @@ fn background_attachment<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn background_repeat<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn background_repeat() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "bg-repeat" => { "background-repeat": "repeat"; }
         "bg-no-repeat" => { "background-repeat": "no-repeat"; }
@@ -801,13 +801,13 @@ fn background_repeat<'a>() -> Vec<(&'static str, DeclList<'a>)> {
     }
 }
 
-fn background_image<'a>() -> Vec<(&'static str, DeclList<'a>)> {
+fn background_image() -> Vec<(&'static str, DeclList)> {
     static_rules! {
         "bg-none" => { "background-image": "none"; }
     }
 }
 
-fn get_all() -> Vec<(&'static str, DeclList<'static>)> {
+fn get_all() -> Vec<(&'static str, DeclList)> {
     vec![]
         .into_iter()
         .chain(accessibility())

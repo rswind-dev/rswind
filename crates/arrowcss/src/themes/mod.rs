@@ -13,14 +13,14 @@ macro_rules! create_theme {
         {
             let mut m = fxhash::FxHashMap::default();
             $(
-                m.insert($key.to_string(), $value.into());
+                m.insert($key.into(), $value.into());
             )*
             Theme(m)
         }
     };
 }
 
-pub fn theme() -> Theme<'static> {
+pub fn theme() -> Theme {
     create_theme! {
         "colors" => &COLORS,
         "spacing" => &SPACING,

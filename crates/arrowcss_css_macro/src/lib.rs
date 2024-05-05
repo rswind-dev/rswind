@@ -34,8 +34,8 @@ impl ToTokens for AstNodeExpr {
                 let value = &decl.value;
                 tokens.extend(quote! {
                     crate::css::Decl {
-                        name: lightningcss::values::string::CowArcStr::from(#key),
-                        value: lightningcss::values::string::CowArcStr::from(#value)
+                        name: smol_str::SmolStr::from(#key),
+                        value: smol_str::SmolStr::from(#value)
                     }
                 });
             }

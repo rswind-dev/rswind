@@ -1,3 +1,5 @@
+use smol_str::format_smolstr;
+
 use crate::{
     common::MaybeArbitrary,
     context::Context,
@@ -64,53 +66,53 @@ pub fn load_variants(ctx: &mut Context) {
 
     ctx.add_variant_fn("aria", |rule, candidate| match candidate.value {
         Some(MaybeArbitrary::Arbitrary(value)) => {
-            rule.modify_with(|s| format!("{}[aria-{}]", s, value))
+            rule.modify_with(|s| format_smolstr!("{}[aria-{}]", s, value))
         }
         Some(MaybeArbitrary::Named(value)) => {
-            rule.modify_with(|s| format!("{}[aria-{}=\"true\"]", s, value))
+            rule.modify_with(|s| format_smolstr!("{}[aria-{}=\"true\"]", s, value))
         }
         None => rule,
     });
 
     ctx.add_variant_fn("data", |rule, candidate| {
-        rule.modify_with(|s| format!("{}[data-{}]", s, take_or_default(&candidate.value)))
+        rule.modify_with(|s| format_smolstr!("{}[data-{}]", s, take_or_default(&candidate.value)))
     });
 
     ctx.add_variant_composable("has", |rule, _| {
-        rule.modify_with(|s| format!("&:has({})", s.replace('&', "*")))
+        rule.modify_with(|s| format_smolstr!("&:has({})", s.replace('&', "*")))
     });
 
     ctx.add_variant_composable("not", |rule, _| {
-        rule.modify_with(|s| format!("&:not({})", s.replace('&', "*")))
+        rule.modify_with(|s| format_smolstr!("&:not({})", s.replace('&', "*")))
     });
 
     ctx.add_variant_composable("group", |rule, candidate| {
         let group_name = take_or_default(&candidate.modifier);
-        let selector = format!(
+        let selector = format_smolstr!(
             ":where(.group{}{})",
             if group_name.is_empty() { "" } else { r"\/" },
             group_name
         );
 
-        rule.modify_with(|s| format!("&:is({} *)", s.replace('&', &selector)))
+        rule.modify_with(|s| format_smolstr!("&:is({} *)", s.replace('&', &selector)))
     });
 
     ctx.add_variant_composable("peer", |rule, candidate| {
         let group_name = take_or_default(&candidate.modifier);
-        let selector = format!(
+        let selector = format_smolstr!(
             ":where(.peer{}{})",
             if group_name.is_empty() { "" } else { r"\/" },
             group_name
         );
 
-        rule.modify_with(|s| format!("&:is({} ~ *)", s.replace('&', &selector)))
+        rule.modify_with(|s| format_smolstr!("&:is({} ~ *)", s.replace('&', &selector)))
     });
 
     if let Some(theme) = ctx.get_theme("breakpoints") {
         theme.iter().for_each(|(k, v)| {
             ctx.variants.insert(
                 k.into(),
-                Variant::new_static([format!("@media (width >= {})", v)])
+                Variant::new_static([format_smolstr!("@media (width >= {})", v)])
                     .with_ordering(VariantOrdering::from_px(&v)),
             );
         })

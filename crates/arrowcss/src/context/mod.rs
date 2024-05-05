@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use fxhash::FxHashMap as HashMap;
+use smol_str::SmolStr;
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
@@ -16,16 +17,16 @@ use crate::{
 pub mod utilities;
 
 #[derive(Default)]
-pub struct Context<'c> {
-    pub utilities: UtilityStorageImpl<'c>,
-    pub variants: HashMap<String, Variant>,
-    pub theme: Theme<'static>,
-    pub cache: HashMap<String, Option<String>>,
+pub struct Context {
+    pub utilities: UtilityStorageImpl,
+    pub variants: HashMap<SmolStr, Variant>,
+    pub theme: Theme,
+    pub cache: HashMap<SmolStr, Option<String>>,
     pub seen_variants: BTreeSet<Variant>,
 }
 
-impl<'c> Context<'c> {
-    pub fn new(t: Theme<'static>) -> Self {
+impl Context {
+    pub fn new(t: Theme) -> Self {
         Self {
             variants: HashMap::default(),
             utilities: UtilityStorageImpl::HashMap(Default::default()),
@@ -35,53 +36,49 @@ impl<'c> Context<'c> {
         }
     }
 
-    pub fn add_static<S>(&mut self, pair: (S, DeclList<'static>)) -> &Self
-    where
-        S: Into<String>,
-    {
+    pub fn add_static(&mut self, pair: (&str, DeclList)) -> &Self {
         self.utilities.add_static(pair.0.into(), pair.1);
         self
     }
 
-    pub fn add_variant<T>(&mut self, key: &str, matcher: T) -> &mut Self
+    pub fn add_variant<'a, T>(&mut self, key: &str, matcher: T) -> &mut Self
     where
         T: IntoIterator,
-        T::Item: Into<String>,
+        T::Item: Into<SmolStr>,
         T::IntoIter: ExactSizeIterator,
     {
         self.variants
-            .insert(key.to_string(), Variant::new_static(matcher));
+            .insert(key.into(), Variant::new_static(matcher));
         self
     }
 
     pub fn add_variant_fn(
         &mut self,
         key: &str,
-        func: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+        func: fn(RuleList, VariantCandidate) -> RuleList,
     ) -> &Self {
-        self.variants
-            .insert(key.to_string(), Variant::new_dynamic(func));
+        self.variants.insert(key.into(), Variant::new_dynamic(func));
         self
     }
 
     pub fn add_variant_composable(
         &mut self,
         key: &str,
-        handler: for<'a> fn(RuleList<'a>, VariantCandidate) -> RuleList<'a>,
+        handler: fn(RuleList, VariantCandidate) -> RuleList,
     ) -> &mut Self {
         self.variants
-            .insert(key.to_string(), Variant::new_composable(handler));
+            .insert(key.into(), Variant::new_composable(handler));
         self
     }
 
-    pub fn add_utility<'a: 'c>(&mut self, key: &str, utility: Utility<'a>) {
+    pub fn add_utility(&mut self, key: &str, utility: Utility) {
         self.utilities.add(key.into(), utility);
     }
 
     pub fn add_theme_utility(
         &mut self,
         key: &str,
-        values: Vec<(String, Vec<String>)>,
+        values: Vec<(SmolStr, Vec<SmolStr>)>,
         ord: Option<OrderingKey>,
         typ: Option<impl TypeValidator + 'static + Clone>,
     ) -> &Self {
@@ -108,7 +105,7 @@ impl<'c> Context<'c> {
         self
     }
 
-    pub fn get_theme(&self, key: &str) -> Option<ThemeValue<'static>> {
+    pub fn get_theme(&self, key: &str) -> Option<ThemeValue> {
         self.theme.get(key).cloned()
     }
 }
