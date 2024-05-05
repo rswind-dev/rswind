@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use arrowcss::{app::Application, create_app, extract::SourceType};
+use arrowcss::{app::Application, create_app, extract::SourceInput};
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
@@ -16,7 +16,5 @@ lazy_static::lazy_static! {
 
 #[wasm_bindgen]
 pub fn generate(css: String, typ: String) -> String {
-    APP.write()
-        .unwrap()
-        .run_parallel_with([SourceType::new(css, &typ)], None)
+    APP.write().unwrap().run(SourceInput::new(&css, &*typ))
 }

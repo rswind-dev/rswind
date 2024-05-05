@@ -5,20 +5,16 @@ members = [
   "crates/arrowcss",
   "crates/arrowcss_css_macro",
   "crates/arrowcss_extractor",
+  "crates/arrowcss_cli",
 ]
 resolver = "2"
 [profile.release]
 lto = true
 codegen-units = 1
 
-# debug = true
-# opt-level = 'z'
-
 [profile.bench]
 debug = true
-# lto = true
 
-# Optimize for iteration
 [profile.dev.build-override]
 opt-level = 3
 

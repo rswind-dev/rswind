@@ -33,9 +33,5 @@ rustflags = ["-C",
 "-Zshare-generics=y"
 ]
 
-
 [target.aarch64-pc-windows-msvc]
 linker = "rust-lld"
-
-[target.wasm32-unknown-unknown]
-rustflags = ["-C", "target-feature=+atomics,+bulk-memory,+mutable-globals"]

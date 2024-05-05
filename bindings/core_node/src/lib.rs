@@ -1,4 +1,4 @@
-use arrowcss::{app::Application, create_app as _create_app, extract::SourceType};
+use arrowcss::{app::Application, create_app as _create_app, extract::SourceInput};
 
 #[macro_use]
 extern crate napi_derive;
@@ -22,8 +22,7 @@ impl ArrowCss {
 
     #[napi]
     pub fn generate(&mut self, css: String, typ: String) -> String {
-        self.app
-            .run_parallel_with([SourceType::new(css, &typ)], None)
+        self.app.run(SourceInput::new(&css, &*typ))
     }
 }
 

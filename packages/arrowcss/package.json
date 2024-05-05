@@ -1,0 +1,30 @@
+{
+  "name": "arrowcss",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "arrowcss.darwin-arm64.node"
+  ],
+  "napi": {
+    "name": "arrowcss",
+    "triples": {}
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.2",
+    "@types/node": "^20.10.0",
+    "ava": "^5.1.1",
+    "typescript": "^5.3.2"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --cargo-cwd ../.. --platform --cargo-name binding_core_node -p binding_core_node --release .",
+    "build:dev": "napi build --cargo-cwd ../.. --platform --cargo-name binding_core_node -p binding_core_node .",
+    "build:debug": "napi build --cargo-cwd ../.. --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "universal": "napi universal"
+  }
+}
