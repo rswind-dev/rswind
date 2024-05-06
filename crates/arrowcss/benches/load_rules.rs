@@ -1,6 +1,6 @@
 use arrowcss::{
     context::Context,
-    rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
+    preset::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
 };
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 

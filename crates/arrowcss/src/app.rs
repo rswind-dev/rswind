@@ -12,8 +12,7 @@ use crate::{
     extract::{Extractor, SourceInput},
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
-    rules::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
-    variant::load_variants,
+    preset::load_preset,
     writer::Writer,
 };
 
@@ -33,9 +32,7 @@ impl Application {
     }
 
     pub fn init(&mut self) -> &mut Self {
-        load_static_utilities(&mut self.ctx);
-        load_dynamic_utilities(&mut self.ctx);
-        load_variants(&mut self.ctx);
+        load_preset(&mut self.ctx);
         self
     }
 
