@@ -5,4 +5,7 @@
   },
   "editor.defaultFormatter": "rust-lang.rust-analyzer",
   "rust-analyzer.checkOnSave": true,
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
 }
