@@ -41,7 +41,7 @@ impl Context {
         self
     }
 
-    pub fn add_variant<'a, T>(&mut self, key: impl Into<SmolStr>, matcher: T) -> &mut Self
+    pub fn add_variant<T>(&mut self, key: impl Into<SmolStr>, matcher: T) -> &mut Self
     where
         T: IntoIterator,
         T::Item: Into<SmolStr>,

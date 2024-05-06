@@ -124,10 +124,16 @@ impl Application {
     }
 }
 
+pub fn create_app() -> Application {
+    let config = ArrowConfig::default();
+    let mut app = Application::new(config);
+    app.init();
+    app
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_app;
 
     #[test]
     fn test_application() {
