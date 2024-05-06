@@ -145,20 +145,6 @@ mod tests {
     use crate::utils::decode_arbitrary_value;
 
     #[test]
-    fn test_add_variant() {
-        // let variant: VariantHandler =
-        //     create_variant_fn("disabled", "&:disabled").unwrap();
-        // let rule = CssRule::Style(StyleRule {
-        //     selector: "flex".into(),
-        //     nodes: vec![CssRule::Decl(("display", "flex").into())],
-        // })
-        // .into();
-        // let new_rule = variant(rule).unwrap();
-
-        // println!("{:?}", new_rule);
-    }
-
-    #[test]
     fn test_decode_arbitrary_value() {
         assert_eq!(
             decode_arbitrary_value(r"hello\_world"),

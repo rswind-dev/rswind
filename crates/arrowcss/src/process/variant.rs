@@ -301,18 +301,6 @@ mod tests {
             .fold(selector, |acc, (processor, candidate)| {
                 processor.process(candidate, acc)
             });
-
-        // let res = res
-        //     .into_iter()
-        //     .map(|res| Rule {
-        //         selector: res.selector.replace("&", ".flex"),
-        //         nodes: res.nodes,
-        //     })
-        //     .collect::<Vec<_>>();
-
-        // println!("{input:?}");
-        // println!("res: {:#?}", res);
-        // expect: ".flex:hover"
     }
 
     #[test]

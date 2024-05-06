@@ -109,10 +109,7 @@ impl Rule {
 }
 
 impl ToCss for &Rule {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
-    where
-        W: Write,
-    {
+    fn to_css<W: Write>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error> {
         writer.write_str(&self.selector)?;
         writer.whitespace()?;
         writer.write_char('{')?;
@@ -131,15 +128,8 @@ impl ToCss for &Rule {
     }
 }
 
-impl<'a, 'b, T> ToCss for T
-where
-    'a: 'b,
-    T: IntoIterator<Item = &'b Rule>,
-{
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
-    where
-        W: Write,
-    {
+impl<'a, T: IntoIterator<Item = &'a Rule>> ToCss for T {
+    fn to_css<W: Write>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error> {
         let mut iter = self.into_iter();
         if let Some(first) = iter.next() {
             first.to_css(writer)?;
@@ -153,10 +143,7 @@ where
 }
 
 impl ToCss for &RuleList {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
-    where
-        W: Write,
-    {
+    fn to_css<W: Write>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error> {
         self.iter().to_css(writer)
     }
 }
@@ -190,21 +177,3 @@ impl From<Vec<Rule>> for RuleList {
 }
 
 // endregion
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_rule_to_css() {
-        // let nodes = css!(
-        //     "@media (min-width: 768px)" {
-        //         "color": "red";
-        //         "background-color": "blue";
-        //     }
-        // );
-        // let mut w = String::new();
-        // let mut writer = Writer::default(&mut w);
-        // nodes.to_css(&mut writer).unwrap();
-        // assert_eq!(writer.dest, "@media (min-width: 768px) {\n  color: red;\n  background-color: blue;\n}\n");
-    }
-}

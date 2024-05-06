@@ -78,21 +78,3 @@ impl UtilityStorage for HashMapUtilityStorage {
         })
     }
 }
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_utility_storage() {
-        // let mut storage = UtilityStorage::new();
-        // storage.insert(
-        //     "text".into(),
-        //     Rule::new(|_, input| decl!("color".into(), input).into()),
-        // );
-
-        // assert_eq!(
-        //     storage.try_apply("text", "red"),
-        //     Some(decl!("color": "red").into())
-        // );
-    }
-}

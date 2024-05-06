@@ -24,10 +24,6 @@ impl Decl {
     }
 }
 
-// pub fn decl<'a, S: Into<SmolStr>>(name: S, value: S) -> CssDecl {
-//     CssDecl::new(name, value)
-// }
-
 impl<A: Into<SmolStr>, B: Into<SmolStr>> From<(A, B)> for Decl {
     fn from(val: (A, B)) -> Self {
         Decl::new(val.0.into(), val.1.into())
@@ -100,10 +96,7 @@ impl DeclList {
 }
 
 impl ToCss for &Decl {
-    fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
-    where
-        W: Write,
-    {
+    fn to_css<W: Write>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error> {
         writer.write_str(&self.name)?;
         writer.write_str(":")?;
         writer.whitespace()?;
@@ -112,28 +105,5 @@ impl ToCss for &Decl {
         writer.newline()?;
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_css_decl_macro() {
-        // let decls: NodeList = css! {
-        //     "color": "red";
-        //     "@media" {
-        //         "display": "flex";
-        //     }
-        //     // "background-color": "blue";
-        // };
-
-        // assert_eq!(
-        //     decls,
-        //     vec![
-        //         AstNode::Decl(Decl::new("color", "red")),
-        //         // AstNode::Decl(Decl::new("background-color", "blue")),
-        //     ]
-        // );
     }
 }

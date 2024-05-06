@@ -30,10 +30,7 @@ pub struct Writer<'a, W: Write> {
     pub indent_level: usize,
 }
 
-impl<'a, W> Writer<'a, W>
-where
-    W: Write,
-{
+impl<'a, W: Write> Writer<'a, W> {
     pub fn default(dest: W) -> Self {
         Self::new(
             dest,
