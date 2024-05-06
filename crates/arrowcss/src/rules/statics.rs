@@ -3,8 +3,29 @@ use smol_str::SmolStr;
 use crate::{
     context::{utilities::UtilityStorage, Context},
     css::DeclList,
-    static_rules as static_rules_macro,
 };
+
+#[macro_export]
+macro_rules! static_rules_macro {
+  (
+    $($key:literal => {
+      $($name:literal: $value:literal;)+
+    })+
+  ) => {
+    [
+      $(
+        (smol_str::SmolStr::new_static($key), DeclList(smallvec::smallvec![
+          $(
+            $crate::css::Decl {
+                name: smol_str::SmolStr::new_static($name),
+                value: smol_str::SmolStr::new_static($value),
+            },
+          )+
+        ])),
+      )+
+    ]
+  };
+}
 
 fn static_rules() -> [(SmolStr, DeclList); 352] {
     static_rules_macro! {
