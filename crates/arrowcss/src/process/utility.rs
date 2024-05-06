@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use smol_str::SmolStr;
+use smol_str::{format_smolstr, SmolStr};
 
 use super::{ArbitraryValueProcessor, MetaData};
 use crate::{
@@ -226,12 +226,12 @@ impl Utility {
 
         if self.supports_fraction {
             if let Some(fraction) = candidate.take_fraction() {
-                process_result = format!("calc({} * 100%)", fraction).into();
+                process_result = format_smolstr!("calc({} * 100%)", fraction);
             }
         }
 
         if candidate.negative {
-            process_result = format!("calc({} * -1)", process_result).into();
+            process_result = format_smolstr!("calc({} * -1)", process_result);
         }
 
         let mut node = self.handler.call(meta, process_result);

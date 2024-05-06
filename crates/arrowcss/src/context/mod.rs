@@ -36,12 +36,12 @@ impl Context {
         }
     }
 
-    pub fn add_static(&mut self, pair: (&str, DeclList)) -> &Self {
+    pub fn add_static(&mut self, pair: (impl Into<SmolStr>, DeclList)) -> &Self {
         self.utilities.add_static(pair.0.into(), pair.1);
         self
     }
 
-    pub fn add_variant<'a, T>(&mut self, key: &str, matcher: T) -> &mut Self
+    pub fn add_variant<'a, T>(&mut self, key: impl Into<SmolStr>, matcher: T) -> &mut Self
     where
         T: IntoIterator,
         T::Item: Into<SmolStr>,

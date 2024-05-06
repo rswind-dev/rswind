@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use cssparser::serialize_name;
 use fxhash::FxHashMap as HashMap;
 use rayon::prelude::*;
-use smol_str::SmolStr;
+use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     config::ArrowConfig,
@@ -19,7 +19,7 @@ use crate::{
 
 pub struct Application {
     pub ctx: Context,
-    pub cache: String,
+    // pub cache: String,
     pub strict_mode: bool,
 }
 
@@ -27,7 +27,7 @@ impl Application {
     pub fn new(config: ArrowConfig) -> Self {
         Self {
             ctx: Context::new(config.theme),
-            cache: String::new(),
+            // cache: String::new(),
             strict_mode: config.features.strict_mode,
         }
     }
@@ -110,7 +110,7 @@ impl Application {
                 names
                     .iter()
                     .map(|s| {
-                        format!(".{}", {
+                        format_smolstr!(".{}", {
                             let mut w = String::new();
                             serialize_name(s, &mut w).unwrap();
                             w

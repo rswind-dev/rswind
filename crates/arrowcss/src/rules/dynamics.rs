@@ -1,5 +1,6 @@
 use arrowcss_css_macro::css;
 use lightningcss::vendor_prefix::VendorPrefix;
+use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     add_theme_utility,
@@ -271,8 +272,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .add("space-x", |_, value| {
             css! {
                 "--tw-space-x-reverse": "0";
-                "margin-right": format!("calc({value} * var(--tw-space-x-reverse))");
-                "margin-left":  format!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
+                "margin-right": format_smolstr!("calc({value} * var(--tw-space-x-reverse))");
+                "margin-left":  format_smolstr!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
             }
         })
         .with_theme("spacing")
@@ -283,8 +284,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .add("space-y", |_, value| {
             css! {
                 "--tw-space-y-reverse": "0";
-                "margin-top": format!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
-                "margin-bottom": format!("calc({value} * var(--tw-space-y-reverse))");
+                "margin-top": format_smolstr!("calc({value} * calc(1 - var(--tw-space-y-reverse)))");
+                "margin-bottom": format_smolstr!("calc({value} * var(--tw-space-y-reverse))");
             }
         })
         .with_theme("spacing")
@@ -294,8 +295,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules.add("divide-x", |_, value| {
         css! {
             "--tw-divide-x-reverse": "0";
-            "border-right-width": format!("calc({value} * var(--tw-divide-x-reverse))");
-            "border-left-width": format!("calc({value} * calc(1 - var(--tw-divide-x-reverse)))");
+            "border-right-width": format_smolstr!("calc({value} * var(--tw-divide-x-reverse))");
+            "border-left-width": format_smolstr!("calc({value} * calc(1 - var(--tw-divide-x-reverse)))");
         }
     })
     .with_theme("borderWidth")
@@ -305,8 +306,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .add("divide-y", |_, value| {
             css! {
                 "--tw-divide-y-reverse": "0";
-                "border-top-width": format!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
-                "border-bottom-width": format!("calc({value} * var(--tw-divide-y-reverse))");
+                "border-top-width": format_smolstr!("calc({value} * calc(1 - var(--tw-divide-y-reverse)))");
+                "border-bottom-width": format_smolstr!("calc({value} * var(--tw-divide-y-reverse))");
             }
         })
         .with_theme("borderWidth")
@@ -337,7 +338,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add("from", |_, value| {
             css! {
-                "--tw-gradient-from": format!("{value} var(--tw-gradient-from-position)");
+                "--tw-gradient-from": format_smolstr!("{value} var(--tw-gradient-from-position)");
                 // TODO: --tw-gradient-to
                 // TODO: properties
                 "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to)";
@@ -503,7 +504,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "blur",
-            |_, value| css!("--tw-blur": format!("blur({})", value)),
+            |_, value| css!("--tw-blur": format_smolstr!("blur({})", value)),
         )
         .with_theme("blur")
         .with_validator(CssDataType::LengthPercentage)
@@ -512,7 +513,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-blur",
-            |_, value| css!("--tw-backdrop-blur": format!("blur({})", value)),
+            |_, value| css!("--tw-backdrop-blur": format_smolstr!("blur({})", value)),
         )
         .with_theme("blur")
         .with_validator(CssDataType::LengthPercentage)
@@ -521,7 +522,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "brightness",
-            |_, value| css!("--tw-brightness": format!("brightness({})", value)),
+            |_, value| css!("--tw-brightness": format_smolstr!("brightness({})", value)),
         )
         .with_theme("brightness")
         .with_validator(CssDataType::LengthPercentage)
@@ -530,7 +531,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-brightness",
-            |_, value| css!("--tw-backdrop-brightness": format!("brightness({})", value)),
+            |_, value| css!("--tw-backdrop-brightness": format_smolstr!("brightness({})", value)),
         )
         .with_theme("brightness")
         .with_validator(CssDataType::LengthPercentage)
@@ -539,7 +540,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "contrast",
-            |_, value| css!("--tw-contrast": format!("contrast({})", value)),
+            |_, value| css!("--tw-contrast": format_smolstr!("contrast({})", value)),
         )
         .with_theme("contrast")
         .with_validator(CssDataType::LengthPercentage)
@@ -548,7 +549,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-contrast",
-            |_, value| css!("--tw-backdrop-contrast": format!("contrast({})", value)),
+            |_, value| css!("--tw-backdrop-contrast": format_smolstr!("contrast({})", value)),
         )
         .with_theme("contrast")
         .with_validator(CssDataType::LengthPercentage)
@@ -557,7 +558,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "grayscale",
-            |_, value| css!("--tw-grayscale": format!("grayscale({})", value)),
+            |_, value| css!("--tw-grayscale": format_smolstr!("grayscale({})", value)),
         )
         .with_theme("grayscale")
         .with_validator(CssDataType::LengthPercentage)
@@ -566,7 +567,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-grayscale",
-            |_, value| css!("--tw-backdrop-grayscale": format!("grayscale({})", value)),
+            |_, value| css!("--tw-backdrop-grayscale": format_smolstr!("grayscale({})", value)),
         )
         .with_theme("grayscale")
         .with_validator(CssDataType::LengthPercentage)
@@ -577,7 +578,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "invert",
-            |_, value| css!("--tw-invert": format!("invert({})", value)),
+            |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)),
         )
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
@@ -586,7 +587,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-invert",
-            |_, value| css!("--tw-backdrop-invert": format!("invert({})", value)),
+            |_, value| css!("--tw-backdrop-invert": format_smolstr!("invert({})", value)),
         )
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
@@ -595,7 +596,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "invert",
-            |_, value| css!("--tw-invert": format!("invert({})", value)),
+            |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)),
         )
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
@@ -604,7 +605,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-invert",
-            |_, value| css!("--tw-backdrop-invert": format!("invert({})", value)),
+            |_, value| css!("--tw-backdrop-invert": format_smolstr!("invert({})", value)),
         )
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
@@ -613,7 +614,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "saturate",
-            |_, value| css!("--tw-saturate": format!("saturate({})", value)),
+            |_, value| css!("--tw-saturate": format_smolstr!("saturate({})", value)),
         )
         .with_theme("saturate")
         .with_validator(CssDataType::LengthPercentage)
@@ -622,7 +623,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-saturate",
-            |_, value| css!("--tw-backdrop-saturate": format!("saturate({})", value)),
+            |_, value| css!("--tw-backdrop-saturate": format_smolstr!("saturate({})", value)),
         )
         .with_theme("saturate")
         .with_validator(CssDataType::LengthPercentage)
@@ -631,7 +632,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "sepia",
-            |_, value| css!("--tw-sepia": format!("sepia({})", value)),
+            |_, value| css!("--tw-sepia": format_smolstr!("sepia({})", value)),
         )
         .with_theme("sepia")
         .with_validator(CssDataType::LengthPercentage)
@@ -640,7 +641,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     rules
         .add(
             "backdrop-sepia",
-            |_, value| css!("--tw-backdrop-sepia": format!("sepia({})", value)),
+            |_, value| css!("--tw-backdrop-sepia": format_smolstr!("sepia({})", value)),
         )
         .with_theme("sepia")
         .with_validator(CssDataType::LengthPercentage)
@@ -914,9 +915,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     });
 }
 
-pub fn as_color(value: &str, modifier: Option<&str>) -> String {
+pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
     modifier
         .and_then(|m| m.parse::<f32>().ok())
-        .map(|n| format!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
-        .unwrap_or_else(|| value.to_string())
+        .map(|n| format_smolstr!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
+        .unwrap_or_else(|| value.into())
 }

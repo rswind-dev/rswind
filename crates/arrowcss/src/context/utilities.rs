@@ -15,6 +15,7 @@ pub type UtilityValue = Either<DeclList, Utility>;
 #[enum_dispatch]
 pub trait UtilityStorage: Sync + Send {
     fn add(&mut self, key: SmolStr, value: Utility);
+    fn reserve(&mut self, additional: usize);
     fn add_static(&mut self, key: SmolStr, value: DeclList);
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue>>;
     fn try_apply(
@@ -45,6 +46,10 @@ impl UtilityStorage for HashMapUtilityStorage {
             .entry(key)
             .or_default()
             .push(Either::Right(value));
+    }
+
+    fn reserve(&mut self, additional: usize) {
+        self.utilities.reserve(additional);
     }
 
     fn add_static(&mut self, key: SmolStr, value: DeclList) {

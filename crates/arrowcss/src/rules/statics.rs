@@ -1,7 +1,14 @@
-use crate::{context::Context, css::DeclList, static_rules};
+use smol_str::SmolStr;
 
-fn accessibility() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+use crate::{
+    context::{utilities::UtilityStorage, Context},
+    css::DeclList,
+    static_rules as static_rules_macro,
+};
+
+fn static_rules() -> [(SmolStr, DeclList); 352] {
+    static_rules_macro! {
+        // accessibility
         "sr-only" => {
             "position": "absolute";
             "width": "1px";
@@ -23,69 +30,45 @@ fn accessibility() -> Vec<(&'static str, DeclList)> {
             "clip": "auto";
             "white-space": "normal";
         }
-    }
-}
 
-fn pointer_events() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // pointer_events
         "pointer-events-none" => { "pointer-events": "none"; }
         "pointer-events-auto" => { "pointer-events": "auto"; }
-    }
-}
 
-fn visibility() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // visibility
         "visible" => { "visibility": "visible"; }
         "invisible" => { "visibility": "hidden"; }
         "collapse" => { "visibility": "collapse"; }
-    }
-}
 
-fn position() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // position
         "static" => { "position": "static"; }
         "fixed" => { "position": "fixed"; }
         "absolute" => { "position": "absolute"; }
         "relative" => { "position": "relative"; }
         "sticky" => { "position": "sticky"; }
-    }
-}
 
-fn isolation() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // isolation
         "isolate" => { "isolation": "isolate"; }
         "isolation-auto" => { "isolation": "auto"; }
-    }
-}
 
-fn float() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // float
         "float-right" => { "float": "right"; }
         "float-left" => { "float": "left"; }
         "float-none" => { "float": "none"; }
-    }
-}
 
-fn clear() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // clear
         "clear-start" => { "clear": "inline-start"; }
         "clear-end" => { "clear": "inline-end"; }
         "clear-left" => { "clear": "left"; }
         "clear-right" => { "clear": "right"; }
         "clear-both" => { "clear": "both"; }
         "clear-none" => { "clear": "none"; }
-    }
-}
 
-fn box_sizing() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // box_sizing
         "box-border" => { "box-sizing": "border-box"; }
         "box-content" => { "box-sizing": "content-box"; }
-    }
-}
 
-fn display() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // display
         "block" => { "display": "block"; }
         "inline-block" => { "display": "inline-block"; }
         "flex" => { "display": "flex"; }
@@ -106,100 +89,61 @@ fn display() -> Vec<(&'static str, DeclList)> {
         "contents" => { "display": "contents"; }
         "list-item" => { "display": "list-item"; }
         "hidden" => { "display": "none"; }
-    }
-}
 
-fn table_layout() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // table_layout
         "table-auto" => { "table-layout": "auto"; }
         "table-fixed" => { "table-layout": "fixed"; }
-    }
-}
 
-fn caption_side() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // caption_side
         "caption-top" => { "caption-side": "top"; }
         "caption-bottom" => { "caption-side": "bottom"; }
-    }
-}
 
-fn border_collapse() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // border_collapse
         "border-collapse" => { "border-collapse": "collapse"; }
         "border-separate" => { "border-collapse": "separate"; }
-    }
-}
 
-fn user_select() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // user_select
         "select-none" => { "user-select": "none"; }
         "select-text" => { "user-select": "text"; }
         "select-all" => { "user-select": "all"; }
         "select-auto" => { "user-select": "auto"; }
-    }
-}
 
-fn resize() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // resize
         "resize-none" => { "resize": "none"; }
         "resize-y" => { "resize": "vertical"; }
         "resize-x" => { "resize": "horizontal"; }
         "resize" => { "resize": "both"; }
-    }
-}
 
-fn scroll_snap_align() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // scroll_snap_align
         "snap-start" => { "scroll-snap-align": "start"; }
         "snap-end" => { "scroll-snap-align": "end"; }
         "snap-center" => { "scroll-snap-align": "center"; }
         "snap-align-none" => { "scroll-snap-align": "none"; }
-    }
-}
 
-fn scroll_snap_stop() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // scroll_snap_stop
         "snap-normal" => { "scroll-snap-stop": "normal"; }
         "snap-always" => { "scroll-snap-stop": "always"; }
-    }
-}
 
-fn list_style_position() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // list_style_position
         "list-inside" => { "list-style-position": "inside"; }
         "list-outside" => { "list-style-position": "outside"; }
-    }
-}
 
-fn list_style_type() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // list_style_type
         "list-none" => { "list-style-type": "none"; }
         "list-disc" => { "list-style-type": "disc"; }
         "list-decimal" => { "list-style-type": "decimal"; }
-    }
-}
 
-fn list_image() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // list_image
         "list-image-none" => { "list-style-image": "none"; }
-    }
-}
 
-fn appearance() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // appearance
         "appearance-none" => { "appearance": "none"; }
         "appearance-auto" => { "appearance": "auto"; }
-    }
-}
 
-fn columns() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // columns
         "columns-auto" => { "columns": "auto"; }
-    }
-}
 
-fn break_before() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // break_before
         "break-before-auto" => { "break-before": "auto"; }
         "break-before-avoid" => { "break-before": "avoid"; }
         "break-before-always" => { "break-before": "always"; }
@@ -214,23 +158,16 @@ fn break_before() -> Vec<(&'static str, DeclList)> {
         "break-before-column" => { "break-before": "column"; }
         "break-before-avoid-region" => { "break-before": "avoid-region"; }
         "break-before-region" => { "break-before": "region"; }
-    }
-}
 
-fn break_inside() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // break_inside
         "break-inside-auto" => { "break-inside": "auto"; }
         "break-inside-avoid" => { "break-inside": "avoid"; }
         "break-inside-avoid-page" => { "break-inside": "avoid-page"; }
         "break-inside-avoid-column" => { "break-inside": "avoid-column"; }
-
         // new
         "break-inside-avoid-region" => { "break-inside": "avoid-region"; }
-    }
-}
 
-fn break_after() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // break_after
         "break-after-auto" => { "break-after": "auto"; }
         "break-after-avoid" => { "break-after": "avoid"; }
         "break-after-all" => { "break-after": "all"; }
@@ -239,7 +176,6 @@ fn break_after() -> Vec<(&'static str, DeclList)> {
         "break-after-left" => { "break-after": "left"; }
         "break-after-right" => { "break-after": "right"; }
         "break-after-column" => { "break-after": "column"; }
-
         // new
         "break-after-always" => { "break-after": "always"; }
         "break-after-recto" => { "break-after": "recto"; }
@@ -247,21 +183,15 @@ fn break_after() -> Vec<(&'static str, DeclList)> {
         "break-after-avoid-column" => { "break-after": "avoid-column"; }
         "break-after-avoid-region" => { "break-after": "avoid-region"; }
         "break-after-region" => { "break-after": "region"; }
-    }
-}
 
-fn grid_auto_flow() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // grid_auto_flow
         "grid-flow-row" => { "grid-auto-flow": "row"; }
         "grid-flow-col" => { "grid-auto-flow": "column"; }
         "grid-flow-dense" => { "grid-auto-flow": "dense"; }
         "grid-flow-row-dense" => { "grid-auto-flow": "row dense"; }
         "grid-flow-col-dense" => { "grid-auto-flow": "column dense"; }
-    }
-}
 
-fn flex() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // flex
         "flex-row" => { "flex-direction": "row"; }
         "flex-row-reverse" => { "flex-direction": "row-reverse"; }
         "flex-col" => { "flex-direction": "column"; }
@@ -269,11 +199,8 @@ fn flex() -> Vec<(&'static str, DeclList)> {
         "flex-wrap" => { "flex-wrap": "wrap"; }
         "flex-wrap-reverse" => { "flex-wrap": "wrap-reverse"; }
         "flex-nowrap" => { "flex-wrap": "nowrap"; }
-    }
-}
 
-fn place_content() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // place_content
         "place-content-center" => { "place-content": "center"; }
         "place-content-start" => { "place-content": "start"; }
         "place-content-end" => { "place-content": "end"; }
@@ -282,21 +209,15 @@ fn place_content() -> Vec<(&'static str, DeclList)> {
         "place-content-space-evenly" => { "place-content": "space-evenly"; }
         "place-content-baseline" => { "place-content": "baseline"; }
         "place-content-stretch" => { "place-content": "stretch"; }
-    }
-}
 
-fn place_items() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // place_items
         "place-items-center" => { "place-items": "center"; }
         "place-items-start" => { "place-items": "start"; }
         "place-items-end" => { "place-items": "end"; }
         "place-items-baseline" => { "place-items": "baseline"; }
         "place-items-stretch" => { "place-items": "stretch"; }
-    }
-}
 
-fn align_content() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // align_content
         "content-normal" => { "align-content": "normal"; }
         "content-center" => { "align-content": "center"; }
         "content-start" => { "align-content": "start"; }
@@ -306,21 +227,15 @@ fn align_content() -> Vec<(&'static str, DeclList)> {
         "content-evenly" => { "align-content": "space-evenly"; }
         "content-baseline" => { "align-content": "baseline"; }
         "content-stretch" => { "align-content": "stretch"; }
-    }
-}
 
-fn align_items() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // align_items
         "items-center" => { "align-items": "center"; }
         "items-start" => { "align-items": "start"; }
         "items-end" => { "align-items": "end"; }
         "items-baseline" => { "align-items": "baseline"; }
         "items-stretch" => { "align-items": "stretch"; }
-    }
-}
 
-fn justify_content() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // justify_content
         "justify-normal" => { "justify-content": "normal"; }
         "justify-center" => { "justify-content": "center"; }
         "justify-start" => { "justify-content": "start"; }
@@ -330,31 +245,22 @@ fn justify_content() -> Vec<(&'static str, DeclList)> {
         "justify-evenly" => { "justify-content": "space-evenly"; }
         "justify-baseline" => { "justify-content": "baseline"; }
         "justify-stretch" => { "justify-content": "stretch"; }
-    }
-}
 
-fn justify_items() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // justify_items
         "items-normal" => { "justify-items": "normal"; }
         "items-center" => { "justify-items": "center"; }
         "items-start" => { "justify-items": "start"; }
         "items-end" => { "justify-items": "end"; }
         "items-stretch" => { "justify-items": "stretch"; }
-    }
-}
 
-fn object_fit() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // object_fit
         "object-contain" => { "object-fit": "contain"; }
         "object-cover" => { "object-fit": "cover"; }
         "object-fill" => { "object-fit": "fill"; }
         "object-none" => { "object-fit": "none"; }
         "object-scale-down" => { "object-fit": "scale-down"; }
-    }
-}
 
-fn object_position() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // object_position
         "object-bottom" => { "object-position": "bottom"; }
         "object-center" => { "object-position": "center"; }
         "object-left" => { "object-position": "left"; }
@@ -364,22 +270,16 @@ fn object_position() -> Vec<(&'static str, DeclList)> {
         "object-right-bottom" => { "object-position": "right bottom"; }
         "object-right-top" => { "object-position": "right top"; }
         "object-top" => { "object-position": "top"; }
-    }
-}
 
-fn text_align() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_align
         "text-left" => { "text-align": "left"; }
         "text-center" => { "text-align": "center"; }
         "text-right" => { "text-align": "right"; }
         "text-justify" => { "text-align": "justify"; }
         "text-start" => { "text-align": "start"; }
         "text-end" => { "text-align": "end"; }
-    }
-}
 
-fn vertical_align() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // vertical_align
         "align-baseline" => { "vertical-align": "baseline"; }
         "align-top" => { "vertical-align": "top"; }
         "align-middle" => { "vertical-align": "middle"; }
@@ -388,27 +288,18 @@ fn vertical_align() -> Vec<(&'static str, DeclList)> {
         "align-text-bottom" => { "vertical-align": "text-bottom"; }
         "align-sub" => { "vertical-align": "sub"; }
         "align-super" => { "vertical-align": "super"; }
-    }
-}
 
-fn text_transform() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_transform
         "uppercase" => { "text-transform": "uppercase"; }
         "lowercase" => { "text-transform": "lowercase"; }
         "capitalize" => { "text-transform": "capitalize"; }
         "normal-case" => { "text-transform": "none"; }
-    }
-}
 
-fn text_italic() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_italic
         "italic" => { "font-style": "italic"; }
         "not-italic" => { "font-style": "normal"; }
-    }
-}
 
-fn font_stretch() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // font_stretch
         "font-stretch-normal" => { "font-stretch": "normal"; }
         "font-stretch-ultra-condensed" => { "font-stretch": "ultra-condensed"; }
         "font-stretch-extra-condensed" => { "font-stretch": "extra-condensed"; }
@@ -418,50 +309,32 @@ fn font_stretch() -> Vec<(&'static str, DeclList)> {
         "font-stretch-expanded" => { "font-stretch": "expanded"; }
         "font-stretch-extra-expanded" => { "font-stretch": "extra-expanded"; }
         "font-stretch-ultra-expanded" => { "font-stretch": "ultra-expanded"; }
-    }
-}
 
-fn text_decoration() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_decoration
         "underline" => { "text-decoration": "underline"; }
         "overline" => { "text-decoration": "overline"; }
         "line-through" => { "text-decoration": "line-through"; }
         "no-underline" => { "text-decoration": "none"; }
-    }
-}
 
-fn text_decoration_style() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_decoration_style
         "decoration-solid" => { "text-decoration-style": "solid"; }
         "decoration-double" => { "text-decoration-style": "double"; }
         "decoration-dotted" => { "text-decoration-style": "dotted"; }
         "decoration-dashed" => { "text-decoration-style": "dashed"; }
         "decoration-wavy" => { "text-decoration-style": "wavy"; }
-    }
-}
 
-fn text_decoration_thickness() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_decoration_thickness
         "decoration-auto" => { "text-decoration-thickness": "auto"; }
         "decoration-from-font" => { "text-decoration-thickness": "from-font"; }
-    }
-}
 
-fn animate() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // animate
         "animate-none" => { "animation": "none"; }
-    }
-}
 
-fn filter() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // filter
         "filter" => { "filter": "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"; }
         "filter-none" => { "filter": "none"; }
-    }
-}
 
-fn backdrop_filter() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // backdrop_filter
         "backdrop-filter" => {
             "-webkit-backdrop-filter": "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
             "backdrop-filter": "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
@@ -470,11 +343,8 @@ fn backdrop_filter() -> Vec<(&'static str, DeclList)> {
             "-webkit-backdrop-filter": "none";
             "backdrop-filter": "none";
         }
-    }
-}
 
-fn transform_origin() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // transform_origin
         "origin-center" => { "transform-origin": "center"; }
         "origin-top" => { "transform-origin": "top"; }
         "origin-top-right" => { "transform-origin": "top right"; }
@@ -484,11 +354,8 @@ fn transform_origin() -> Vec<(&'static str, DeclList)> {
         "origin-bottom-left" => { "transform-origin": "bottom left"; }
         "origin-left" => { "transform-origin": "left"; }
         "origin-top-left" => { "transform-origin": "top left"; }
-    }
-}
 
-fn perspective_origin() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // perspective_origin
         "perspective-origin-center" => { "perspective-origin": "center"; }
         "perspective-origin-top" => { "perspective-origin": "top"; }
         "perspective-origin-top-right" => { "perspective-origin": "top right"; }
@@ -498,33 +365,21 @@ fn perspective_origin() -> Vec<(&'static str, DeclList)> {
         "perspective-origin-bottom-left" => { "perspective-origin": "bottom left"; }
         "perspective-origin-left" => { "perspective-origin": "left"; }
         "perspective-origin-top-left" => { "perspective-origin": "top left"; }
-    }
-}
 
-fn perspective() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // perspective
         "perspective-none" => { "perspective": "none"; }
-    }
-}
 
-fn translate() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // translate
         "translate-3d" => {
             "translate": "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)";
         }
-    }
-}
 
-fn scale() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // scale
         "scale-3d" => {
             "scale": "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)";
         }
-    }
-}
 
-fn cursor() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // cursor
         "cursor-auto" => { "cursor": "auto"; }
         "cursor-default" => { "cursor": "default"; }
         "cursor-pointer" => { "cursor": "pointer"; }
@@ -561,64 +416,42 @@ fn cursor() -> Vec<(&'static str, DeclList)> {
         "cursor-nwse-resize" => { "cursor": "nwse-resize"; }
         "cursor-zoom-in" => { "cursor": "zoom-in"; }
         "cursor-zoom-out" => { "cursor": "zoom-out"; }
-    }
-}
 
-fn touch_action() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // touch_action
         "touch-auto" => { "touch-action": "auto"; }
         "touch-none" => { "touch-action": "none"; }
         "manipulation" => { "touch-action": "manipulation"; }
-    }
-}
 
-fn transform() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // transform
         "transform-cpu" => { "transform": "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"; }
         "transform-gpu" => { "transform": "translateZ(0) var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"; }
         "transform-none" => { "transform": "none"; }
-    }
-}
 
-fn transform_style() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // transform_style
         "transform-flat" => { "transform-style": "flat"; }
         "transform-preserve-3d" => { "transform-style": "preserve-3d"; }
-    }
-}
 
-fn transform_box() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // transform_box
         "transform-content" => { "transform-box": "content-box"; }
         "transform-border" => { "transform-box": "border-box"; }
         "transform-fill" => { "transform-box": "fill-box"; }
         "transform-stroke" => { "transform-box": "stroke-box"; }
         "transform-view" => { "transform-box": "view-box"; }
-    }
-}
 
-fn backface_visibility() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // backface_visibility
         "backface-visible" => { "backface-visibility": "visible"; }
         "backface-hidden" => { "backface-visibility": "hidden"; }
-    }
-}
 
-fn scroll_snap() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // scroll_snap
         "snap-none" => { "scroll-snap-type": "none"; }
         // TODO: snapProperties
         "snap-x" => { "scroll-snap-type": "x var(--tw-scroll-snap-strictness)"; }
         "snap-y" => { "scroll-snap-type": "y var(--tw-scroll-snap-strictness)"; }
         "snap-both" => { "scroll-snap-type": "both var(--tw-scroll-snap-strictness)"; }
-
         "snap-mandatory" => { "scroll-snap-type": "mandatory"; }
         "snap-proximity" => { "scroll-snap-type": "proximity"; }
-    }
-}
 
-fn touch_pan() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // touch_pan
         "touch-pan-x" => {
             "--tw-pan-x": "pan-x";
             "touch-action": "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)";
@@ -647,65 +480,42 @@ fn touch_pan() -> Vec<(&'static str, DeclList)> {
             "--tw-pinch-zoom": "pinch-zoom";
             "touch-action": "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)";
         }
-    }
-}
-
-fn space() -> Vec<(&'static str, DeclList)> {
     // TODO: :where(& > :not(:last-child)
-    static_rules! {
+        //  //
         "space-x-reverse" => {
             "--tw-space-x-reverse": "0";
         }
         "space-y-reverse" => {
             "--tw-space-y-reverse": "0";
         }
-    }
-}
 
-fn overflow() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // overflow
         "overflow-auto" => { "overflow": "auto"; }
         "overflow-hidden" => { "overflow": "hidden"; }
         "overflow-clip" => { "overflow": "clip"; }
         "overflow-visible" => { "overflow": "visible"; }
         "overflow-scroll" => { "overflow": "scroll"; }
-    }
-}
-
-fn overscroll_behavior() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // overscroll_behavior
         "overscroll-auto" => { "overscroll-behavior": "auto"; }
         "overscroll-contain" => { "overscroll-behavior": "contain"; }
         "overscroll-none" => { "overscroll-behavior": "none"; }
-    }
-}
 
-fn scroll_behavior() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // scroll_behavior
         "scroll-auto" => { "scroll-behavior": "auto"; }
         "scroll-smooth" => { "scroll-behavior": "smooth"; }
-    }
-}
 
-fn truncate() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // truncate
         "truncate" => {
             "overflow": "hidden";
             "text-overflow": "ellipsis";
             "white-space": "nowrap";
         }
-    }
-}
 
-fn text_overflow() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_overflow
         "text-ellipsis" => { "text-overflow": "ellipsis"; }
         "text-clip" => { "text-overflow": "clip"; }
-    }
-}
 
-fn hyphens() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // hyphens
         "hyphens-none" => {
             "-webkit-hyphens": "none";
             "hyphens": "none";
@@ -718,31 +528,22 @@ fn hyphens() -> Vec<(&'static str, DeclList)> {
             "-webkit-hyphens": "auto";
             "hyphens": "auto";
         }
-    }
-}
 
-fn white_space() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // white_space
         "whitespace-normal" => { "white-space": "normal"; }
         "whitespace-nowrap" => { "white-space": "nowrap"; }
         "whitespace-pre" => { "white-space": "pre"; }
         "whitespace-pre-line" => { "white-space": "pre-line"; }
         "whitespace-pre-wrap" => { "white-space": "pre-wrap"; }
         "whitespace-break-spaces" => { "white-space": "break-spaces"; }
-    }
-}
 
-fn text_wrap() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // text_wrap
         "text-wrap" => { "overflow-wrap": "break-word"; }
         "text-nowrap" => { "overflow-wrap": "normal"; }
         "text-balance" => { "overflow-wrap": "balance"; }
         "text-pretty" => { "overflow-wrap": "pretty"; }
-    }
-}
 
-fn word_break() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // word_break
         "break-normal" => {
             "overflow-wrap": "normal";
             "word-break": "normal";
@@ -750,11 +551,8 @@ fn word_break() -> Vec<(&'static str, DeclList)> {
         "break-words" => { "overflow-wrap": "break-word"; }
         "break-all" => { "word-break": "break-all"; }
         "break-keep" => { "word-break": "break-keep"; }
-    }
-}
 
-fn border_style() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // border_style
         "border-solid" => {
             "--tw-border-style": "solid";
             "border-style": "solid";
@@ -779,130 +577,30 @@ fn border_style() -> Vec<(&'static str, DeclList)> {
             "--tw-border-style": "none";
             "border-style": "none";
         }
-    }
-}
 
-fn background_attachment() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // background_attachment
         "bg-fixed" => { "background-attachment": "fixed"; }
         "bg-local" => { "background-attachment": "local"; }
         "bg-scroll" => { "background-attachment": "scroll"; }
-    }
-}
 
-fn background_repeat() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // background_repeat
         "bg-repeat" => { "background-repeat": "repeat"; }
         "bg-no-repeat" => { "background-repeat": "no-repeat"; }
         "bg-repeat-x" => { "background-repeat": "repeat-x"; }
         "bg-repeat-y" => { "background-repeat": "repeat-y"; }
         "bg-round" => { "background-repeat": "round"; }
         "bg-space" => { "background-repeat": "space"; }
-    }
-}
 
-fn background_image() -> Vec<(&'static str, DeclList)> {
-    static_rules! {
+        // background_image
         "bg-none" => { "background-image": "none"; }
     }
 }
 
-fn get_all() -> Vec<(&'static str, DeclList)> {
-    vec![]
-        .into_iter()
-        .chain(accessibility())
-        .chain(pointer_events())
-        .chain(visibility())
-        .chain(position())
-        .chain(isolation())
-        .chain(float())
-        .chain(clear())
-        .chain(box_sizing())
-        .chain(display())
-        .chain(table_layout())
-        .chain(caption_side())
-        .chain(border_collapse())
-        .chain(user_select())
-        .chain(resize())
-        .chain(scroll_snap_align())
-        .chain(scroll_snap_stop())
-        .chain(list_style_position())
-        .chain(list_style_type())
-        .chain(list_image())
-        .chain(appearance())
-        .chain(columns())
-        .chain(break_before())
-        .chain(break_inside())
-        .chain(break_after())
-        .chain(grid_auto_flow())
-        .chain(flex())
-        .chain(place_content())
-        .chain(place_items())
-        .chain(align_content())
-        .chain(align_items())
-        .chain(justify_content())
-        .chain(justify_items())
-        .chain(object_fit())
-        .chain(object_position())
-        .chain(text_align())
-        .chain(vertical_align())
-        .chain(text_transform())
-        .chain(text_italic())
-        .chain(font_stretch())
-        .chain(text_decoration())
-        .chain(text_decoration_style())
-        .chain(text_decoration_thickness())
-        .chain(animate())
-        .chain(filter())
-        .chain(backdrop_filter())
-        .chain(transform_origin())
-        .chain(perspective_origin())
-        .chain(perspective())
-        .chain(translate())
-        .chain(scale())
-        .chain(cursor())
-        .chain(touch_action())
-        .chain(transform())
-        .chain(transform_style())
-        .chain(transform_box())
-        .chain(backface_visibility())
-        .chain(scroll_snap())
-        .chain(touch_pan())
-        .chain(space())
-        .chain(overflow())
-        .chain(overscroll_behavior())
-        .chain(scroll_behavior())
-        .chain(truncate())
-        .chain(text_overflow())
-        .chain(hyphens())
-        .chain(white_space())
-        .chain(text_wrap())
-        .chain(word_break())
-        .chain(border_style())
-        .chain(background_attachment())
-        .chain(background_repeat())
-        .chain(background_image())
-        .collect()
-}
-
 pub fn load_static_utilities(ctx: &mut Context) {
-    get_all().into_iter().for_each(|(key, value)| {
+    let iter = static_rules().into_iter();
+    let reserve = iter.size_hint().0;
+    ctx.utilities.reserve(reserve);
+    iter.for_each(|(key, value)| {
         ctx.add_static((key, value));
     });
-}
-
-// unit tests
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_display() {
-        let rules = display();
-        assert_eq!(rules.len(), 4);
-        assert_eq!(rules[0].0, "block");
-        assert_eq!(rules[1].0, "inline-block");
-        assert_eq!(rules[2].0, "flex");
-        assert_eq!(rules[3].0, "inline-flex");
-    }
 }
