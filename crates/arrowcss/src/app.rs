@@ -102,7 +102,7 @@ impl Application {
             let mut w = Writer::default(String::with_capacity(100));
             let _ = r.item.rule.to_css(&mut w);
             let _ = writer.write_str(&w.dest);
-            self.ctx.cache.insert(r.name.clone(), Some(w.dest));
+            // self.ctx.cache.insert(r.name.clone(), Some(w.dest));
         }
 
         for (group, names) in groups {

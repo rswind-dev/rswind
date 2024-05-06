@@ -3,6 +3,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use super::{Decl, ToCss};
@@ -11,12 +12,12 @@ use crate::writer::Writer;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rule {
     pub selector: SmolStr,
-    pub decls: Vec<Decl>,
+    pub decls: SmallVec<[Decl; 2]>,
     pub rules: RuleList,
 }
 
 impl Rule {
-    pub fn new_with_decls(selector: impl Into<SmolStr>, decls: Vec<Decl>) -> Self {
+    pub fn new_with_decls(selector: impl Into<SmolStr>, decls: SmallVec<[Decl; 2]>) -> Self {
         Self {
             selector: selector.into(),
             decls,
@@ -24,9 +25,9 @@ impl Rule {
         }
     }
 
-    pub fn modify_with(self, modifier: impl Fn(SmolStr) -> SmolStr) -> Self {
+    pub fn modify_with<T: Into<SmolStr>>(self, modifier: impl Fn(SmolStr) -> T) -> Self {
         Self {
-            selector: modifier(self.selector),
+            selector: modifier(self.selector).into(),
             decls: self.decls,
             rules: self.rules,
         }
@@ -35,7 +36,7 @@ impl Rule {
     pub fn wrap(self, wrapper: SmolStr) -> Self {
         Self {
             selector: wrapper,
-            decls: vec![],
+            decls: smallvec![],
             rules: RuleList::new(self),
         }
     }
@@ -56,12 +57,12 @@ impl RuleList {
     pub fn wrap(self, wrapper: SmolStr) -> Rule {
         Rule {
             selector: wrapper,
-            decls: vec![],
+            decls: smallvec![],
             rules: self,
         }
     }
 
-    pub fn modify_with(self, modifier: impl Fn(SmolStr) -> SmolStr + Clone) -> Self {
+    pub fn modify_with<T: Into<SmolStr>>(self, modifier: impl Fn(SmolStr) -> T + Clone) -> Self {
         Self(
             self.0
                 .into_iter()

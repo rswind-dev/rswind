@@ -22,19 +22,19 @@ pub struct GenerateResult {
 }
 
 pub fn to_css_rule(value: &str, ctx: &Context) -> Option<GenerateResult> {
-    let mut parts = value.split(TopLevelPattern::new(':')).rev();
+    let mut parts: SmallVec<[&str; 2]> = value.split(TopLevelPattern::new(':')).collect();
 
-    let utility = parts.next().unwrap();
+    let utility = parts.pop()?;
     let utility_candidate = UtilityParser::new(utility).parse(ctx)?;
 
-    let variants = parts.rev().collect::<SmallVec<[_; 2]>>();
+    let variants = parts;
 
     let vs = variants
         .into_iter()
         .map(|v| VariantParser::new(v).parse(ctx))
-        .collect::<Option<Vec<_>>>()?;
+        .collect::<Option<SmallVec<[_; 2]>>>()?;
 
-    let (nested, selector): (Vec<_>, Vec<_>) = vs.into_iter().partition(|v| {
+    let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) = vs.into_iter().partition(|v| {
         matches!(
             v.processor,
             Variant {

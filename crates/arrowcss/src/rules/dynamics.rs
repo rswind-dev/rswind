@@ -71,7 +71,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             css! {
                 "--tw-translate-x": value.clone();
                 "--tw-translate-y": value.clone();
-                "--tw-translate-z": value.clone();
+                "--tw-translate-z": value;
                 "transform": "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))";
             }
         })
@@ -118,7 +118,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             css! {
                 "--tw-scale-x": value.clone();
                 "--tw-scale-y": value.clone();
-                "--tw-scale-z": value.clone();
+                "--tw-scale-z": value;
                 "scale": "var(--tw-scale-x) var(--tw-scale-y)";
             }
         })

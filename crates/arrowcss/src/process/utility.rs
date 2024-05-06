@@ -1,4 +1,5 @@
 use lazy_static::lazy_static;
+use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
 use super::{ArbitraryValueProcessor, MetaData};
@@ -75,17 +76,17 @@ pub enum UtilityGroup {
 }
 
 impl UtilityGroup {
-    pub fn as_decls(&self) -> Vec<Decl> {
+    pub fn as_decls(&self) -> SmallVec<[Decl; 2]> {
         match self {
-            Self::Filter => vec![Decl::new(
+            Self::Filter => smallvec![Decl::new(
                 "filter", "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"
 
             )],
-            Self::BackdropFilter => vec![
+            Self::BackdropFilter => smallvec![
                 Decl::new("-webkit-backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)"),
                 Decl::new("backdrop-filter", "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)")
             ],
-            Self::Transform => vec![Decl::new(
+            Self::Transform => smallvec![Decl::new(
                 "transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"
             )],
         }
@@ -245,126 +246,5 @@ impl Utility {
             self.ordering_key.unwrap_or(OrderingKey::Disorder),
             self.group,
         ))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_rule_builder() {
-        // let rule = UtilityProcessor::new(|MetaData { modifier, .. }, value| {
-        //     let mut res = css!("font-size": value);
-        //     if let Some(modifier) = modifier {
-        //         res.extend(css!("line-height": modifier));
-        //     }
-        //     res
-        // })
-        // .support_negative()
-        // .infer_by(PropertyId::FontSize)
-        // .allow_modifier(ModifierProcessor {
-        //     validator: Some(Box::new(PropertyId::LineHeight)),
-        //     allowed_values: None,
-        // });
-
-        // let res = rule.apply_to(UtilityCandidate {
-        //     key: "text",
-        //     value: MaybeArbitrary::Arbitrary("16px"),
-        //     modifier: Some(MaybeArbitrary::Arbitrary("1.5rem")),
-        //     arbitrary: false,
-        //     important: false,
-        //     negative: false,
-        // });
-
-        // println!("{:?}", res);
-    }
-
-    #[test]
-    fn test_rule_handler() {
-        // let ctx = Arc::new(Context::default());
-        // let rule = Rule::new(|_, value| {
-        //     Some(decls! {
-        //         "font-size": value.to_string();
-        //     })
-        // })
-        // .support_negative()
-        // .infer_by(PropertyId::FontSize)
-        // .bind_context(ctx.clone());
-
-        // assert_eq!(
-        //     rule.apply_to("[16px]"),
-        //     Some(decls! {
-        //         "font-size": "16px";
-        //     })
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[larger]"),
-        //     Some(decls! {
-        //         "font-size": "larger";
-        //     })
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[.5%]"),
-        //     Some(decls! {
-        //         "font-size": ".5%";
-        //     })
-        // );
-    }
-
-    #[test]
-    fn test_handle_background_position() {
-        // let rule = UtilityProcessor::new(|_, value| {
-        //     css! {
-        //         "background-position": value;
-        //     }
-        // })
-        // .support_negative()
-        // .infer_by(PropertyId::BackgroundPosition);
-
-        // // let ctx = Arc::new(Context::default());
-
-        // assert_eq!(
-        //     rule.apply_to("[top]"),
-        //     Some(css! {
-        //         "background-position": "top";
-        //     })
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[center]").unwrap(),
-        //     css! {
-        //         "background-position": "center";
-        //     }
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[50% 50%]").unwrap(),
-        //     css! {
-        //         "background-position": "50% 50%";
-        //     }
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[50% top]").unwrap(),
-        //     css! {
-        //         "background-position": "50% top";
-        //     }
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[left 50%]").unwrap(),
-        //     css! {
-        //         "background-position": "left 50%";
-        //     }
-        // );
-
-        // assert_eq!(
-        //     rule.apply_to("[bottom 10px right 20px]").unwrap(),
-        //     css! {
-        //         "background-position": "bottom 10px right 20px";
-        //     }
-        // );
     }
 }

@@ -71,7 +71,7 @@ impl<'a> UtilityParser<'a> {
     where
         'a: 'b,
     {
-        self.input.get(self.pos.start..self.pos.end).unwrap()
+        &self.input[self.pos.start..self.pos.end]
     }
 
     fn inside_arbitrary(&self) -> bool {

@@ -1,6 +1,7 @@
 use either::Either::{self, Left, Right};
 use enum_dispatch::enum_dispatch;
 use fxhash::FxHashMap as HashMap;
+use smallvec::SmallVec;
 use smol_str::SmolStr;
 
 use crate::{
@@ -69,7 +70,7 @@ impl UtilityStorage for HashMapUtilityStorage {
     ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(decls) => Some((
-                Rule::new_with_decls("&", decls.clone().0.into_vec()),
+                Rule::new_with_decls("&", SmallVec::from_iter(decls.clone())),
                 OrderingKey::Disorder,
                 None,
             )),

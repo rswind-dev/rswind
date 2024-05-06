@@ -7,7 +7,6 @@ use config::ArrowConfig;
 pub mod config;
 pub mod context;
 pub mod css;
-pub mod macros;
 pub mod parser;
 pub mod parsing;
 pub mod process;

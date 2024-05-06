@@ -215,7 +215,7 @@ impl<'a> VariantParser<'a> {
 
 #[cfg(test)]
 mod tests {
-
+    use smallvec::smallvec;
     use smol_str::format_smolstr;
 
     use crate::{
@@ -238,7 +238,8 @@ mod tests {
         let mut input = VariantParser::new("has-not-hover");
         let c = input.parse(&ctx).unwrap();
 
-        let rule = Rule::new_with_decls("&", vec![Decl::new("display", "flex")]).to_rule_list();
+        let rule =
+            Rule::new_with_decls("&", smallvec![Decl::new("display", "flex")]).to_rule_list();
 
         let res = c.handle(rule);
 

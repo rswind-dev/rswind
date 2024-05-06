@@ -1,4 +1,4 @@
-use smallvec::SmallVec;
+use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use crate::{
@@ -184,18 +184,18 @@ impl VariantHandlerExt for StaticHandler {
         match self {
             Self::Selector(a) | Self::PseudoElement(a) => rules
                 .into_iter()
-                .map(|rule| rule.modify_with(|selector| selector.replace('&', a).into()))
+                .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
                 .collect(),
             Self::Nested(a) => RuleList::new(Rule {
                 selector: a.clone(),
-                decls: vec![],
+                decls: smallvec![],
                 rules,
             }),
             Self::Duplicate(list) => {
                 list.iter()
                     .flat_map(move |a| {
                         rules.clone().into_iter().map(|rule| {
-                            rule.modify_with(|selector| selector.replace('&', a).into())
+                            rule.modify_with(|selector| selector.replace('&', a))
                         })
                     })
                     .collect()
@@ -256,7 +256,8 @@ impl VariantHandlerExt for ComposableHandler {
 #[cfg(test)]
 mod tests {
     use arrowcss_css_macro::css;
-    use smol_str::{format_smolstr, SmolStr};
+    use smallvec::smallvec;
+    use smol_str::format_smolstr;
 
     use super::{DynamicHandler, VariantHandlerExt};
     use crate::{
@@ -285,7 +286,7 @@ mod tests {
         let selector = RuleList::new(Rule {
             selector: "&".into(),
             rules: RuleList::default(),
-            decls: vec![Decl {
+            decls: smallvec![Decl {
                 name: "display".into(),
                 value: "flex".into(),
             }],
@@ -335,7 +336,7 @@ mod tests {
                 .collect();
             Rule {
                 selector: "@media (hover: hover) and (pointer: fine)".into(),
-                decls: vec![],
+                decls: smallvec![],
                 rules: hovered,
             }
             .to_rule_list()
