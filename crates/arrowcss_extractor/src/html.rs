@@ -131,7 +131,6 @@ impl<'a> HtmlExtractor<'a> {
                         c.first() == '<' && c.second() == '/' && c.as_str().starts_with("</script>")
                     });
                 });
-                dbg!(self.cursor.as_str());
 
                 // skip end tag
                 self.cursor.eat_while(|c| c != '>');
@@ -222,47 +221,47 @@ impl<'a> Iterator for HtmlExtractor<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(js) = self.in_js.as_mut() {
-            if let Some(value) = js.next() {
-                return Some(value);
-            } else {
-                self.in_js = None;
-            }
-        }
-
-        if self.cursor.is_eof() {
-            return None;
-        }
-
-        if self.in_start_tag() {
-            match self.consume_attrs() {
-                Some(CandidateValue::Plain(s)) => {
-                    let res = Some(s);
-                    self.consume(|s| {
-                        s.eat_while(|c| c.is_whitespace());
-                    });
-                    return res;
+        loop {
+            if let Some(js) = self.in_js.as_mut() {
+                if let Some(value) = js.next() {
+                    return Some(value);
+                } else {
+                    self.in_js = None;
                 }
-                Some(CandidateValue::Ecma) => {
-                    if let Some(js) = self.in_js.as_mut() {
-                        if let Some(value) = js.next() {
-                            return Some(value);
-                        } else {
-                            self.in_js = None;
-                            return self.next();
+            }
+
+            if self.cursor.is_eof() {
+                return None;
+            }
+
+            if self.in_start_tag() {
+                match self.consume_attrs() {
+                    Some(CandidateValue::Plain(s)) => {
+                        let res = Some(s);
+                        self.consume(|s| {
+                            s.eat_while(|c| c.is_whitespace());
+                        });
+                        return res;
+                    }
+                    Some(CandidateValue::Ecma) => {
+                        if let Some(js) = self.in_js.as_mut() {
+                            if let Some(value) = js.next() {
+                                return Some(value);
+                            } else {
+                                self.in_js = None;
+                                continue;
+                            }
                         }
                     }
+                    None => {
+                        continue;
+                    }
                 }
-                None => {
-                    return self.next();
-                }
+            } else {
+                self.consume_until_value();
+                continue;
             }
-        } else {
-            self.consume_until_value();
-            return self.next();
         }
-
-        None
     }
 }
 
