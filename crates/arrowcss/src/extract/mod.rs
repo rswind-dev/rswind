@@ -1,4 +1,4 @@
-use arrowcss_extractor::{ecma::EcmaExtractor, html::HtmlExtractor};
+use arrowcss_extractor::{ecma::EcmaExtractor, html::HtmlExtractor, BasicExtractor, Extractor};
 use fxhash::FxHashSet as HashSet;
 
 #[derive(Debug, Clone, Copy)]
@@ -81,33 +81,5 @@ impl<'i, T: AsRef<str>> Extractor<'i> for SourceInput<T> {
             }
             Self::Unknown(s) => Box::new(BasicExtractor::new(s.as_ref())._extract()),
         }
-    }
-}
-
-pub trait Extractor<'i> {
-    fn extract(&'i self) -> Box<dyn Iterator<Item = &'i str> + 'i>;
-}
-
-pub struct BasicExtractor<'i> {
-    pub haystack: &'i str,
-}
-
-impl<'i> BasicExtractor<'i> {
-    pub fn new(haystack: &'i str) -> Self {
-        Self { haystack }
-    }
-
-    fn _extract(&self) -> impl Iterator<Item = &'i str> + 'i {
-        self.haystack
-            .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-            .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
-            .collect::<HashSet<_>>()
-            .into_iter()
-    }
-}
-
-impl<'i> Extractor<'i> for BasicExtractor<'i> {
-    fn extract(&self) -> Box<dyn Iterator<Item = &'i str> + 'i> {
-        Box::new(self._extract())
     }
 }

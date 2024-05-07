@@ -6,9 +6,6 @@ version = "0.0.0"
 [lib]
 crate-type = ["cdylib"]
 
-[profile.release]
-opt-level = 's'
-
 [dependencies]
 wasm-bindgen = "0.2.92"
 arrowcss = { path = "../../crates/arrowcss" }

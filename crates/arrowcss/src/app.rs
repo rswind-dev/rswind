@@ -1,5 +1,6 @@
 use std::fmt::Write as _;
 
+use arrowcss_extractor::Extractor;
 use cssparser::serialize_name;
 use fxhash::FxHashMap as HashMap;
 use rayon::prelude::*;
@@ -9,7 +10,7 @@ use crate::{
     config::ArrowConfig,
     context::Context,
     css::{Rule, ToCss},
-    extract::{Extractor, SourceInput},
+    extract::SourceInput,
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
     preset::load_preset,
