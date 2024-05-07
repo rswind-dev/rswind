@@ -1,4 +1,4 @@
-use arrowcss::{create_app, extract::SourceInput};
+use arrowcss::{create_app, source::SourceInput};
 
 fn main() {
     let mut app = create_app();

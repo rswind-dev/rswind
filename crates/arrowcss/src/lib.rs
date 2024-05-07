@@ -6,7 +6,7 @@ pub mod common;
 pub mod config;
 pub mod context;
 pub mod css;
-pub mod extract;
+pub mod source;
 pub mod ordering;
 pub mod parser;
 pub mod parsing;

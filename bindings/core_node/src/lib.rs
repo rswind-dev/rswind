@@ -1,4 +1,4 @@
-use arrowcss::{app::Application, create_app as _create_app, extract::SourceInput};
+use arrowcss::{app::Application, create_app as _create_app, source::SourceInput};
 
 #[macro_use]
 extern crate napi_derive;

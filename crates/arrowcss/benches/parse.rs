@@ -1,4 +1,4 @@
-use arrowcss::extract::SourceInput;
+use arrowcss::source::SourceInput;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 pub fn criterion_benchmark(c: &mut Criterion) {

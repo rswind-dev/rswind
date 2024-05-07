@@ -1,6 +1,6 @@
 use std::{sync::mpsc, time::Duration};
 
-use arrowcss::{app::Application, common::ScopeFunctions, extract::SourceInput};
+use arrowcss::{app::Application, common::ScopeFunctions, source::SourceInput};
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};

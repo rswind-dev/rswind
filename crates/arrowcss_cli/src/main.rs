@@ -1,6 +1,6 @@
 use arrowcss::{
-    app::Application, config::ArrowConfig, css::ToCssString, extract::SourceInput,
-    parser::to_css_rule,
+    app::Application, config::ArrowConfig, css::ToCssString, parser::to_css_rule,
+    source::SourceInput,
 };
 use clap::{arg, command, Parser};
 use config::{Config, File};

@@ -10,10 +10,10 @@ use crate::{
     config::ArrowConfig,
     context::Context,
     css::{Rule, ToCss},
-    extract::SourceInput,
     ordering::{create_ordering, OrderingItem, OrderingMap},
     parser::{to_css_rule, GenerateResult},
     preset::load_preset,
+    source::SourceInput,
     writer::Writer,
 };
 

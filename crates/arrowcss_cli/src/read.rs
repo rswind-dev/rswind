@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use arrowcss::extract::SourceInput;
+use arrowcss::source::SourceInput;
 use walkdir::WalkDir;
 
 static ALLOWED_EXTENSIONS: [&str; 7] = ["html", "vue", "js", "jsx", "ts", "tsx", "svelte"];

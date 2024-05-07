@@ -6,7 +6,7 @@ use std::{
     rc::Rc,
 };
 
-use arrowcss::{create_app, extract::SourceInput};
+use arrowcss::{create_app, source::SourceInput};
 use criterion::{criterion_group, criterion_main, Criterion};
 use rayon::prelude::*;
 use walkdir::WalkDir;

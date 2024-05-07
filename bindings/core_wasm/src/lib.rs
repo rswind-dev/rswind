@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use arrowcss::{app::Application, create_app, extract::SourceInput};
+use arrowcss::{app::Application, create_app, source::SourceInput};
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
