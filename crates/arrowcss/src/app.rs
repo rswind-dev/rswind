@@ -36,6 +36,17 @@ impl Application {
         self
     }
 
+    pub fn run_with<T: AsRef<str>>(&mut self, input: impl Iterator<Item = T>) -> String {
+        let res = input
+            .filter_map(|token| {
+                self.ctx
+                    .generate(token.as_ref())
+                    .map(|rule| (SmolStr::from(token.as_ref()), rule))
+            })
+            .collect::<HashMap<SmolStr, GenerateResult>>();
+        self.run_inner(res)
+    }
+
     pub fn run<T: AsRef<str>>(&mut self, input: SourceInput<T>) -> String {
         let res = input
             .extract()
