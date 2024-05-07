@@ -25,12 +25,14 @@ impl Rule {
         }
     }
 
-    pub fn modify_with<T: Into<SmolStr>>(self, modifier: impl Fn(SmolStr) -> T) -> Self {
-        Self {
-            selector: modifier(self.selector).into(),
-            decls: self.decls,
-            rules: self.rules,
-        }
+    pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T) -> Self {
+        self.selector = modifier(&self.selector).into();
+        self
+    }
+
+    pub fn modify_mut_with<T: Into<SmolStr>>(&mut self, modifier: impl Fn(&str) -> T) -> &mut Self {
+        self.selector = modifier(&self.selector).into();
+        self
     }
 
     pub fn wrap(self, wrapper: SmolStr) -> Self {
@@ -62,13 +64,11 @@ impl RuleList {
         }
     }
 
-    pub fn modify_with<T: Into<SmolStr>>(self, modifier: impl Fn(SmolStr) -> T + Clone) -> Self {
-        Self(
-            self.0
-                .into_iter()
-                .map(|r| r.modify_with(modifier.clone()))
-                .collect(),
-        )
+    pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T + Clone) -> Self {
+        self.0.iter_mut().for_each(|r| {
+            r.modify_mut_with(&modifier);
+        });
+        self
     }
 
     pub fn as_single(self) -> Option<Rule> {
