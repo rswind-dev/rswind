@@ -64,19 +64,29 @@ pub fn load_variants(ctx: &mut Context) {
         .add_variant("print", ["@media print"])
         .add_variant("forced-colors", ["@media (forced-colors: active)"]);
 
-    ctx.add_variant_fn("aria", |rule, candidate| match candidate.value {
-        Some(MaybeArbitrary::Arbitrary(value)) => {
-            rule.modify_with(|s| format_smolstr!("{}[aria-{}]", s, value))
-        }
-        Some(MaybeArbitrary::Named(value)) => {
-            rule.modify_with(|s| format_smolstr!("{}[aria-{}=\"true\"]", s, value))
-        }
-        None => rule,
-    });
+    ctx.add_variant_fn(
+        "aria",
+        |rule, candidate| match candidate.value {
+            Some(MaybeArbitrary::Arbitrary(value)) => {
+                rule.modify_with(|s| format_smolstr!("{}[aria-{}]", s, value))
+            }
+            Some(MaybeArbitrary::Named(value)) => {
+                rule.modify_with(|s| format_smolstr!("{}[aria-{}=\"true\"]", s, value))
+            }
+            None => rule,
+        },
+        false,
+    );
 
-    ctx.add_variant_fn("data", |rule, candidate| {
-        rule.modify_with(|s| format_smolstr!("{}[data-{}]", s, take_or_default(&candidate.value)))
-    });
+    ctx.add_variant_fn(
+        "data",
+        |rule, candidate| {
+            rule.modify_with(|s| {
+                format_smolstr!("{}[data-{}]", s, take_or_default(&candidate.value))
+            })
+        },
+        false,
+    );
 
     ctx.add_variant_composable("has", |rule, _| {
         rule.modify_with(|s| format_smolstr!("&:has({})", s.replace('&', "*")))

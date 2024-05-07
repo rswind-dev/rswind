@@ -16,7 +16,7 @@ pub trait VariantHandlerExt {
     fn handle(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub enum VariantKind {
     Arbitrary,
     Static,
@@ -24,7 +24,7 @@ pub enum VariantKind {
     Composable,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub enum VariantHandler {
     Static(StaticHandler),
     Dynamic(DynamicHandler),
@@ -40,12 +40,13 @@ impl VariantHandler {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct Variant {
     pub handler: VariantHandler,
     pub composable: bool,
     pub kind: VariantKind,
     pub ordering: Option<VariantOrdering>,
+    pub nested: bool,
 }
 
 impl PartialEq for Variant {
@@ -68,7 +69,7 @@ impl Ord for Variant {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum VariantOrdering {
     Length(i32),
 }
@@ -83,8 +84,10 @@ impl Variant {
     pub fn new_static(
         matcher: impl IntoIterator<Item: Into<SmolStr>, IntoIter: ExactSizeIterator>,
     ) -> Self {
+        let handler = StaticHandler::new(matcher);
         Self {
-            handler: VariantHandler::Static(StaticHandler::new(matcher)),
+            nested: handler.is_nested(),
+            handler: VariantHandler::Static(handler),
             composable: true,
             kind: VariantKind::Static,
             ordering: None,
@@ -97,15 +100,18 @@ impl Variant {
             composable: true,
             kind: VariantKind::Composable,
             ordering: None,
+            // composable variants are always nested
+            nested: false,
         }
     }
 
-    pub fn new_dynamic(handler: fn(RuleList, VariantCandidate) -> RuleList) -> Self {
+    pub fn new_dynamic(handler: fn(RuleList, VariantCandidate) -> RuleList, nested: bool) -> Self {
         Self {
             handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
             composable: true,
             kind: VariantKind::Dynamic,
             ordering: None,
+            nested,
         }
     }
 
@@ -138,7 +144,7 @@ impl VariantHandlerExt for Variant {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum StaticHandler {
     // for single rule
     Selector(SmolStr),
@@ -177,6 +183,10 @@ impl StaticHandler {
     pub fn new_duplicate(matcher: impl IntoIterator<Item: Into<SmolStr>>) -> Self {
         Self::Duplicate(matcher.into_iter().map(Into::into).collect())
     }
+
+    fn is_nested(&self) -> bool {
+        matches!(self, Self::Nested(_))
+    }
 }
 
 impl VariantHandlerExt for StaticHandler {
@@ -191,20 +201,20 @@ impl VariantHandlerExt for StaticHandler {
                 decls: smallvec![],
                 rules,
             }),
-            Self::Duplicate(list) => {
-                list.iter()
-                    .flat_map(move |a| {
-                        rules.clone().into_iter().map(|rule| {
-                            rule.modify_with(|selector| selector.replace('&', a))
-                        })
-                    })
-                    .collect()
-            }
+            Self::Duplicate(list) => list
+                .iter()
+                .flat_map(move |a| {
+                    rules
+                        .clone()
+                        .into_iter()
+                        .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
+                })
+                .collect(),
         }
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct DynamicHandler {
     pub handler: fn(RuleList, VariantCandidate) -> RuleList,
     pub composable: bool,
@@ -225,7 +235,7 @@ impl DynamicHandler {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct ComposableHandler {
     pub handler: fn(RuleList, VariantCandidate) -> RuleList,
     pub composable: bool,

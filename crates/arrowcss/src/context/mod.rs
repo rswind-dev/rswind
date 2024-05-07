@@ -22,7 +22,9 @@ pub struct Context {
     pub variants: HashMap<SmolStr, Variant>,
     pub theme: Theme,
     pub cache: HashMap<SmolStr, Option<String>>,
-    pub seen_variants: BTreeSet<Variant>,
+
+    /// store all variants that have been seen, as hash
+    pub seen_variants: BTreeSet<u64>,
 }
 
 impl Context {
@@ -56,8 +58,10 @@ impl Context {
         &mut self,
         key: &str,
         func: fn(RuleList, VariantCandidate) -> RuleList,
+        nested: bool,
     ) -> &Self {
-        self.variants.insert(key.into(), Variant::new_dynamic(func));
+        self.variants
+            .insert(key.into(), Variant::new_dynamic(func, nested));
         self
     }
 

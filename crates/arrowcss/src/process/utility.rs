@@ -12,10 +12,10 @@ use crate::{
 };
 
 #[rustfmt::skip]
-pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync {}
+pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static {}
 
 #[rustfmt::skip]
-impl<T> RuleMatchingFn for T where T: Fn(MetaData, SmolStr) -> Rule + Send + Sync {}
+impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
 pub enum UtilityHandler {
     Static(fn(MetaData, SmolStr) -> Rule),

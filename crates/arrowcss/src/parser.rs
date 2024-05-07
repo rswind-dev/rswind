@@ -1,6 +1,10 @@
-use std::{collections::BTreeSet, fmt::Write};
+use std::{
+    fmt::Write,
+    hash::{Hash, Hasher},
+};
 
 use cssparser::serialize_identifier;
+use fxhash::FxHasher;
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
@@ -9,7 +13,7 @@ use crate::{
     css::rule::RuleList,
     ordering::OrderingKey,
     parsing::{UtilityParser, VariantParser},
-    process::{StaticHandler, UtilityGroup, Variant, VariantHandler},
+    process::UtilityGroup,
     utils::TopLevelPattern,
 };
 
@@ -18,7 +22,7 @@ pub struct GenerateResult {
     pub rule: RuleList,
     pub group: Option<UtilityGroup>,
     pub ordering: OrderingKey,
-    pub variants: BTreeSet<Variant>,
+    pub variants: SmallVec<[u64; 2]>,
 }
 
 pub fn to_css_rule(value: &str, ctx: &Context) -> Option<GenerateResult> {
@@ -34,15 +38,17 @@ pub fn to_css_rule(value: &str, ctx: &Context) -> Option<GenerateResult> {
         .map(|v| VariantParser::new(v).parse(ctx))
         .collect::<Option<SmallVec<[_; 2]>>>()?;
 
-    let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) = vs.into_iter().partition(|v| {
-        matches!(
-            v.processor,
-            Variant {
-                handler: VariantHandler::Static(StaticHandler::Nested(_)),
-                ..
-            }
-        )
-    });
+    let v = vs
+        .iter()
+        .map(|v| {
+            let mut hasher = FxHasher::default();
+            v.processor.hash(&mut hasher);
+            hasher.finish()
+        })
+        .collect();
+
+    let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
+        vs.iter().partition(|v| v.processor.nested);
 
     let (node, ordering, group) = ctx.utilities.try_apply(utility_candidate)?;
 
@@ -62,12 +68,7 @@ pub fn to_css_rule(value: &str, ctx: &Context) -> Option<GenerateResult> {
         group,
         rule: node,
         ordering,
-        variants: BTreeSet::new(),
-        // variants: nested
-        //     .into_iter()
-        //     .chain(selector)
-        //     .map(|p| p.processor)
-        //     .collect(),
+        variants: v,
     })
 }
 

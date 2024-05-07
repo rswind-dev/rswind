@@ -77,7 +77,7 @@ impl<'a> VariantParser<'a> {
     }
 
     fn current(&self) -> &'a str {
-        self.input.get(self.pos.start..self.pos.end).unwrap()
+        &self.input[self.pos.start..self.pos.end]
     }
 
     fn inside_arbitrary(&self) -> bool {
