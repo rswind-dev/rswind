@@ -1,22 +1,22 @@
 [package]
-name = "arrowcss_extractor"
+name    = "arrowcss_extractor"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
 
 [dependencies]
-cssparser-macros = "0.6.1"
-cssparser = "0.34.0"
-rustc-hash = "1.1.0"
+cssparser-macros = { workspace = true }
+cssparser        = { workspace = true }
+rustc-hash       = { workspace = true }
 
 [dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { workspace = true, features = ["html_reports"] }
 
 [[bench]]
-name = "html_extract"
+name    = "html_extract"
 harness = false
 
 [[bench]]
-name = "css_extract"
+name    = "css_extract"
 harness = false

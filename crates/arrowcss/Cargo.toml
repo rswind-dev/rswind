@@ -6,26 +6,27 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow             = "1.0.75"
-cssparser          = "0.33.0"
-lazy_static        = "1.4.0"
-lightningcss       = { version = "1.0.0-alpha.55" }
-serde              = "1.0.193"
-serde_json         = "1.0.108"
-smallvec           = { version = "1.11.2", features = ["const_generics", "const_new"] }
-arrowcss_css_macro = { version = "0.1.0", path = "../arrowcss_css_macro" }
-arrowcss_extractor = { version = "0.1.0", path = "../arrowcss_extractor" }
-fxhash             = "0.2.1"
-rayon              = "1.10.0"
-either             = "1.10.0"
-enum_dispatch      = "0.3.13"
-phf                = { version = "0.11.2", features = ["macros"] }
-colored            = "2.1.0"
-cssparser-macros   = "0.6.1"
-smol_str           = { version = "0.2.1", features = ["serde"] }
+arrowcss_css_macro = { workspace = true }
+arrowcss_extractor = { workspace = true }
+
+rayon            = { workspace = true }
+either           = { workspace = true }
+enum_dispatch    = { workspace = true }
+phf              = { workspace = true, features = ["macros"] }
+colored          = { workspace = true }
+cssparser-macros = { workspace = true }
+smol_str         = { workspace = true, features = ["serde"] }
+anyhow           = { workspace = true }
+cssparser        = { workspace = true }
+lazy_static      = { workspace = true }
+lightningcss     = { workspace = true }
+serde            = { workspace = true }
+serde_json       = { workspace = true }
+smallvec         = { workspace = true, features = ["const_generics"] }
+rustc-hash       = { workspace = true }
 
 [dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { workspace = true, features = ["html_reports"] }
 
 [lib]
 bench = false

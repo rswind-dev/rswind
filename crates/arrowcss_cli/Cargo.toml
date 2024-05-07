@@ -1,17 +1,18 @@
 [package]
-name = "arrowcss_cli"
+name    = "arrowcss_cli"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-arrowcss ={ path = "../arrowcss" }
-config = "0.13.4"
-clap = { version = "4.5.4", features = ["derive"] }
-cssparser = "0.34.0"
-notify = "6.1.1"
-notify-debouncer-mini = "0.4.1"
-rayon = "1.10.0"
-walkdir = "2.5.0"
+arrowcss = { workspace = true }
+
+config                = { workspace = true }
+clap                  = { workspace = true, features = ["derive"] }
+cssparser             = { workspace = true }
+notify                = { workspace = true }
+notify-debouncer-mini = { workspace = true }
+rayon                 = { workspace = true }
+walkdir               = { workspace = true }
 
 [dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { workspace = true, features = ["html_reports"] }
