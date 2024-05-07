@@ -134,14 +134,12 @@ impl Context {
         let utility = parts.pop()?;
         let utility_candidate = UtilityParser::new(utility).parse(self)?;
 
-        let variants = parts;
-
-        let vs = variants
+        let vs = parts
             .into_iter()
             .map(|v| VariantParser::new(v).parse(self))
             .collect::<Option<SmallVec<[_; 2]>>>()?;
 
-        let v = vs
+        let variants = vs
             .iter()
             .map(|v| {
                 let mut hasher = FxHasher::default();
@@ -163,7 +161,7 @@ impl Context {
         w.write_char('.').ok()?;
         serialize_identifier(value, &mut w).ok()?;
 
-        node = node.modify_with(|s| SmolStr::from(s.replace('&', &w)));
+        node = node.modify_with(|s| s.replace('&', &w));
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
@@ -171,7 +169,7 @@ impl Context {
             group,
             rule: node,
             ordering,
-            variants: v,
+            variants,
         })
     }
 }
