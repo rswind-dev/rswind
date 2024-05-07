@@ -4,7 +4,7 @@ use std::{
     sync::Arc,
 };
 
-use fxhash::FxHashMap as HashMap;
+use rustc_hash::FxHashMap as HashMap;
 use phf::{phf_map, Map};
 use serde::{
     de::{self, MapAccess, Visitor},

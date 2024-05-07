@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
-use fxhash::FxHashMap as HashMap;
 use lazy_static::lazy_static;
+use rustc_hash::FxHashMap as HashMap;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 

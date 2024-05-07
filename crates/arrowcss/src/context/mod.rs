@@ -5,7 +5,7 @@ use std::{
 };
 
 use cssparser::serialize_identifier;
-use fxhash::{FxHashMap as HashMap, FxHasher};
+use rustc_hash::{FxHashMap as HashMap, FxHasher};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 

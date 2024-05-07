@@ -1,5 +1,5 @@
 use arrowcss_extractor::{ecma::EcmaExtractor, html::HtmlExtractor, BasicExtractor, Extractor};
-use fxhash::FxHashSet as HashSet;
+use rustc_hash::FxHashSet as HashSet;
 
 #[derive(Debug, Clone, Copy)]
 pub enum SourceInput<T: AsRef<str>> {

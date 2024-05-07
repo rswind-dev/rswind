@@ -2,8 +2,8 @@ use std::fmt::Write as _;
 
 use arrowcss_extractor::Extractor;
 use cssparser::serialize_name;
-use fxhash::FxHashMap as HashMap;
 use rayon::prelude::*;
+use rustc_hash::FxHashMap as HashMap;
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{

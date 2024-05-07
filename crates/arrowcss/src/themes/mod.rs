@@ -11,7 +11,7 @@ mod spacing;
 macro_rules! create_theme {
     ($($key:expr => $value:expr),*) => {
         {
-            let mut m = fxhash::FxHashMap::default();
+            let mut m = rustc_hash::FxHashMap::default();
             $(
                 m.insert($key.into(), $value.into());
             )*

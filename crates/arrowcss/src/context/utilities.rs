@@ -1,6 +1,6 @@
 use either::Either::{self, Left, Right};
 use enum_dispatch::enum_dispatch;
-use fxhash::FxHashMap as HashMap;
+use rustc_hash::FxHashMap as HashMap;
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
