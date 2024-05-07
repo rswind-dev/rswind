@@ -1,7 +1,4 @@
-use arrowcss::{
-    app::Application, config::ArrowConfig, css::ToCssString, parser::to_css_rule,
-    source::SourceInput,
-};
+use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString, source::SourceInput};
 use clap::{arg, command, Parser};
 use config::{Config, File};
 use rayon::prelude::*;
@@ -76,7 +73,7 @@ fn main() {
             }
         }
         Some(SubCommand::Debug(cmd)) => {
-            let r = to_css_rule(&cmd.input, &app.ctx).unwrap();
+            let r = app.ctx.generate(&cmd.input).unwrap();
             if cmd.print_ast {
                 println!("{:#?}", r.rule);
             }

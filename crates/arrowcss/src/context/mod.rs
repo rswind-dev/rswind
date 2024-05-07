@@ -1,17 +1,24 @@
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    fmt::Write,
+    hash::{Hash, Hasher},
+};
 
-use fxhash::FxHashMap as HashMap;
+use cssparser::serialize_identifier;
+use fxhash::{FxHashMap as HashMap, FxHasher};
+use smallvec::SmallVec;
 use smol_str::SmolStr;
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
     css::{rule::RuleList, Decl, DeclList, Rule},
     ordering::OrderingKey,
-    parsing::VariantCandidate,
-    process::{Utility, Variant},
+    parsing::{UtilityParser, VariantCandidate, VariantParser},
+    process::{Utility, UtilityGroup, Variant},
     theme::{Theme, ThemeValue},
     themes::theme,
     types::TypeValidator,
+    utils::TopLevelPattern,
 };
 
 pub mod utilities;
@@ -25,6 +32,14 @@ pub struct Context {
 
     /// store all variants that have been seen, as hash
     pub seen_variants: BTreeSet<u64>,
+}
+
+#[derive(Debug, Clone)]
+pub struct GenerateResult {
+    pub rule: RuleList,
+    pub group: Option<UtilityGroup>,
+    pub ordering: OrderingKey,
+    pub variants: SmallVec<[u64; 2]>,
 }
 
 impl Context {
@@ -111,6 +126,53 @@ impl Context {
 
     pub fn get_theme(&self, key: &str) -> Option<ThemeValue> {
         self.theme.get(key).cloned()
+    }
+
+    pub fn generate(&self, value: &str) -> Option<GenerateResult> {
+        let mut parts: SmallVec<[&str; 2]> = value.split(TopLevelPattern::new(':')).collect();
+
+        let utility = parts.pop()?;
+        let utility_candidate = UtilityParser::new(utility).parse(self)?;
+
+        let variants = parts;
+
+        let vs = variants
+            .into_iter()
+            .map(|v| VariantParser::new(v).parse(self))
+            .collect::<Option<SmallVec<[_; 2]>>>()?;
+
+        let v = vs
+            .iter()
+            .map(|v| {
+                let mut hasher = FxHasher::default();
+                v.processor.hash(&mut hasher);
+                hasher.finish()
+            })
+            .collect();
+
+        let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
+            vs.iter().partition(|v| v.processor.nested);
+
+        let (node, ordering, group) = self.utilities.try_apply(utility_candidate)?;
+
+        let mut node = selector
+            .iter()
+            .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
+
+        let mut w = String::with_capacity(value.len() + 5);
+        w.write_char('.').ok()?;
+        serialize_identifier(value, &mut w).ok()?;
+
+        node = node.modify_with(|s| SmolStr::from(s.replace('&', &w)));
+
+        let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
+
+        Some(GenerateResult {
+            group,
+            rule: node,
+            ordering,
+            variants: v,
+        })
     }
 }
 

@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
-use crate::parser::GenerateResult;
+use crate::context::GenerateResult;
 
 #[derive(Debug)]
 struct GroupItem {

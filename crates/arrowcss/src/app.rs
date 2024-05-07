@@ -8,10 +8,9 @@ use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     config::ArrowConfig,
-    context::Context,
+    context::{Context, GenerateResult},
     css::{Rule, ToCss},
     ordering::{create_ordering, OrderingItem, OrderingMap},
-    parser::{to_css_rule, GenerateResult},
     preset::load_preset,
     source::SourceInput,
     writer::Writer,
@@ -41,7 +40,9 @@ impl Application {
         let res = input
             .extract()
             .filter_map(|token| {
-                to_css_rule(token, &self.ctx).map(|rule| (SmolStr::from(token), rule))
+                self.ctx
+                    .generate(token)
+                    .map(|rule| (SmolStr::from(token), rule))
             })
             .collect::<HashMap<SmolStr, GenerateResult>>();
         self.run_inner(res)
@@ -57,7 +58,9 @@ impl Application {
                 x.as_ref()
                     .extract()
                     .filter_map(|token| {
-                        to_css_rule(token, &self.ctx).map(|rule| (SmolStr::from(token), rule))
+                        self.ctx
+                            .generate(token)
+                            .map(|rule| (SmolStr::from(token), rule))
                     })
                     .collect::<HashMap<SmolStr, GenerateResult>>()
             })
