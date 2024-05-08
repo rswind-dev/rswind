@@ -75,6 +75,23 @@ impl OrderingMap {
         }
     }
 
+    pub fn insert(&mut self, key: OrderingItem) {
+        if let Some((item, len)) = self.ordering.ordering.get(&key.item.ordering) {
+            self.map
+                .entry(item.group_id)
+                .or_insert_with(|| smallvec![vec![]; *len])[item.id]
+                .push(key);
+        } else {
+            self.unordered.insert(
+                match self.unordered.binary_search(&key) {
+                    Ok(i) => i,
+                    Err(i) => i,
+                },
+                key,
+            );
+        }
+    }
+
     pub fn insert_many(&mut self, items: impl IntoIterator<Item = OrderingItem>) {
         for key in items {
             if let Some((item, len)) = self.ordering.ordering.get(&key.item.ordering) {

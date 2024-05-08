@@ -57,8 +57,7 @@ fn main() {
         .map(|c| c.try_deserialize::<ArrowConfig>().unwrap_or_default())
         .unwrap_or_else(|_| ArrowConfig::default());
 
-    let mut app = Application::new(config);
-    app.init();
+    let mut app = Application::new(config).init();
 
     match opts.cmd {
         None => {

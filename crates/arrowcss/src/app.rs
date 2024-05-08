@@ -1,4 +1,4 @@
-use std::fmt::Write as _;
+use std::{collections::BTreeSet, fmt::Write as _, sync::Arc};
 
 use arrowcss_extractor::Extractor;
 use cssparser::serialize_name;
@@ -17,23 +17,37 @@ use crate::{
 };
 
 pub struct Application {
-    pub ctx: Context,
-    // pub cache: String,
+    pub ctx: Arc<Context>,
+    pub seen_variants: BTreeSet<u64>,
+    pub ordering: OrderingMap,
     pub strict_mode: bool,
 }
 
-impl Application {
-    pub fn new(config: ArrowConfig) -> Self {
-        Self {
-            ctx: Context::new(config.theme),
-            // cache: String::new(),
-            strict_mode: config.features.strict_mode,
+pub struct UninitializedApp {
+    ctx: Context,
+    seen_variants: BTreeSet<u64>,
+    strict_mode: bool,
+}
+
+impl UninitializedApp {
+    pub fn init(mut self) -> Application {
+        load_preset(&mut self.ctx);
+        Application {
+            ctx: Arc::new(self.ctx),
+            seen_variants: self.seen_variants,
+            ordering: OrderingMap::new(create_ordering()),
+            strict_mode: self.strict_mode,
         }
     }
+}
 
-    pub fn init(&mut self) -> &mut Self {
-        load_preset(&mut self.ctx);
-        self
+impl Application {
+    pub fn new(config: ArrowConfig) -> UninitializedApp {
+        UninitializedApp {
+            ctx: Context::new(config.theme),
+            seen_variants: BTreeSet::new(),
+            strict_mode: config.features.strict_mode,
+        }
     }
 
     pub fn run_with<T: AsRef<str>>(&mut self, input: impl Iterator<Item = T>) -> String {
@@ -86,7 +100,7 @@ impl Application {
         let mut writer = Writer::default(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
-            self.ctx.seen_variants.extend(v.variants.clone());
+            self.seen_variants.extend(v.variants.clone());
             if let Some(group) = &v.group {
                 groups
                     .entry(*group)
@@ -98,19 +112,16 @@ impl Application {
         let get_key = |r: &GenerateResult| {
             r.variants
                 .iter()
-                .map(|v| self.ctx.seen_variants.iter().position(|x| x == v).unwrap())
+                .map(|v| self.seen_variants.iter().position(|x| x == v).unwrap())
                 .fold(0u128, |order, o| order | (1 << o))
         };
 
-        let ordering = create_ordering();
-
-        let mut om = OrderingMap::new(ordering);
-        om.insert_many(res.into_iter().map(|r| {
+        self.ordering.insert_many(res.into_iter().map(|r| {
             let key = get_key(&r.1);
             OrderingItem::new(r.0, r.1, key)
         }));
 
-        for r in om.get_ordered() {
+        for r in self.ordering.get_ordered() {
             let mut w = Writer::default(String::with_capacity(100));
             let _ = r.item.rule.to_css(&mut w);
             let _ = writer.write_str(&w.dest);
@@ -141,9 +152,8 @@ impl Application {
 
 pub fn create_app() -> Application {
     let config = ArrowConfig::default();
-    let mut app = Application::new(config);
-    app.init();
-    app
+    let app = Application::new(config);
+    app.init()
 }
 
 #[cfg(test)]
