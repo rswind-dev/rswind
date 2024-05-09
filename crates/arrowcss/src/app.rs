@@ -20,6 +20,7 @@ pub struct Application {
     pub ctx: Arc<Context>,
     pub seen_variants: BTreeSet<u64>,
     pub ordering: OrderingMap,
+    pub cache: HashMap<SmolStr, Option<String>>,
     pub strict_mode: bool,
 }
 
@@ -35,6 +36,7 @@ impl UninitializedApp {
         Application {
             ctx: Arc::new(self.ctx),
             seen_variants: self.seen_variants,
+            cache: HashMap::default(),
             ordering: OrderingMap::new(create_ordering()),
             strict_mode: self.strict_mode,
         }

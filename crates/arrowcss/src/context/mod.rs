@@ -1,5 +1,4 @@
 use std::{
-    collections::BTreeSet,
     fmt::Write,
     hash::{Hash, Hasher},
 };
@@ -28,10 +27,6 @@ pub struct Context {
     pub utilities: UtilityStorageImpl,
     pub variants: HashMap<SmolStr, Variant>,
     pub theme: Theme,
-    pub cache: HashMap<SmolStr, Option<String>>,
-
-    /// store all variants that have been seen, as hash
-    pub seen_variants: BTreeSet<u64>,
 }
 
 #[derive(Debug, Clone)]
@@ -48,8 +43,6 @@ impl Context {
             variants: HashMap::default(),
             utilities: UtilityStorageImpl::HashMap(Default::default()),
             theme: theme().merge(t),
-            cache: HashMap::default(),
-            seen_variants: BTreeSet::new(),
         }
     }
 
