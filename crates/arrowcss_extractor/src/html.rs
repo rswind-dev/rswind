@@ -1,3 +1,5 @@
+use cssparser::match_byte;
+
 use crate::{cursor::Cursor, ecma::EcmaExtractor};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -64,15 +66,16 @@ impl<'a> HtmlExtractor<'a> {
         }
     }
 
-    pub fn with_options(self, options: HtmlExtractOptions) -> Self {
-        Self { options, ..self }
+    pub fn apply_options<R>(mut self, opt_fn: impl Fn(&mut HtmlExtractOptions) -> R) -> Self {
+        opt_fn(&mut self.options);
+        self
     }
 
     pub fn str_from(&self, start: usize) -> &'a str {
         &self.input[start..self.cursor.pos()]
     }
 
-    fn consume(&mut self, f: impl FnOnce(&mut Cursor<'a>)) -> &'a str {
+    fn consume<R>(&mut self, f: impl FnOnce(&mut Cursor<'a>) -> R) -> &'a str {
         let start = self.cursor.pos();
         f(&mut self.cursor);
         self.str_from(start)
@@ -80,14 +83,12 @@ impl<'a> HtmlExtractor<'a> {
 
     fn consume_tag_name(&mut self) -> &'a str {
         self.consume(|s| {
-            // first char is always valid start char
-            s.bump();
-            s.eat_while(is_name_char);
+            s.eat_until(move |c| c.is_ascii_whitespace() || c == '>')
         })
     }
 
     fn consume_whitespace(&mut self) {
-        self.cursor.eat_while(|c| c.is_whitespace());
+        self.cursor.eat_while(|c| c.is_ascii_whitespace());
     }
 
     fn in_start_tag(&mut self) -> bool {
@@ -107,48 +108,45 @@ impl<'a> HtmlExtractor<'a> {
         // e.g. <div>
 
         // valid start tag
-        self.cursor
-            .eat_until_cursor(|c| c.first() == '<' && is_name_start_char(c.second()));
-        self.cursor.bump();
+        loop {
+            self.cursor.eat_until_after_char(b'<');
+            if self.cursor.first() != '/' && !self.cursor.first().is_ascii_whitespace() {
+                break;
+            }
+        }
         self.in_start_tag = true;
 
         // eat tag name
-        let tag_name = self.consume_tag_name();
-        let end_or_space = self.cursor.bump().unwrap_or('\0');
-
-        match tag_name {
+        match self.consume_tag_name() {
             // use `EcmaExtractor` to extract JS str lit
             "script" => {
                 // skip start tag
                 // TODO: handle class name here?
-                if end_or_space != '>' {
-                    self.cursor.eat_until(|c| c == '>').bump();
+                if self.cursor.bump() != '>' {
+                    self.cursor.eat_until_after_char(b'>');
                 }
 
                 // read js content
-                let js = self.consume(|c| {
-                    c.eat_until_cursor(|c| {
-                        c.first() == '<' && c.second() == '/' && c.as_str().starts_with("</script>")
-                    });
+                let js = self.consume(|c| loop {
+                    c.eat_until_after_char(b'<');
+                    if c.eat_str("/script>") {
+                        break;
+                    }
                 });
-
-                // skip end tag
-                self.cursor.eat_while(|c| c != '>');
-                self.cursor.bump();
 
                 self.in_js = Some(Box::new(EcmaExtractor::new(js)));
                 return Some(CandidateValue::Ecma);
             }
             // skip
             "style" => {
-                self.cursor.eat_while(|c| c != '>');
-                self.cursor.bump();
+                self.cursor.eat_until_after_char(b'>');
 
-                self.cursor
-                    .eat_while_cursor(|c| c.first() != '<' && c.second() != '/');
-
-                self.cursor.eat_while(|c| c != '>');
-                self.cursor.bump();
+                loop {
+                    self.cursor.eat_until_after_char(b'<');
+                    if self.cursor.eat_str("/style>") {
+                        break;
+                    }
+                }
 
                 return None;
             }
@@ -159,33 +157,39 @@ impl<'a> HtmlExtractor<'a> {
     }
 
     fn consume_attrs(&mut self) -> Option<CandidateValue<'a>> {
-        self.cursor.eat_while(|c| c.is_whitespace());
+        self.consume_whitespace();
         if self.cursor.is_eof() {
             return None;
         }
 
         // <div class="foo"> <div class> <div class >
-        let name = self.consume(|s| s.eat_while(|c| c != '=' && c != '>' && !c.is_whitespace()));
+        let name = self.consume(|s| {
+            s.eat_while(|c| {
+                match_byte! {c,
+                    b'=' | b'>' | b'/' | b'\n' | b'\r' | b'\t' | b' ' | b'\x0C' => false,
+                    _ => true
+                }
+            })
+        });
 
-        if self.options.class_only && !name.starts_with("class") && !name.starts_with(':') {
-            return None;
-        }
-
-        match self.cursor.first() {
+        match self.cursor.bump() {
             '=' => {
-                // jump the `=`
-                self.cursor.bump();
                 // jump the `"` or `{` (svelte)
-                let start = self.cursor.bump().unwrap_or('\0');
+                let start = self.cursor.bump();
 
                 // filter out invalid start
                 if start != '"' && start != '{' {
                     return None;
                 }
 
-                let end = if start == '{' { '}' } else { '"' };
+                let end = if start == '{' { b'}' } else { b'"' };
 
-                let value = self.consume(|c| c.eat_while(|c| c != end));
+                let value = self.consume(|c| c.eat_until_after_char(end));
+
+                // TODO: determine these functions at init, prevent runtime check
+                if self.options.class_only && !name.starts_with("class") && !name.starts_with(':') {
+                    return None;
+                }
 
                 // svelte class
                 if self.options.file_type == FileType::Svelte && name.starts_with("class:") {
@@ -200,17 +204,30 @@ impl<'a> HtmlExtractor<'a> {
                     self.extend_js_extractor(EcmaExtractor::new(value));
                     return Some(CandidateValue::Ecma);
                 }
+
                 return Some(CandidateValue::Plain(value));
             }
+            '>' => {
+                self.in_start_tag = false;
+            }
+            '/' if self.cursor.first() == '>' => {
+                // self closed tag
+                self.cursor.bump();
+                self.in_start_tag = false;
+            }
             _ => {
-                if self.cursor.first() == '>' {
-                    self.cursor.bump();
-                    self.in_start_tag = false;
-                    return None;
-                } else {
-                    self.cursor.bump();
-                    self.consume_whitespace();
-                }
+                self.consume_whitespace();
+            }
+        }
+        None
+    }
+
+    fn next_js(&mut self) -> Option<&'a str> {
+        if let Some(js) = self.in_js.as_mut() {
+            if let Some(value) = js.next() {
+                return Some(value);
+            } else {
+                self.in_js = None;
             }
         }
         None
@@ -222,12 +239,8 @@ impl<'a> Iterator for HtmlExtractor<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if let Some(js) = self.in_js.as_mut() {
-                if let Some(value) = js.next() {
-                    return Some(value);
-                } else {
-                    self.in_js = None;
-                }
+            if let Some(js_lit) = self.next_js() {
+                return Some(js_lit);
             }
 
             if self.cursor.is_eof() {
@@ -235,48 +248,14 @@ impl<'a> Iterator for HtmlExtractor<'a> {
             }
 
             if self.in_start_tag() {
-                match self.consume_attrs() {
-                    Some(CandidateValue::Plain(s)) => {
-                        let res = Some(s);
-                        self.consume(|s| {
-                            s.eat_while(|c| c.is_whitespace());
-                        });
-                        return res;
-                    }
-                    Some(CandidateValue::Ecma) => {
-                        if let Some(js) = self.in_js.as_mut() {
-                            if let Some(value) = js.next() {
-                                return Some(value);
-                            } else {
-                                self.in_js = None;
-                                continue;
-                            }
-                        }
-                    }
-                    None => {
-                        continue;
-                    }
+                if let Some(CandidateValue::Plain(s)) = self.consume_attrs() {
+                    return Some(s);
                 }
             } else {
                 self.consume_until_value();
-                continue;
             }
         }
     }
-}
-
-fn is_name_start_char(c: char) -> bool {
-    matches!(
-        c,
-        'a'..='z' | 'A'..='Z' | ':' | '_' | '\u{C0}'..='\u{D6}' | '\u{D8}'..='\u{F6}' | '\u{F8}'..='\u{2FF}' | '\u{370}'..='\u{37D}' | '\u{37F}'..='\u{1FFF}' | '\u{200C}'..='\u{200D}' | '\u{2070}'..='\u{218F}' | '\u{2C00}'..='\u{2FEF}' | '\u{3001}'..='\u{D7FF}' | '\u{F900}'..='\u{FDCF}' | '\u{FDF0}'..='\u{FFFD}' | '\u{10000}'..='\u{EFFFF}'
-    )
-}
-
-fn is_name_char(c: char) -> bool {
-    matches!(
-        c,
-        'a'..='z' | 'A'..='Z' | ':' | '_' | '-' | '.' | '0'..='9' | '\u{B7}' | '\u{0300}'..='\u{036F}' | '\u{203F}'..='\u{2040}'
-    ) || is_name_start_char(c)
 }
 
 #[cfg(test)]
@@ -298,9 +277,9 @@ mod tests {
                 }
             </style>
             "#;
-        let extractor = HtmlExtractor::new(input).with_options(HtmlExtractOptions {
-            class_only: false,
-            file_type: FileType::Vue,
+        let extractor = HtmlExtractor::new(input).apply_options(|o| {
+            // o.class_only = true;
+            o.file_type = FileType::Vue;
         });
 
         let expected = [
@@ -321,9 +300,8 @@ mod tests {
                 <a href="https://google.com" class="flex" />
             </div>
             "#;
-        let extractor = HtmlExtractor::new(input).with_options(HtmlExtractOptions {
-            class_only: false,
-            file_type: FileType::Svelte,
+        let extractor = HtmlExtractor::new(input).apply_options(|o| {
+            o.file_type = FileType::Svelte;
         });
 
         let expected = [

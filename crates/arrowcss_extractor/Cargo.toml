@@ -9,6 +9,7 @@ edition = "2021"
 cssparser-macros = { workspace = true }
 cssparser        = { workspace = true }
 rustc-hash       = { workspace = true }
+memchr           = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

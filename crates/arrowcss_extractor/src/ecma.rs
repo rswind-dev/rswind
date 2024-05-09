@@ -35,7 +35,7 @@ impl<'a> EcmaExtractor<'a> {
     }
 
     pub(crate) fn consume_until_string(&mut self) -> Result<StringType, ()> {
-        while let Some(c) = self.cursor.bump() {
+        while let Some(c) = self.cursor.try_bump() {
             match_byte! { c,
                 b'/' => {
                     match self.cursor.first() {
@@ -67,7 +67,7 @@ impl<'a> EcmaExtractor<'a> {
         self.cursor.bump();
 
         let mut depth = 1usize;
-        while let Some(c) = self.cursor.bump() {
+        while let Some(c) = self.cursor.try_bump() {
             match c {
                 '/' if self.cursor.first() == '*' => {
                     self.cursor.bump();
@@ -99,7 +99,7 @@ impl<'a> EcmaExtractor<'a> {
     }
 
     pub fn consume_single_quoted_string(&mut self) -> bool {
-        while let Some(c) = self.cursor.bump() {
+        while let Some(c) = self.cursor.try_bump() {
             match c {
                 '\'' => {
                     return true;
@@ -114,7 +114,7 @@ impl<'a> EcmaExtractor<'a> {
     }
 
     pub fn consume_double_quoted_string(&mut self) -> bool {
-        while let Some(c) = self.cursor.bump() {
+        while let Some(c) = self.cursor.try_bump() {
             match c {
                 '"' => {
                     return true;
