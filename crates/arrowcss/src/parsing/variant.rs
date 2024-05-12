@@ -127,14 +127,6 @@ impl<'a> VariantParser<'a> {
     }
 
     pub fn parse(&mut self, ctx: &Context) -> Option<VariantCandidate<'a>> {
-        if self.current().starts_with('[') && self.current().ends_with(']') {
-            // let arbitrary = self.current().get(1..self.current().len() - 1)?;
-            todo!("parse arbitrary")
-        }
-
-        let mut processor: Option<Variant> = None;
-        let mut composes = smallvec![];
-
         // find key
         if let Some(processor) = ctx.variants.get(self.current()) {
             self.key = Some(self.current());
@@ -147,12 +139,21 @@ impl<'a> VariantParser<'a> {
                 layers: SmallVec::new(),
                 processor: processor.clone(),
             });
-        } else if self.current().starts_with('@') {
+        }
+        let mut processor: Option<Variant> = None;
+        let mut composes = smallvec![];
+
+        if self.current().starts_with('@') {
             self.key = Some("@");
             self.pos.advance(1);
         } else {
-            let mut iter = self.current().match_indices('-');
-            let (next, _) = iter.next()?;
+            if self.current().starts_with('[') && self.current().ends_with(']') {
+                // let arbitrary = self.current().get(1..self.current().len() - 1)?;
+                todo!("parse arbitrary")
+            }
+            // let mut iter = self.current().match_indices('-');
+            let mut iter = memchr::memchr_iter(b'-', self.current().as_bytes());
+            let next = iter.next()?;
             let key = self.current().get(0..next)?;
             self.key = Some(key);
             if let Some(v) = ctx.variants.get(key) {
@@ -163,7 +164,7 @@ impl<'a> VariantParser<'a> {
                     self.pos.advance(key.len());
 
                     let mut prev_i = next;
-                    for (i, _) in iter {
+                    for i in iter {
                         if let Some((next_key, Some(compose_handler))) =
                             key_str.get(prev_i + 1..i).and_then(|next_key| {
                                 ctx.variants

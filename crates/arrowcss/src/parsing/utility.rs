@@ -67,10 +67,7 @@ impl<'a> UtilityParser<'a> {
         }
     }
 
-    fn current<'b>(&self) -> &'b str
-    where
-        'a: 'b,
-    {
+    fn current(&self) -> &'a str {
         &self.input[self.pos.start..self.pos.end]
     }
 
@@ -114,6 +111,19 @@ impl<'a> UtilityParser<'a> {
     }
 
     pub fn parse(&mut self, ctx: &Context) -> Option<UtilityCandidate<'a>> {
+        // find key
+        if ctx.utilities.get(self.current()).is_some() {
+            self.key = Some(self.current());
+            return Some(UtilityCandidate {
+                key: self.key?,
+                value: None,
+                modifier: None,
+                arbitrary: false,
+                important: self.is_important,
+                negative: self.is_negative,
+            });
+        }
+
         self.parse_important();
         self.parse_negative();
 
@@ -130,28 +140,17 @@ impl<'a> UtilityParser<'a> {
             });
         }
 
-        // find key
-        if ctx.utilities.get(self.current()).is_some() {
-            self.key = Some(self.current());
-            return Some(UtilityCandidate {
-                key: self.key?,
-                value: None,
-                modifier: None,
-                arbitrary: false,
-                important: self.is_important,
-                negative: self.is_negative,
-            });
-        } else {
-            for (i, _) in self.current().match_indices('-').rev() {
-                let key = self.current().get(0..i)?;
-                if ctx.utilities.get(key).is_some() {
-                    self.key = Some(key);
-                    self.pos.start += i + 1;
-                    break;
-                }
+        // for (i, _) in self.current().match_indices('-').rev() {
+        for i in memchr::memchr_iter(b'-', self.current().as_bytes()).rev() {
+            let (key, _value) = self.current().split_at(i);
+            if let Some(_utility) = ctx.utilities.get(key) {
+                self.key = Some(key);
+                self.pos.start += i + 1;
+                break;
             }
         }
 
+        // if no key is found, return None
         self.key?;
 
         // find value and modifier\
