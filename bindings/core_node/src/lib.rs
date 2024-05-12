@@ -1,4 +1,5 @@
-use arrowcss::{app::Application, create_app as _create_app, source::SourceInput};
+use arrowcss::{app::Application, create_app as _create_app};
+use arrowcss_extractor::{Extractable, Extractor};
 
 #[macro_use]
 extern crate napi_derive;
@@ -22,7 +23,7 @@ impl ArrowCss {
 
     #[napi]
     pub fn generate(&mut self, css: String, typ: String) -> String {
-        self.app.run(SourceInput::new(&css, &*typ))
+        self.app.run_with(Extractor::new(&css, &*typ).extract())
     }
 }
 

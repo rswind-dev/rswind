@@ -9,7 +9,6 @@ pub mod ordering;
 pub mod parsing;
 pub mod preset;
 pub mod process;
-pub mod source;
 pub mod theme;
 pub mod themes;
 pub mod types;
