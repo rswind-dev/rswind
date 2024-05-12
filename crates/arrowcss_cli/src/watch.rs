@@ -1,13 +1,15 @@
 use std::{sync::mpsc, time::Duration};
 
-use arrowcss::{app::Application, common::ScopeFunctions, source::SourceInput};
+use arrowcss::app::Application;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{
+    ParallelBridge, ParallelIterator,
+};
 
-use crate::read::{get_files, ReadFromFile};
+use crate::{read::{get_files}, run::RunParallel};
 
-pub(crate) trait WatchApp {
+pub trait WatchApp {
     fn watch(&mut self, dir: &str);
 }
 
@@ -22,20 +24,10 @@ impl WatchApp for Application {
             .watch(std::path::Path::new(dir), RecursiveMode::NonRecursive)
             .unwrap();
 
-        let strict_mode = self.strict_mode;
-        let files = get_files(dir);
-        let files = files
-            .par_iter()
-            .map(|f| SourceInput::from_file(f).run_if(strict_mode, |s| s.as_unknown()));
-
-        self.run_parallel(files);
+        self.run_parallel(get_files(dir));
 
         for change in rx {
-            self.run_parallel(
-                change.unwrap().par_iter().map(|f| {
-                    SourceInput::from_file(&f.path).run_if(strict_mode, |s| s.as_unknown())
-                }),
-            );
+            self.run_parallel(change.unwrap().into_iter().map(|e| e.path).par_bridge());
         }
     }
 }

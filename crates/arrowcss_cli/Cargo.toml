@@ -3,8 +3,15 @@ name    = "arrowcss_cli"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+bench = true
+
+[features]
+bench = []
+
 [dependencies]
-arrowcss = { workspace = true }
+arrowcss           = { workspace = true }
+arrowcss_extractor = { workspace = true }
 
 config                = { workspace = true }
 clap                  = { workspace = true, features = ["derive"] }
@@ -13,6 +20,13 @@ notify                = { workspace = true }
 notify-debouncer-mini = { workspace = true }
 rayon                 = { workspace = true }
 walkdir               = { workspace = true }
+rustc-hash            = { workspace = true }
+smol_str              = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }
+dotenv = { workspace = true }
+
+[[bench]]
+name    = "multiple_files"
+harness = false

@@ -1,11 +1,14 @@
-use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString, source::SourceInput};
+use std::{fs::OpenOptions, io::Write};
+
+use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString};
 use clap::{arg, command, Parser};
 use config::{Config, File};
-use rayon::prelude::*;
-use read::{get_files, ReadFromFile};
+use read::get_files;
+use run::RunParallel;
 use watch::WatchApp;
 
 mod read;
+mod run;
 mod watch;
 
 #[derive(Debug, Parser)]
@@ -14,13 +17,13 @@ pub struct Opts {
     #[command(subcommand)]
     pub cmd: Option<SubCommand>,
 
-    #[arg(short, long, default_value = "example/html")]
+    #[arg(short)]
     pub input: String,
 
-    #[arg(short, long, help = "Output path (default: stdout)")]
+    #[arg(short, help = "Output path (default: stdout)")]
     pub output: Option<String>,
 
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, default_value_t = false)]
     pub watch: bool,
 
     #[arg(short, long, help = "Enable strict mode")]
@@ -60,15 +63,23 @@ fn main() {
     let mut app = Application::new(config).init();
 
     match opts.cmd {
+        None if opts.watch => {
+            app.watch(&opts.input);
+        }
         None => {
-            if opts.watch {
-                app.watch(&opts.input);
+            let res = app.run_parallel(get_files(&opts.input));
+            if opts.output.is_some() {
+                OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .append(false)
+                    .open(opts.output.unwrap())
+                    .unwrap()
+                    .write(res.as_bytes())
+                    .unwrap();
             } else {
-                app.run_parallel(
-                    get_files(&opts.input)
-                        .par_iter()
-                        .map(SourceInput::from_file),
-                );
+                println!("{}", res);
             }
         }
         Some(SubCommand::Debug(cmd)) => {

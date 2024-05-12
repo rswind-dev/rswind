@@ -3,25 +3,49 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use arrowcss::source::SourceInput;
+use arrowcss_extractor::{
+    ecma::EcmaExtractor, html::HtmlExtractor, BasicExtractor, Extractable, InputKind,
+    UniqueCandidate,
+};
 use walkdir::WalkDir;
 
 static ALLOWED_EXTENSIONS: [&str; 7] = ["html", "vue", "js", "jsx", "ts", "tsx", "svelte"];
 
-pub(crate) trait ReadFromFile {
-    fn from_file(f: &PathBuf) -> Self;
+pub struct FileInput {
+    content: String,
+    kind: InputKind,
 }
 
-impl ReadFromFile for SourceInput<String> {
-    fn from_file(f: &PathBuf) -> Self {
-        Self::new(
-            read_to_string(f).unwrap(),
-            f.extension().unwrap().to_str().unwrap_or_default(),
-        )
+impl FileInput {
+    pub fn from_file(f: &PathBuf) -> Self {
+        Self {
+            content: read_to_string(f).unwrap(),
+            kind: InputKind::from(f.extension().unwrap().to_str().unwrap_or_default()),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn as_unknown(self) -> Self {
+        Self {
+            content: self.content,
+            kind: InputKind::Unknown,
+        }
     }
 }
 
-pub(crate) fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
+impl Extractable for FileInput {
+    fn extract(&self) -> impl Iterator<Item = &str> {
+        match self.kind {
+            InputKind::Html => HtmlExtractor::new(&self.content)
+                .apply_options(|o| o.class_only = true)
+                .filter_invalid(),
+            InputKind::Ecma => EcmaExtractor::new(&self.content).filter_invalid(),
+            InputKind::Unknown => BasicExtractor::new(&self.content).extract_inner(),
+        }
+    }
+}
+
+pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .min_depth(1)
         .into_iter()
