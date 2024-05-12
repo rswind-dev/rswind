@@ -1,9 +1,58 @@
-use std::{
-    collections::HashMap,
-    fmt::Debug,
-    hash::{BuildHasher, Hash},
-    ops::Deref,
-};
+use std::{fmt::Debug, ops::Deref};
+
+use smallvec::SmallVec;
+use smol_str::format_smolstr;
+
+pub trait StrReplaceExt {
+    fn replace_char(&self, chr: char, replacement: &str) -> smol_str::SmolStr;
+}
+
+impl StrReplaceExt for str {
+    fn replace_char(&self, chr: char, replacement: &str) -> smol_str::SmolStr {
+        if let Some(pos) = memchr::memchr(chr as u8, self.as_bytes()) {
+            return format_smolstr!("{}{}{}", &self[..pos], replacement, &self[pos + 1..]);
+        }
+        smol_str::SmolStr::from(self)
+    }
+}
+
+pub trait StrSplitExt {
+    fn split_toplevel(&self, delimiter: u8) -> Option<SmallVec<[&str; 2]>>;
+}
+
+impl StrSplitExt for str {
+    fn split_toplevel(&self, delimiter: u8) -> Option<SmallVec<[&str; 2]>> {
+        let mut result = smallvec::smallvec![];
+        let mut start = 0;
+        let mut in_brackets = 0;
+
+        let bytes = self.as_bytes();
+
+        for index in memchr::memchr3_iter(delimiter, b'[', b']', bytes) {
+            match bytes[index] {
+                b':' if in_brackets == 0 => {
+                    result.push(&self[start..index]);
+                    start = index + 1;
+                }
+                b'[' => {
+                    in_brackets += 1;
+                }
+                b']' => {
+                    in_brackets -= 1;
+
+                    if in_brackets < 0 {
+                        return None;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        result.push(&self[start..]);
+
+        Some(result)
+    }
+}
 
 pub trait BasicParser {
     fn advance(&mut self, n: usize);
@@ -57,17 +106,6 @@ impl<'a> Deref for MaybeArbitrary<'a> {
     }
 }
 
-pub trait MapExtendedExt<A> {
-    fn extended<T: IntoIterator<Item = A>>(self, other: T) -> Self;
-}
-
-impl<K: Hash + Eq, V, S: BuildHasher> MapExtendedExt<(K, V)> for HashMap<K, V, S> {
-    fn extended<T: IntoIterator<Item = (K, V)>>(mut self, other: T) -> Self {
-        self.extend(other);
-        self
-    }
-}
-
 pub trait Inspector {
     fn dbg(self) -> Self;
     fn also(self, f: impl FnOnce(&Self)) -> Self;
@@ -102,5 +140,16 @@ impl<T> ScopeFunctions for T {
         } else {
             self
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_str_replace() {
+        let s = "hello";
+        assert_eq!(s.replace_char('e', "abc").as_str(), "habcllo");
     }
 }
