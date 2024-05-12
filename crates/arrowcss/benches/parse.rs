@@ -1,8 +1,8 @@
 use std::{ops::Deref, rc::Rc};
 
-use arrowcss::source::SourceInput;
-use arrowcss_extractor::Extractor;
-use criterion::{criterion_group, criterion_main, Criterion};
+use arrowcss_extractor::{Extractable, Extractor, InputKind};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use rayon::iter::ParallelBridge;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("create", |b| {
@@ -14,30 +14,41 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("parse basic", |b| {
         b.iter(|| {
             let mut app = arrowcss::create_app();
-            let input = SourceInput::Html(r#"<div class="flex">"#);
-            let _a = app.run(input);
+            let input = Extractor::new(r#"<div class="flex">"#, InputKind::Html);
+            let _a = app.run_with(input.extract());
         });
     });
 
-    c.bench_function("Large File", |b| {
-        b.iter(|| {
-            let mut app = arrowcss::create_app();
-            let input = SourceInput::Html(include_str!("fixtures/template_html"));
-            let _a = app.run(input);
-        });
-    });
+    let mut group = c.benchmark_group("LargeFile");
 
-    c.bench_function("Large File Without Extract", |b| {
-        let extracted = Rc::new(
-            SourceInput::Html(include_str!("fixtures/template_html"))
-                .extract()
-                .collect::<Vec<_>>(),
-        );
-        b.iter(|| {
-            let mut app = arrowcss::create_app();
-            let _a = app.run_with(extracted.clone().deref().iter());
+    for i in [1, 10, 1000].iter() {
+        let input = include_str!("fixtures/template_html").repeat(*i);
+        group.bench_with_input(BenchmarkId::new("Normal", i), i, |b, _| {
+            b.iter(|| {
+                let mut app = arrowcss::create_app();
+                let input = Extractor::new(&input, InputKind::Html);
+                let _a = app.run_with(input.extract());
+            });
         });
-    });
+
+        group.bench_with_input(BenchmarkId::new("Parallel", i), i, |b, _| {
+            b.iter(|| {
+                let mut app = arrowcss::create_app();
+                let input = Extractor::new(&input, InputKind::Html);
+                let _a = app.run_parallel_with(input.extract().par_bridge());
+            });
+        });
+
+        group.bench_with_input(BenchmarkId::new("Without Extract", i), i, |b, _| {
+            let extracted = Extractor::new(&input, InputKind::Html);
+            let extracted = Rc::new(extracted.extract().collect::<Vec<_>>());
+
+            b.iter(move || {
+                let mut app = arrowcss::create_app();
+                let _a = app.run_with(extracted.clone().deref().into_iter());
+            });
+        });
+    }
 }
 
 criterion_group! { benches, criterion_benchmark }
