@@ -1,9 +1,9 @@
-import init, { generate } from "../pkg/binding_core_wasm.js";
-import wasm from '../pkg/binding_core_wasm_bg.wasm';
+import init, { generate, generateWith } from './binding/binding_core_wasm.js';
+import wasm from './binding/binding_core_wasm_bg.wasm';
 
-// @ts-ignore
-function _extract() {
-  const set = new Set();
+// 
+function extract(): Set<string> {
+  const set = new Set<string>();
   const nodeList = document.body.querySelectorAll("*");
   for (const node of nodeList) {
     for (const className of node.classList) {
@@ -13,29 +13,48 @@ function _extract() {
   return set;
 }
 
+// @ts-expect-error: native option is not yet implemented
+function generateNative(): string {
+  return generate(document.body.innerHTML, "html");
+}
+
 let observer: MutationObserver | null = null;
+let styleElem: HTMLStyleElement | null = null;
+
+function getStyleElement(): HTMLStyleElement {
+  if (styleElem) {
+    return styleElem;
+  }
+
+  const style = document.createElement("style");
+  style.id = "__arrow_style__";
+  document.head.appendChild(style);
+  styleElem = style;
+  return style;
+}
+
+function updateCss(candidates: string[] = [...extract()]) {
+  const css = generateWith(candidates);
+  const element = getStyleElement();
+
+  element.textContent = css;
+}
 
 async function main() {
   if (document.readyState !== "complete") {
-      document.addEventListener("DOMContentLoaded", main);
-      return;
+    document.addEventListener("DOMContentLoaded", main);
+    return;
   }
-  let html = document.body.innerHTML;
-  let css = generate(html, "html");
-  let style = document.createElement("style");
-  style.id = "__arrow_style__";
-  style.textContent = css;
-  document.head.appendChild(style);
+
+  updateCss();
 
   // MutationObserver
   if (!observer) {
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        console.log(mutation);
-        let html = document.body.innerHTML;
-        let css = generate(html, "html");
-        let style = document.getElementById("__arrow_style__")!;
-        style.textContent = css;
+        if (mutation.target instanceof Element) {
+          updateCss([...mutation.target.classList]);
+        }
       });
     });
 
