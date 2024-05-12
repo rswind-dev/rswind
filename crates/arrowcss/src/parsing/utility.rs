@@ -4,7 +4,10 @@ use smol_str::{format_smolstr, SmolStr};
 use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
-    context::{utilities::UtilityStorage, Context},
+    context::{
+        utilities::{UtilityStorage, UtilityStorageImpl},
+        Context,
+    },
     css::rule::RuleList,
     ordering::OrderingKey,
     process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityGroup, UtilityHandler},
@@ -110,9 +113,9 @@ impl<'a> UtilityParser<'a> {
         }
     }
 
-    pub fn parse(&mut self, ctx: &Context) -> Option<UtilityCandidate<'a>> {
+    pub fn parse(&mut self, utilities: &UtilityStorageImpl) -> Option<UtilityCandidate<'a>> {
         // find key
-        if ctx.utilities.get(self.current()).is_some() {
+        if utilities.get(self.current()).is_some() {
             self.key = Some(self.current());
             return Some(UtilityCandidate {
                 key: self.key?,
@@ -143,7 +146,7 @@ impl<'a> UtilityParser<'a> {
         // for (i, _) in self.current().match_indices('-').rev() {
         for i in memchr::memchr_iter(b'-', self.current().as_bytes()).rev() {
             let (key, _value) = self.current().split_at(i);
-            if let Some(_utility) = ctx.utilities.get(key) {
+            if let Some(_utility) = utilities.get(key) {
                 self.key = Some(key);
                 self.pos.start += i + 1;
                 break;
@@ -188,7 +191,7 @@ pub struct UtilityBuilder<'i> {
     ctx: &'i mut Context,
     key: &'i str,
     theme_key: Option<&'i str>,
-    handler: UtilityHandler,
+    handler: Option<UtilityHandler>,
     modifier: Option<ModifierProcessor>,
     validator: Option<Box<dyn TypeValidator>>,
     additional_css: Option<RuleList>,
@@ -204,7 +207,7 @@ impl<'i> UtilityBuilder<'i> {
         Self {
             ctx,
             key,
-            handler: UtilityHandler::Dynamic(Box::new(handler)),
+            handler: Some(UtilityHandler::new(handler)),
             theme_key: None,
             supports_negative: false,
             supports_fraction: false,
@@ -281,7 +284,6 @@ impl<'i> Drop for UtilityBuilder<'i> {
                 .clone()
         });
         let validator = std::mem::take(&mut self.validator);
-        let handler = std::mem::take(&mut self.handler);
         let modifier = std::mem::take(&mut self.modifier);
 
         self.ctx.add_utility(
@@ -289,7 +291,7 @@ impl<'i> Drop for UtilityBuilder<'i> {
             Utility {
                 validator,
                 allowed_values,
-                handler,
+                handler: self.handler.take().unwrap(),
                 modifier,
                 supports_negative: self.supports_negative,
                 supports_fraction: self.supports_fraction,

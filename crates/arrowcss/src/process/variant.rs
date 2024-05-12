@@ -2,6 +2,7 @@ use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use crate::{
+    common::StrReplaceExt,
     css::{rule::RuleList, Rule},
     parsing::VariantCandidate,
 };
@@ -13,7 +14,7 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 pub trait VariantHandlerExt {
-    fn handle(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList;
+    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList;
 }
 
 #[derive(Debug, Clone, Copy, Hash)]
@@ -94,7 +95,7 @@ impl Variant {
         }
     }
 
-    pub fn new_composable(handler: fn(RuleList, VariantCandidate) -> RuleList) -> Self {
+    pub fn new_composable(handler: fn(RuleList, &VariantCandidate) -> RuleList) -> Self {
         Self {
             handler: VariantHandler::Composable(ComposableHandler::new(handler)),
             composable: true,
@@ -105,7 +106,7 @@ impl Variant {
         }
     }
 
-    pub fn new_dynamic(handler: fn(RuleList, VariantCandidate) -> RuleList, nested: bool) -> Self {
+    pub fn new_dynamic(handler: fn(RuleList, &VariantCandidate) -> RuleList, nested: bool) -> Self {
         Self {
             handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
             composable: true,
@@ -122,7 +123,7 @@ impl Variant {
         }
     }
 
-    pub fn process(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    pub fn process(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
         match &self.handler {
             VariantHandler::Static(handler) => handler.handle(candidate, rule),
             VariantHandler::Dynamic(handler) => handler.handle(candidate, rule),
@@ -139,7 +140,7 @@ impl Variant {
 }
 
 impl VariantHandlerExt for Variant {
-    fn handle(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
         self.process(candidate, rule)
     }
 }
@@ -190,11 +191,11 @@ impl StaticHandler {
 }
 
 impl VariantHandlerExt for StaticHandler {
-    fn handle(&self, _candidate: VariantCandidate<'_>, rules: RuleList) -> RuleList {
+    fn handle(&self, _candidate: &VariantCandidate<'_>, rules: RuleList) -> RuleList {
         match self {
             Self::Selector(a) | Self::PseudoElement(a) => rules
                 .into_iter()
-                .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
+                .map(|rule| rule.modify_with(|selector| selector.replace_char('&', a)))
                 .collect(),
             Self::Nested(a) => RuleList::new(Rule {
                 selector: a.clone(),
@@ -207,7 +208,7 @@ impl VariantHandlerExt for StaticHandler {
                     rules
                         .clone()
                         .into_iter()
-                        .map(|rule| rule.modify_with(|selector| selector.replace('&', a)))
+                        .map(|rule| rule.modify_with(|selector| selector.replace_char('&', a)))
                 })
                 .collect(),
         }
@@ -216,18 +217,18 @@ impl VariantHandlerExt for StaticHandler {
 
 #[derive(Debug, Clone, Hash)]
 pub struct DynamicHandler {
-    pub handler: fn(RuleList, VariantCandidate) -> RuleList,
+    pub handler: fn(RuleList, &VariantCandidate) -> RuleList,
     pub composable: bool,
 }
 
 impl VariantHandlerExt for DynamicHandler {
-    fn handle(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
         (self.handler)(rule, candidate)
     }
 }
 
 impl DynamicHandler {
-    pub fn new(handler: fn(RuleList, VariantCandidate) -> RuleList) -> Self {
+    pub fn new(handler: fn(RuleList, &VariantCandidate) -> RuleList) -> Self {
         Self {
             handler,
             composable: true,
@@ -237,12 +238,12 @@ impl DynamicHandler {
 
 #[derive(Debug, Clone, Hash)]
 pub struct ComposableHandler {
-    pub handler: fn(RuleList, VariantCandidate) -> RuleList,
+    pub handler: fn(RuleList, &VariantCandidate) -> RuleList,
     pub composable: bool,
 }
 
 impl ComposableHandler {
-    pub fn new(handler: fn(RuleList, VariantCandidate) -> RuleList) -> Self {
+    pub fn new(handler: fn(RuleList, &VariantCandidate) -> RuleList) -> Self {
         Self {
             handler,
             composable: true,
@@ -258,7 +259,7 @@ impl ComposableHandler {
 }
 
 impl VariantHandlerExt for ComposableHandler {
-    fn handle(&self, candidate: VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
         (self.handler)(rule, candidate)
     }
 }
@@ -283,8 +284,8 @@ mod tests {
         ctx.add_variant("active", ["&:active"]);
 
         let candidates = vec![
-            VariantParser::new("hover").parse(&ctx).unwrap(),
-            VariantParser::new("active").parse(&ctx).unwrap(),
+            VariantParser::new("hover").parse(&ctx.variants).unwrap(),
+            VariantParser::new("active").parse(&ctx.variants).unwrap(),
         ];
 
         let _input = css! {
@@ -309,7 +310,7 @@ mod tests {
                 (processor, candidate)
             })
             .fold(selector, |acc, (processor, candidate)| {
-                processor.process(candidate, acc)
+                processor.process(&candidate, acc)
             });
     }
 
@@ -319,7 +320,7 @@ mod tests {
         ctx.add_variant("hover", ["&:hover"]);
         ctx.add_variant("active", ["&:active"]);
 
-        let candidate = VariantParser::new("hover").parse(&ctx).unwrap();
+        let candidate = VariantParser::new("hover").parse(&ctx.variants).unwrap();
         let input = css! {
             ".flex" {
                 "display": "flex";
@@ -340,7 +341,7 @@ mod tests {
             .to_rule_list()
         });
 
-        let res = variant.handle(candidate, input);
+        let res = variant.handle(&candidate, input);
 
         println!("{:#?}", res);
     }

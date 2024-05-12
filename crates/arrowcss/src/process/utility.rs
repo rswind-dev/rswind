@@ -17,31 +17,18 @@ pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static 
 #[rustfmt::skip]
 impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
-pub enum UtilityHandler {
-    Static(fn(MetaData, SmolStr) -> Rule),
-    Dynamic(Box<dyn RuleMatchingFn>),
-}
-
-lazy_static! {
-    pub static ref NOOP: fn(MetaData, SmolStr) -> Rule = |_, _| Rule::default();
-}
-
-impl Default for UtilityHandler {
-    fn default() -> Self {
-        Self::Static(*NOOP)
-    }
-}
+pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
 
 impl UtilityHandler {
+    pub fn new(handler: impl RuleMatchingFn + 'static) -> Self {
+        Self(Box::new(handler))
+    }
+
     pub fn call(&self, meta: MetaData, value: SmolStr) -> Rule {
-        match self {
-            Self::Static(handler) => handler(meta, value),
-            Self::Dynamic(handler) => handler(meta, value),
-        }
+        (self.0)(meta, value)
     }
 }
 
-#[derive(Default)]
 pub struct Utility {
     pub handler: UtilityHandler,
 
@@ -191,8 +178,16 @@ impl<F: RuleMatchingFn + 'static> From<F> for Utility {
 impl Utility {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
-            handler: UtilityHandler::Dynamic(Box::new(handler)),
-            ..Default::default()
+            handler: UtilityHandler(Box::new(handler)),
+            supports_negative: false,
+            supports_fraction: false,
+            allowed_values: None,
+            modifier: None,
+            validator: None,
+            wrapper: None,
+            additional_css: None,
+            ordering_key: None,
+            group: None,
         }
     }
 

@@ -3,13 +3,14 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-use cssparser::serialize_identifier;
+use cssparser::serialize_name;
 use rustc_hash::{FxHashMap as HashMap, FxHasher};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
+    common::StrReplaceExt,
     css::{rule::RuleList, Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::{UtilityParser, VariantCandidate, VariantParser},
@@ -22,10 +23,12 @@ use crate::{
 
 pub mod utilities;
 
+pub type VariantStorage = HashMap<SmolStr, Variant>;
+
 #[derive(Default)]
 pub struct Context {
     pub utilities: UtilityStorageImpl,
-    pub variants: HashMap<SmolStr, Variant>,
+    pub variants: VariantStorage,
     pub theme: Theme,
 }
 
@@ -65,7 +68,7 @@ impl Context {
     pub fn add_variant_fn(
         &mut self,
         key: &str,
-        func: fn(RuleList, VariantCandidate) -> RuleList,
+        func: fn(RuleList, &VariantCandidate) -> RuleList,
         nested: bool,
     ) -> &Self {
         self.variants
@@ -76,7 +79,7 @@ impl Context {
     pub fn add_variant_composable(
         &mut self,
         key: &str,
-        handler: fn(RuleList, VariantCandidate) -> RuleList,
+        handler: fn(RuleList, &VariantCandidate) -> RuleList,
     ) -> &mut Self {
         self.variants
             .insert(key.into(), Variant::new_composable(handler));
@@ -125,11 +128,11 @@ impl Context {
         let mut parts: SmallVec<[&str; 2]> = value.split(TopLevelPattern::new(':')).collect();
 
         let utility = parts.pop()?;
-        let utility_candidate = UtilityParser::new(utility).parse(self)?;
+        let utility_candidate = UtilityParser::new(utility).parse(&self.utilities)?;
 
         let vs = parts
             .into_iter()
-            .map(|v| VariantParser::new(v).parse(self))
+            .map(|v| VariantParser::new(v).parse(&self.variants))
             .collect::<Option<SmallVec<[_; 2]>>>()?;
 
         let variants = vs
@@ -150,11 +153,12 @@ impl Context {
             .iter()
             .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
-        let mut w = String::with_capacity(value.len() + 5);
-        w.write_char('.').ok()?;
-        serialize_identifier(value, &mut w).ok()?;
+        let mut writer = smol_str::Writer::new();
+        writer.write_str(".").ok()?;
+        serialize_name(value, &mut writer).ok()?;
+        let w = SmolStr::from(writer);
 
-        node = node.modify_with(|s| s.replace('&', &w));
+        node = node.modify_with(|s| s.replace_char('&', &w));
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 

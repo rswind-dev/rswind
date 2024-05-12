@@ -1,7 +1,7 @@
 use smol_str::format_smolstr;
 
 use crate::{
-    common::MaybeArbitrary,
+    common::{MaybeArbitrary, StrReplaceExt},
     context::Context,
     process::{Variant, VariantOrdering},
 };
@@ -89,11 +89,11 @@ pub fn load_variants(ctx: &mut Context) {
     );
 
     ctx.add_variant_composable("has", |rule, _| {
-        rule.modify_with(|s| format_smolstr!("&:has({})", s.replace('&', "*")))
+        rule.modify_with(|s| format_smolstr!("&:has({})", s.replace_char('&', "*")))
     });
 
     ctx.add_variant_composable("not", |rule, _| {
-        rule.modify_with(|s| format_smolstr!("&:not({})", s.replace('&', "*")))
+        rule.modify_with(|s| format_smolstr!("&:not({})", s.replace_char('&', "*")))
     });
 
     ctx.add_variant_composable("group", |rule, candidate| {
@@ -104,7 +104,7 @@ pub fn load_variants(ctx: &mut Context) {
             group_name
         );
 
-        rule.modify_with(|s| format_smolstr!("&:is({} *)", s.replace('&', &selector)))
+        rule.modify_with(|s| format_smolstr!("&:is({} *)", s.replace_char('&', &selector)))
     });
 
     ctx.add_variant_composable("peer", |rule, candidate| {
@@ -115,7 +115,7 @@ pub fn load_variants(ctx: &mut Context) {
             group_name
         );
 
-        rule.modify_with(|s| format_smolstr!("&:is({} ~ *)", s.replace('&', &selector)))
+        rule.modify_with(|s| format_smolstr!("&:is({} ~ *)", s.replace_char('&', &selector)))
     });
 
     if let Some(theme) = ctx.get_theme("breakpoints") {
@@ -147,7 +147,9 @@ mod tests {
 
         let rule = css!("display": "flex").to_rule_list();
 
-        let candidate = VariantParser::new("group-hover/aaa").parse(&ctx).unwrap();
+        let candidate = VariantParser::new("group-hover/aaa")
+            .parse(&ctx.variants)
+            .unwrap();
 
         let res = candidate.handle(rule);
 

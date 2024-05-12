@@ -3,7 +3,7 @@ use smallvec::{smallvec, SmallVec};
 use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
-    context::Context,
+    context::VariantStorage,
     css::rule::RuleList,
     process::{ComposableHandler, Variant, VariantHandlerExt},
 };
@@ -22,11 +22,11 @@ pub struct VariantCandidate<'a> {
 
 impl<'a> VariantCandidate<'a> {
     pub fn handle(&self, rule: RuleList) -> RuleList {
-        let rule = self.processor.handle(self.clone(), rule);
+        let rule = self.processor.handle(self, rule);
         self.layers
             .iter()
             .rev()
-            .fold(rule, |rule, handler| handler.handle(self.clone(), rule))
+            .fold(rule, |rule, handler| handler.handle(self, rule))
     }
 }
 
@@ -126,9 +126,9 @@ impl<'a> VariantParser<'a> {
         };
     }
 
-    pub fn parse(&mut self, ctx: &Context) -> Option<VariantCandidate<'a>> {
+    pub fn parse(&mut self, variants: &VariantStorage) -> Option<VariantCandidate<'a>> {
         // find key
-        if let Some(processor) = ctx.variants.get(self.current()) {
+        if let Some(processor) = variants.get(self.current()) {
             self.key = Some(self.current());
             return Some(VariantCandidate {
                 key: self.key?,
@@ -156,7 +156,7 @@ impl<'a> VariantParser<'a> {
             let next = iter.next()?;
             let key = self.current().get(0..next)?;
             self.key = Some(key);
-            if let Some(v) = ctx.variants.get(key) {
+            if let Some(v) = variants.get(key) {
                 processor = Some(v.clone());
                 if v.composable {
                     composes.push(v.take_composable().unwrap().clone());
@@ -167,7 +167,7 @@ impl<'a> VariantParser<'a> {
                     for i in iter {
                         if let Some((next_key, Some(compose_handler))) =
                             key_str.get(prev_i + 1..i).and_then(|next_key| {
-                                ctx.variants
+                                variants
                                     .get(next_key)
                                     .map(|v| (next_key, v.take_composable()))
                             })
@@ -186,7 +186,7 @@ impl<'a> VariantParser<'a> {
         // find value and modifier
         self.parse_value_and_modifier();
         if !composes.is_empty() {
-            let variant = ctx.variants.get(self.value?.take_named()?).unwrap();
+            let variant = variants.get(self.value?.take_named()?).unwrap();
             // let composer =
             //     Composer::new_with_layers(composes.into(), variant.clone());
             return Some(VariantCandidate {
@@ -220,6 +220,7 @@ mod tests {
     use smol_str::format_smolstr;
 
     use crate::{
+        common::StrReplaceExt,
         context::Context,
         css::{Decl, Rule},
         parsing::VariantParser,
@@ -230,14 +231,14 @@ mod tests {
         let mut ctx = Context::default();
         ctx.add_variant("hover", ["&:hover"]);
         ctx.add_variant_composable("has", |r, _| {
-            r.modify_with(|s| format_smolstr!("&:has({})", s.replace('&', "*")))
+            r.modify_with(|s| format_smolstr!("&:has({})", s.replace_char('&', "*")))
         });
         ctx.add_variant_composable("not", |r, _| {
-            r.modify_with(|s| format_smolstr!("&:not({})", s.replace('&', "*")))
+            r.modify_with(|s| format_smolstr!("&:not({})", s.replace_char('&', "*")))
         });
 
         let mut input = VariantParser::new("has-not-hover");
-        let c = input.parse(&ctx).unwrap();
+        let c = input.parse(&ctx.variants).unwrap();
 
         let rule =
             Rule::new_with_decls("&", smallvec![Decl::new("display", "flex")]).to_rule_list();
