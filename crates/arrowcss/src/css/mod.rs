@@ -14,14 +14,14 @@ pub trait ToCss {
 }
 
 pub trait ToCssString {
-    fn to_css_string(self) -> Result<String, std::fmt::Error>;
+    fn to_css_string(self) -> String;
 }
 
 impl<T: ToCss> ToCssString for T {
-    fn to_css_string(self) -> Result<String, std::fmt::Error> {
+    fn to_css_string(self) -> String {
         let mut s = String::new();
         let mut writer = Writer::default(&mut s);
-        self.to_css(&mut writer)?;
-        Ok(s)
+        let _ = self.to_css(&mut writer);
+        s
     }
 }

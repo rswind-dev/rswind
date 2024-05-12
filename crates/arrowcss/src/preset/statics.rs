@@ -622,6 +622,6 @@ pub fn load_static_utilities(ctx: &mut Context) {
     let reserve = iter.size_hint().0;
     ctx.utilities.reserve(reserve);
     iter.for_each(|(key, value)| {
-        ctx.add_static((key, value));
+        ctx.add_static(key, value);
     });
 }

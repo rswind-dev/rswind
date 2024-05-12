@@ -3,6 +3,14 @@ use std::{fmt::Debug, ops::Deref};
 use smallvec::SmallVec;
 use smol_str::format_smolstr;
 
+/// This trait provides a method to replace a character in a string
+/// 
+/// this method has a better performance than `str::replace` 
+/// because it doesn't allocate a new string.
+/// 
+/// Uses `memchr` and `smol_str`'s `format_smolstr!` to replace the character
+/// 
+/// Only when replaced string's length less than 22
 pub trait StrReplaceExt {
     fn replace_char(&self, chr: char, replacement: &str) -> smol_str::SmolStr;
 }
@@ -16,6 +24,9 @@ impl StrReplaceExt for str {
     }
 }
 
+/// This trait provides a method to split a string at the top level
+///
+/// e.g. `[&:hover]:[color:red]` will be split into `["&:hover", "color:red"]`
 pub trait StrSplitExt {
     fn split_toplevel(&self, delimiter: u8) -> Option<SmallVec<[&str; 2]>>;
 }
@@ -60,6 +71,11 @@ pub trait BasicParser {
     fn next_byte(&self) -> u8;
 }
 
+/// A representation of value
+///
+/// Either an arbitrary value or a named value
+///
+/// This is used to store e.g. `[#123456]` or `blur-500` in like `text-*`
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum MaybeArbitrary<'a> {
     Arbitrary(&'a str),
@@ -102,43 +118,6 @@ impl<'a> Deref for MaybeArbitrary<'a> {
         match self {
             MaybeArbitrary::Arbitrary(s) => s,
             MaybeArbitrary::Named(s) => s,
-        }
-    }
-}
-
-pub trait Inspector {
-    fn dbg(self) -> Self;
-    fn also(self, f: impl FnOnce(&Self)) -> Self;
-}
-
-impl<T> Inspector for T
-where
-    T: Debug,
-{
-    fn dbg(self) -> Self {
-        dbg!(&self);
-        self
-    }
-
-    fn also(self, f: impl FnOnce(&Self)) -> Self {
-        f(&self);
-        self
-    }
-}
-
-pub trait ScopeFunctions: Sized {
-    fn run_if<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self;
-    fn run_unless<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self {
-        self.run_if(!predictor, block)
-    }
-}
-
-impl<T> ScopeFunctions for T {
-    fn run_if<B: FnOnce(Self) -> Self + 'static>(self, predictor: bool, block: B) -> Self {
-        if predictor {
-            block(self)
-        } else {
-            self
         }
     }
 }

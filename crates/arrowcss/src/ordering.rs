@@ -1,6 +1,5 @@
 use std::hash::Hash;
 
-use lazy_static::lazy_static;
 use rustc_hash::FxHashMap as HashMap;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
@@ -197,10 +196,6 @@ pub enum OrderingKey {
 
     Size,
     SizeAxis,
-}
-
-lazy_static! {
-    pub static ref ORDERING: UtilityOrdering = create_ordering();
 }
 
 pub fn create_ordering() -> UtilityOrdering {

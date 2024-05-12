@@ -10,7 +10,7 @@ use smol_str::SmolStr;
 
 use self::utilities::{UtilityStorage, UtilityStorageImpl};
 use crate::{
-    common::StrReplaceExt,
+    common::{StrReplaceExt, StrSplitExt},
     css::{rule::RuleList, Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::{UtilityParser, VariantCandidate, VariantParser},
@@ -18,42 +18,92 @@ use crate::{
     theme::{Theme, ThemeValue},
     themes::theme,
     types::TypeValidator,
-    utils::TopLevelPattern,
 };
-
+#[macro_use]
+pub mod macros;
 pub mod utilities;
 
 pub type VariantStorage = HashMap<SmolStr, Variant>;
 
 #[derive(Default)]
 pub struct Context {
+    /// Storage for utilities
     pub utilities: UtilityStorageImpl,
+
+    /// Storage for variants
     pub variants: VariantStorage,
+
+    /// Theme values
     pub theme: Theme,
 }
 
+/// The result of a utility generation
 #[derive(Debug, Clone)]
 pub struct GenerateResult {
+    /// The generated rule
     pub rule: RuleList,
+
+    /// The grouping of the utility, if any
     pub group: Option<UtilityGroup>,
+
+    /// The ordering key, will be [`OrderingKey::Disorder`] if not set
     pub ordering: OrderingKey,
+
+    /// The variants in the utility, collect to sort them later
     pub variants: SmallVec<[u64; 2]>,
 }
 
 impl Context {
-    pub fn new(t: Theme) -> Self {
+    pub fn new() -> Self {
         Self {
             variants: HashMap::default(),
             utilities: UtilityStorageImpl::HashMap(Default::default()),
-            theme: theme().merge(t),
+            theme: theme(),
         }
     }
 
-    pub fn add_static(&mut self, pair: (impl Into<SmolStr>, DeclList)) -> &Self {
-        self.utilities.add_static(pair.0.into(), pair.1);
+    /// Add a static utility
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arrowcss::Context;
+    /// use arrowcss::css::{Decl, DeclList, ToCssString};
+    ///
+    /// let mut ctx = Context::new();
+    ///
+    /// ctx.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
+    ///
+    /// let res = ctx.generate("flex").unwrap();
+    ///
+    /// assert_eq!(res.rule.to_css_string(), ".flex {\n  display: flex;\n}\n");
+    ///
+    /// ```
+    pub fn add_static(&mut self, key: impl Into<SmolStr>, value: DeclList) -> &Self {
+        self.utilities.add_static(key.into(), value);
         self
     }
 
+    /// Add a static variant
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arrowcss::Context;
+    /// use arrowcss::css::{Decl, DeclList, ToCssString};
+    ///
+    /// let mut ctx = Context::new();
+    ///
+    /// ctx.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
+    /// ctx.add_variant("hover", ["&:hover"]);
+    ///
+    /// let res = ctx.generate("hover:flex").unwrap();
+    ///
+    /// assert_eq!(res.rule.to_css_string(), ".hover\\:flex:hover {\n  display: flex;\n}\n");
+    ///
+    /// ```
     pub fn add_variant<T>(&mut self, key: impl Into<SmolStr>, matcher: T) -> &mut Self
     where
         T: IntoIterator,
@@ -124,8 +174,9 @@ impl Context {
         self.theme.get(key).cloned()
     }
 
+    /// Try generate a utility with the given value
     pub fn generate(&self, value: &str) -> Option<GenerateResult> {
-        let mut parts: SmallVec<[&str; 2]> = value.split(TopLevelPattern::new(':')).collect();
+        let mut parts: SmallVec<[&str; 2]> = value.split_toplevel(b':')?;
 
         let utility = parts.pop()?;
         let utility_candidate = UtilityParser::new(utility).parse(&self.utilities)?;
@@ -169,73 +220,4 @@ impl Context {
             variants,
         })
     }
-}
-
-#[macro_export]
-macro_rules! get_ord(
-    ($ord:expr) => {
-        Some($ord)
-    };
-    () => {
-        None
-    };
-);
-
-#[macro_export]
-macro_rules! get_typ(
-    ($typ:expr) => {
-        Some($typ)
-    };
-    () => {
-        None::<CssDataType>
-    };
-);
-
-#[macro_export]
-macro_rules! get_bool(
-    ($bool:literal) => {
-        true
-    };
-    () => {
-        false
-    };
-);
-
-#[macro_export]
-macro_rules! add_theme_utility {
-    ($ctx:expr, {
-        $($theme_key:literal => {
-            $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
-        }),+
-    }) => {
-        use $crate::context::utilities::UtilityStorage;
-        $(
-            $(
-                let theme = $ctx
-                    .get_theme($theme_key)
-                    .unwrap_or_else(|| panic!("Theme {} not found", &$key));
-
-                let utility = $crate::process::Utility::new(move |_meta, input| {
-                    $crate::css::Rule::new_with_decls(
-                        "&",
-                        [$($decl_key),+].clone()
-                            .into_iter()
-                            .map(|k| $crate::css::Decl::new(k, input.clone()))
-                            .collect(),
-                    )
-                })
-                .allow_values(theme);
-
-                let mut options = $crate::process::UtilityOptions::new();
-                options
-                    .ordering($crate::get_ord!($($ord)?))
-                    .validator($crate::get_typ!($($typ)?))
-                    $(.support_negative($crate::get_bool!($($negative)?)))?
-                    $(.support_fraction($crate::get_bool!($($fraction)?)))?
-                    ;
-
-                $ctx.utilities.add($key.into(), utility.apply_options(options));
-            )*
-        )+
-    };
 }

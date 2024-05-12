@@ -1,4 +1,4 @@
-/// An Item extract from [`SourceType`]
+/// An Item extract from the css file
 ///
 /// Contains the utility and @apply info (the origin selector)
 #[derive(Debug)]

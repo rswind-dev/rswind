@@ -3,7 +3,6 @@ use lightningcss::vendor_prefix::VendorPrefix;
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
-    add_theme_utility,
     context::Context,
     ordering::OrderingKey,
     parsing::UtilityBuilder,

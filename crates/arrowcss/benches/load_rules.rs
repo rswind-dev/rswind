@@ -7,7 +7,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("Load Static", |b| {
         b.iter(|| {
-            let mut ctx = Context::default();
+            let mut ctx = Context::new();
             load_static_utilities(&mut ctx);
             black_box(());
         });
@@ -15,7 +15,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("Load Dynamic & Theme", |b| {
         b.iter(|| {
-            let mut ctx = Context::new(Default::default());
+            let mut ctx = Context::new();
             load_dynamic_utilities(&mut ctx);
         });
     });

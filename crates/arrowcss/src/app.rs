@@ -3,7 +3,7 @@ use std::{collections::BTreeSet, fmt::Write as _, sync::Arc};
 use cssparser::serialize_name;
 use rayon::{iter::IntoParallelIterator, prelude::*};
 use rustc_hash::FxHashMap as HashMap;
-use smol_str::{format_smolstr, SmolStr};
+use smol_str::SmolStr;
 
 use crate::{
     config::ArrowConfig,
@@ -47,24 +47,22 @@ type GenResult = HashMap<SmolStr, GenerateResult>;
 impl Application {
     pub fn builder(config: ArrowConfig) -> UninitializedApp {
         UninitializedApp {
-            ctx: Context::new(config.theme),
+            // TODO: add theme back
+            ctx: Context::new(),
             seen_variants: BTreeSet::new(),
             strict_mode: config.features.strict_mode,
         }
     }
 
-    pub fn generate(&self, input: impl Iterator<Item: AsRef<str>>) -> GenResult {
-        input
+    pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
+        let res = input
+            .into_iter()
             .filter_map(|token| {
                 self.ctx
                     .generate(token.as_ref())
                     .map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
-            .collect()
-    }
-
-    pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
-        let res = self.generate(input.into_iter());
+            .collect();
         self.run_inner(res)
     }
 
@@ -120,11 +118,9 @@ impl Application {
                 names
                     .iter()
                     .map(|s| {
-                        format_smolstr!(".{}", {
-                            let mut w = String::new();
-                            serialize_name(s, &mut w).unwrap();
-                            w
-                        })
+                        let mut w = String::from(".");
+                        serialize_name(s, &mut w).unwrap();
+                        w
                     })
                     .collect::<Vec<_>>()
                     .join(", "),

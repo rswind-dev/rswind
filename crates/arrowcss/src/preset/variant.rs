@@ -153,6 +153,6 @@ mod tests {
 
         let res = candidate.handle(rule);
 
-        println!("{}", res.to_css_string().unwrap());
+        println!("{}", res.to_css_string());
     }
 }

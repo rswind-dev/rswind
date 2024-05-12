@@ -31,10 +31,13 @@ impl<'a> VariantCandidate<'a> {
 }
 
 /// Parser
-/// formal syntax:
-/// https://drafts.csswg.org/css-values/#value-defs
-/// https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax
 ///
+/// formal syntax:
+///
+/// <https://drafts.csswg.org/css-values/#value-defs>
+/// <https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax>
+///
+/// ```text
 /// utility =
 ///   [ <utility> / <modifier>? ]
 ///
@@ -48,6 +51,7 @@ impl<'a> VariantCandidate<'a> {
 ///   '[' <any> ']'
 ///
 /// modifier = <value>
+/// ```
 #[derive(Debug)]
 pub struct VariantParser<'a> {
     input: &'a str,

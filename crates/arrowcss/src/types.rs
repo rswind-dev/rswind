@@ -27,6 +27,9 @@ impl TypeValidator for CssProperty {
 
 pub type CssProperty = PropertyId<'static>;
 
+/// An enum for CSS basic data types 
+/// 
+/// Will be validated by lightningcss
 #[derive(Clone, Copy, Debug)]
 pub enum CssDataType {
     Color,
