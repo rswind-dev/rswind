@@ -1,8 +1,7 @@
 use std::{collections::BTreeSet, fmt::Write as _, sync::Arc};
 
-use arrowcss_extractor::Extractor;
 use cssparser::serialize_name;
-use rayon::prelude::*;
+use rayon::{iter::IntoParallelIterator, prelude::*};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::{format_smolstr, SmolStr};
 
@@ -12,7 +11,6 @@ use crate::{
     css::{Rule, ToCss},
     ordering::{create_ordering, OrderingItem, OrderingMap},
     preset::load_preset,
-    source::SourceInput,
     writer::Writer,
 };
 
@@ -43,6 +41,8 @@ impl UninitializedApp {
     }
 }
 
+type GenResult = HashMap<SmolStr, GenerateResult>;
+
 impl Application {
     pub fn new(config: ArrowConfig) -> UninitializedApp {
         UninitializedApp {
@@ -52,53 +52,37 @@ impl Application {
         }
     }
 
-    pub fn run_with<T: AsRef<str>>(&mut self, input: impl Iterator<Item = T>) -> String {
-        let res = input
+    pub fn generate<'a>(&self, input: impl Iterator<Item: AsRef<str>>) -> GenResult {
+        input
             .filter_map(|token| {
                 self.ctx
                     .generate(token.as_ref())
                     .map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
-            .collect::<HashMap<SmolStr, GenerateResult>>();
+            .collect()
+    }
+
+    pub fn run_with<'a>(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
+        let res = self.generate(input.into_iter());
         self.run_inner(res)
     }
 
-    pub fn run<T: AsRef<str>>(&mut self, input: SourceInput<T>) -> String {
-        let res = input
-            .extract()
-            .filter_map(|token| {
-                self.ctx
-                    .generate(token)
-                    .map(|rule| (SmolStr::from(token), rule))
-            })
-            .collect::<HashMap<SmolStr, GenerateResult>>();
-        self.run_inner(res)
-    }
-
-    pub fn run_parallel<T: AsRef<str>>(
+    pub fn run_parallel_with<'a>(
         &mut self,
-        input: impl IntoParallelIterator<Item: AsRef<SourceInput<T>>>,
+        input: impl IntoParallelIterator<Item: AsRef<str>>,
     ) -> String {
         let res = input
             .into_par_iter()
-            .map(|x| {
-                x.as_ref()
-                    .extract()
-                    .filter_map(|token| {
-                        self.ctx
-                            .generate(token)
-                            .map(|rule| (SmolStr::from(token), rule))
-                    })
-                    .collect::<HashMap<SmolStr, GenerateResult>>()
+            .filter_map(|s| {
+                self.ctx
+                    .generate(s.as_ref())
+                    .map(|rule| (SmolStr::from(s.as_ref()), rule))
             })
-            .reduce(HashMap::default, |mut a, b| {
-                a.extend(b);
-                a
-            });
+            .collect();
         self.run_inner(res)
     }
 
-    pub fn run_inner(&mut self, res: HashMap<SmolStr, GenerateResult>) -> String {
+    pub fn run_inner(&mut self, res: GenResult) -> String {
         let mut writer = Writer::default(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
@@ -165,9 +149,7 @@ mod tests {
     #[test]
     fn test_application() {
         let mut app = create_app();
-        let input = SourceInput::new(r#"<div class="flex">"#, "html");
-        let res = app.run_parallel([input]);
 
-        println!("{}", res);
+        println!("{}", app.run_with(["flex", "flex-col"]));
     }
 }

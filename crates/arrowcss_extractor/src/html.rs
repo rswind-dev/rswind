@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use cssparser::match_byte;
 
 use crate::{cursor::Cursor, ecma::EcmaExtractor};
@@ -20,7 +22,7 @@ pub enum StringType {
 pub struct HtmlExtractor<'a> {
     input: &'a str,
     cursor: Cursor<'a>,
-    in_js: Option<Box<dyn Iterator<Item = &'a str> + 'a>>,
+    in_js: Option<Box<dyn Iterator<Item = &'a str> + Send + Sync + 'a>>,
     in_start_tag: bool,
     options: HtmlExtractOptions,
 }
@@ -55,6 +57,20 @@ pub enum CandidateValue<'a> {
     Ecma,
 }
 
+impl<'a> Deref for HtmlExtractor<'a> {
+    type Target = Cursor<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.cursor
+    }
+}
+
+impl<'a> DerefMut for HtmlExtractor<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.cursor
+    }
+}
+
 impl<'a> HtmlExtractor<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
@@ -72,30 +88,28 @@ impl<'a> HtmlExtractor<'a> {
     }
 
     pub fn str_from(&self, start: usize) -> &'a str {
-        &self.input[start..self.cursor.pos()]
+        &self.input[start..self.pos()]
     }
 
     fn consume<R>(&mut self, f: impl FnOnce(&mut Cursor<'a>) -> R) -> &'a str {
-        let start = self.cursor.pos();
+        let start = self.pos();
         f(&mut self.cursor);
         self.str_from(start)
     }
 
     fn consume_tag_name(&mut self) -> &'a str {
-        self.consume(|s| {
-            s.eat_until(move |c| c.is_ascii_whitespace() || c == '>')
-        })
+        self.consume(|s| s.eat_until(move |c| c.is_ascii_whitespace() || c == '>'))
     }
 
     fn consume_whitespace(&mut self) {
-        self.cursor.eat_while(|c| c.is_ascii_whitespace());
+        self.eat_while(|c| c.is_ascii_whitespace());
     }
 
     fn in_start_tag(&mut self) -> bool {
         self.in_start_tag
     }
 
-    fn extend_js_extractor(&mut self, iter: impl Iterator<Item = &'a str> + 'a) {
+    fn extend_js_extractor(&mut self, iter: impl Iterator<Item = &'a str> + Send + Sync + 'a) {
         if let Some(old) = self.in_js.take() {
             self.in_js = Some(Box::new(old.chain(iter)));
         } else {
@@ -109,8 +123,8 @@ impl<'a> HtmlExtractor<'a> {
 
         // valid start tag
         loop {
-            self.cursor.eat_until_after_char(b'<');
-            if self.cursor.first() != '/' && !self.cursor.first().is_ascii_whitespace() {
+            self.eat_until_after_char(b'<');
+            if self.first() != '/' && !self.first().is_ascii_whitespace() {
                 break;
             }
         }
@@ -122,8 +136,8 @@ impl<'a> HtmlExtractor<'a> {
             "script" => {
                 // skip start tag
                 // TODO: handle class name here?
-                if self.cursor.bump() != '>' {
-                    self.cursor.eat_until_after_char(b'>');
+                if self.bump() != '>' {
+                    self.eat_until_after_char(b'>');
                 }
 
                 // read js content
@@ -139,11 +153,11 @@ impl<'a> HtmlExtractor<'a> {
             }
             // skip
             "style" => {
-                self.cursor.eat_until_after_char(b'>');
+                self.eat_until_after_char(b'>');
 
                 loop {
-                    self.cursor.eat_until_after_char(b'<');
-                    if self.cursor.eat_str("/style>") {
+                    self.eat_until_after_char(b'<');
+                    if self.eat_str("/style>") {
                         break;
                     }
                 }
@@ -158,7 +172,7 @@ impl<'a> HtmlExtractor<'a> {
 
     fn consume_attrs(&mut self) -> Option<CandidateValue<'a>> {
         self.consume_whitespace();
-        if self.cursor.is_eof() {
+        if self.is_eof() {
             return None;
         }
 
@@ -172,10 +186,10 @@ impl<'a> HtmlExtractor<'a> {
             })
         });
 
-        match self.cursor.bump() {
+        match self.bump() {
             '=' => {
                 // jump the `"` or `{` (svelte)
-                let start = self.cursor.bump();
+                let start = self.bump();
 
                 // filter out invalid start
                 if start != '"' && start != '{' {
@@ -184,7 +198,8 @@ impl<'a> HtmlExtractor<'a> {
 
                 let end = if start == '{' { b'}' } else { b'"' };
 
-                let value = self.consume(|c| c.eat_until_after_char(end));
+                let value = self.consume(|c| c.eat_until_char(end));
+                self.bump();
 
                 // TODO: determine these functions at init, prevent runtime check
                 if self.options.class_only && !name.starts_with("class") && !name.starts_with(':') {
@@ -210,9 +225,9 @@ impl<'a> HtmlExtractor<'a> {
             '>' => {
                 self.in_start_tag = false;
             }
-            '/' if self.cursor.first() == '>' => {
+            '/' if self.first() == '>' => {
                 // self closed tag
-                self.cursor.bump();
+                self.bump();
                 self.in_start_tag = false;
             }
             _ => {
@@ -243,7 +258,7 @@ impl<'a> Iterator for HtmlExtractor<'a> {
                 return Some(js_lit);
             }
 
-            if self.cursor.is_eof() {
+            if self.is_eof() {
                 return None;
             }
 
