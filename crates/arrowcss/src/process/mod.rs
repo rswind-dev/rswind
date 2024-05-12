@@ -17,9 +17,7 @@ pub trait ArbitraryValueProcessor {
             Some(MaybeArbitrary::Arbitrary(value)) => {
                 self.validate(value).then(|| SmolStr::from(value))
             }
-            Some(MaybeArbitrary::Named(value)) => {
-                self.allowed_values()?.get(value)
-            }
+            Some(MaybeArbitrary::Named(value)) => self.allowed_values()?.get(value),
             None => self.allowed_values()?.get(DEFAULT),
         }
     }

@@ -4,8 +4,8 @@ use std::{
     sync::Arc,
 };
 
-use rustc_hash::FxHashMap as HashMap;
 use phf::{phf_map, Map};
+use rustc_hash::FxHashMap as HashMap;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
