@@ -1,4 +1,3 @@
-use lazy_static::lazy_static;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 

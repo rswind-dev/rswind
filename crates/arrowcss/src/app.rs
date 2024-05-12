@@ -16,6 +16,7 @@ use crate::{
 
 pub struct Application {
     pub ctx: Arc<Context>,
+    // TODO: this is not right, it should store variants' order
     pub seen_variants: BTreeSet<u64>,
     pub ordering: OrderingMap,
     pub cache: HashMap<SmolStr, Option<String>>,
@@ -44,7 +45,7 @@ impl UninitializedApp {
 type GenResult = HashMap<SmolStr, GenerateResult>;
 
 impl Application {
-    pub fn new(config: ArrowConfig) -> UninitializedApp {
+    pub fn builder(config: ArrowConfig) -> UninitializedApp {
         UninitializedApp {
             ctx: Context::new(config.theme),
             seen_variants: BTreeSet::new(),
@@ -52,7 +53,7 @@ impl Application {
         }
     }
 
-    pub fn generate<'a>(&self, input: impl Iterator<Item: AsRef<str>>) -> GenResult {
+    pub fn generate(&self, input: impl Iterator<Item: AsRef<str>>) -> GenResult {
         input
             .filter_map(|token| {
                 self.ctx
@@ -62,12 +63,12 @@ impl Application {
             .collect()
     }
 
-    pub fn run_with<'a>(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
+    pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
         let res = self.generate(input.into_iter());
         self.run_inner(res)
     }
 
-    pub fn run_parallel_with<'a>(
+    pub fn run_parallel_with(
         &mut self,
         input: impl IntoParallelIterator<Item: AsRef<str>>,
     ) -> String {
@@ -138,7 +139,7 @@ impl Application {
 
 pub fn create_app() -> Application {
     let config = ArrowConfig::default();
-    let app = Application::new(config);
+    let app = Application::builder(config);
     app.init()
 }
 

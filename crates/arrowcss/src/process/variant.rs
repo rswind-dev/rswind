@@ -17,7 +17,7 @@ pub trait VariantHandlerExt {
     fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList;
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum VariantKind {
     Arbitrary,
     Static,
@@ -25,7 +25,7 @@ pub enum VariantKind {
     Composable,
 }
 
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum VariantHandler {
     Static(StaticHandler),
     Dynamic(DynamicHandler),
@@ -41,7 +41,7 @@ impl VariantHandler {
     }
 }
 
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variant {
     pub handler: VariantHandler,
     pub composable: bool,
@@ -50,25 +50,25 @@ pub struct Variant {
     pub nested: bool,
 }
 
-impl PartialEq for Variant {
-    fn eq(&self, other: &Self) -> bool {
-        self.ordering == other.ordering
-    }
-}
+// impl PartialEq for Variant {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.ordering == other.ordering
+//     }
+// }
 
-impl Eq for Variant {}
+// impl Eq for Variant {}
 
-impl PartialOrd for Variant {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
+// impl PartialOrd for Variant {
+//     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+//         Some(self.cmp(other))
+//     }
+// }
 
-impl Ord for Variant {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.ordering.cmp(&other.ordering)
-    }
-}
+// impl Ord for Variant {
+//     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+//         self.ordering.cmp(&other.ordering)
+//     }
+// }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum VariantOrdering {
@@ -215,7 +215,7 @@ impl VariantHandlerExt for StaticHandler {
     }
 }
 
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DynamicHandler {
     pub handler: fn(RuleList, &VariantCandidate) -> RuleList,
     pub composable: bool,
@@ -236,7 +236,7 @@ impl DynamicHandler {
     }
 }
 
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ComposableHandler {
     pub handler: fn(RuleList, &VariantCandidate) -> RuleList,
     pub composable: bool,

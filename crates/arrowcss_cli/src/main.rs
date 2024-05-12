@@ -60,7 +60,7 @@ fn main() {
         .map(|c| c.try_deserialize::<ArrowConfig>().unwrap_or_default())
         .unwrap_or_else(|_| ArrowConfig::default());
 
-    let mut app = Application::new(config).init();
+    let mut app = Application::builder(config).init();
 
     match opts.cmd {
         None if opts.watch => {
@@ -76,7 +76,7 @@ fn main() {
                     .append(false)
                     .open(opts.output.unwrap())
                     .unwrap()
-                    .write(res.as_bytes())
+                    .write_all(res.as_bytes())
                     .unwrap();
             } else {
                 println!("{}", res);

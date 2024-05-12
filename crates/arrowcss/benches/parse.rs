@@ -45,7 +45,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             b.iter(move || {
                 let mut app = arrowcss::create_app();
-                let _a = app.run_with(extracted.clone().deref().into_iter());
+                let _a = app.run_with(extracted.clone().deref().iter());
             });
         });
     }

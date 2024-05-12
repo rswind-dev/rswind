@@ -25,7 +25,7 @@ impl FileInput {
     }
 
     #[allow(dead_code)]
-    pub fn as_unknown(self) -> Self {
+    pub fn into_unknown(self) -> Self {
         Self {
             content: self.content,
             kind: InputKind::Unknown,

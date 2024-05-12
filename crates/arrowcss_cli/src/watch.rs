@@ -3,11 +3,9 @@ use std::{sync::mpsc, time::Duration};
 use arrowcss::app::Application;
 use notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
-use rayon::iter::{
-    ParallelBridge, ParallelIterator,
-};
+use rayon::iter::ParallelBridge;
 
-use crate::{read::{get_files}, run::RunParallel};
+use crate::{read::get_files, run::RunParallel};
 
 pub trait WatchApp {
     fn watch(&mut self, dir: &str);
