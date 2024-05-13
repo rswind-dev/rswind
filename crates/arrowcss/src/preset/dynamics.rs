@@ -444,9 +444,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             let mut font_size = css!("font-size": value.clone());
             if let Some(modifier) = meta.modifier {
                 font_size.extend(css!("line-height": modifier));
-            } else if let Some(line_height) = meta
-                .candidate
-                .value
+            } else if let Some(line_height) = meta.raw_value
                 .and_then(|v| font_size_lh.get(v.take_named()?))
             {
                 font_size.extend(css!("line-height": line_height.clone()));

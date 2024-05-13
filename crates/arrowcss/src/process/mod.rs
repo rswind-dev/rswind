@@ -25,15 +25,26 @@ pub trait ArbitraryValueProcessor {
 
 #[derive(Clone, Default)]
 pub struct MetaData<'a> {
-    pub candidate: UtilityCandidate<'a>,
+    pub raw_value: Option<MaybeArbitrary<'a>>,
+    pub raw_modifier: Option<MaybeArbitrary<'a>>,
     pub modifier: Option<SmolStr>,
 }
 
 impl<'a> MetaData<'a> {
-    pub(crate) fn new(candidate: UtilityCandidate<'a>) -> Self {
+    pub fn from_candidate(candidate: &UtilityCandidate<'a>) -> Self {
         Self {
-            candidate,
+            raw_value: candidate.value,
+            raw_modifier: candidate.modifier,
             modifier: None,
+        }
+    }
+
+    /// Create a new `MetaData` with only the modifier set.
+    pub(crate) fn modifier(modifier: impl Into<SmolStr>) -> Self {
+        Self {
+            raw_value: None,
+            raw_modifier: None,
+            modifier: Some(modifier.into()),
         }
     }
 }

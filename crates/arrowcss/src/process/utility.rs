@@ -1,9 +1,11 @@
+use std::fmt::Debug;
+
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
 use super::{ArbitraryValueProcessor, MetaData};
 use crate::{
-    css::{rule::RuleList, Decl, Rule},
+    css::{rule::RuleList, Decl, Rule, ToCssString},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     theme::ThemeValue,
@@ -18,6 +20,17 @@ impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn fo
 
 pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
 
+impl Debug for UtilityHandler {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("UtilityHandler { ")?;
+
+        let rule = self.0(MetaData::modifier("$2"), SmolStr::new("$1"));
+        write!(f, "{}", rule.to_css_minified())?;
+
+        f.write_str(" }")
+    }
+}
+
 impl UtilityHandler {
     pub fn new(handler: impl RuleMatchingFn + 'static) -> Self {
         Self(Box::new(handler))
@@ -28,6 +41,7 @@ impl UtilityHandler {
     }
 }
 
+#[derive(Debug)]
 pub struct Utility {
     pub handler: UtilityHandler,
 
@@ -128,6 +142,12 @@ pub struct ModifierProcessor {
     pub allowed_values: Option<ThemeValue>,
 }
 
+impl Debug for ModifierProcessor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("ModifierProcessor")
+    }
+}
+
 impl ModifierProcessor {
     pub fn new(allowed_values: ThemeValue) -> Self {
         Self {
@@ -212,7 +232,7 @@ impl Utility {
         }
 
         let mut process_result = self.process(candidate.value)?;
-        let mut meta = MetaData::new(candidate);
+        let mut meta = MetaData::from_candidate(&candidate);
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
