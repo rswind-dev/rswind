@@ -1,0 +1,11 @@
+[[utilities]]
+key   = "foo"
+type  = "color"
+theme = "colors"
+
+[utilities.css]
+foo = "$1:color"
+
+[utilities.modifier]
+type  = "number"
+theme = "opacity"
