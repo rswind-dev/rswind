@@ -51,10 +51,11 @@ proc-macro2              = "1.0.79"
 quote                    = "1.0.35"
 syn                      = "2.0.57"
 rustc-hash               = "1.1.0"
-napi                     = { version = "2.12.2" }
+napi                     = { version = "2.12.2", default-features = false }
 napi-derive              = "2.12.2"
 napi-build               = "2.0.1"
 wasm-bindgen             = "0.2.92"
 console_error_panic_hook = "0.1.7"
 memchr                   = "2.7.2"
 dotenv                   = "0.15.0"
+thiserror                = "1.0.60"

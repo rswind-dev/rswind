@@ -19,6 +19,17 @@ pub struct WriterConfig {
     pub minify: bool,
 }
 
+impl Default for WriterConfig {
+    fn default() -> Self {
+        Self {
+            linefeed: LineFeed::LF,
+            indent_width: 2,
+            indent_type: IndentType::Space,
+            minify: false,
+        }
+    }
+}
+
 pub struct Writer<'a, W: Write> {
     pub dest: W,
     pub minify: bool,
@@ -42,6 +53,17 @@ impl<'a, W: Write> Writer<'a, W> {
             },
         )
     }
+
+    pub fn minify(dest: W) -> Self {
+        Self::new(
+            dest,
+            WriterConfig {
+                minify: true,
+                ..Default::default()
+            },
+        )
+    }
+
     pub fn new(dest: W, config: WriterConfig) -> Self {
         let indent = match config.indent_type {
             IndentType::Tab => "\t",
@@ -95,6 +117,9 @@ impl<'a, W: Write> Writer<'a, W> {
     }
 
     fn ensure_ident(&mut self) -> Result<(), std::fmt::Error> {
+        if self.minify {
+            return Ok(());
+        }
         if self.col == 0 && self.indent_level > 0 {
             for _ in 0..(self.indent_level * self.indent_width) {
                 self.dest.write_str(self.indent)?;

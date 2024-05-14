@@ -19,12 +19,14 @@ smol_str         = { workspace = true, features = ["serde"] }
 anyhow           = { workspace = true }
 cssparser        = { workspace = true }
 lazy_static      = { workspace = true }
-lightningcss     = { workspace = true }
+lightningcss     = { workspace = true, features = ["into_owned"] }
 serde            = { workspace = true }
 serde_json       = { workspace = true }
 smallvec         = { workspace = true, features = ["const_generics"] }
 rustc-hash       = { workspace = true }
 memchr           = { workspace = true }
+config           = { workspace = true }
+thiserror        = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

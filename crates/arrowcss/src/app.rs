@@ -7,7 +7,7 @@ use smol_str::SmolStr;
 
 use crate::{
     config::ArrowConfig,
-    context::{Context, GenerateResult},
+    context::{utilities::UtilityStorage, Context, GenerateResult},
     css::{Rule, ToCss},
     ordering::{create_ordering, OrderingItem, OrderingMap},
     preset::load_preset,
@@ -24,6 +24,7 @@ pub struct Application {
 }
 
 pub struct UninitializedApp {
+    config: ArrowConfig,
     ctx: Context,
     seen_variants: BTreeSet<u64>,
     strict_mode: bool,
@@ -32,6 +33,11 @@ pub struct UninitializedApp {
 impl UninitializedApp {
     pub fn init(mut self) -> Application {
         load_preset(&mut self.ctx);
+        for utility in self.config.utilities.into_iter() {
+            self.ctx
+                .utilities
+                .add(utility.key.clone(), utility.parse(&self.ctx.theme));
+        }
         Application {
             ctx: Arc::new(self.ctx),
             seen_variants: self.seen_variants,
@@ -48,9 +54,10 @@ impl Application {
     pub fn builder(config: ArrowConfig) -> UninitializedApp {
         UninitializedApp {
             // TODO: add theme back
+            strict_mode: config.features.strict_mode,
+            config,
             ctx: Context::new(),
             seen_variants: BTreeSet::new(),
-            strict_mode: config.features.strict_mode,
         }
     }
 

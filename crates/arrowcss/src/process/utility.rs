@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
-use super::{ArbitraryValueProcessor, MetaData};
+use super::{MetaData, ValuePreprocessor, ValueRepr};
 use crate::{
     css::{rule::RuleList, Decl, Rule, ToCssString},
     ordering::OrderingKey,
@@ -24,6 +24,7 @@ impl Debug for UtilityHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("UtilityHandler { ")?;
 
+        // Call the function, simply get the css
         let rule = self.0(MetaData::modifier("$2"), SmolStr::new("$1"));
         write!(f, "{}", rule.to_css_minified())?;
 
@@ -49,11 +50,9 @@ pub struct Utility {
 
     pub supports_fraction: bool,
 
-    pub allowed_values: Option<ThemeValue>,
+    pub value_repr: ValueRepr,
 
-    pub modifier: Option<ModifierProcessor>,
-
-    pub validator: Option<Box<dyn TypeValidator>>,
+    pub modifier: Option<ValueRepr>,
 
     /// This will be use as generated Rule selector
     /// default: '&'
@@ -68,6 +67,7 @@ pub struct Utility {
     pub group: Option<UtilityGroup>,
 }
 
+// TODO: make this configurable
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UtilityGroup {
     Transform,
@@ -137,54 +137,13 @@ impl UtilityOptions {
     }
 }
 
-pub struct ModifierProcessor {
-    pub validator: Option<Box<dyn TypeValidator>>,
-    pub allowed_values: Option<ThemeValue>,
-}
-
-impl Debug for ModifierProcessor {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("ModifierProcessor")
-    }
-}
-
-impl ModifierProcessor {
-    pub fn new(allowed_values: ThemeValue) -> Self {
-        Self {
-            validator: None,
-            allowed_values: Some(allowed_values),
-        }
-    }
-
-    pub fn with_validator(self, validator: impl TypeValidator + 'static) -> Self {
-        Self {
-            validator: Some(Box::new(validator)),
-            allowed_values: self.allowed_values,
-        }
-    }
-}
-
-impl ArbitraryValueProcessor for ModifierProcessor {
+impl ValuePreprocessor for Utility {
     fn validate(&self, value: &str) -> bool {
-        self.validator
-            .as_ref()
-            .map_or(true, |validator| validator.validate(value))
+        self.value_repr.validate(value)
     }
 
     fn allowed_values(&self) -> Option<&ThemeValue> {
-        self.allowed_values.as_ref()
-    }
-}
-
-impl ArbitraryValueProcessor for Utility {
-    fn validate(&self, value: &str) -> bool {
-        self.validator
-            .as_ref()
-            .map_or(true, |validator| validator.validate(value))
-    }
-
-    fn allowed_values(&self) -> Option<&ThemeValue> {
-        self.allowed_values.as_ref()
+        self.value_repr.allowed_values()
     }
 }
 
@@ -200,9 +159,8 @@ impl Utility {
             handler: UtilityHandler(Box::new(handler)),
             supports_negative: false,
             supports_fraction: false,
-            allowed_values: None,
+            value_repr: ValueRepr::default(),
             modifier: None,
-            validator: None,
             wrapper: None,
             additional_css: None,
             ordering_key: None,
@@ -211,14 +169,14 @@ impl Utility {
     }
 
     pub fn allow_values(mut self, values: ThemeValue) -> Self {
-        self.allowed_values = Some(values);
+        self.value_repr.allowed_values = Some(values);
         self
     }
 
     pub fn apply_options(mut self, options: UtilityOptions) -> Self {
         self.supports_negative = options.supports_negative;
         self.supports_fraction = options.supports_fraction;
-        self.validator = options.validator;
+        self.value_repr.validator = options.validator;
         self.ordering_key = options.ordering_key;
         self
     }
