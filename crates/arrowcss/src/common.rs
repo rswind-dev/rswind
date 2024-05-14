@@ -4,12 +4,12 @@ use smallvec::SmallVec;
 use smol_str::format_smolstr;
 
 /// This trait provides a method to replace a character in a string
-/// 
-/// this method has a better performance than `str::replace` 
+///
+/// this method has a better performance than `str::replace`
 /// because it doesn't allocate a new string.
-/// 
+///
 /// Uses `memchr` and `smol_str`'s `format_smolstr!` to replace the character
-/// 
+///
 /// Only when replaced string's length less than 22
 pub trait StrReplaceExt {
     fn replace_char(&self, chr: char, replacement: &str) -> smol_str::SmolStr;
