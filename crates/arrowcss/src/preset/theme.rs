@@ -1,12 +1,10 @@
 use phf::Map;
 
 use crate::{
+    preset::{colors::COLORS, spacing::SPACING},
     theme::Theme,
-    themes::{colors::COLORS, spacing::SPACING},
+    Context,
 };
-
-mod colors;
-mod spacing;
 
 macro_rules! create_theme {
     ($($key:expr => $value:expr),*) => {
@@ -18,6 +16,10 @@ macro_rules! create_theme {
             Theme(m)
         }
     };
+}
+
+pub fn load_theme(ctx: &mut Context) {
+    ctx.theme = theme();
 }
 
 pub fn theme() -> Theme {
