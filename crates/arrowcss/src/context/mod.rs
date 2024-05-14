@@ -8,12 +8,12 @@ use rustc_hash::{FxHashMap as HashMap, FxHasher};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
-use self::utilities::{UtilityStorage, UtilityStorageImpl};
+use self::utilities::{StaticUtility, UtilityStorage, UtilityStorageImpl};
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
-    css::{rule::RuleList, Decl, DeclList, Rule},
+    css::{rule::RuleList, Decl, Rule},
     ordering::OrderingKey,
-    parsing::{UtilityParser, VariantCandidate, VariantParser},
+    parsing::{UtilityCandidate, UtilityParser, VariantCandidate, VariantParser},
     preset::theme::theme,
     process::{Utility, UtilityGroup, Variant},
     theme::{Theme, ThemeValue},
@@ -77,11 +77,15 @@ impl Context {
     ///
     /// let res = ctx.generate("flex").unwrap();
     ///
-    /// assert_eq!(res.rule.to_css_string(), ".flex {\n  display: flex;\n}\n");
+    /// assert_eq!(res.rule.to_css_minified(), ".flex{display:flex;}");
     ///
     /// ```
-    pub fn add_static(&mut self, key: impl Into<SmolStr>, value: DeclList) -> &Self {
-        self.utilities.add_static(key.into(), value);
+    pub fn add_static(
+        &mut self,
+        key: impl Into<SmolStr>,
+        value: impl Into<StaticUtility>,
+    ) -> &Self {
+        self.utilities.add_static(key.into(), value.into());
         self
     }
 
@@ -101,7 +105,7 @@ impl Context {
     ///
     /// let res = ctx.generate("hover:flex").unwrap();
     ///
-    /// assert_eq!(res.rule.to_css_string(), ".hover\\:flex:hover {\n  display: flex;\n}\n");
+    /// assert_eq!(res.rule.to_css_minified(), ".hover\\:flex:hover{display:flex;}");
     ///
     /// ```
     pub fn add_variant<T>(&mut self, key: impl Into<SmolStr>, matcher: T) -> &mut Self
@@ -179,6 +183,20 @@ impl Context {
         let mut parts: SmallVec<[&str; 2]> = value.split_toplevel(b':')?;
 
         let utility = parts.pop()?;
+
+        // Try static utility first
+        if let Some((node, ordering, group)) = self
+            .utilities
+            .try_apply(UtilityCandidate::with_key(utility))
+        {
+            return Some(GenerateResult {
+                group,
+                rule: fill_selector_placeholder(utility, node.to_rule_list())?,
+                ordering,
+                variants: SmallVec::new(),
+            });
+        }
+
         let utility_candidate = UtilityParser::new(utility).parse(&self.utilities)?;
 
         let vs = parts
@@ -204,12 +222,7 @@ impl Context {
             .iter()
             .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
-        let mut writer = smol_str::Writer::new();
-        writer.write_str(".").ok()?;
-        serialize_name(value, &mut writer).ok()?;
-        let w = SmolStr::from(writer);
-
-        node = node.modify_with(|s| s.replace_char('&', &w));
+        node = fill_selector_placeholder(value, node)?;
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
@@ -220,4 +233,13 @@ impl Context {
             variants,
         })
     }
+}
+
+fn fill_selector_placeholder(value: &str, node: RuleList) -> Option<RuleList> {
+    let mut writer = smol_str::Writer::new();
+    writer.write_str(".").ok()?;
+    serialize_name(value, &mut writer).ok()?;
+    let w = SmolStr::from(writer);
+
+    Some(node.modify_with(|s| s.replace_char('&', &w)))
 }

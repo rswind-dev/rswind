@@ -3,13 +3,14 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use super::ToCss;
 use crate::writer::Writer;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct Decl {
     pub name: SmolStr,
     pub value: SmolStr,
@@ -36,12 +37,12 @@ impl<A: Into<SmolStr>, B: Into<SmolStr>> FromIterator<(A, B)> for DeclList {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
-pub struct DeclList(pub SmallVec<[Decl; 1]>);
+#[derive(Clone, Debug, PartialEq, Default, Deserialize)]
+pub struct DeclList(pub SmallVec<[Decl; 2]>);
 
 impl IntoIterator for DeclList {
     type Item = Decl;
-    type IntoIter = smallvec::IntoIter<[Decl; 1]>;
+    type IntoIter = smallvec::IntoIter<[Decl; 2]>;
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
     }

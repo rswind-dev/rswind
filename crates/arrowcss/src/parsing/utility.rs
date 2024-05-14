@@ -23,7 +23,14 @@ pub struct UtilityCandidate<'a> {
     pub negative: bool,
 }
 
-impl UtilityCandidate<'_> {
+impl<'a> UtilityCandidate<'a> {
+    pub fn with_key(key: &'a str) -> Self {
+        Self {
+            key,
+            ..Default::default()
+        }
+    }
+
     // only if value and modifier are both named
     pub fn take_fraction(&self) -> Option<SmolStr> {
         match (self.value, self.modifier) {

@@ -1,12 +1,17 @@
 use smol_str::SmolStr;
 
 use crate::{
-    context::{utilities::UtilityStorage, Context},
+    context::{
+        utilities::{StaticUtility, UtilityStorage},
+        Context,
+    },
     css::DeclList,
 };
 
+// TODO: replace all presets into codegen
+
 #[macro_export]
-macro_rules! static_rules_macro {
+macro_rules! static_utilities_macro {
   (
     $($key:literal => {
       $($name:literal: $value:literal;)+
@@ -27,8 +32,8 @@ macro_rules! static_rules_macro {
   };
 }
 
-fn static_rules() -> [(SmolStr, DeclList); 352] {
-    static_rules_macro! {
+fn static_utilities() -> [(SmolStr, DeclList); 352] {
+    static_utilities_macro! {
         // accessibility
         "sr-only" => {
             "position": "absolute";
@@ -617,11 +622,62 @@ fn static_rules() -> [(SmolStr, DeclList); 352] {
     }
 }
 
+macro_rules! selector_static_utilities {
+    (
+        $($key:literal as $selector:literal => {
+            $($name:literal: $value:literal;)+
+        })+
+    ) => {
+        [
+            $(
+                (
+                    smol_str::SmolStr::new_static($key),
+                    StaticUtility::new(
+                        smol_str::SmolStr::new_static($selector),
+                        DeclList(smallvec::smallvec![
+                            $(
+                                $crate::css::Decl {
+                                    name: smol_str::SmolStr::new_static($name),
+                                    value: smol_str::SmolStr::new_static($value),
+                                },
+                            )+
+                        ]),
+                    )
+                ),
+            )+
+        ]
+    };
+}
+
+fn static_utilities_selectored() -> [(SmolStr, StaticUtility); 5] {
+    selector_static_utilities! {
+        "divide-solid" as ":where(& > :not(:last-child))" => {
+            "border-style": "solid";
+        }
+        "divide-dashed" as ":where(& > :not(:last-child))" => {
+            "border-style": "dashed";
+        }
+        "divide-dotted" as ":where(& > :not(:last-child))" => {
+            "border-style": "dotted";
+        }
+        "divide-double" as ":where(& > :not(:last-child))" => {
+            "border-style": "double";
+        }
+        "divide-none" as ":where(& > :not(:last-child))" => {
+            "border-style": "none";
+        }
+    }
+}
+
 pub fn load_static_utilities(ctx: &mut Context) {
-    let iter = static_rules().into_iter();
-    let reserve = iter.size_hint().0;
+    let iter = static_utilities().into_iter();
+    let selector_iter = static_utilities_selectored().into_iter();
+    let reserve = iter.size_hint().0 + selector_iter.size_hint().0;
     ctx.utilities.reserve(reserve);
     iter.for_each(|(key, value)| {
+        ctx.add_static(key, value);
+    });
+    selector_iter.for_each(|(key, value)| {
         ctx.add_static(key, value);
     });
 }

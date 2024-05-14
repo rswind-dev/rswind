@@ -1,0 +1,28 @@
+{
+  "utilities": [
+    {
+      "key": "foo",
+      "type": "color",
+      "theme": "colors",
+      "css": {
+        "foo": "$1:color"
+      },
+      "modifier": {
+        "type": "number",
+        "theme": "opacity"
+      }
+    }
+  ],
+  "staticUtilities": {
+    "foo-bar": [
+      ":where(& > :not(:last-child))",
+      {
+        "foo": "bar"
+      }
+    ],
+    "foo-bar-baz": {
+      "foo": "bar",
+      "bar": "baz"
+    }
+  }
+}

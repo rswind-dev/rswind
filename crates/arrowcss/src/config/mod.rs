@@ -1,6 +1,9 @@
 pub mod de;
 
+use std::collections::HashMap;
+
 use serde::Deserialize;
+use smol_str::SmolStr;
 
 use crate::{parsing::UtilityBuilder, theme::Theme};
 
@@ -12,18 +15,29 @@ pub struct CorePlugins {
 }
 
 #[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ArrowConfig {
     #[serde(default)]
     pub theme: Theme,
     #[serde(default = "default_dark_mode")]
-    pub dark_mode: String,
+    pub dark_mode: SmolStr,
     #[serde(default)]
     pub features: Features,
     #[serde(default)]
     pub utilities: Vec<UtilityBuilder>,
+    #[serde(default)]
+    pub static_utilities: HashMap<SmolStr, StaticUtilityConfig>,
 }
 
-fn default_dark_mode() -> String {
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum StaticUtilityConfig {
+    DeclList(HashMap<SmolStr, SmolStr>),
+    WithSelector((SmolStr, HashMap<SmolStr, SmolStr>)),
+}
+
+fn default_dark_mode() -> SmolStr {
     "media".into()
 }
 

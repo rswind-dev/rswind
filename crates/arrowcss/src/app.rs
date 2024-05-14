@@ -33,11 +33,17 @@ pub struct UninitializedApp {
 impl UninitializedApp {
     pub fn init(mut self) -> Application {
         load_preset(&mut self.ctx);
-        for utility in self.config.utilities.into_iter() {
+
+        for utility in self.config.utilities {
             self.ctx
                 .utilities
                 .add(utility.key.clone(), utility.parse(&self.ctx.theme));
         }
+
+        for (key, value) in self.config.static_utilities {
+            self.ctx.add_static(key.clone(), value);
+        }
+
         Application {
             ctx: Arc::new(self.ctx),
             seen_variants: self.seen_variants,

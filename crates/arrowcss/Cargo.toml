@@ -22,7 +22,7 @@ lazy_static      = { workspace = true }
 lightningcss     = { workspace = true, features = ["into_owned"] }
 serde            = { workspace = true }
 serde_json       = { workspace = true }
-smallvec         = { workspace = true, features = ["const_generics"] }
+smallvec         = { workspace = true, features = ["const_generics", "serde"] }
 rustc-hash       = { workspace = true }
 memchr           = { workspace = true }
 config           = { workspace = true }
