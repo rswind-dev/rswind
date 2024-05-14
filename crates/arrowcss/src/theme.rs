@@ -1,4 +1,5 @@
 use std::{
+    fmt::Debug,
     ops::{Deref, DerefMut},
     sync::Arc,
 };
@@ -7,10 +8,19 @@ use phf::{phf_map, Map};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum ThemeValue {
     Dynamic(Arc<HashMap<SmolStr, SmolStr>>),
     Static(Arc<&'static Map<&'static str, &'static str>>),
+}
+
+impl Debug for ThemeValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Dynamic(map) => write!(f, "ThemeValue::Dynamic(len: {:?})", map.len()),
+            Self::Static(map) => write!(f, "ThemeValue::Static(len: {:?})", map.len()),
+        }
+    }
 }
 
 impl Default for ThemeValue {
