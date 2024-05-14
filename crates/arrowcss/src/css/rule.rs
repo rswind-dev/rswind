@@ -17,6 +17,14 @@ pub struct Rule {
 }
 
 impl Rule {
+    pub fn new_empty(decls: impl IntoIterator<Item = Decl>) -> Self {
+        Self {
+            selector: "&".into(),
+            decls: decls.into_iter().collect(),
+            rules: RuleList::default(),
+        }
+    }
+
     pub fn new_with_decls(selector: impl Into<SmolStr>, decls: SmallVec<[Decl; 2]>) -> Self {
         Self {
             selector: selector.into(),

@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use lightningcss::{properties::Property, traits::Parse, values::angle::Angle};
 pub use lightningcss::{
     properties::PropertyId,
@@ -12,7 +14,7 @@ pub use lightningcss::{
     },
 };
 
-pub trait TypeValidator: Sync + Send {
+pub trait TypeValidator: Sync + Send + Debug {
     fn validate(&self, value: &str) -> bool;
 }
 
@@ -27,10 +29,10 @@ impl TypeValidator for CssProperty {
 
 pub type CssProperty = PropertyId<'static>;
 
-/// An enum for CSS basic data types 
-/// 
+/// An enum for CSS basic data types
+///
 /// Will be validated by lightningcss
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CssDataType {
     Color,
     Length,
@@ -42,6 +44,24 @@ pub enum CssDataType {
     Time,
     Angle,
     Any,
+}
+
+impl CssDataType {
+    pub fn parse_string(value: &str) -> Result<Self, ()> {
+        match value {
+            "color" => Ok(Self::Color),
+            "length" => Ok(Self::Length),
+            "length-percentage" => Ok(Self::LengthPercentage),
+            "percentage" => Ok(Self::Percentage),
+            "number" => Ok(Self::Number),
+            "ident" => Ok(Self::Ident),
+            "image" => Ok(Self::Image),
+            "time" => Ok(Self::Time),
+            "angle" => Ok(Self::Angle),
+            "any" => Ok(Self::Any),
+            _ => Err(()),
+        }
+    }
 }
 
 impl TypeValidator for CssDataType {

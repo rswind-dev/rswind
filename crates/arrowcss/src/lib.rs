@@ -9,11 +9,9 @@ pub mod parsing;
 pub mod preset;
 pub mod process;
 pub mod theme;
-pub mod themes;
 pub mod types;
 pub mod utils;
 pub mod writer;
 
-pub use context::Context;
-
 pub use app::create_app;
+pub use context::Context;

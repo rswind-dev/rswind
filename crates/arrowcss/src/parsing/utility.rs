@@ -1,17 +1,14 @@
-use colored::Colorize;
+use serde::Deserialize;
 use smol_str::{format_smolstr, SmolStr};
 
 use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
-    context::{
-        utilities::{UtilityStorage, UtilityStorageImpl},
-        Context,
-    },
+    context::utilities::{UtilityStorage, UtilityStorageImpl},
     css::rule::RuleList,
     ordering::OrderingKey,
-    process::{ModifierProcessor, RuleMatchingFn, Utility, UtilityGroup, UtilityHandler},
-    theme::ThemeValue,
+    process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, UtilityHandler},
+    theme::Theme,
     types::TypeValidator,
 };
 
@@ -187,26 +184,43 @@ impl<'a> UtilityParser<'a> {
     }
 }
 
-pub struct UtilityBuilder<'i> {
-    ctx: &'i mut Context,
-    key: &'i str,
-    theme_key: Option<&'i str>,
-    handler: Option<UtilityHandler>,
-    modifier: Option<ModifierProcessor>,
-    validator: Option<Box<dyn TypeValidator>>,
-    additional_css: Option<RuleList>,
-    wrapper: Option<SmolStr>,
-    supports_negative: bool,
-    supports_fraction: bool,
-    ordering_key: Option<OrderingKey>,
-    group: Option<UtilityGroup>,
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct UtilityBuilder {
+    pub key: SmolStr,
+
+    #[serde(rename = "css")]
+    pub handler: Option<UtilityHandler>,
+
+    #[serde(default)]
+    pub modifier: Option<RawValueRepr>,
+
+    #[serde(rename = "theme")]
+    pub theme_key: Option<SmolStr>,
+
+    #[serde(rename = "type")]
+    pub validator: Option<Box<dyn TypeValidator>>,
+
+    #[serde(default)]
+    pub wrapper: Option<SmolStr>,
+
+    #[serde(default)]
+    pub supports_negative: bool,
+    #[serde(default)]
+    pub supports_fraction: bool,
+    // TODO: add support for below fields
+    #[serde(skip_deserializing)]
+    pub additional_css: Option<RuleList>,
+    #[serde(skip_deserializing)]
+    pub ordering_key: Option<OrderingKey>,
+    #[serde(skip_deserializing)]
+    pub group: Option<UtilityGroup>,
 }
 
-impl<'i> UtilityBuilder<'i> {
-    pub fn new(ctx: &'i mut Context, key: &'i str, handler: impl RuleMatchingFn + 'static) -> Self {
+impl UtilityBuilder {
+    pub fn new(key: impl Into<SmolStr>, handler: impl RuleMatchingFn + 'static) -> Self {
         Self {
-            ctx,
-            key,
+            key: key.into(),
             handler: Some(UtilityHandler::new(handler)),
             theme_key: None,
             supports_negative: false,
@@ -220,86 +234,68 @@ impl<'i> UtilityBuilder<'i> {
         }
     }
 
-    pub fn with_theme(mut self, key: &'i str) -> Self {
-        self.theme_key = Some(key);
+    // TODO: return Result<Self, Error> remove unwrap
+    pub fn parse(self, theme: &Theme) -> Utility {
+        Utility {
+            handler: self.handler.unwrap(),
+            supports_negative: self.supports_negative,
+            supports_fraction: self.supports_fraction,
+            value_repr: RawValueRepr {
+                theme_key: self.theme_key,
+                validator: self.validator,
+            }
+            .parse(theme)
+            .unwrap(),
+            modifier: self.modifier.map(|m| m.parse(theme)).transpose().unwrap(),
+            wrapper: self.wrapper,
+            additional_css: self.additional_css,
+            ordering_key: self.ordering_key,
+            group: self.group,
+        }
+    }
+
+    pub fn with_theme(&mut self, key: impl Into<SmolStr>) -> &mut Self {
+        self.theme_key = Some(key.into());
         self
     }
 
-    pub fn support_negative(mut self) -> Self {
+    pub fn support_negative(&mut self) -> &mut Self {
         self.supports_negative = true;
         self
     }
 
-    pub fn support_fraction(mut self) -> Self {
+    pub fn support_fraction(&mut self) -> &mut Self {
         self.supports_fraction = true;
         self
     }
 
-    pub fn with_modifier(mut self, modifier: ModifierProcessor) -> Self {
+    pub fn with_modifier(&mut self, modifier: RawValueRepr) -> &mut Self {
         self.modifier = Some(modifier);
         self
     }
 
-    pub fn with_validator(mut self, validator: impl TypeValidator + 'static) -> Self {
+    pub fn with_validator(&mut self, validator: impl TypeValidator + 'static) -> &mut Self {
         self.validator = Some(Box::new(validator));
         self
     }
 
-    pub fn with_additional_css(mut self, css: RuleList) -> Self {
+    pub fn with_additional_css(&mut self, css: RuleList) -> &mut Self {
         self.additional_css = Some(css);
         self
     }
 
-    pub fn with_wrapper(mut self, wrapper: &str) -> Self {
+    pub fn with_wrapper(&mut self, wrapper: &str) -> &mut Self {
         self.wrapper = Some(wrapper.into());
         self
     }
 
-    pub fn with_ordering(mut self, key: OrderingKey) -> Self {
+    pub fn with_ordering(&mut self, key: OrderingKey) -> &mut Self {
         self.ordering_key = Some(key);
         self
     }
 
-    pub fn with_group(mut self, group: UtilityGroup) -> Self {
+    pub fn with_group(&mut self, group: UtilityGroup) -> &mut Self {
         self.group = Some(group);
         self
-    }
-}
-
-/// Automatically adds the rule to the context when dropped.
-/// This is useful for defining rules in a more declarative way.
-impl<'i> Drop for UtilityBuilder<'i> {
-    fn drop(&mut self) {
-        let allowed_values = self.theme_key.map(|key| {
-            self.ctx
-                .get_theme(key)
-                .unwrap_or_else(|| {
-                    let _warning = format!("Theme key {} not found", key.bold())
-                        .as_str()
-                        .yellow();
-                    // TODO: reopen when we have logging, both on stdout and console
-                    // eprintln!("{}", warning);
-                    ThemeValue::default()
-                })
-                .clone()
-        });
-        let validator = std::mem::take(&mut self.validator);
-        let modifier = std::mem::take(&mut self.modifier);
-
-        self.ctx.add_utility(
-            self.key,
-            Utility {
-                validator,
-                allowed_values,
-                handler: self.handler.take().unwrap(),
-                modifier,
-                supports_negative: self.supports_negative,
-                supports_fraction: self.supports_fraction,
-                additional_css: std::mem::take(&mut self.additional_css),
-                wrapper: std::mem::take(&mut self.wrapper),
-                ordering_key: std::mem::take(&mut self.ordering_key),
-                group: self.group,
-            },
-        );
     }
 }

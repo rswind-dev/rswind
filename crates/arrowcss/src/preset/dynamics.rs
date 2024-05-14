@@ -1,37 +1,22 @@
+use std::ops::{Deref, DerefMut};
+
 use arrowcss_css_macro::css;
+use colored::Colorize;
 use lightningcss::vendor_prefix::VendorPrefix;
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
+    add_theme_utility,
     context::Context,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
-    process::{ModifierProcessor, RuleMatchingFn, UtilityGroup},
+    process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, ValueRepr},
+    theme::ThemeValue,
     types::{CssDataType, CssProperty},
 };
 
-struct RuleAdder<'a> {
-    ctx: &'a mut Context,
-}
-
-impl<'a> RuleAdder<'a> {
-    pub fn new(ctx: &'a mut Context) -> Self {
-        Self { ctx }
-    }
-
-    pub fn add<'b>(
-        &'b mut self,
-        key: &'b str,
-        handler: impl RuleMatchingFn + 'static,
-    ) -> UtilityBuilder<'b> {
-        UtilityBuilder::new(self.ctx, key, handler)
-    }
-}
-
 pub fn load_dynamic_utilities(ctx: &mut Context) {
     let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
-    let line_height = ctx.get_theme("lineHeight").unwrap_or_default();
-    let opacity = ctx.get_theme("opacity").unwrap_or_default();
 
     let mut rules = RuleAdder::new(ctx);
 
@@ -319,9 +304,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add(
@@ -330,9 +313,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("from", |_, value| {
@@ -345,9 +326,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add(
@@ -367,7 +346,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     .with_theme("colors")
     .with_validator(CssProperty::Color)
     .with_modifier(
-        ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
+        RawValueRepr::new("opacity").with_validator(CssProperty::Opacity),
     );
 
     rules
@@ -409,9 +388,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("bg", |_, value| css!("background-position": value))
@@ -435,16 +412,15 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("text", move |meta, value| {
             let mut font_size = css!("font-size": value.clone());
             if let Some(modifier) = meta.modifier {
                 font_size.extend(css!("line-height": modifier));
-            } else if let Some(line_height) = meta.raw_value
+            } else if let Some(line_height) = meta
+                .raw_value
                 .and_then(|v| font_size_lh.get(v.take_named()?))
             {
                 font_size.extend(css!("line-height": line_height.clone()));
@@ -453,9 +429,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("fontSize")
         .with_validator(CssProperty::FontSize)
-        .with_modifier(
-            ModifierProcessor::new(line_height.clone()).with_validator(CssProperty::LineHeight),
-        );
+        .with_modifier(RawValueRepr::new("lineHeight").with_validator(CssProperty::LineHeight));
 
     rules
         .add("font", |_, value| css!("font-weight": value))
@@ -474,9 +448,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_wrapper("&::placeholder")
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("decoration", |meta, value| {
@@ -486,9 +458,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(
-            ModifierProcessor::new(opacity.clone()).with_validator(CssProperty::Opacity),
-        );
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add(
@@ -917,4 +887,93 @@ pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
         .and_then(|m| m.parse::<f32>().ok())
         .map(|n| format_smolstr!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
         .unwrap_or_else(|| value.into())
+}
+
+pub struct UtilityAdder<'i> {
+    ctx: &'i mut Context,
+    builder: UtilityBuilder,
+}
+
+impl<'i> Deref for UtilityAdder<'i> {
+    type Target = UtilityBuilder;
+
+    fn deref(&self) -> &Self::Target {
+        &self.builder
+    }
+}
+
+impl DerefMut for UtilityAdder<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.builder
+    }
+}
+
+impl<'i> UtilityAdder<'i> {
+    pub fn new(ctx: &'i mut Context, key: &'i str, handler: impl RuleMatchingFn + 'static) -> Self {
+        Self {
+            ctx,
+            builder: UtilityBuilder::new(key, handler),
+        }
+    }
+}
+
+/// Automatically adds the rule to the context when dropped.
+/// This is useful for defining rules in a more declarative way.
+impl<'i> Drop for UtilityAdder<'i> {
+    fn drop(&mut self) {
+        let allowed_values = self.builder.theme_key.as_ref().map(|key| {
+            self.ctx
+                .get_theme(key)
+                .unwrap_or_else(|| {
+                    let _warning = format!("Theme key {} not found", key.bold())
+                        .as_str()
+                        .yellow();
+                    // TODO: reopen when wbuilder.e have logging, both on stdout and console
+                    // eprintln!("{}", warning);
+                    ThemeValue::default()
+                })
+                .clone()
+        });
+        let validator = std::mem::take(&mut self.builder.validator);
+        let modifier = std::mem::take(&mut self.builder.modifier);
+
+        self.ctx.add_utility(
+            self.builder.key.as_str(),
+            Utility {
+                value_repr: ValueRepr {
+                    allowed_values,
+                    validator,
+                },
+                handler: self.builder.handler.take().unwrap(),
+                modifier: modifier
+                    .map(|m| m.parse(&self.ctx.theme))
+                    .transpose()
+                    .unwrap_or_else(|_| panic!("Invalid modifier for {}", self.builder.key.bold())),
+                supports_negative: self.builder.supports_negative,
+                supports_fraction: self.builder.supports_fraction,
+                additional_css: std::mem::take(&mut self.builder.additional_css),
+                wrapper: std::mem::take(&mut self.builder.wrapper),
+                ordering_key: std::mem::take(&mut self.builder.ordering_key),
+                group: self.builder.group,
+            },
+        );
+    }
+}
+
+struct RuleAdder<'a> {
+    ctx: &'a mut Context,
+}
+
+impl<'a> RuleAdder<'a> {
+    pub fn new(ctx: &'a mut Context) -> Self {
+        Self { ctx }
+    }
+
+    pub fn add<'b>(
+        &'b mut self,
+        key: &'b str,
+        handler: impl RuleMatchingFn + 'static,
+    ) -> UtilityAdder<'b> {
+        UtilityAdder::new(self.ctx, key, handler)
+    }
 }
