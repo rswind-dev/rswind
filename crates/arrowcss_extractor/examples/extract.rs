@@ -1,6 +1,5 @@
-use std::collections::HashSet;
-
 use arrowcss_extractor::html::HtmlExtractor;
+use rustc_hash::FxHashSet;
 
 fn main() {
     let input = r#"
@@ -18,6 +17,6 @@ fn main() {
         "#;
     println!(
         "{:#?}",
-        HtmlExtractor::new(input).collect::<HashSet<_>>().len()
+        HtmlExtractor::new(input).collect::<FxHashSet<_>>().len()
     );
 }

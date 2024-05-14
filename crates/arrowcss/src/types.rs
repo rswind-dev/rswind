@@ -46,8 +46,12 @@ pub enum CssDataType {
     Any,
 }
 
+pub enum Error {
+    InvalidDatatype,
+}
+
 impl CssDataType {
-    pub fn parse_string(value: &str) -> Result<Self, ()> {
+    pub fn parse_string(value: &str) -> Result<Self, Error> {
         match value {
             "color" => Ok(Self::Color),
             "length" => Ok(Self::Length),
@@ -59,7 +63,7 @@ impl CssDataType {
             "time" => Ok(Self::Time),
             "angle" => Ok(Self::Angle),
             "any" => Ok(Self::Any),
-            _ => Err(()),
+            _ => Err(Error::InvalidDatatype),
         }
     }
 }

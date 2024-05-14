@@ -52,15 +52,15 @@ impl<'de> Deserialize<'de> for UtilityHandler {
     }
 }
 
-fn parse_dollar_sign<'a>(v: &'a str, value: &str, modifier: Option<&str>) -> Option<SmolStr> {
+fn parse_dollar_sign(v: &str, value: &str, modifier: Option<&str>) -> Option<SmolStr> {
     if v.contains("$2") && modifier.is_none() {
         return None;
     }
 
     // TODO: avoid allocation
     Some(
-        v.replace("$2", &modifier.unwrap_or_default())
-            .replace("$1:color", &as_color(value, modifier.as_deref()))
+        v.replace("$2", modifier.unwrap_or_default())
+            .replace("$1:color", &as_color(value, modifier))
             .replace("$1", value)
             .into(),
     )

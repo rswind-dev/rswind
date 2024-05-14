@@ -14,9 +14,9 @@ use crate::{
     css::{rule::RuleList, Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::{UtilityParser, VariantCandidate, VariantParser},
+    preset::theme::theme,
     process::{Utility, UtilityGroup, Variant},
     theme::{Theme, ThemeValue},
-    themes::theme,
     types::TypeValidator,
 };
 #[macro_use]
@@ -163,7 +163,7 @@ impl Context {
             })
             .allow_values(theme);
             utility.ordering_key = ord;
-            utility.validator = typ.clone().map(|v| Box::new(v) as _);
+            utility.value_repr.validator = typ.clone().map(|v| Box::new(v) as _);
 
             self.utilities.add(k, utility);
         }
