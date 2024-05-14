@@ -1,7 +1,6 @@
 pub mod de;
 
-use std::collections::HashMap;
-
+use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
 use smol_str::SmolStr;
 
