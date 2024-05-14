@@ -2,8 +2,8 @@ use std::env;
 
 use arrowcss::create_app;
 use arrowcss_cli::{
-    run::RunParallel,
     read::{get_files, FileInput},
+    run::RunParallel,
 };
 use arrowcss_extractor::Extractable;
 use criterion::{criterion_group, criterion_main, Criterion};

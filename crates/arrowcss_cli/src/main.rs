@@ -87,7 +87,7 @@ fn main() {
             if cmd.print_ast {
                 println!("{:#?}", r.rule);
             }
-            println!("{}", &r.rule.to_css_string().unwrap());
+            println!("{}", &r.rule.to_css_string());
         }
     }
 }
