@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 arrowcss           = { workspace = true }
 arrowcss_extractor = { workspace = true }
 
-napi        = { workspace = true, default-features = false, features = ["napi4"] }
+napi        = { workspace = true, features = ["napi4"] }
 napi-derive = { workspace = true }
 
 [build-dependencies]
