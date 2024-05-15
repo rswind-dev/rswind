@@ -153,6 +153,8 @@ impl UtilityOrdering {
 }
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub enum OrderingKey {
     Disorder,
 

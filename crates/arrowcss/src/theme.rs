@@ -62,6 +62,7 @@ impl From<&'static Map<&'static str, &'static str>> for ThemeValue {
 }
 
 #[derive(Debug, Default, Clone)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Theme(pub HashMap<SmolStr, ThemeValue>);
 
 impl Theme {

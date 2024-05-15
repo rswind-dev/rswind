@@ -193,28 +193,41 @@ impl<'a> UtilityParser<'a> {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {
+    /// The key of the utility， e.g. `bg`
     pub key: SmolStr,
 
+    /// The css handler for the utility, e.g. `background-color: $1`
     #[serde(rename = "css")]
     pub handler: Option<UtilityHandler>,
 
+    /// The modifier for the utility, e.g. `bg-blue-500/50 <-`
     #[serde(default)]
     pub modifier: Option<RawValueRepr>,
 
+    /// The theme key for the utility, will read from `theme` by this key later, e.g. `colors`
     #[serde(rename = "theme")]
     pub theme_key: Option<SmolStr>,
 
+    /// The type validator for the utility, only used at `arbitrary values`
+    ///
+    /// e.g. `length-percentage` for `width`
     #[serde(rename = "type")]
     pub validator: Option<Box<dyn TypeValidator>>,
 
+    /// The wrapper selector for the utility
     #[serde(default)]
     pub wrapper: Option<SmolStr>,
 
+    /// Whether the utility supports negative values
     #[serde(default)]
     pub supports_negative: bool,
+
+    /// Whether the utility supports fraction values, e.g. `w-1/2`
     #[serde(default)]
     pub supports_fraction: bool,
+
     // TODO: add support for below fields
     #[serde(skip_deserializing)]
     pub additional_css: Option<RuleList>,

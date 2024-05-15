@@ -10,6 +10,8 @@ use super::{Decl, ToCss};
 use crate::writer::Writer;
 
 #[derive(Debug, Clone, PartialEq, Default)]
+
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Rule {
     pub selector: SmolStr,
     pub decls: SmallVec<[Decl; 2]>,
@@ -57,6 +59,8 @@ impl Rule {
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
+
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct RuleList(pub Vec<Rule>);
 
 impl RuleList {

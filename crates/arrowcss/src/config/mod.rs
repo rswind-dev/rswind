@@ -1,4 +1,6 @@
 pub mod de;
+#[cfg(feature = "json_schema")]
+pub mod schema;
 
 use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
@@ -14,8 +16,8 @@ pub struct CorePlugins {
 }
 
 #[derive(Debug, Default, Deserialize)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
 pub struct ArrowConfig {
     #[serde(default)]
     pub theme: Theme,
@@ -30,6 +32,7 @@ pub struct ArrowConfig {
 }
 
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[serde(untagged)]
 pub enum StaticUtilityConfig {
     DeclList(HashMap<SmolStr, SmolStr>),
@@ -41,6 +44,7 @@ fn default_dark_mode() -> SmolStr {
 }
 
 #[derive(Debug, Deserialize, Default)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Features {
     pub strict_mode: bool,
 }

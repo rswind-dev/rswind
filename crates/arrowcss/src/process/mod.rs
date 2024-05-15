@@ -40,6 +40,7 @@ pub trait ValuePreprocessor {
     }
 }
 
+// TODO: json schema docs below
 /// An unparsed value representation.
 ///
 /// This struct is used to store the raw value and modifier of a utility
@@ -47,6 +48,7 @@ pub trait ValuePreprocessor {
 ///
 /// Used at: preset definitions, config deserializaion.
 #[derive(Debug, Default, Deserialize)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct RawValueRepr {
     pub validator: Option<Box<dyn TypeValidator>>,
     pub theme_key: Option<SmolStr>,

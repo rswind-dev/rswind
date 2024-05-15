@@ -18,6 +18,7 @@ pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static 
 #[rustfmt::skip]
 impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
 
 impl Debug for UtilityHandler {
@@ -69,6 +70,7 @@ pub struct Utility {
 
 // TODO: make this configurable
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub enum UtilityGroup {
     Transform,
     Filter,

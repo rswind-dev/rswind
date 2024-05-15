@@ -30,23 +30,23 @@ arrowcss_extractor = { path = "crates/arrowcss_extractor" }
 rayon                    = "1.10.0"
 either                   = "1.10.0"
 enum_dispatch            = "0.3.13"
-phf                      = { version = "0.11.2" }
+phf                      = "0.11.2"
 colored                  = "2.1.0"
 cssparser-macros         = "0.6.1"
-smol_str                 = { version = "0.2.1" }
+smol_str                 = "0.2.2"
 anyhow                   = "1.0.75"
 cssparser                = "0.33.0"
 lazy_static              = "1.4.0"
-lightningcss             = { version = "1.0.0-alpha.55" }
+lightningcss             = "1.0.0-alpha.55"
 serde                    = "1.0.193"
 serde_json               = "1.0.108"
-smallvec                 = { version = "1.11.2" }
+smallvec                 = "1.11.2"
 config                   = "0.13.4"
-clap                     = { version = "4.5.4" }
+clap                     = "4.5.4"
 notify                   = "6.1.1"
 notify-debouncer-mini    = "0.4.1"
 walkdir                  = "2.5.0"
-criterion                = { version = "0.4" }
+criterion                = "0.4"
 proc-macro2              = "1.0.79"
 quote                    = "1.0.35"
 syn                      = "2.0.57"

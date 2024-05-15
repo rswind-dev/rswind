@@ -3,6 +3,9 @@ name    = "arrowcss"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+json_schema = []
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -27,6 +30,8 @@ rustc-hash       = { workspace = true }
 memchr           = { workspace = true }
 config           = { workspace = true }
 thiserror        = { workspace = true }
+# schemars         = { version = "0.8.19", features = ["impl_json_schema", "smallvec"] }
+schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f" , features = ["impl_json_schema", "smallvec", "smol_str02"] }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }
