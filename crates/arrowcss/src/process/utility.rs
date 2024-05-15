@@ -9,7 +9,6 @@ use crate::{
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     theme::ThemeValue,
-    types::TypeValidator,
 };
 
 #[rustfmt::skip]
@@ -95,50 +94,6 @@ impl UtilityGroup {
     }
 }
 
-pub struct UtilityOptions {
-    pub ordering_key: Option<OrderingKey>,
-    pub validator: Option<Box<dyn TypeValidator>>,
-    pub supports_negative: bool,
-    pub supports_fraction: bool,
-}
-
-impl Default for UtilityOptions {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl UtilityOptions {
-    pub fn new() -> Self {
-        Self {
-            ordering_key: None,
-            validator: None,
-            supports_negative: false,
-            supports_fraction: false,
-        }
-    }
-
-    pub fn ordering(&mut self, key: Option<OrderingKey>) -> &mut Self {
-        self.ordering_key = key;
-        self
-    }
-
-    pub fn validator(&mut self, validator: Option<impl TypeValidator + 'static>) -> &mut Self {
-        self.validator = validator.map(|v| Box::new(v) as _);
-        self
-    }
-
-    pub fn support_negative(&mut self, value: bool) -> &mut Self {
-        self.supports_negative = value;
-        self
-    }
-
-    pub fn support_fraction(&mut self, value: bool) -> &mut Self {
-        self.supports_fraction = value;
-        self
-    }
-}
-
 impl ValuePreprocessor for Utility {
     fn validate(&self, value: &str) -> bool {
         self.value_repr.validate(value)
@@ -170,18 +125,6 @@ impl Utility {
         }
     }
 
-    pub fn allow_values(mut self, values: ThemeValue) -> Self {
-        self.value_repr.allowed_values = Some(values);
-        self
-    }
-
-    pub fn apply_options(mut self, options: UtilityOptions) -> Self {
-        self.supports_negative = options.supports_negative;
-        self.supports_fraction = options.supports_fraction;
-        self.value_repr.validator = options.validator;
-        self.ordering_key = options.ordering_key;
-        self
-    }
 
     pub fn apply_to(
         &self,
@@ -191,12 +134,12 @@ impl Utility {
             return None;
         }
 
-        let mut process_result = self.process(candidate.value)?;
+        let mut process_result = self.preprocess(candidate.value)?;
         let mut meta = MetaData::from_candidate(&candidate);
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
-            meta.modifier = modifier.process(Some(candidate));
+            meta.modifier = modifier.preprocess(Some(candidate));
         }
 
         if self.supports_fraction {

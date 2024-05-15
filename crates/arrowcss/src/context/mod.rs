@@ -11,13 +11,11 @@ use smol_str::SmolStr;
 use self::utilities::{StaticUtility, UtilityStorage, UtilityStorageImpl};
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
-    css::{rule::RuleList, Decl, Rule},
+    css::rule::RuleList,
     ordering::OrderingKey,
     parsing::{UtilityCandidate, UtilityParser, VariantCandidate, VariantParser},
-    preset::theme::theme,
     process::{Utility, UtilityGroup, Variant},
     theme::{Theme, ThemeValue},
-    types::TypeValidator,
 };
 #[macro_use]
 pub mod macros;
@@ -58,7 +56,7 @@ impl Context {
         Self {
             variants: HashMap::default(),
             utilities: UtilityStorageImpl::HashMap(Default::default()),
-            theme: theme(),
+            theme: Theme::default(),
         }
     }
 
@@ -142,36 +140,6 @@ impl Context {
 
     pub fn add_utility(&mut self, key: &str, utility: Utility) {
         self.utilities.add(key.into(), utility);
-    }
-
-    pub fn add_theme_utility(
-        &mut self,
-        key: &str,
-        values: Vec<(SmolStr, Vec<SmolStr>)>,
-        ord: Option<OrderingKey>,
-        typ: Option<impl TypeValidator + 'static + Clone>,
-    ) -> &Self {
-        for (k, v) in values {
-            let theme = self
-                .get_theme(key)
-                .unwrap_or_else(|| panic!("Theme {} not found", &k));
-
-            let mut utility = Utility::new(move |_meta, input| {
-                Rule::new_with_decls(
-                    "&",
-                    v.clone()
-                        .into_iter()
-                        .map(|k| Decl::new(k, input.clone()))
-                        .collect(),
-                )
-            })
-            .allow_values(theme);
-            utility.ordering_key = ord;
-            utility.value_repr.validator = typ.clone().map(|v| Box::new(v) as _);
-
-            self.utilities.add(k, utility);
-        }
-        self
     }
 
     pub fn get_theme(&self, key: &str) -> Option<ThemeValue> {

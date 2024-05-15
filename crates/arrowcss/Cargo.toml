@@ -5,6 +5,7 @@ edition = "2021"
 
 [features]
 json_schema = []
+wasm        = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,26 +13,40 @@ json_schema = []
 arrowcss_css_macro = { workspace = true }
 arrowcss_extractor = { workspace = true }
 
-rayon            = { workspace = true }
-either           = { workspace = true }
-enum_dispatch    = { workspace = true }
-phf              = { workspace = true, features = ["macros"] }
-colored          = { workspace = true }
-cssparser-macros = { workspace = true }
-smol_str         = { workspace = true, features = ["serde"] }
-anyhow           = { workspace = true }
-cssparser        = { workspace = true }
-lazy_static      = { workspace = true }
-lightningcss     = { workspace = true, features = ["into_owned"] }
-serde            = { workspace = true }
-serde_json       = { workspace = true }
-smallvec         = { workspace = true, features = ["const_generics", "serde"] }
-rustc-hash       = { workspace = true }
-memchr           = { workspace = true }
-config           = { workspace = true }
-thiserror        = { workspace = true }
+rayon              = { workspace = true }
+either             = { workspace = true }
+enum_dispatch      = { workspace = true }
+phf                = { workspace = true, features = ["macros"] }
+colored            = { workspace = true }
+cssparser-macros   = { workspace = true }
+smol_str           = { workspace = true, features = ["serde"] }
+anyhow             = { workspace = true }
+cssparser          = { workspace = true }
+lazy_static        = { workspace = true }
+lightningcss       = { workspace = true, features = ["into_owned"] }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+smallvec           = { workspace = true, features = ["const_generics", "serde"] }
+rustc-hash         = { workspace = true }
+memchr             = { workspace = true }
+config             = { workspace = true }
+thiserror          = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+js-sys             = { workspace = true }
+serde-wasm-bindgen = { workspace = true }
+
+wasm-bindgen = { version = "0.2.92", features = [
+    "serde",
+    "serde-serialize",
+    "serde_json",
+] }
 # schemars         = { version = "0.8.19", features = ["impl_json_schema", "smallvec"] }
-schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f" , features = ["impl_json_schema", "smallvec", "smol_str02"] }
+schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f", features = [
+    "impl_json_schema",
+    "smallvec",
+    "smol_str02",
+] }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

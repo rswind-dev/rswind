@@ -18,7 +18,7 @@ macro_rules! get_bool(
 
 macro_rules! get_typ(
     ($inner_typ:expr) => {
-        Some($inner_typ)
+        Some(Box::new($inner_typ))
     };
     () => {
         None::<CssDataType>
@@ -40,7 +40,8 @@ macro_rules! add_theme_utility {
                     .get_theme($theme_key)
                     .unwrap_or_else(|| panic!("Theme {} not found", &$key));
 
-                let utility = $crate::process::Utility::new(move |_meta, input| {
+                #[allow(unused_mut)]
+                let mut utility = $crate::process::Utility::new(move |_meta, input| {
                     $crate::css::Rule::new_with_decls(
                         "&",
                         [$($decl_key),+].clone()
@@ -48,18 +49,19 @@ macro_rules! add_theme_utility {
                             .map(|k| $crate::css::Decl::new(k, input.clone()))
                             .collect(),
                     )
-                })
-                .allow_values(theme);
+                });
 
-                let mut options = $crate::process::UtilityOptions::new();
-                options
-                    .ordering(get_ord!($($ord)?))
-                    .validator(get_typ!($($typ)?))
-                    $(.support_negative(get_bool!($($negative)?)))?
-                    $(.support_fraction(get_bool!($($fraction)?)))?
-                    ;
+                utility.value_repr.allowed_values = Some(theme);
 
-                $ctx.utilities.add($key.into(), utility.apply_options(options));
+                $(utility.supports_negative = get_bool!($($negative)?);)?
+
+                $(utility.supports_fraction = get_bool!($($fraction)?);)?
+
+                $(utility.ordering_key = get_ord!($ord);)?
+
+                $(utility.value_repr.validator = get_typ!($typ);)?
+
+                $ctx.utilities.add($key.into(), utility);
             )*
         )+
     };

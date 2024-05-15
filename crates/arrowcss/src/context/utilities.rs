@@ -67,6 +67,7 @@ pub trait UtilityStorage: Sync + Send {
     fn reserve(&mut self, additional: usize);
     fn add_static(&mut self, key: SmolStr, value: StaticUtility);
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue>>;
+    fn len(&self) -> usize;
     fn try_apply(
         &self,
         input: UtilityCandidate<'_>,
@@ -110,6 +111,10 @@ impl UtilityStorage for HashMapUtilityStorage {
 
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue>> {
         self.utilities.get(key)
+    }
+
+    fn len(&self) -> usize {
+        self.utilities.len()
     }
 
     fn try_apply(

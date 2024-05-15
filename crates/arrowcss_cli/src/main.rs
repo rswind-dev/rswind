@@ -53,14 +53,15 @@ pub struct DebugCommand {
 
 fn main() {
     let opts = Opts::parse();
-
-    let config = Config::builder()
-        .add_source(File::with_name(&opts.config))
-        .build()
-        .map(|c| c.try_deserialize::<ArrowConfig>().unwrap_or_default())
-        .unwrap_or_else(|_| ArrowConfig::default());
-
-    let mut app = Application::builder(config).init();
+    let mut app = Application::builder()
+        .with_config(
+            Config::builder()
+                .add_source(File::with_name(&opts.config))
+                .build()
+                .map(|c| c.try_deserialize::<ArrowConfig>().unwrap_or_default())
+                .unwrap_or_else(|_| ArrowConfig::default()),
+        )
+        .build();
 
     match opts.cmd {
         None if opts.watch => {

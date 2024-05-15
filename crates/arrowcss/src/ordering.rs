@@ -1,6 +1,7 @@
 use std::hash::Hash;
 
 use rustc_hash::FxHashMap as HashMap;
+use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
@@ -152,10 +153,11 @@ impl UtilityOrdering {
     }
 }
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
-
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
 pub enum OrderingKey {
+    #[default]
     Disorder,
 
     Translate,

@@ -7,7 +7,9 @@ use crate::{
     context::utilities::{UtilityStorage, UtilityStorageImpl},
     css::rule::RuleList,
     ordering::OrderingKey,
-    process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, UtilityHandler},
+    process::{
+        RawValueRepr, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup, UtilityHandler,
+    },
     theme::Theme,
     types::TypeValidator,
 };
@@ -228,11 +230,13 @@ pub struct UtilityBuilder {
     #[serde(default)]
     pub supports_fraction: bool,
 
+    #[serde(default)]
+    pub ordering_key: Option<OrderingKey>,
+
     // TODO: add support for below fields
     #[serde(skip_deserializing)]
     pub additional_css: Option<RuleList>,
-    #[serde(skip_deserializing)]
-    pub ordering_key: Option<OrderingKey>,
+
     #[serde(skip_deserializing)]
     pub group: Option<UtilityGroup>,
 }
@@ -254,24 +258,25 @@ impl UtilityBuilder {
         }
     }
 
-    // TODO: return Result<Self, Error> remove unwrap
-    pub fn parse(self, theme: &Theme) -> Utility {
-        Utility {
-            handler: self.handler.unwrap(),
-            supports_negative: self.supports_negative,
-            supports_fraction: self.supports_fraction,
-            value_repr: RawValueRepr {
-                theme_key: self.theme_key,
-                validator: self.validator,
-            }
-            .parse(theme)
-            .unwrap(),
-            modifier: self.modifier.map(|m| m.parse(theme)).transpose().unwrap(),
-            wrapper: self.wrapper,
-            additional_css: self.additional_css,
-            ordering_key: self.ordering_key,
-            group: self.group,
-        }
+    pub fn parse(self, theme: &Theme) -> Result<(SmolStr, Utility), ThemeParseError> {
+        Ok((
+            self.key,
+            Utility {
+                handler: self.handler.unwrap(),
+                supports_negative: self.supports_negative,
+                supports_fraction: self.supports_fraction,
+                value_repr: RawValueRepr {
+                    theme_key: self.theme_key,
+                    validator: self.validator,
+                }
+                .parse(theme)?,
+                modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
+                wrapper: self.wrapper,
+                additional_css: self.additional_css,
+                ordering_key: self.ordering_key,
+                group: self.group,
+            },
+        ))
     }
 
     pub fn with_theme(&mut self, key: impl Into<SmolStr>) -> &mut Self {
