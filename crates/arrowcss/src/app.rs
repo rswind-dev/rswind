@@ -4,13 +4,14 @@ use cssparser::serialize_name;
 use rayon::{iter::IntoParallelIterator, prelude::*};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
+use tracing::{debug, info, instrument};
 
 use crate::{
     config::ArrowConfig,
     context::{utilities::UtilityStorage, Context, GenerateResult},
     css::{Rule, ToCss},
     ordering::{create_ordering, OrderingItem, OrderingMap},
-    preset::load_preset,
+    preset::Preset,
     writer::Writer,
 };
 
@@ -20,36 +21,62 @@ pub struct Application {
     pub seen_variants: BTreeSet<u64>,
     pub ordering: OrderingMap,
     pub cache: HashMap<SmolStr, Option<String>>,
-    pub strict_mode: bool,
 }
 
-pub struct UninitializedApp {
-    config: ArrowConfig,
+pub struct ApplicationBuilder {
+    config: Option<ArrowConfig>,
     ctx: Context,
-    seen_variants: BTreeSet<u64>,
-    strict_mode: bool,
+    presets: Vec<Box<dyn Preset>>,
 }
 
-impl UninitializedApp {
-    pub fn init(mut self) -> Application {
-        load_preset(&mut self.ctx);
+impl ApplicationBuilder {
+    #[instrument(skip_all)]
+    pub fn with_config(mut self, config: ArrowConfig) -> Self {
+        debug!(
+            utilities = ?config.utilities.len(),
+            static_utilities = ?config.static_utilities.len(),
+            dark_mode = ?config.dark_mode,
+            theme = ?config.theme,
+            "Loaded config"
+        );
+        self.config = Some(config);
+        self
+    }
 
-        for utility in self.config.utilities {
-            self.ctx
-                .utilities
-                .add(utility.key.clone(), utility.parse(&self.ctx.theme));
+    #[instrument(skip_all)]
+    pub fn with_preset(mut self, preset: impl Preset + 'static) -> Self {
+        self.presets.push(Box::new(preset));
+        self
+    }
+
+    #[instrument(skip_all)]
+    pub fn build(mut self) -> Application {
+        for preset in self.presets {
+            preset.load_preset(&mut self.ctx);
         }
 
-        for (key, value) in self.config.static_utilities {
-            self.ctx.add_static(key.clone(), value);
+        if let Some(config) = self.config.take() {
+            for utility in config.utilities {
+                match utility.parse(&self.ctx.theme) {
+                    Ok((key, utility)) => {
+                        self.ctx.utilities.add(key, utility);
+                    }
+                    Err(e) => {
+                        eprintln!("Error parsing utility: {:?}", e);
+                    }
+                }
+            }
+
+            for (key, value) in config.static_utilities {
+                self.ctx.add_static(key, value);
+            }
         }
 
         Application {
             ctx: Arc::new(self.ctx),
-            seen_variants: self.seen_variants,
+            seen_variants: BTreeSet::default(),
             cache: HashMap::default(),
             ordering: OrderingMap::new(create_ordering()),
-            strict_mode: self.strict_mode,
         }
     }
 }
@@ -57,16 +84,15 @@ impl UninitializedApp {
 type GenResult = HashMap<SmolStr, GenerateResult>;
 
 impl Application {
-    pub fn builder(config: ArrowConfig) -> UninitializedApp {
-        UninitializedApp {
-            // TODO: add theme back
-            strict_mode: config.features.strict_mode,
-            config,
-            ctx: Context::new(),
-            seen_variants: BTreeSet::new(),
+    pub fn builder() -> ApplicationBuilder {
+        ApplicationBuilder {
+            presets: Vec::new(),
+            config: None,
+            ctx: Context::default(),
         }
     }
 
+    #[instrument(skip_all)]
     pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
         let res = input
             .into_iter()
@@ -75,7 +101,10 @@ impl Application {
                     .generate(token.as_ref())
                     .map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
-            .collect();
+            .collect::<HashMap<_, _>>();
+
+        info!("Generated {} utilities", res.len());
+
         self.run_inner(res)
     }
 
@@ -147,9 +176,7 @@ impl Application {
 }
 
 pub fn create_app() -> Application {
-    let config = ArrowConfig::default();
-    let app = Application::builder(config);
-    app.init()
+    Application::builder().build()
 }
 
 #[cfg(test)]
