@@ -1,6 +1,7 @@
 pub mod theme;
 pub mod utility_handler;
 pub mod value_repr;
+pub mod ast;
 
 #[cfg(test)]
 mod tests {

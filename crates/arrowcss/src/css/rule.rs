@@ -10,7 +10,6 @@ use super::{Decl, ToCss};
 use crate::writer::Writer;
 
 #[derive(Debug, Clone, PartialEq, Default)]
-
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Rule {
     pub selector: SmolStr,
@@ -32,6 +31,14 @@ impl Rule {
             selector: selector.into(),
             decls,
             rules: RuleList::default(),
+        }
+    }
+
+    pub fn new_with_rules(selector: impl Into<SmolStr>, rules: RuleList) -> Self {
+        Self {
+            selector: selector.into(),
+            decls: Default::default(),
+            rules,
         }
     }
 
@@ -59,9 +66,13 @@ impl Rule {
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
-
-#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct RuleList(pub Vec<Rule>);
+
+impl<const N: usize> From<[Rule; N]> for RuleList {
+    fn from(s: [Rule; N]) -> RuleList {
+        RuleList(s.into())
+    }
+}
 
 impl RuleList {
     pub fn new(rule: Rule) -> Self {

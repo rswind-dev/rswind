@@ -1,4 +1,3 @@
-
 macro_rules! forward_impl {
     (($($impl:tt)+) => $target:ty) => {
         impl $($impl)+ {
@@ -35,5 +34,11 @@ macro_rules! forward_impl {
 forward_impl!(Box<dyn crate::process::RuleMatchingFn> => std::collections::HashMap<String, String>);
 
 forward_impl!(Box<dyn crate::types::TypeValidator> => String);
+
+forward_impl!(crate::css::decl::DeclList => std::collections::HashMap<String, String>);
+
+forward_impl!(crate::css::rule::RuleList => std::collections::HashMap<String, either::Either<String, crate::css::DeclList>>);
+
+forward_impl!(Box<dyn crate::parsing::AdditionalCssHandler> => crate::css::rule::RuleList);
 
 forward_impl!(crate::theme::ThemeValue => std::collections::HashMap<String, String>);

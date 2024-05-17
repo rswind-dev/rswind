@@ -3,14 +3,13 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use super::ToCss;
 use crate::writer::Writer;
 
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Decl {
     pub name: SmolStr,
@@ -38,7 +37,7 @@ impl<A: Into<SmolStr>, B: Into<SmolStr>> FromIterator<(A, B)> for DeclList {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct DeclList(pub SmallVec<[Decl; 2]>);
 
 impl IntoIterator for DeclList {
