@@ -244,13 +244,20 @@ pub struct UtilityBuilder {
 }
 
 pub trait AdditionalCssHandler: Sync + Send {
-    fn handle(&self, value: SmolStr) -> RuleList;
+    fn handle(&self, value: SmolStr) -> Option<RuleList>;
 }
 
-impl<T: Fn(SmolStr) -> RuleList + Sync + Send> AdditionalCssHandler for T {
-    fn handle(&self, value: SmolStr) -> RuleList {
+impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for T {
+    fn handle(&self, value: SmolStr) -> Option<RuleList> {
         self(value)
     }
+}
+
+impl AdditionalCssHandler for RuleList {
+    fn handle(&self, _value: SmolStr) -> Option<RuleList> {
+        Some(self.clone())
+    }
+
 }
 
 impl Debug for dyn AdditionalCssHandler {

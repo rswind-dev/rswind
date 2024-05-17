@@ -8,10 +8,13 @@ use phf::{phf_map, Map};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
+use crate::css::rule::RuleList;
+
 #[derive(Clone)]
 pub enum ThemeValue {
     Dynamic(Arc<HashMap<SmolStr, SmolStr>>),
     Static(Arc<&'static Map<&'static str, &'static str>>),
+    RuleList(Arc<HashMap<SmolStr, RuleList>>),
 }
 
 impl Debug for ThemeValue {
@@ -19,6 +22,7 @@ impl Debug for ThemeValue {
         match self {
             Self::Dynamic(map) => write!(f, "ThemeValue::Dynamic(len: {:?})", map.len()),
             Self::Static(map) => write!(f, "ThemeValue::Static(len: {:?})", map.len()),
+            Self::RuleList(map) => write!(f, "ThemeValue::RuleList(len: {:?})", map.len()),
         }
     }
 }
@@ -32,19 +36,28 @@ impl Default for ThemeValue {
 impl ThemeValue {
     pub fn get(&self, key: &str) -> Option<SmolStr> {
         match self {
-            Self::Dynamic(map) => map.get(key).cloned(),
             Self::Static(map) => map.get(key).map(|s| SmolStr::from(*s)),
+            Self::Dynamic(map) => map.get(key).cloned(),
+            Self::RuleList(_) => None,
+        }
+    }
+
+    pub fn get_rule_list(&self, key: &str) -> Option<&RuleList> {
+        match self {
+            Self::RuleList(map) => map.get(key),
+            _ => None,
         }
     }
 
     pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = (&str, SmolStr)> + 'a> {
         match self {
-            Self::Dynamic(map) => Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone()))),
             Self::Static(map) => Box::new(
                 map.clone()
-                    .into_iter()
-                    .map(|(k, v)| (*k, SmolStr::from(*v))),
+                .into_iter()
+                .map(|(k, v)| (*k, SmolStr::from(*v))),
             ),
+            Self::Dynamic(map) => Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone()))),
+            Self::RuleList(_) => Box::new(std::iter::empty()),
         }
     }
 }
@@ -81,6 +94,12 @@ impl Theme {
                             .map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))),
                     );
                     *entry = ThemeValue::Dynamic(Arc::new(value));
+                }
+                ThemeValue::RuleList(_r) => {
+                    todo!()
+                    // let inner_map = Arc::make_mut(r);
+                    // inner_map.reserve(value.len());
+                    // inner_map.extend(value);
                 }
             }
             return;

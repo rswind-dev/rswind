@@ -1,8 +1,11 @@
+use std::sync::Arc;
+
+use arrowcss_css_macro::{css, rule_list};
 use phf::Map;
 
 use crate::{
     preset::{colors::COLORS, spacing::SPACING},
-    theme::Theme,
+    theme::{Theme, ThemeValue},
     Context,
 };
 
@@ -18,12 +21,24 @@ macro_rules! create_theme {
     };
 }
 
+macro_rules! hash_map {
+    ($($key:expr => $value:expr $(,)?)*) => {
+        {
+            let mut m = rustc_hash::FxHashMap::default();
+            $(
+                m.insert($key.into(), $value.into());
+            )*
+            m
+        }
+    };
+}
+
 pub fn load_theme(ctx: &mut Context) {
     ctx.theme = theme();
 }
 
 pub fn theme() -> Theme {
-    create_theme! {
+    let mut theme = create_theme! {
         "colors" => &COLORS,
         "spacing" => &SPACING,
         "translate" => &TRANSLATE,
@@ -61,7 +76,40 @@ pub fn theme() -> Theme {
         "textDecorationThickness" => &TEXT_DECORATION_THICKNESS,
         "gridAutoColumns" => &GRID_AUTO_COLUMNS,
         "gridAutoRows" => &GRID_AUTO_ROWS
-    }
+    };
+
+    theme.insert(
+        "keyframes".into(),
+        ThemeValue::RuleList(Arc::new(hash_map! {
+            "spin" => css! {
+                "to" {
+                    "transform": "rotate(360deg)";
+                }
+            },
+            "ping" => css! {
+                "75%, 100%" {
+                    "transform": "scale(2)";
+                    "opacity": "0";
+                }
+            },
+            "pulse" => css! {
+                "50%" {
+                    "opacity": ".5";
+                }
+            },
+            "bounce" => rule_list! {
+                "0%, 100%" {
+                    "transform": "translateY(-25%)";
+                    "animation-timing-function": "cubic-bezier(0.8,0,1,1)";
+                }
+                "50%" {
+                    "transform": "none";
+                    "animation-timing-function": "cubic-bezier(0,0,0.2,1)";
+                }
+            },
+        })),
+    );
+    theme
 }
 
 macro_rules! define_theme {

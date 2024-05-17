@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use arrowcss_css_macro::css;
+use arrowcss_css_macro::{css, rule_list};
 use colored::Colorize;
 use lightningcss::vendor_prefix::VendorPrefix;
 use smol_str::{format_smolstr, SmolStr};
@@ -8,7 +8,7 @@ use smol_str::{format_smolstr, SmolStr};
 use crate::{
     add_theme_utility,
     context::Context,
-    css::rule::RuleList,
+    css::Rule,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, ValueRepr},
@@ -18,7 +18,7 @@ use crate::{
 
 pub fn load_dynamic_utilities(ctx: &mut Context) {
     let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
-    // let keyframes = ctx.get_theme("keyframes").unwrap_or_default();
+    let keyframes = ctx.get_theme("keyframes").unwrap_or_default();
 
     let mut rules = RuleAdder::new(ctx);
 
@@ -65,30 +65,22 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .support_negative()
         .with_theme("translate")
         .with_validator(CssDataType::LengthPercentage)
-        .with_additional_css(|_| {
-            RuleList::from([
-                css! {
-                    "@property --tw-translate-x" {
-                        "syntax": "<length-percentage>";
-                        "inherits": "false";
-                        "initial-value": "0";
-                    }
-                },
-                css! {
-                    "@property --tw-translate-y" {
-                        "syntax": "<length-percentage>";
-                        "inherits": "false";
-                        "initial-value": "0";
-                    }
-                },
-                css! {
-                    "@property --tw-translate-z" {
-                        "syntax": "<length-percentage>";
-                        "inherits": "false";
-                        "initial-value": "0";
-                    }
-                },
-            ])
+        .with_additional_css(rule_list! {
+            "@property --tw-translate-x" {
+                "syntax": "<length-percentage>";
+                "inherits": "false";
+                "initial-value": "0";
+            }
+            "@property --tw-translate-y" {
+                "syntax": "<length-percentage>";
+                "inherits": "false";
+                "initial-value": "0";
+            }
+            "@property --tw-translate-z" {
+                "syntax": "<length-percentage>";
+                "inherits": "false";
+                "initial-value": "0";
+            }
         });
 
     rules
@@ -279,7 +271,12 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
                 "animation": value;
             }
         })
-        .with_theme("animate");
+        .with_theme("animate")
+        .with_additional_css(move |value: SmolStr| {
+            keyframes.get_rule_list(value.as_str()).cloned().map(|f| {
+                Rule::new_with_rules(format_smolstr!("@keyframes {}", value), f).to_rule_list()
+            })
+        });
 
     rules
         .add("space-x", |_, value| {

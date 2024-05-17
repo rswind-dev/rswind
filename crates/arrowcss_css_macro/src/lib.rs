@@ -117,3 +117,12 @@ pub fn css(input: TokenStream) -> TokenStream {
         panic!("only one rule is allowed")
     })
 }
+
+#[proc_macro]
+pub fn rule_list(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as MyMacroInput);
+    let generated_code = input.css.iter().map(ToTokens::to_token_stream);
+    TokenStream::from(quote! {
+        crate::css::rule::RuleList::from(vec![#(#generated_code),*])
+    })
+}

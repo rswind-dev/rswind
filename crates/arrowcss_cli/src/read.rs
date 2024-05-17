@@ -33,8 +33,8 @@ impl FileInput {
     }
 }
 
-impl Extractable for FileInput {
-    fn extract(&self) -> impl Iterator<Item = &str> {
+impl<'a> Extractable<'a> for &'a FileInput {
+    fn extract(self) -> impl Iterator<Item = &'a str> {
         match self.kind {
             InputKind::Html => HtmlExtractor::new(&self.content)
                 .apply_options(|o| o.class_only = true)

@@ -8,8 +8,8 @@ pub mod ecma;
 pub mod html;
 pub mod item;
 
-pub trait Extractable {
-    fn extract(&self) -> impl Iterator<Item = &str>;
+pub trait Extractable<'a> {
+    fn extract(self) -> impl Iterator<Item = &'a str>;
 }
 
 pub struct BasicExtractor<'i> {
@@ -30,8 +30,8 @@ impl<'i> BasicExtractor<'i> {
     }
 }
 
-impl<'a> Extractable for &'a str {
-    fn extract(&self) -> impl Iterator<Item = &str> {
+impl<'a> Extractable<'a> for &'a str {
+    fn extract(self) -> impl Iterator<Item = &'a str> {
         BasicExtractor::new(self).extract_inner()
     }
 }
@@ -81,8 +81,8 @@ impl<'a> Extractor<'a> {
     }
 }
 
-impl<'a> Extractable for Extractor<'a> {
-    fn extract(&self) -> impl Iterator<Item = &str> {
+impl<'a> Extractable<'a> for Extractor<'a> {
+    fn extract(self) -> impl Iterator<Item = &'a str> {
         match self.kind {
             InputKind::Html => HtmlExtractor::new(self.haystack).filter_invalid(),
             InputKind::Ecma => EcmaExtractor::new(self.haystack).filter_invalid(),

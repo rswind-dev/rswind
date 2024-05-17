@@ -153,6 +153,12 @@ impl Application {
             let _ = writer.write_str(&w.dest);
         }
 
+        for (_, r) in res.iter() {
+            if let Some(css) = &r.additional_css {
+                let _ = css.to_css(&mut writer);
+            }
+        }
+
         for (group, names) in groups {
             let rule = Rule::new_with_decls(
                 names

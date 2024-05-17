@@ -68,12 +68,6 @@ impl Rule {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RuleList(pub Vec<Rule>);
 
-impl<const N: usize> From<[Rule; N]> for RuleList {
-    fn from(s: [Rule; N]) -> RuleList {
-        RuleList(s.into())
-    }
-}
-
 impl RuleList {
     pub fn new(rule: Rule) -> Self {
         Self(vec![rule])
@@ -157,7 +151,6 @@ impl<'a, T: IntoIterator<Item = &'a Rule>> ToCss for T {
         if let Some(first) = iter.next() {
             first.to_css(writer)?;
             for node in iter {
-                writer.newline()?;
                 node.to_css(writer)?;
             }
         }
@@ -196,6 +189,12 @@ impl From<Rule> for RuleList {
 impl From<Vec<Rule>> for RuleList {
     fn from(rule: Vec<Rule>) -> Self {
         Self(rule)
+    }
+}
+
+impl<const N: usize> From<[Rule; N]> for RuleList {
+    fn from(s: [Rule; N]) -> RuleList {
+        RuleList(s.into())
     }
 }
 

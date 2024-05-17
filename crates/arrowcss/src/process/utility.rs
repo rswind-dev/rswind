@@ -155,16 +155,90 @@ impl Utility {
             process_result = format_smolstr!("calc({} * -1)", process_result);
         }
 
+        let mut css = None;
+        if let Some(additional_css) = &self.additional_css {
+            css = additional_css.handle(candidate.value.unwrap_or_default().as_str().into());
+        }
+
         let mut node = self.handler.call(meta, process_result);
 
         if let Some(wrapper) = &self.wrapper {
             node.selector.clone_from(wrapper);
         }
 
-        Some((
-            node,
-            self.ordering_key.unwrap_or(OrderingKey::Disorder),
-            self.group,
-        ))
+        Some(UtilityApplyResult {
+            rule: node,
+            ordering: self.ordering_key.unwrap_or(OrderingKey::Disorder),
+            group: self.group,
+            additional_css: css,
+        })
+    }
+}
+
+pub struct Generator<'a> {
+    utility: &'a Utility,
+    candidate: UtilityCandidate<'a>,
+    value: SmolStr,
+    meta: MetaData<'a>,
+}
+
+impl<'a> Generator<'a> {
+    pub fn new(utility: &'a Utility, candidate: UtilityCandidate<'a>) -> Self {
+        Self {
+            utility,
+            candidate,
+            value: SmolStr::default(),
+            meta: MetaData::from_candidate(&candidate),
+        }
+    }
+
+    pub fn preprocess_value(mut self) -> Option<Self> {
+        self.value = self.utility.preprocess(self.candidate.value)?;
+        if let (Some(modifier), Some(candidate)) = (&self.utility.modifier, self.candidate.modifier)
+        {
+            self.meta.modifier = modifier.preprocess(Some(candidate));
+        }
+        Some(self)
+    }
+
+    pub fn apply_fraction(mut self) -> Self {
+        if self.utility.supports_fraction {
+            if let Some(fraction) = self.candidate.take_fraction() {
+                self.value = format_smolstr!("calc({} * 100%)", fraction);
+            }
+        }
+        self
+    }
+
+    pub fn apply_negative(mut self) -> Self {
+        if self.candidate.negative {
+            self.value = format_smolstr!("calc({} * -1)", self.value)
+        }
+        self
+    }
+
+    pub fn generate_node(self) -> Rule {
+        let mut node = self.utility.handler.call(self.meta, self.value);
+
+        if let Some(wrapper) = &self.utility.wrapper {
+            node.selector.clone_from(wrapper);
+        }
+
+        node
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_css_macro() {
+        let css = arrowcss_css_macro::css! {
+            "@property --tw-translate-x" {
+                "syntax": "<length-percentage>";
+                "inherits": "false";
+                "initial-value": "0";
+            }
+        };
+        println!("{:?}", css);
     }
 }
