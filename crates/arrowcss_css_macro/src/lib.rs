@@ -114,6 +114,6 @@ pub fn css(input: TokenStream) -> TokenStream {
             #generated_code
         }
     } else {
-        panic!("Only one rule is allowed")
+        panic!("only one rule is allowed")
     })
 }
