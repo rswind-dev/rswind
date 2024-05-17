@@ -14,7 +14,7 @@ arrowcss_css_macro = { workspace = true }
 arrowcss_extractor = { workspace = true }
 
 rayon              = { workspace = true }
-either             = { workspace = true }
+either             = { workspace = true, features = ["serde"] }
 enum_dispatch      = { workspace = true }
 phf                = { workspace = true, features = ["macros"] }
 colored            = { workspace = true }
@@ -45,6 +45,7 @@ wasm-bindgen = { version = "0.2.92", features = [
 schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f", features = [
     "impl_json_schema",
     "smallvec",
+    "either",
     "smol_str02",
 ] }
 
