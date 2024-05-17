@@ -693,6 +693,9 @@ name = "either"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "enum_dispatch"
@@ -1604,6 +1607,7 @@ version = "0.8.16"
 source = "git+https://github.com/GREsau/schemars.git?rev=3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f#3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f"
 dependencies = [
  "dyn-clone",
+ "either",
  "schemars_derive",
  "serde",
  "serde_json",
