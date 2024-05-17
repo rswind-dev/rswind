@@ -14,7 +14,7 @@ use crate::{
     css::rule::RuleList,
     ordering::OrderingKey,
     parsing::{UtilityCandidate, UtilityParser, VariantCandidate, VariantParser},
-    process::{Utility, UtilityGroup, Variant},
+    process::{Utility, UtilityApplyResult, UtilityGroup, Variant},
     theme::{Theme, ThemeValue},
 };
 #[macro_use]
@@ -49,6 +49,8 @@ pub struct GenerateResult {
 
     /// The variants in the utility, collect to sort them later
     pub variants: SmallVec<[u64; 2]>,
+
+    pub additional_css: Option<RuleList>,
 }
 
 impl Context {
@@ -153,7 +155,12 @@ impl Context {
         let utility = parts.pop()?;
 
         // Try static utility first
-        if let Some((node, ordering, group)) = self
+        if let Some(UtilityApplyResult {
+            rule: node,
+            ordering,
+            group,
+            ..
+        }) = self
             .utilities
             .try_apply(UtilityCandidate::with_key(utility))
         {
@@ -162,6 +169,7 @@ impl Context {
                 rule: fill_selector_placeholder(utility, node.to_rule_list())?,
                 ordering,
                 variants: SmallVec::new(),
+                additional_css: None,
             });
         }
 
@@ -184,7 +192,12 @@ impl Context {
         let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
             vs.iter().partition(|v| v.processor.nested);
 
-        let (node, ordering, group) = self.utilities.try_apply(utility_candidate)?;
+        let UtilityApplyResult {
+            rule: node,
+            ordering,
+            group,
+            additional_css,
+        } = self.utilities.try_apply(utility_candidate)?;
 
         let mut node = selector
             .iter()
@@ -195,10 +208,11 @@ impl Context {
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
         Some(GenerateResult {
-            group,
             rule: node,
             ordering,
+            group,
             variants,
+            additional_css,
         })
     }
 }

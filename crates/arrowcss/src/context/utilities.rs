@@ -8,7 +8,7 @@ use crate::{
     css::{DeclList, Rule},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
-    process::{Utility, UtilityGroup},
+    process::{Utility, UtilityApplyResult},
 };
 
 #[derive(Debug)]
@@ -68,10 +68,7 @@ pub trait UtilityStorage: Sync + Send {
     fn add_static(&mut self, key: SmolStr, value: StaticUtility);
     fn get(&self, key: &str) -> Option<&Vec<UtilityValue>>;
     fn len(&self) -> usize;
-    fn try_apply(
-        &self,
-        input: UtilityCandidate<'_>,
-    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)>;
+    fn try_apply(&self, input: UtilityCandidate<'_>) -> Option<UtilityApplyResult>;
 }
 
 #[enum_dispatch(UtilityStorage)]
@@ -117,19 +114,17 @@ impl UtilityStorage for HashMapUtilityStorage {
         self.utilities.len()
     }
 
-    fn try_apply(
-        &self,
-        candidate: UtilityCandidate<'_>,
-    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)> {
+    fn try_apply(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
-            Left(value) => Some((
-                Rule::new_with_decls(
+            Left(value) => Some(UtilityApplyResult {
+                rule: Rule::new_with_decls(
                     value.selector.as_ref().map(|s| s.as_str()).unwrap_or("&"),
                     value.decls.0.clone(),
                 ),
-                OrderingKey::Disorder,
-                None,
-            )),
+                ordering: OrderingKey::Disorder,
+                group: None,
+                additional_css: None,
+            }),
             Right(handler) => handler.apply_to(candidate),
         })
     }

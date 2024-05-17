@@ -29,7 +29,7 @@ pub trait ValuePreprocessor {
     fn validate(&self, value: &str) -> bool;
     fn allowed_values(&self) -> Option<&ThemeValue>;
 
-    fn process(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
+    fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
         match value {
             Some(MaybeArbitrary::Arbitrary(value)) => {
                 self.validate(value).then(|| SmolStr::from(value))

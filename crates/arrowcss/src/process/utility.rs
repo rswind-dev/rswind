@@ -7,7 +7,7 @@ use super::{MetaData, ValuePreprocessor, ValueRepr};
 use crate::{
     css::{rule::RuleList, Decl, Rule, ToCssString},
     ordering::OrderingKey,
-    parsing::UtilityCandidate,
+    parsing::{AdditionalCssHandler, UtilityCandidate},
     theme::ThemeValue,
 };
 
@@ -60,7 +60,7 @@ pub struct Utility {
 
     /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
-    pub additional_css: Option<RuleList>,
+    pub additional_css: Option<Box<dyn AdditionalCssHandler>>,
 
     pub ordering_key: Option<OrderingKey>,
 
@@ -110,6 +110,13 @@ impl<F: RuleMatchingFn + 'static> From<F> for Utility {
     }
 }
 
+pub struct UtilityApplyResult {
+    pub rule: Rule,
+    pub ordering: OrderingKey,
+    pub group: Option<UtilityGroup>,
+    pub additional_css: Option<RuleList>,
+}
+
 impl Utility {
     pub fn new<F: RuleMatchingFn + 'static>(handler: F) -> Self {
         Self {
@@ -125,11 +132,7 @@ impl Utility {
         }
     }
 
-
-    pub fn apply_to(
-        &self,
-        candidate: UtilityCandidate<'_>,
-    ) -> Option<(Rule, OrderingKey, Option<UtilityGroup>)> {
+    pub fn apply_to(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
         if !self.supports_negative && candidate.negative {
             return None;
         }

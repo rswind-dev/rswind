@@ -8,6 +8,7 @@ use smol_str::{format_smolstr, SmolStr};
 use crate::{
     add_theme_utility,
     context::Context,
+    css::rule::RuleList,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, ValueRepr},
@@ -17,6 +18,7 @@ use crate::{
 
 pub fn load_dynamic_utilities(ctx: &mut Context) {
     let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
+    // let keyframes = ctx.get_theme("keyframes").unwrap_or_default();
 
     let mut rules = RuleAdder::new(ctx);
 
@@ -60,7 +62,34 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             }
         })
         .support_fraction()
-        .support_negative();
+        .support_negative()
+        .with_theme("translate")
+        .with_validator(CssDataType::LengthPercentage)
+        .with_additional_css(|_| {
+            RuleList::from([
+                css! {
+                    "@property --tw-translate-x" {
+                        "syntax": "<length-percentage>";
+                        "inherits": "false";
+                        "initial-value": "0";
+                    }
+                },
+                css! {
+                    "@property --tw-translate-y" {
+                        "syntax": "<length-percentage>";
+                        "inherits": "false";
+                        "initial-value": "0";
+                    }
+                },
+                css! {
+                    "@property --tw-translate-z" {
+                        "syntax": "<length-percentage>";
+                        "inherits": "false";
+                        "initial-value": "0";
+                    }
+                },
+            ])
+        });
 
     rules
         .add("translate-x", |_, value| {

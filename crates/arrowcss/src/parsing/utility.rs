@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use serde::Deserialize;
 use smol_str::{format_smolstr, SmolStr};
 
@@ -235,10 +237,26 @@ pub struct UtilityBuilder {
 
     // TODO: add support for below fields
     #[serde(skip_deserializing)]
-    pub additional_css: Option<RuleList>,
+    pub additional_css: Option<Box<dyn AdditionalCssHandler>>,
 
     #[serde(skip_deserializing)]
     pub group: Option<UtilityGroup>,
+}
+
+pub trait AdditionalCssHandler: Sync + Send {
+    fn handle(&self, value: SmolStr) -> RuleList;
+}
+
+impl<T: Fn(SmolStr) -> RuleList + Sync + Send> AdditionalCssHandler for T {
+    fn handle(&self, value: SmolStr) -> RuleList {
+        self(value)
+    }
+}
+
+impl Debug for dyn AdditionalCssHandler {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("AdditionalCssHandler")
+    }
 }
 
 impl UtilityBuilder {
@@ -304,8 +322,8 @@ impl UtilityBuilder {
         self
     }
 
-    pub fn with_additional_css(&mut self, css: RuleList) -> &mut Self {
-        self.additional_css = Some(css);
+    pub fn with_additional_css(&mut self, css: impl AdditionalCssHandler + 'static) -> &mut Self {
+        self.additional_css = Some(Box::new(css));
         self
     }
 
