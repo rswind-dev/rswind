@@ -10,8 +10,7 @@ use crate::{
     config::ArrowConfig,
     context::{utilities::UtilityStorage, Context, GenerateResult},
     css::{Rule, ToCss},
-    ordering::{create_ordering, OrderingItem, OrderingMap},
-    preset::Preset,
+    preset::{preset_tailwind, Preset},
     writer::Writer,
 };
 
@@ -19,7 +18,7 @@ pub struct Application {
     pub ctx: Arc<Context>,
     // TODO: this is not right, it should store variants' order
     pub seen_variants: BTreeSet<u64>,
-    pub ordering: OrderingMap,
+    // pub ordering: OrderingMap,
     pub cache: HashMap<SmolStr, Option<String>>,
 }
 
@@ -76,12 +75,12 @@ impl ApplicationBuilder {
             ctx: Arc::new(self.ctx),
             seen_variants: BTreeSet::default(),
             cache: HashMap::default(),
-            ordering: OrderingMap::new(create_ordering()),
+            // ordering: OrderingMap::new(create_ordering()),
         }
     }
 }
 
-type GenResult = HashMap<SmolStr, GenerateResult>;
+type GenResult = Vec<(SmolStr, GenerateResult)>;
 
 impl Application {
     pub fn builder() -> ApplicationBuilder {
@@ -94,14 +93,14 @@ impl Application {
 
     #[instrument(skip_all)]
     pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
-        let res = input
+        let res: GenResult = input
             .into_iter()
             .filter_map(|token| {
                 self.ctx
                     .generate(token.as_ref())
                     .map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
-            .collect::<HashMap<_, _>>();
+            .collect();
 
         info!("Generated {} utilities", res.len());
 
@@ -123,7 +122,7 @@ impl Application {
         self.run_inner(res)
     }
 
-    pub fn run_inner(&mut self, res: GenResult) -> String {
+    pub fn run_inner(&mut self, mut res: GenResult) -> String {
         let mut writer = Writer::default(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
@@ -143,16 +142,15 @@ impl Application {
                 .fold(0u128, |order, o| order | (1 << o))
         };
 
-        self.ordering.insert_many(res.into_iter().map(|r| {
-            let key = get_key(&r.1);
-            OrderingItem::new(r.0, r.1, key)
-        }));
+        res.sort_unstable_by_key(|(k, v)| {
+            // variant first > ordering key > name
+            (get_key(&v), v.ordering, k.clone())
+        });
 
-        for r in self.ordering.get_ordered() {
+        for (_, r) in res.iter() {
             let mut w = Writer::default(String::with_capacity(100));
-            let _ = r.item.rule.to_css(&mut w);
+            let _ = r.rule.to_css(&mut w);
             let _ = writer.write_str(&w.dest);
-            // self.ctx.cache.insert(r.name.clone(), Some(w.dest));
         }
 
         for (group, names) in groups {
@@ -176,7 +174,7 @@ impl Application {
 }
 
 pub fn create_app() -> Application {
-    Application::builder().build()
+    Application::builder().with_preset(preset_tailwind).build()
 }
 
 #[cfg(test)]
