@@ -2,7 +2,7 @@ use std::{collections::BTreeSet, fmt::Write as _, sync::Arc};
 
 use cssparser::serialize_name;
 use rayon::{iter::IntoParallelIterator, prelude::*};
-use rustc_hash::FxHashMap as HashMap;
+use rustc_hash::{FxHashMap as HashMap, FxHashSet};
 use smol_str::SmolStr;
 use tracing::{debug, info, instrument};
 
@@ -153,10 +153,14 @@ impl Application {
             let _ = writer.write_str(&w.dest);
         }
 
-        for (_, r) in res.iter() {
-            if let Some(css) = &r.additional_css {
-                let _ = css.to_css(&mut writer);
-            }
+        let unique_rules = res
+            .iter()
+            .filter_map(|(_, r)| r.additional_css.as_ref())
+            .flat_map(|r| r.iter())
+            .collect::<FxHashSet<&Rule>>();
+
+        for css in unique_rules {
+            let _ = css.to_css(&mut writer);
         }
 
         for (group, names) in groups {

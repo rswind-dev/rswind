@@ -9,7 +9,7 @@ use smol_str::SmolStr;
 use super::{Decl, ToCss};
 use crate::writer::Writer;
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Rule {
     pub selector: SmolStr,
@@ -65,7 +65,7 @@ impl Rule {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RuleList(pub Vec<Rule>);
 
 impl RuleList {

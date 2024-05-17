@@ -9,7 +9,7 @@ use smol_str::SmolStr;
 use super::ToCss;
 use crate::writer::Writer;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Decl {
     pub name: SmolStr,
