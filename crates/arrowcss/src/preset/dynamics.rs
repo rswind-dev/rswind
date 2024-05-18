@@ -1,14 +1,18 @@
-use std::ops::{Deref, DerefMut};
+use std::{
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use arrowcss_css_macro::{css, rule_list};
 use colored::Colorize;
+use lazy_static::lazy_static;
 use lightningcss::vendor_prefix::VendorPrefix;
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     add_theme_utility,
     context::Context,
-    css::Rule,
+    css::{rule::RuleList, Rule},
     ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, ValueRepr},
@@ -65,23 +69,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .support_negative()
         .with_theme("translate")
         .with_validator(CssDataType::LengthPercentage)
-        .with_additional_css(rule_list! {
-            "@property --tw-translate-x" {
-                "syntax": "<length-percentage>";
-                "inherits": "false";
-                "initial-value": "0";
-            }
-            "@property --tw-translate-y" {
-                "syntax": "<length-percentage>";
-                "inherits": "false";
-                "initial-value": "0";
-            }
-            "@property --tw-translate-z" {
-                "syntax": "<length-percentage>";
-                "inherits": "false";
-                "initial-value": "0";
-            }
-        });
+        .with_additional_css(TRANSLATE_XYZ.clone());
 
     rules
         .add("translate-x", |_, value| {
@@ -93,7 +81,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("translate")
         .with_validator(CssDataType::LengthPercentage)
         .support_fraction()
-        .support_negative();
+        .support_negative()
+        .with_additional_css(TRANSLATE_XY.clone());
 
     rules
         .add("translate-y", |_, value| {
@@ -105,7 +94,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("translate")
         .with_validator(CssDataType::LengthPercentage)
         .support_fraction()
-        .support_negative();
+        .support_negative()
+        .with_additional_css(TRANSLATE_XY.clone());
 
     rules
         .add("translate-z", |_, value| {
@@ -116,7 +106,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("translate")
         .with_validator(CssDataType::LengthPercentage)
-        .support_negative();
+        .support_negative()
+        // TODO: TRANSLATE_Z
+        .with_additional_css(TRANSLATE_XYZ.clone());
 
     rules
         .add("scale", |_, value| {
@@ -129,7 +121,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .support_negative()
         .with_theme("scale")
-        .with_validator(CssDataType::Percentage);
+        .with_validator(CssDataType::Percentage)
+        .with_additional_css(SCALE_XYZ.clone());
 
     rules
         .add("scale-x", |_, value| {
@@ -140,7 +133,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("scale")
         .with_validator(CssDataType::Percentage)
-        .support_negative();
+        .support_negative()
+        .with_additional_css(SCALE_XY.clone());
 
     rules
         .add("scale-y", |_, value| {
@@ -151,7 +145,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("scale")
         .with_validator(CssDataType::Percentage)
-        .support_negative();
+        .support_negative()
+        .with_additional_css(SCALE_XY.clone());
 
     rules
         .add("scale-z", |_, value| {
@@ -162,7 +157,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("scale")
         .with_validator(CssDataType::Percentage)
-        .support_negative();
+        .support_negative()
+        .with_additional_css(SCALE_XYZ.clone());
 
     rules
         .add("rotate", |_, value| css!("rotate": value))
@@ -175,21 +171,24 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("rotate")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("rotate-y", |_, value| css!("--tw-rotate-y": value))
         .with_theme("rotate")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("rotate-z", |_, value| css!("--tw-rotate-z": value))
         .with_theme("rotate")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("skew", |_, value| {
@@ -201,26 +200,30 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("skew")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("skew-x", |_, value| css!("--tw-skew-x": value))
         .with_theme("skew")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("skew-y", |_, value| css!("--tw-skew-y": value))
         .with_theme("skew")
         .support_negative()
         .with_validator(CssDataType::Angle)
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("transform", |_, value| css!("transform": value))
         .with_validator(CssProperty::Transform(VendorPrefix::None))
-        .with_group(UtilityGroup::Transform);
+        .with_group(UtilityGroup::Transform)
+        .with_additional_css(TRANSFORM.clone());
 
     rules
         .add("line-clamp", |_, value| {
@@ -243,7 +246,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacing)
-        .with_theme("spacing");
+        .with_theme("spacing")
+        .with_validator(CssDataType::Length)
+        .with_additional_css(BORDER_SPACING_XY.clone());
 
     rules
         .add("border-spacing-x", |_, value| {
@@ -253,7 +258,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacingAxis)
-        .with_theme("spacing");
+        .with_theme("spacing")
+        .with_validator(CssDataType::Length)
+        .with_additional_css(BORDER_SPACING_XY.clone());
 
     rules
         .add("border-spacing-y", |_, value| {
@@ -263,7 +270,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacingAxis)
-        .with_theme("spacing");
+        .with_theme("spacing")
+        .with_validator(CssDataType::Length)
+        .with_additional_css(BORDER_SPACING_XY.clone());
 
     rules
         .add("animate", |_, value| {
@@ -288,7 +297,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("spacing")
         .with_wrapper("&:where(& > :not(:last-child))")
-        .support_negative();
+        .support_negative()
+        .with_ordering(OrderingKey::MarginAxis)
+        .with_additional_css(SPACE_X_REVERSE.clone());
 
     rules
         .add("space-y", |_, value| {
@@ -300,7 +311,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("spacing")
         .with_wrapper("&:where(& > :not(:last-child))")
-        .support_negative();
+        .support_negative()
+        .with_ordering(OrderingKey::MarginAxis)
+        .with_additional_css(SPACE_Y_REVERSE.clone());
 
     rules.add("divide-x", |_, value| {
         css! {
@@ -310,7 +323,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         }
     })
     .with_theme("borderWidth")
-    .with_validator(CssProperty::BorderRightWidth);
+    .with_validator(CssProperty::BorderRightWidth)
+    .with_ordering(OrderingKey::BorderWidthAxis)
+    .with_additional_css(DIVIDE_X_REVERSE.clone());
 
     rules
         .add("divide-y", |_, value| {
@@ -321,7 +336,9 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             }
         })
         .with_theme("borderWidth")
-        .with_validator(CssProperty::BorderTopWidth);
+        .with_validator(CssProperty::BorderTopWidth)
+        .with_ordering(OrderingKey::BorderWidthAxis)
+        .with_additional_css(DIVIDE_Y_REVERSE.clone());
 
     rules
         .add(
@@ -352,7 +369,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity))
+        .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
         .add(
@@ -360,7 +378,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             |_, value| css!("--tw-gradient-from-position": value),
         )
         .with_theme("gradientColorStopPositions")
-        .with_validator(CssDataType::LengthPercentage);
+        .with_validator(CssDataType::LengthPercentage)
+        .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules.add("via", |meta, value| {
         css! {
@@ -373,19 +392,23 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     .with_validator(CssProperty::Color)
     .with_modifier(
         RawValueRepr::new("opacity").with_validator(CssProperty::Opacity),
-    );
+    )
+    .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
         .add("via", |_, value| css!("--tw-gradient-via-position": value))
         .with_theme("gradientColorStopPositions")
-        .with_validator(CssDataType::LengthPercentage);
+        .with_validator(CssDataType::LengthPercentage)
+        .with_additional_css(GRADIENT_PROPERTIES.clone());
 
+    // TODO: --tw-gradient-to
     rules.add("to", |meta, value| {
         css! {
             "--tw-gradient-to": as_color(&value, meta.modifier.as_deref());
             "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
         }
-    });
+    })
+    .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules.add(
         "fill",
@@ -726,7 +749,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidth);
+        .with_ordering(OrderingKey::BorderWidth)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-x", |_, value| {
@@ -739,7 +763,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthAxis);
+        .with_ordering(OrderingKey::BorderWidthAxis)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-y", |_, value| {
@@ -752,7 +777,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthAxis);
+        .with_ordering(OrderingKey::BorderWidthAxis)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-s", |_, value| {
@@ -765,7 +791,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-e", |_, value| {
@@ -778,7 +805,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-t", |_, value| {
@@ -791,7 +819,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-r", |_, value| {
@@ -804,7 +833,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-b", |_, value| {
@@ -817,7 +847,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     rules
         .add("border-l", |_, value| {
@@ -830,7 +861,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         })
         .with_theme("borderWidth")
         .with_validator(CssProperty::BorderWidth)
-        .with_ordering(OrderingKey::BorderWidthSide);
+        .with_ordering(OrderingKey::BorderWidthSide)
+        .with_additional_css(BORDER_STYLE.clone());
 
     use lightningcss::properties::PropertyId::*;
     add_theme_utility!(ctx, {
@@ -906,6 +938,82 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             "divide" => ["--tw-divide-opacity"]
         }
     });
+}
+
+/// usage: property!(
+/// "--tw-space-x-reverse", "<number>", "0";
+/// "--tw-space-y-reverse", "<number>", "0";
+/// );
+///
+/// or
+/// property!(["x", "y"]; "--tw-translate", "<length-percentage>", "0")
+macro_rules! property {
+    ($($name:expr, $syn:expr $(, $initial:expr)? ;)*) => {
+        rule_list! {
+            $(
+                concat!("@property ", $name) {
+                    "syntax": $syn;
+                    "inherits": "false";
+                    $("initial-value": $initial;)?
+                }
+            )*
+        }
+    };
+    ([$($name:expr),*]; $prop:expr, $syn:expr, $initial:expr) => {
+        rule_list! {
+            $(
+                concat!("@property ", $prop, "-", $name) {
+                    "syntax": $syn;
+                    "inherits": "false";
+                    "initial-value": $initial;
+                }
+            )*
+        }
+    };
+}
+
+lazy_static! {
+    static ref TRANSLATE_XY: Arc<RuleList> =
+        Arc::new(property!(["x", "y"]; "--tw-translate", "<length-percentage>", "0"));
+    static ref TRANSLATE_XYZ: Arc<RuleList> =
+        Arc::new(property!(["x", "y", "z"]; "--tw-translate", "<length-percentage>", "0"));
+    static ref SCALE_XY: Arc<RuleList> =
+        Arc::new(property!(["x", "y"]; "--tw-scale", "<number>", "1"));
+    static ref SCALE_XYZ: Arc<RuleList> =
+        Arc::new(property!(["x", "y", "z"]; "--tw-scale", "<number>", "1"));
+    static ref ROTATE_XY: Arc<RuleList> =
+        Arc::new(property!(["x", "y"]; "--tw-rotate", "<angle>", "0"));
+    static ref ROTATE_XYZ: Arc<RuleList> =
+        Arc::new(property!(["x", "y", "z"]; "--tw-rotate", "<angle>", "0"));
+    static ref SKEW_XY: Arc<RuleList> =
+        Arc::new(property!(["x", "y"]; "--tw-skew", "<angle>", "0"));
+    static ref TRANSFORM: Arc<RuleList> =
+        Arc::new(RuleList::from_list([ROTATE_XYZ.as_ref(), SKEW_XY.as_ref()]));
+    static ref BORDER_SPACING_XY: Arc<RuleList> =
+        Arc::new(property!(["x", "y"]; "--tw-border-spacing", "<length>", "0"));
+    static ref SPACE_X_REVERSE: Arc<RuleList> =
+        Arc::new(property!("--tw-space-x-reverse", "<number>", "0";));
+    static ref SPACE_Y_REVERSE: Arc<RuleList> =
+        Arc::new(property!("--tw-space-y-reverse", "<number>", "0";));
+    static ref DIVIDE_X_REVERSE: Arc<RuleList> =
+        Arc::new(property!("--tw-divide-x-reverse", "<number>", "0";));
+    static ref DIVIDE_Y_REVERSE: Arc<RuleList> =
+        Arc::new(property!("--tw-divide-y-reverse", "<number>", "0";));
+    static ref GRADIENT_PROPERTIES: Arc<RuleList> = Arc::new(property!(
+        "--tw-gradient-from", "<color>", "#0000";
+        "--tw-gradient-to", "<color>", "#0000";
+        "--tw-gradient-from", "<color>", "transparent";
+        "--tw-gradient-via", "<color>", "transparent";
+        "--tw-gradient-to", "<color>", "transparent";
+        "--tw-gradient-stops", "*";
+        "--tw-gradient-via-stops", "*";
+        "--tw-gradient-from-position", "<length-percentage>", "0%";
+        "--tw-gradient-via-position", "<length-percentage>", "50%";
+        "--tw-gradient-to-position", "<length-percentage>", "100%";
+    ));
+    static ref BORDER_STYLE: Arc<RuleList> = Arc::new(property!(
+        "--tw-border-style", "<custom-ident>", "solid";
+    ));
 }
 
 pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
