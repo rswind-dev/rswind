@@ -91,6 +91,10 @@ impl RuleList {
     pub fn as_single(self) -> Option<Rule> {
         self.0.into_iter().next()
     }
+
+    pub fn from_list<'a>(i: impl IntoIterator<Item = &'a Self>) -> Self {
+        Self(i.into_iter().flat_map(|r| &r.0).cloned().collect())
+    }
 }
 
 impl IntoIterator for RuleList {
@@ -108,9 +112,20 @@ impl FromIterator<Rule> for RuleList {
     }
 }
 
+impl<'a> FromIterator<&'a Rule> for &'a RuleList {
+    fn from_iter<T: IntoIterator<Item = &'a Rule>>(iter: T) -> Self {
+        iter.into_iter().collect()
+    }
+}
+
 impl RuleList {
     pub fn extend(&mut self, other: RuleList) {
         self.0.extend(other.0);
+    }
+
+    pub fn extended(mut self, other: RuleList) -> Self {
+        self.0.extend(other.0);
+        self
     }
 }
 

@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{borrow::Cow, fmt::Debug, sync::Arc};
 
 use serde::Deserialize;
 use smol_str::{format_smolstr, SmolStr};
@@ -244,25 +244,36 @@ pub struct UtilityBuilder {
 }
 
 pub trait AdditionalCssHandler: Sync + Send {
-    fn handle(&self, value: SmolStr) -> Option<RuleList>;
+    fn handle(&self, value: SmolStr) -> Option<Cow<RuleList>>;
 }
 
 impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for T {
-    fn handle(&self, value: SmolStr) -> Option<RuleList> {
-        self(value)
+    fn handle(&self, value: SmolStr) -> Option<Cow<RuleList>> {
+        self(value).map(Cow::Owned)
     }
 }
 
 impl AdditionalCssHandler for RuleList {
-    fn handle(&self, _value: SmolStr) -> Option<RuleList> {
-        Some(self.clone())
+    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
+        Some(Cow::Borrowed(self))
     }
+}
 
+impl AdditionalCssHandler for Arc<RuleList> {
+    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
+        Some(Cow::Borrowed(self.as_ref()))
+    }
+}
+
+impl AdditionalCssHandler for &RuleList {
+    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
+        Some(Cow::Borrowed(self))
+    }
 }
 
 impl Debug for dyn AdditionalCssHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("AdditionalCssHandler")
+        f.write_fmt(format_args!("AdditionalCssHandler {:p}", self))
     }
 }
 

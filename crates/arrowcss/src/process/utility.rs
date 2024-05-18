@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{borrow::Cow, fmt::Debug};
 
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
@@ -110,11 +110,11 @@ impl<F: RuleMatchingFn + 'static> From<F> for Utility {
     }
 }
 
-pub struct UtilityApplyResult {
+pub struct UtilityApplyResult<'a> {
     pub rule: Rule,
     pub ordering: OrderingKey,
     pub group: Option<UtilityGroup>,
-    pub additional_css: Option<RuleList>,
+    pub additional_css: Option<Cow<'a, RuleList>>,
 }
 
 impl Utility {

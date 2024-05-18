@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fmt::Write,
     hash::{Hash, Hasher},
 };
@@ -37,7 +38,7 @@ pub struct Context {
 
 /// The result of a utility generation
 #[derive(Debug, Clone)]
-pub struct GenerateResult {
+pub struct GenerateResult<'a> {
     /// The generated rule
     pub rule: RuleList,
 
@@ -50,7 +51,7 @@ pub struct GenerateResult {
     /// The variants in the utility, collect to sort them later
     pub variants: SmallVec<[u64; 2]>,
 
-    pub additional_css: Option<RuleList>,
+    pub additional_css: Option<Cow<'a, RuleList>>,
 }
 
 impl Context {

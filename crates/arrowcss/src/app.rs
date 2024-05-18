@@ -1,8 +1,12 @@
-use std::{collections::BTreeSet, fmt::Write as _, sync::Arc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Write as _,
+    sync::Arc,
+};
 
 use cssparser::serialize_name;
 use rayon::{iter::IntoParallelIterator, prelude::*};
-use rustc_hash::{FxHashMap as HashMap, FxHashSet};
+use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 use tracing::{debug, info, instrument};
 
@@ -80,7 +84,7 @@ impl ApplicationBuilder {
     }
 }
 
-type GenResult = Vec<(SmolStr, GenerateResult)>;
+type GenResult<'a> = Vec<(SmolStr, GenerateResult<'a>)>;
 
 impl Application {
     pub fn builder() -> ApplicationBuilder {
@@ -104,7 +108,7 @@ impl Application {
 
         info!("Generated {} utilities", res.len());
 
-        self.run_inner(res)
+        Self::run_inner(&mut self.seen_variants, res)
     }
 
     pub fn run_parallel_with(
@@ -119,14 +123,15 @@ impl Application {
                     .map(|rule| (SmolStr::from(s.as_ref()), rule))
             })
             .collect();
-        self.run_inner(res)
+
+        Self::run_inner(&mut self.seen_variants, res)
     }
 
-    pub fn run_inner(&mut self, mut res: GenResult) -> String {
+    pub fn run_inner(seen_variants: &mut BTreeSet<u64>, mut res: GenResult) -> String {
         let mut writer = Writer::default(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
-            self.seen_variants.extend(v.variants.clone());
+            seen_variants.extend(v.variants.clone());
             if let Some(group) = &v.group {
                 groups
                     .entry(*group)
@@ -138,11 +143,11 @@ impl Application {
         let get_key = |r: &GenerateResult| {
             r.variants
                 .iter()
-                .map(|v| self.seen_variants.iter().position(|x| x == v).unwrap())
+                .map(|v| seen_variants.iter().position(|x| x == v).unwrap())
                 .fold(0u128, |order, o| order | (1 << o))
         };
 
-        res.sort_unstable_by_key(|(k, v)| {
+        res.sort_by_cached_key(|(k, v)| {
             // variant first > ordering key > name
             (get_key(&v), v.ordering, k.clone())
         });
@@ -157,9 +162,10 @@ impl Application {
             .iter()
             .filter_map(|(_, r)| r.additional_css.as_ref())
             .flat_map(|r| r.iter())
-            .collect::<FxHashSet<&Rule>>();
+            .map(|r| (&r.selector, r))
+            .collect::<BTreeMap<_, _>>();
 
-        for css in unique_rules {
+        for (_, css) in unique_rules {
             let _ = css.to_css(&mut writer);
         }
 
