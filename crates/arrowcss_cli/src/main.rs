@@ -1,8 +1,7 @@
 use std::{fs::OpenOptions, io::Write};
 
-use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString};
+use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString, preset::preset_tailwind};
 use clap::{arg, command, Parser};
-use config::{Config, File};
 use read::get_files;
 use run::RunParallel;
 use watch::WatchApp;
@@ -54,13 +53,8 @@ pub struct DebugCommand {
 fn main() {
     let opts = Opts::parse();
     let mut app = Application::builder()
-        .with_config(
-            Config::builder()
-                .add_source(File::with_name(&opts.config))
-                .build()
-                .map(|c| c.try_deserialize::<ArrowConfig>().unwrap_or_default())
-                .unwrap_or_else(|_| ArrowConfig::default()),
-        )
+        .with_preset(preset_tailwind)
+        .with_config(ArrowConfig::from_file("arrow.config").unwrap())
         .build();
 
     match opts.cmd {
