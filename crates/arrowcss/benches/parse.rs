@@ -1,9 +1,61 @@
-use std::rc::Rc;
+use std::{iter, rc::Rc};
 
+use arrowcss::{create_app, process::ValuePreprocessor};
 use arrowcss_extractor::{Extractable, Extractor, InputKind};
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use either::Either::{Left, Right};
+use smol_str::format_smolstr;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
+fn gen_fixtures() -> String {
+    let app = create_app();
+    let (utilities, variants) = (&app.ctx.utilities, &app.ctx.variants);
+
+    let mut combinations = utilities
+        .iter()
+        .flat_map(|(key, values)| {
+            values.iter().flat_map(move |value| match value {
+                Left(_) => Some(Left(iter::once(key.to_owned()))),
+                Right(utility) => Some(Right(
+                    utility
+                        .allowed_values()?
+                        .iter()
+                        .map(move |(k, _)| format_smolstr!("{key}-{k}")),
+                )),
+            })
+        })
+        .flat_map(|v| v.into_iter())
+        .collect::<Vec<_>>();
+
+    combinations.sort_unstable();
+
+    combinations
+        .iter()
+        .flat_map(|f| variants.iter().map(|(k, _)| k).map(move |v| format_smolstr!("{v}:{f}")))
+        .map(|v| format!("<div class=\"{v}\"></div>"))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+pub fn bench_all(c: &mut Criterion) {
+    let fixture = gen_fixtures();
+    c.bench_function("Generate all rules", |b| {
+        b.iter(|| {
+            let mut app = create_app();
+            let input = Extractor::new(&fixture, InputKind::Html).extract();
+            let _a = app.run_with(input);
+        });
+    });
+
+    c.bench_function("Generate all rules paralle", |b| {
+        b.iter(|| {
+            let mut app = create_app();
+            let input = Extractor::new(&fixture, InputKind::Html).extract();
+            let _a = app.run_parallel_with(input);
+        });
+    });
+}
+
+pub fn bench_static(c: &mut Criterion) {
     c.bench_function("create", |b| {
         b.iter(|| {
             let _app = arrowcss::create_app();
@@ -50,6 +102,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 }
 
-criterion_group! { benches, criterion_benchmark }
+criterion_group! { benches, bench_static, bench_all }
 
 criterion_main!(benches);
