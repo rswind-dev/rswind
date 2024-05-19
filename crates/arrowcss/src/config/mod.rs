@@ -2,7 +2,7 @@ pub mod de;
 #[cfg(feature = "json_schema")]
 pub mod schema;
 
-use std::io;
+use std::{io, str::FromStr};
 
 use config::Config;
 use rustc_hash::FxHashMap as HashMap;
@@ -99,13 +99,17 @@ impl ArrowConfig {
         }
     }
 
-    pub fn from_str(config: &str) -> Result<Self, serde_json::Error> {
-        serde_json::from_str(config)
-    }
-
     #[cfg(feature = "wasm")]
     pub fn from_js(config: wasm_bindgen::JsValue) -> Result<Self, serde_wasm_bindgen::Error> {
         let config: ArrowConfig = serde_wasm_bindgen::from_value(config)?;
         Ok(config)
+    }
+}
+
+impl FromStr for ArrowConfig {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_json::from_str(s)
     }
 }
