@@ -2,7 +2,7 @@ use std::{iter, rc::Rc};
 
 use arrowcss::{create_app, process::ValuePreprocessor};
 use arrowcss_extractor::{Extractable, Extractor, InputKind};
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, BenchmarkId, Criterion};
 use either::Either::{Left, Right};
 use smol_str::format_smolstr;
 

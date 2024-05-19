@@ -92,6 +92,10 @@ impl UtilityStorage {
         self.utilities.len()
     }
 
+    pub fn iter(&self) -> impl Iterator<Item = (&SmolStr, &Vec<UtilityValue>)> {
+        self.utilities.iter()
+    }
+
     pub fn try_apply(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(value) => Some(UtilityApplyResult {
