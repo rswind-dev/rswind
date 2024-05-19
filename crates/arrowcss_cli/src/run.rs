@@ -19,8 +19,11 @@ impl RunParallel for Application {
                 .map(|f| FileInput::from_file(&f))
                 .collect::<Vec<_>>()
                 .par_iter()
-                .flat_map_iter(|f| f.extract())
-                .collect::<HashSet<_>>(),
+                .map(|f| f.extract())
+                .reduce(HashSet::default, |mut acc, x| {
+                    acc.extend(x);
+                    acc
+                }),
         )
     }
 }

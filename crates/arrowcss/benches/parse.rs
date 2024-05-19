@@ -1,8 +1,7 @@
-use std::{ops::Deref, rc::Rc};
+use std::rc::Rc;
 
 use arrowcss_extractor::{Extractable, Extractor, InputKind};
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use rayon::iter::ParallelBridge;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("create", |b| {
@@ -35,17 +34,17 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             b.iter(|| {
                 let mut app = arrowcss::create_app();
                 let input = Extractor::new(&input, InputKind::Html);
-                let _a = app.run_parallel_with(input.extract().par_bridge());
+                let _a = app.run_parallel_with(input.extract());
             });
         });
 
         group.bench_with_input(BenchmarkId::new("Without Extract", i), i, |b, _| {
             let extracted = Extractor::new(&input, InputKind::Html);
-            let extracted = Rc::new(extracted.extract().collect::<Vec<_>>());
+            let extracted = Rc::new(extracted.extract());
 
-            b.iter(move || {
+            b.iter(|| {
                 let mut app = arrowcss::create_app();
-                let _a = app.run_with(extracted.clone().deref().iter());
+                let _a = app.run_with(Rc::clone(&extracted).iter().map(|&s| s));
             });
         });
     }

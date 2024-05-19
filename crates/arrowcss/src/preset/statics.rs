@@ -1,10 +1,7 @@
 use smol_str::SmolStr;
 
 use crate::{
-    context::{
-        utilities::{StaticUtility, UtilityStorage},
-        Context,
-    },
+    context::{utilities::StaticUtility, Context},
     css::DeclList,
 };
 

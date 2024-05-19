@@ -12,7 +12,7 @@ use tracing::{debug, info, instrument};
 
 use crate::{
     config::ArrowConfig,
-    context::{utilities::UtilityStorage, Context, GenerateResult},
+    context::{Context, GenerateResult},
     css::{Rule, ToCss},
     preset::{preset_tailwind, Preset},
     writer::Writer,
@@ -96,13 +96,17 @@ impl Application {
     }
 
     #[instrument(skip_all)]
-    pub fn run_with<'a>(&mut self, input: impl IntoIterator<Item = &'a str>) -> String {
+    pub fn run_with<'a, I>(&mut self, input: I) -> String
+    where
+        I: IntoIterator,
+        I::Item: AsRef<str>,
+    {
         let res: GenResult = input
             .into_iter()
             .filter_map(|token| {
                 self.ctx
                     .generate(token.as_ref())
-                    .map(|rule| (SmolStr::from(token), rule))
+                    .map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
             .collect();
 
@@ -111,16 +115,17 @@ impl Application {
         Self::run_inner(&mut self.seen_variants, res)
     }
 
-    pub fn run_parallel_with<'a>(
-        &mut self,
-        input: impl IntoParallelIterator<Item = &'a str>,
-    ) -> String {
+    pub fn run_parallel_with<'a, I>(&mut self, input: I) -> String
+    where
+        I: IntoParallelIterator,
+        I::Item: AsRef<str>,
+    {
         let res = input
             .into_par_iter()
             .filter_map(|s| {
                 self.ctx
                     .generate(s.as_ref())
-                    .map(|rule| (SmolStr::from(s), rule))
+                    .map(|rule| (SmolStr::from(s.as_ref()), rule))
             })
             .collect();
 

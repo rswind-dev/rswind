@@ -34,12 +34,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             let mut app = create_app();
 
-            app.run_parallel_with(
-                files
-                    .par_iter()
-                    .flat_map_iter(|f| f.extract())
-                    .collect::<HashSet<_>>(),
-            )
+            app.run_parallel_with(files.par_iter().map(|f| f.extract()).reduce(
+                HashSet::default,
+                |mut acc, x| {
+                    acc.extend(x);
+                    acc
+                },
+            ))
         });
     });
 }

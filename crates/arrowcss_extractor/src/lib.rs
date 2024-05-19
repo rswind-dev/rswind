@@ -10,7 +10,7 @@ pub mod html;
 pub mod item;
 
 pub trait Extractable<'a> {
-    fn extract(self) -> impl Iterator<Item = &'a str>;
+    fn extract(self) -> HashSet<&'a str>;
 }
 
 pub struct BasicExtractor<'i> {
@@ -22,7 +22,7 @@ impl<'i> BasicExtractor<'i> {
         Self { haystack }
     }
 
-    pub fn extract_inner(&self) -> std::collections::hash_set::IntoIter<&'i str> {
+    pub fn extract_inner(&self) -> HashSet<&'i str> {
         self.haystack
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
             .filter(|s| {
@@ -32,12 +32,11 @@ impl<'i> BasicExtractor<'i> {
                 }
             })
             .collect::<HashSet<_>>()
-            .into_iter()
     }
 }
 
 impl<'a> Extractable<'a> for &'a str {
-    fn extract(self) -> impl Iterator<Item = &'a str> {
+    fn extract(self) -> HashSet<&'a str> {
         BasicExtractor::new(self).extract_inner()
     }
 }
@@ -61,11 +60,11 @@ impl From<&str> for InputKind {
 }
 
 pub trait UniqueCandidate<'a> {
-    fn filter_invalid(self) -> std::collections::hash_set::IntoIter<&'a str>;
+    fn filter_invalid(self) -> HashSet<&'a str>;
 }
 
 impl<'a, T: Iterator<Item = &'a str>> UniqueCandidate<'a> for T {
-    fn filter_invalid(self) -> std::collections::hash_set::IntoIter<&'a str> {
+    fn filter_invalid(self) -> HashSet<&'a str> {
         self.flat_map(|s| s.split_ascii_whitespace())
             .filter(|s| {
                 match_byte! { *s.as_bytes().first().unwrap_or(&b'\0'),
@@ -74,7 +73,6 @@ impl<'a, T: Iterator<Item = &'a str>> UniqueCandidate<'a> for T {
                 }
             })
             .collect::<HashSet<_>>()
-            .into_iter()
     }
 }
 
@@ -93,7 +91,7 @@ impl<'a> Extractor<'a> {
 }
 
 impl<'a> Extractable<'a> for Extractor<'a> {
-    fn extract(self) -> impl Iterator<Item = &'a str> {
+    fn extract(self) -> HashSet<&'a str> {
         match self.kind {
             InputKind::Html => HtmlExtractor::new(self.haystack).filter_invalid(),
             InputKind::Ecma => EcmaExtractor::new(self.haystack).filter_invalid(),

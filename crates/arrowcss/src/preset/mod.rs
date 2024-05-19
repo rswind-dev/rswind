@@ -1,6 +1,6 @@
 use tracing::{enabled, info, Level};
 
-use crate::context::{utilities::UtilityStorage, Context};
+use crate::context::Context;
 
 pub mod colors;
 pub mod dynamics;

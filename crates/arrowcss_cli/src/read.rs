@@ -1,11 +1,11 @@
-use std::{
-    fs::read_to_string,
-    path::{Path, PathBuf},
-};
-
 use arrowcss_extractor::{
     ecma::EcmaExtractor, html::HtmlExtractor, BasicExtractor, Extractable, InputKind,
     UniqueCandidate,
+};
+use rustc_hash::FxHashSet as HashSet;
+use std::{
+    fs::read_to_string,
+    path::{Path, PathBuf},
 };
 use walkdir::WalkDir;
 
@@ -34,7 +34,7 @@ impl FileInput {
 }
 
 impl<'a> Extractable<'a> for &'a FileInput {
-    fn extract(self) -> impl Iterator<Item = &'a str> {
+    fn extract(self) -> HashSet<&'a str> {
         match self.kind {
             InputKind::Html => HtmlExtractor::new(&self.content)
                 .apply_options(|o| o.class_only = true)

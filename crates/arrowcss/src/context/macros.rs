@@ -32,8 +32,6 @@ macro_rules! add_theme_utility {
             $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
         }),+
     }) => {
-        use $crate::context::utilities::UtilityStorage;
-
         $(
             $(
                 let theme = $ctx
