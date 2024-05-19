@@ -1,5 +1,4 @@
 use arrowcss::{app::Application, config::ArrowConfig, preset::preset_tailwind};
-use tracing_subscriber;
 
 fn main() {
     tracing_subscriber::fmt::fmt().init();

@@ -149,7 +149,7 @@ impl Application {
 
         res.sort_by_cached_key(|(k, v)| {
             // variant first > ordering key > name
-            (get_key(&v), v.ordering, k.clone())
+            (get_key(v), v.ordering, k.clone())
         });
 
         for (_, r) in res.iter() {

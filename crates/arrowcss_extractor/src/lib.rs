@@ -26,7 +26,7 @@ impl<'i> BasicExtractor<'i> {
         self.haystack
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
             .filter(|s| {
-                match_byte! { *s.as_bytes().get(0).unwrap_or(&b'\0'),
+                match_byte! { *s.as_bytes().first().unwrap_or(&b'\0'),
                     b'a'..=b'z' | b'-' | b'!' | b'[' => true,
                     _ => false,
                 }
@@ -68,7 +68,7 @@ impl<'a, T: Iterator<Item = &'a str>> UniqueCandidate<'a> for T {
     fn filter_invalid(self) -> std::collections::hash_set::IntoIter<&'a str> {
         self.flat_map(|s| s.split_ascii_whitespace())
             .filter(|s| {
-                match_byte! { *s.as_bytes().get(0).unwrap_or(&b'\0'),
+                match_byte! { *s.as_bytes().first().unwrap_or(&b'\0'),
                     b'a'..=b'z' | b'-' | b'!' | b'[' => true,
                     _ => false,
                 }
