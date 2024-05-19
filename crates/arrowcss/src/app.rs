@@ -180,7 +180,7 @@ impl Application {
                     })
                     .collect::<Vec<_>>()
                     .join(", "),
-                group.as_decls(),
+                group.as_decls().into_vec(),
             );
             let _ = rule.to_css(&mut writer);
         }

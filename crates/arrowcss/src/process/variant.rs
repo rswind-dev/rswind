@@ -1,4 +1,4 @@
-use smallvec::{smallvec, SmallVec};
+use smallvec::SmallVec;
 use smol_str::SmolStr;
 
 use crate::{
@@ -199,7 +199,7 @@ impl VariantHandlerExt for StaticHandler {
                 .collect(),
             Self::Nested(a) => RuleList::new(Rule {
                 selector: a.clone(),
-                decls: smallvec![],
+                decls: vec![],
                 rules,
             }),
             Self::Duplicate(list) => list
@@ -267,7 +267,6 @@ impl VariantHandlerExt for ComposableHandler {
 #[cfg(test)]
 mod tests {
     use arrowcss_css_macro::css;
-    use smallvec::smallvec;
     use smol_str::format_smolstr;
 
     use super::{DynamicHandler, VariantHandlerExt};
@@ -297,7 +296,7 @@ mod tests {
         let selector = RuleList::new(Rule {
             selector: "&".into(),
             rules: RuleList::default(),
-            decls: smallvec![Decl {
+            decls: vec![Decl {
                 name: "display".into(),
                 value: "flex".into(),
             }],
@@ -335,7 +334,7 @@ mod tests {
                 .collect();
             Rule {
                 selector: "@media (hover: hover) and (pointer: fine)".into(),
-                decls: smallvec![],
+                decls: vec![],
                 rules: hovered,
             }
             .to_rule_list()

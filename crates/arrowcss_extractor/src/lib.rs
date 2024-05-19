@@ -1,3 +1,4 @@
+use cssparser::match_byte;
 use ecma::EcmaExtractor;
 use html::HtmlExtractor;
 use rustc_hash::FxHashSet as HashSet;
@@ -24,7 +25,12 @@ impl<'i> BasicExtractor<'i> {
     pub fn extract_inner(&self) -> std::collections::hash_set::IntoIter<&'i str> {
         self.haystack
             .split(['\n', '\r', '\t', ' ', '"', '\'', ';', '{', '}', '`'])
-            .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
+            .filter(|s| {
+                match_byte! { *s.as_bytes().get(0).unwrap_or(&b'\0'),
+                    b'a'..=b'z' | b'-' | b'!' | b'[' => true,
+                    _ => false,
+                }
+            })
             .collect::<HashSet<_>>()
             .into_iter()
     }
@@ -61,7 +67,12 @@ pub trait UniqueCandidate<'a> {
 impl<'a, T: Iterator<Item = &'a str>> UniqueCandidate<'a> for T {
     fn filter_invalid(self) -> std::collections::hash_set::IntoIter<&'a str> {
         self.flat_map(|s| s.split_ascii_whitespace())
-            .filter(|s| s.starts_with(char::is_lowercase) || s.starts_with('-'))
+            .filter(|s| {
+                match_byte! { *s.as_bytes().get(0).unwrap_or(&b'\0'),
+                    b'a'..=b'z' | b'-' | b'!' | b'[' => true,
+                    _ => false,
+                }
+            })
             .collect::<HashSet<_>>()
             .into_iter()
     }

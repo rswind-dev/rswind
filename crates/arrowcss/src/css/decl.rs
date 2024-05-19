@@ -3,7 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use super::ToCss;
@@ -38,11 +37,11 @@ impl<A: Into<SmolStr>, B: Into<SmolStr>> FromIterator<(A, B)> for DeclList {
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
-pub struct DeclList(pub SmallVec<[Decl; 2]>);
+pub struct DeclList(pub Vec<Decl>);
 
 impl IntoIterator for DeclList {
     type Item = Decl;
-    type IntoIter = smallvec::IntoIter<[Decl; 2]>;
+    type IntoIter = std::vec::IntoIter<Decl>;
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
     }
@@ -70,13 +69,13 @@ impl DerefMut for DeclList {
 
 impl From<Decl> for DeclList {
     fn from(decl: Decl) -> Self {
-        Self(smallvec![decl])
+        Self(vec![decl])
     }
 }
 
 impl From<Vec<Decl>> for DeclList {
     fn from(decl: Vec<Decl>) -> Self {
-        Self(decl.into())
+        Self(decl)
     }
 }
 
@@ -88,7 +87,7 @@ impl FromIterator<Decl> for DeclList {
 
 impl DeclList {
     pub fn new() -> Self {
-        Self(smallvec![])
+        Self(vec![])
     }
 
     pub fn multi<D: Into<Decl>, I: IntoIterator<Item = D>>(decls: I) -> Self {

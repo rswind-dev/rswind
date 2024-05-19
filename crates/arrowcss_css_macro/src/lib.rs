@@ -45,7 +45,7 @@ impl ToTokens for AstNodeExpr {
                 tokens.extend(quote! {
                     crate::css::Rule {
                         selector: #selector.into(),
-                        decls: smallvec::smallvec![#(#nodes),*],
+                        decls: vec![#(#nodes),*],
                         rules: vec![].into(),
                     }
                 });
@@ -104,7 +104,7 @@ pub fn css(input: TokenStream) -> TokenStream {
         quote! {
             crate::css::Rule {
                 selector: "&".into(),
-                decls: smallvec::smallvec![#(#generated_code),*],
+                decls: vec![#(#generated_code),*],
                 rules: vec![].into(),
             }
         }

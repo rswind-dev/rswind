@@ -19,7 +19,7 @@ macro_rules! static_utilities_macro {
   ) => {
     [
       $(
-        (smol_str::SmolStr::new_static($key), DeclList(smallvec::smallvec![
+        (smol_str::SmolStr::new_static($key), DeclList(vec![
           $(
             $crate::css::Decl {
                 name: smol_str::SmolStr::new_static($name),
@@ -634,7 +634,7 @@ macro_rules! selector_static_utilities {
                     smol_str::SmolStr::new_static($key),
                     StaticUtility::new(
                         smol_str::SmolStr::new_static($selector),
-                        DeclList(smallvec::smallvec![
+                        DeclList(vec![
                             $(
                                 $crate::css::Decl {
                                     name: smol_str::SmolStr::new_static($name),

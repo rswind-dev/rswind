@@ -3,7 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
 
 use super::{Decl, ToCss};
@@ -13,7 +12,7 @@ use crate::writer::Writer;
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Rule {
     pub selector: SmolStr,
-    pub decls: SmallVec<[Decl; 2]>,
+    pub decls: Vec<Decl>,
     pub rules: RuleList,
 }
 
@@ -26,7 +25,7 @@ impl Rule {
         }
     }
 
-    pub fn new_with_decls(selector: impl Into<SmolStr>, decls: SmallVec<[Decl; 2]>) -> Self {
+    pub fn new_with_decls(selector: impl Into<SmolStr>, decls: Vec<Decl>) -> Self {
         Self {
             selector: selector.into(),
             decls,
@@ -55,7 +54,7 @@ impl Rule {
     pub fn wrap(self, wrapper: SmolStr) -> Self {
         Self {
             selector: wrapper,
-            decls: smallvec![],
+            decls: vec![],
             rules: RuleList::new(self),
         }
     }
@@ -76,7 +75,7 @@ impl RuleList {
     pub fn wrap(self, wrapper: SmolStr) -> Rule {
         Rule {
             selector: wrapper,
-            decls: smallvec![],
+            decls: vec![],
             rules: self,
         }
     }
