@@ -96,13 +96,13 @@ impl Application {
     }
 
     #[instrument(skip_all)]
-    pub fn run_with(&mut self, input: impl IntoIterator<Item: AsRef<str>>) -> String {
+    pub fn run_with<'a>(&mut self, input: impl IntoIterator<Item = &'a str>) -> String {
         let res: GenResult = input
             .into_iter()
             .filter_map(|token| {
                 self.ctx
                     .generate(token.as_ref())
-                    .map(|rule| (SmolStr::from(token.as_ref()), rule))
+                    .map(|rule| (SmolStr::from(token), rule))
             })
             .collect();
 
@@ -111,16 +111,16 @@ impl Application {
         Self::run_inner(&mut self.seen_variants, res)
     }
 
-    pub fn run_parallel_with(
+    pub fn run_parallel_with<'a>(
         &mut self,
-        input: impl IntoParallelIterator<Item: AsRef<str>>,
+        input: impl IntoParallelIterator<Item = &'a str>,
     ) -> String {
         let res = input
             .into_par_iter()
             .filter_map(|s| {
                 self.ctx
                     .generate(s.as_ref())
-                    .map(|rule| (SmolStr::from(s.as_ref()), rule))
+                    .map(|rule| (SmolStr::from(s), rule))
             })
             .collect();
 

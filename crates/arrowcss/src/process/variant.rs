@@ -82,9 +82,14 @@ impl VariantOrdering {
 }
 
 impl Variant {
-    pub fn new_static(
-        matcher: impl IntoIterator<Item: Into<SmolStr>, IntoIter: ExactSizeIterator>,
-    ) -> Self {
+    pub fn new_static<T>(
+        matcher: T,
+    ) -> Self
+    where
+        T: IntoIterator,
+        T::Item: Into<SmolStr>,
+        T::IntoIter: ExactSizeIterator,
+    {
         let handler = StaticHandler::new(matcher);
         Self {
             nested: handler.is_nested(),
@@ -158,9 +163,14 @@ pub enum StaticHandler {
 }
 
 impl StaticHandler {
-    pub fn new(
-        matcher: impl IntoIterator<Item: Into<SmolStr>, IntoIter: ExactSizeIterator>,
-    ) -> Self {
+    pub fn new<T>(
+        matcher: T,
+    ) -> Self
+    where
+        T: IntoIterator,
+        T::Item: Into<SmolStr>,
+        T::IntoIter: ExactSizeIterator,
+    {
         let mut iter = matcher.into_iter();
         let is_duplicate = iter.len() > 1;
         if !is_duplicate {
@@ -181,7 +191,11 @@ impl StaticHandler {
         }
     }
 
-    pub fn new_duplicate(matcher: impl IntoIterator<Item: Into<SmolStr>>) -> Self {
+    pub fn new_duplicate<T>(matcher: T) -> Self
+    where
+        T: IntoIterator,
+        T::Item: Into<SmolStr>,
+    {
         Self::Duplicate(matcher.into_iter().map(Into::into).collect())
     }
 
