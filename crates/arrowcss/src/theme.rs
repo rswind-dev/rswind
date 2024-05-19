@@ -53,8 +53,8 @@ impl ThemeValue {
         match self {
             Self::Static(map) => Box::new(
                 map.clone()
-                .into_iter()
-                .map(|(k, v)| (*k, SmolStr::from(*v))),
+                    .into_iter()
+                    .map(|(k, v)| (*k, SmolStr::from(*v))),
             ),
             Self::Dynamic(map) => Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone()))),
             Self::RuleList(_) => Box::new(std::iter::empty()),
