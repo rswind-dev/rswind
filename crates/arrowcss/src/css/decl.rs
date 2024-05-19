@@ -17,10 +17,7 @@ pub struct Decl {
 
 impl Decl {
     pub fn new(name: impl Into<SmolStr>, value: impl Into<SmolStr>) -> Self {
-        Self {
-            name: name.into(),
-            value: value.into(),
-        }
+        Self { name: name.into(), value: value.into() }
     }
 }
 

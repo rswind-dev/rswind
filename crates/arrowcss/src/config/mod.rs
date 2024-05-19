@@ -80,9 +80,7 @@ impl ArrowConfig {
     #[cfg(not(feature = "wasm"))]
     #[instrument]
     pub fn from_file(name: &str) -> Result<Self, config::ConfigError> {
-        let config_result = Config::builder()
-            .add_source(config::File::with_name(name))
-            .build();
+        let config_result = Config::builder().add_source(config::File::with_name(name)).build();
 
         match config_result {
             Ok(config) => config.try_deserialize::<ArrowConfig>(),

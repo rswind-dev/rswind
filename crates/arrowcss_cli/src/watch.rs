@@ -17,10 +17,7 @@ impl WatchApp for Application {
 
         let mut debouncer = new_debouncer(Duration::from_millis(10), tx).unwrap();
 
-        debouncer
-            .watcher()
-            .watch(std::path::Path::new(dir), RecursiveMode::NonRecursive)
-            .unwrap();
+        debouncer.watcher().watch(std::path::Path::new(dir), RecursiveMode::NonRecursive).unwrap();
 
         self.run_parallel(get_files(dir));
 

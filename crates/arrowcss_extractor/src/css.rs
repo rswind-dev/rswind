@@ -23,12 +23,7 @@ pub struct CssExtractor<'a> {
 
 impl<'a> CssExtractor<'a> {
     pub fn new(input: &'a str) -> Self {
-        Self {
-            input,
-            cursor: Cursor::new(input),
-            inside_apply: false,
-            inside_selector: None,
-        }
+        Self { input, cursor: Cursor::new(input), inside_apply: false, inside_selector: None }
     }
 
     pub fn str_from(&self, start: usize) -> &'a str {

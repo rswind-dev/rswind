@@ -341,10 +341,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_additional_css(DIVIDE_Y_REVERSE.clone());
 
     rules
-        .add(
-            "divide",
-            |m, v| css!("border-color": as_color(&v, m.modifier.as_deref())),
-        )
+        .add("divide", |m, v| css!("border-color": as_color(&v, m.modifier.as_deref())))
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
         .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
@@ -373,10 +370,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
-        .add(
-            "from",
-            |_, value| css!("--tw-gradient-from-position": value),
-        )
+        .add("from", |_, value| css!("--tw-gradient-from-position": value))
         .with_theme("gradientColorStopPositions")
         .with_validator(CssDataType::LengthPercentage)
         .with_additional_css(GRADIENT_PROPERTIES.clone());
@@ -410,20 +404,14 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     })
     .with_additional_css(GRADIENT_PROPERTIES.clone());
 
-    rules.add(
-        "fill",
-        |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())),
-    );
+    rules.add("fill", |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())));
 
     rules
         .add("stoke", |_, value| css!("stroke-width": value))
         .with_theme("stokeWidth")
         .with_validator(CssDataType::LengthPercentage);
 
-    rules.add(
-        "stroke",
-        |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())),
-    );
+    rules.add("stroke", |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())));
 
     rules
         .add("to", |_, value| css!("--tw-gradient-to-position": value))
@@ -455,10 +443,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_validator(CssProperty::BackgroundImage);
 
     rules
-        .add(
-            "text",
-            |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())),
-        )
+        .add("text", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
         .with_theme("colors")
         .with_validator(CssProperty::Color)
         .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
@@ -468,9 +453,8 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
             let mut font_size = css!("font-size": value.clone());
             if let Some(modifier) = meta.modifier {
                 font_size.extend(css!("line-height": modifier));
-            } else if let Some(line_height) = meta
-                .raw_value
-                .and_then(|v| font_size_lh.get(v.take_named()?))
+            } else if let Some(line_height) =
+                meta.raw_value.and_then(|v| font_size_lh.get(v.take_named()?))
             {
                 font_size.extend(css!("line-height": line_height.clone()));
             }
@@ -490,10 +474,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_validator(CssProperty::FontStretch);
 
     rules
-        .add(
-            "placeholder",
-            |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())),
-        )
+        .add("placeholder", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
         .with_wrapper("&::placeholder")
         .with_theme("colors")
         .with_validator(CssProperty::Color)
@@ -510,18 +491,12 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
-        .add(
-            "decoration",
-            |_, value| css!("text-decoration-thickness": value),
-        )
+        .add("decoration", |_, value| css!("text-decoration-thickness": value))
         .with_theme("textDecorationThickness")
         .with_validator(CssDataType::LengthPercentage);
 
     rules
-        .add(
-            "blur",
-            |_, value| css!("--tw-blur": format_smolstr!("blur({})", value)),
-        )
+        .add("blur", |_, value| css!("--tw-blur": format_smolstr!("blur({})", value)))
         .with_theme("blur")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -554,10 +529,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_group(UtilityGroup::BackdropFilter);
 
     rules
-        .add(
-            "contrast",
-            |_, value| css!("--tw-contrast": format_smolstr!("contrast({})", value)),
-        )
+        .add("contrast", |_, value| css!("--tw-contrast": format_smolstr!("contrast({})", value)))
         .with_theme("contrast")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -592,10 +564,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
     //hue-rotate
 
     rules
-        .add(
-            "invert",
-            |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)),
-        )
+        .add("invert", |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)))
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -610,10 +579,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_group(UtilityGroup::BackdropFilter);
 
     rules
-        .add(
-            "invert",
-            |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)),
-        )
+        .add("invert", |_, value| css!("--tw-invert": format_smolstr!("invert({})", value)))
         .with_theme("invert")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -628,10 +594,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_group(UtilityGroup::BackdropFilter);
 
     rules
-        .add(
-            "saturate",
-            |_, value| css!("--tw-saturate": format_smolstr!("saturate({})", value)),
-        )
+        .add("saturate", |_, value| css!("--tw-saturate": format_smolstr!("saturate({})", value)))
         .with_theme("saturate")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -646,10 +609,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_group(UtilityGroup::BackdropFilter);
 
     rules
-        .add(
-            "sepia",
-            |_, value| css!("--tw-sepia": format_smolstr!("sepia({})", value)),
-        )
+        .add("sepia", |_, value| css!("--tw-sepia": format_smolstr!("sepia({})", value)))
         .with_theme("sepia")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -674,17 +634,12 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_group(UtilityGroup::Filter);
 
     rules
-        .add(
-            "backdrop-opacity",
-            |_, value| css!("--tw-backdrop-opacity": value),
-        )
+        .add("backdrop-opacity", |_, value| css!("--tw-backdrop-opacity": value))
         .with_theme("opacity")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
-    rules
-        .add("cursor", |_, value| css!("cursor": value))
-        .with_validator(CssProperty::Cursor);
+    rules.add("cursor", |_, value| css!("cursor": value)).with_validator(CssProperty::Cursor);
 
     rules
         .add("list", |_, value| css!("list-style-type": value))
@@ -733,10 +688,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_validator(CssProperty::AccentColor);
 
     rules
-        .add(
-            "caret",
-            |meta, value| css!("caret-color": as_color(&value, meta.modifier.as_deref())),
-        )
+        .add("caret", |meta, value| css!("caret-color": as_color(&value, meta.modifier.as_deref())))
         .with_theme("colors")
         .with_validator(CssProperty::AccentColor);
 
@@ -1044,10 +996,7 @@ impl DerefMut for UtilityAdder<'_> {
 
 impl<'i> UtilityAdder<'i> {
     pub fn new(ctx: &'i mut Context, key: &'i str, handler: impl RuleMatchingFn + 'static) -> Self {
-        Self {
-            ctx,
-            builder: UtilityBuilder::new(key, handler),
-        }
+        Self { ctx, builder: UtilityBuilder::new(key, handler) }
     }
 }
 
@@ -1059,9 +1008,7 @@ impl<'i> Drop for UtilityAdder<'i> {
             self.ctx
                 .get_theme(key)
                 .unwrap_or_else(|| {
-                    let _warning = format!("Theme key {} not found", key.bold())
-                        .as_str()
-                        .yellow();
+                    let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
                     // TODO: reopen when wbuilder.e have logging, both on stdout and console
                     // eprintln!("{}", warning);
                     ThemeValue::default()
@@ -1074,10 +1021,7 @@ impl<'i> Drop for UtilityAdder<'i> {
         self.ctx.add_utility(
             self.builder.key.as_str(),
             Utility {
-                value_repr: ValueRepr {
-                    allowed_values,
-                    validator,
-                },
+                value_repr: ValueRepr { allowed_values, validator },
                 handler: self.builder.handler.take().unwrap(),
                 modifier: modifier
                     .map(|m| m.parse(&self.ctx.theme))

@@ -15,8 +15,5 @@ fn main() {
             }
         </style>
         "#;
-    println!(
-        "{:#?}",
-        HtmlExtractor::new(input).collect::<FxHashSet<_>>().len()
-    );
+    println!("{:#?}", HtmlExtractor::new(input).collect::<FxHashSet<_>>().len());
 }

@@ -115,8 +115,7 @@ impl Context {
         T::Item: Into<SmolStr>,
         T::IntoIter: ExactSizeIterator,
     {
-        self.variants
-            .insert(key.into(), Variant::new_static(matcher));
+        self.variants.insert(key.into(), Variant::new_static(matcher));
         self
     }
 
@@ -126,8 +125,7 @@ impl Context {
         func: fn(RuleList, &VariantCandidate) -> RuleList,
         nested: bool,
     ) -> &Self {
-        self.variants
-            .insert(key.into(), Variant::new_dynamic(func, nested));
+        self.variants.insert(key.into(), Variant::new_dynamic(func, nested));
         self
     }
 
@@ -136,8 +134,7 @@ impl Context {
         key: &str,
         handler: fn(RuleList, &VariantCandidate) -> RuleList,
     ) -> &mut Self {
-        self.variants
-            .insert(key.into(), Variant::new_composable(handler));
+        self.variants.insert(key.into(), Variant::new_composable(handler));
         self
     }
 
@@ -156,14 +153,8 @@ impl Context {
         let utility = parts.pop()?;
 
         // Try static utility first
-        if let Some(UtilityApplyResult {
-            rule: node,
-            ordering,
-            group,
-            ..
-        }) = self
-            .utilities
-            .try_apply(UtilityCandidate::with_key(utility))
+        if let Some(UtilityApplyResult { rule: node, ordering, group, .. }) =
+            self.utilities.try_apply(UtilityCandidate::with_key(utility))
         {
             return Some(GenerateResult {
                 group,
@@ -193,28 +184,16 @@ impl Context {
         let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
             vs.iter().partition(|v| v.processor.nested);
 
-        let UtilityApplyResult {
-            rule: node,
-            ordering,
-            group,
-            additional_css,
-        } = self.utilities.try_apply(utility_candidate)?;
+        let UtilityApplyResult { rule: node, ordering, group, additional_css } =
+            self.utilities.try_apply(utility_candidate)?;
 
-        let mut node = selector
-            .iter()
-            .fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
+        let mut node = selector.iter().fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
         node = fill_selector_placeholder(value, node)?;
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
-        Some(GenerateResult {
-            rule: node,
-            ordering,
-            group,
-            variants,
-            additional_css,
-        })
+        Some(GenerateResult { rule: node, ordering, group, variants, additional_css })
     }
 }
 

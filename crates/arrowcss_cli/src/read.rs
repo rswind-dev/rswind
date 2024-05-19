@@ -1,12 +1,13 @@
+use std::{
+    fs::read_to_string,
+    path::{Path, PathBuf},
+};
+
 use arrowcss_extractor::{
     ecma::EcmaExtractor, html::HtmlExtractor, BasicExtractor, Extractable, InputKind,
     UniqueCandidate,
 };
 use rustc_hash::FxHashSet as HashSet;
-use std::{
-    fs::read_to_string,
-    path::{Path, PathBuf},
-};
 use walkdir::WalkDir;
 
 static ALLOWED_EXTENSIONS: [&str; 7] = ["html", "vue", "js", "jsx", "ts", "tsx", "svelte"];
@@ -26,10 +27,7 @@ impl FileInput {
 
     #[allow(dead_code)]
     pub fn into_unknown(self) -> Self {
-        Self {
-            content: self.content,
-            kind: InputKind::Unknown,
-        }
+        Self { content: self.content, kind: InputKind::Unknown }
     }
 }
 

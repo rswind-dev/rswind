@@ -82,9 +82,7 @@ impl VariantOrdering {
 }
 
 impl Variant {
-    pub fn new_static<T>(
-        matcher: T,
-    ) -> Self
+    pub fn new_static<T>(matcher: T) -> Self
     where
         T: IntoIterator,
         T::Item: Into<SmolStr>,
@@ -122,10 +120,7 @@ impl Variant {
     }
 
     pub fn with_ordering(self, ordering: VariantOrdering) -> Self {
-        Self {
-            ordering: Some(ordering),
-            ..self
-        }
+        Self { ordering: Some(ordering), ..self }
     }
 
     pub fn process(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
@@ -163,9 +158,7 @@ pub enum StaticHandler {
 }
 
 impl StaticHandler {
-    pub fn new<T>(
-        matcher: T,
-    ) -> Self
+    pub fn new<T>(matcher: T) -> Self
     where
         T: IntoIterator,
         T::Item: Into<SmolStr>,
@@ -211,11 +204,7 @@ impl VariantHandlerExt for StaticHandler {
                 .into_iter()
                 .map(|rule| rule.modify_with(|selector| selector.replace_char('&', a)))
                 .collect(),
-            Self::Nested(a) => RuleList::new(Rule {
-                selector: a.clone(),
-                decls: vec![],
-                rules,
-            }),
+            Self::Nested(a) => RuleList::new(Rule { selector: a.clone(), decls: vec![], rules }),
             Self::Duplicate(list) => list
                 .iter()
                 .flat_map(move |a| {
@@ -243,10 +232,7 @@ impl VariantHandlerExt for DynamicHandler {
 
 impl DynamicHandler {
     pub fn new(handler: fn(RuleList, &VariantCandidate) -> RuleList) -> Self {
-        Self {
-            handler,
-            composable: true,
-        }
+        Self { handler, composable: true }
     }
 }
 
@@ -258,17 +244,11 @@ pub struct ComposableHandler {
 
 impl ComposableHandler {
     pub fn new(handler: fn(RuleList, &VariantCandidate) -> RuleList) -> Self {
-        Self {
-            handler,
-            composable: true,
-        }
+        Self { handler, composable: true }
     }
 
     pub fn composable(self) -> Self {
-        Self {
-            composable: true,
-            ..self
-        }
+        Self { composable: true, ..self }
     }
 }
 
@@ -310,10 +290,7 @@ mod tests {
         let selector = RuleList::new(Rule {
             selector: "&".into(),
             rules: RuleList::default(),
-            decls: vec![Decl {
-                name: "display".into(),
-                value: "flex".into(),
-            }],
+            decls: vec![Decl { name: "display".into(), value: "flex".into() }],
         });
 
         let _res = candidates
@@ -322,9 +299,7 @@ mod tests {
                 let processor = ctx.variants.get(candidate.key).unwrap();
                 (processor, candidate)
             })
-            .fold(selector, |acc, (processor, candidate)| {
-                processor.process(&candidate, acc)
-            });
+            .fold(selector, |acc, (processor, candidate)| processor.process(&candidate, acc));
     }
 
     #[test]

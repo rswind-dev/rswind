@@ -23,10 +23,7 @@ pub struct VariantCandidate<'a> {
 impl<'a> VariantCandidate<'a> {
     pub fn handle(&self, rule: RuleList) -> RuleList {
         let rule = self.processor.handle(self, rule);
-        self.layers
-            .iter()
-            .rev()
-            .fold(rule, |rule, handler| handler.handle(self, rule))
+        self.layers.iter().rev().fold(rule, |rule, handler| handler.handle(self, rule))
     }
 }
 
@@ -67,10 +64,7 @@ pub struct VariantParser<'a> {
 impl<'a> VariantParser<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
-            pos: ParserPosition {
-                start: 0,
-                end: input.len(),
-            },
+            pos: ParserPosition { start: 0, end: input.len() },
             input,
             key: None,
             value: None,
@@ -97,9 +91,7 @@ impl<'a> VariantParser<'a> {
             self.modifier = Some(MaybeArbitrary::Arbitrary(arbitrary));
             self.cur_arbitrary = None;
         } else {
-            self.modifier = Some(MaybeArbitrary::Named(
-                self.current().get(pos + 1..).unwrap(),
-            ));
+            self.modifier = Some(MaybeArbitrary::Named(self.current().get(pos + 1..).unwrap()));
         }
         self.pos.end = self.pos.start + pos;
     }
@@ -124,9 +116,7 @@ impl<'a> VariantParser<'a> {
         self.value = if let Some(arbitrary) = self.cur_arbitrary {
             Some(MaybeArbitrary::Arbitrary(arbitrary))
         } else {
-            Some(MaybeArbitrary::Named(
-                self.current().trim_start_matches('-'),
-            ))
+            Some(MaybeArbitrary::Named(self.current().trim_start_matches('-')))
         };
     }
 
@@ -171,9 +161,7 @@ impl<'a> VariantParser<'a> {
                     for i in iter {
                         if let Some((next_key, Some(compose_handler))) =
                             key_str.get(prev_i + 1..i).and_then(|next_key| {
-                                variants
-                                    .get(next_key)
-                                    .map(|v| (next_key, v.take_composable()))
+                                variants.get(next_key).map(|v| (next_key, v.take_composable()))
                             })
                         {
                             composes.push(compose_handler.clone());

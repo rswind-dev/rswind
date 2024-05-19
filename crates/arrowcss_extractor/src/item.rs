@@ -9,10 +9,7 @@ pub struct ExtractItem<'a> {
 
 impl<'a> From<&'a str> for ExtractItem<'a> {
     fn from(value: &'a str) -> Self {
-        ExtractItem {
-            candidate: value,
-            selector: None,
-        }
+        ExtractItem { candidate: value, selector: None }
     }
 }
 
@@ -24,10 +21,7 @@ impl<'a> AsRef<str> for ExtractItem<'a> {
 
 impl<'a> ExtractItem<'a> {
     pub fn new(candidate: &'a str, selector: &'a str) -> Self {
-        Self {
-            candidate,
-            selector: Some(selector),
-        }
+        Self { candidate, selector: Some(selector) }
     }
 
     pub fn as_str(&self) -> &str {

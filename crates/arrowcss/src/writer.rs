@@ -55,13 +55,7 @@ impl<'a, W: Write> Writer<'a, W> {
     }
 
     pub fn minify(dest: W) -> Self {
-        Self::new(
-            dest,
-            WriterConfig {
-                minify: true,
-                ..Default::default()
-            },
-        )
+        Self::new(dest, WriterConfig { minify: true, ..Default::default() })
     }
 
     pub fn new(dest: W, config: WriterConfig) -> Self {

@@ -18,42 +18,31 @@ pub struct StaticUtility {
 
 impl StaticUtility {
     pub fn new(selector: SmolStr, decls: DeclList) -> Self {
-        Self {
-            selector: Some(selector),
-            decls,
-        }
+        Self { selector: Some(selector), decls }
     }
 }
 
 impl From<DeclList> for StaticUtility {
     fn from(value: DeclList) -> Self {
-        Self {
-            selector: None,
-            decls: value,
-        }
+        Self { selector: None, decls: value }
     }
 }
 
 impl From<(SmolStr, DeclList)> for StaticUtility {
     fn from((selector, decl_list): (SmolStr, DeclList)) -> Self {
-        Self {
-            selector: Some(selector),
-            decls: decl_list,
-        }
+        Self { selector: Some(selector), decls: decl_list }
     }
 }
 
 impl From<StaticUtilityConfig> for StaticUtility {
     fn from(value: StaticUtilityConfig) -> Self {
         match value {
-            StaticUtilityConfig::DeclList(decl_list) => Self {
-                selector: None,
-                decls: decl_list.into_iter().collect(),
-            },
-            StaticUtilityConfig::WithSelector(value) => Self {
-                selector: Some(value.0),
-                decls: value.1.into_iter().collect(),
-            },
+            StaticUtilityConfig::DeclList(decl_list) => {
+                Self { selector: None, decls: decl_list.into_iter().collect() }
+            }
+            StaticUtilityConfig::WithSelector(value) => {
+                Self { selector: Some(value.0), decls: value.1.into_iter().collect() }
+            }
         }
     }
 }
@@ -67,10 +56,7 @@ pub struct UtilityStorage {
 
 impl UtilityStorage {
     pub fn add(&mut self, key: SmolStr, value: Utility) {
-        self.utilities
-            .entry(key)
-            .or_default()
-            .push(Either::Right(value));
+        self.utilities.entry(key).or_default().push(Either::Right(value));
     }
 
     pub fn reserve(&mut self, additional: usize) {
@@ -78,10 +64,7 @@ impl UtilityStorage {
     }
 
     pub fn add_static(&mut self, key: SmolStr, value: StaticUtility) {
-        self.utilities
-            .entry(key)
-            .or_default()
-            .push(Either::Left(value));
+        self.utilities.entry(key).or_default().push(Either::Left(value));
     }
 
     pub fn get(&self, key: &str) -> Option<&Vec<UtilityValue>> {

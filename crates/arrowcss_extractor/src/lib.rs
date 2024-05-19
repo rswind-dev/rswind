@@ -83,10 +83,7 @@ pub struct Extractor<'a> {
 
 impl<'a> Extractor<'a> {
     pub fn new(haystack: &'a str, kind: impl Into<InputKind>) -> Self {
-        Self {
-            haystack,
-            kind: kind.into(),
-        }
+        Self { haystack, kind: kind.into() }
     }
 }
 

@@ -10,10 +10,7 @@ pub(crate) const EOF_CHAR: char = '\0';
 
 impl<'a> Cursor<'a> {
     pub fn new(input: &'a str) -> Cursor<'a> {
-        Cursor {
-            len_remaining: input.len(),
-            chars: input.chars(),
-        }
+        Cursor { len_remaining: input.len(), chars: input.chars() }
     }
 
     pub fn as_str(&self) -> &'a str {

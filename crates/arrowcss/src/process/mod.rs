@@ -62,10 +62,7 @@ pub enum ThemeParseError {
 
 impl RawValueRepr {
     pub fn new(theme_key: impl Into<SmolStr>) -> Self {
-        Self {
-            validator: None,
-            theme_key: Some(theme_key.into()),
-        }
+        Self { validator: None, theme_key: Some(theme_key.into()) }
     }
 
     pub fn with_validator(mut self, validator: impl TypeValidator + 'static) -> Self {
@@ -78,18 +75,12 @@ impl RawValueRepr {
             return Ok(ValueRepr {
                 validator: self.validator,
                 allowed_values: Some(
-                    theme
-                        .get(&key)
-                        .ok_or(ThemeParseError::InvalidThemeKey(key))?
-                        .clone(),
+                    theme.get(&key).ok_or(ThemeParseError::InvalidThemeKey(key))?.clone(),
                 ),
             });
         }
 
-        Ok(ValueRepr {
-            validator: self.validator,
-            allowed_values: None,
-        })
+        Ok(ValueRepr { validator: self.validator, allowed_values: None })
     }
 }
 
@@ -106,25 +97,17 @@ pub struct ValueRepr {
 
 impl ValueRepr {
     pub fn new(allowed_values: ThemeValue) -> Self {
-        Self {
-            validator: None,
-            allowed_values: Some(allowed_values),
-        }
+        Self { validator: None, allowed_values: Some(allowed_values) }
     }
 
     pub fn with_validator(self, validator: impl TypeValidator + 'static) -> Self {
-        Self {
-            validator: Some(Box::new(validator)),
-            allowed_values: self.allowed_values,
-        }
+        Self { validator: Some(Box::new(validator)), allowed_values: self.allowed_values }
     }
 }
 
 impl ValuePreprocessor for ValueRepr {
     fn validate(&self, value: &str) -> bool {
-        self.validator
-            .as_ref()
-            .map_or(true, |validator| validator.validate(value))
+        self.validator.as_ref().map_or(true, |validator| validator.validate(value))
     }
 
     fn allowed_values(&self) -> Option<&ThemeValue> {
@@ -141,19 +124,11 @@ pub struct MetaData<'a> {
 
 impl<'a> MetaData<'a> {
     pub fn from_candidate(candidate: &UtilityCandidate<'a>) -> Self {
-        Self {
-            raw_value: candidate.value,
-            raw_modifier: candidate.modifier,
-            modifier: None,
-        }
+        Self { raw_value: candidate.value, raw_modifier: candidate.modifier, modifier: None }
     }
 
     /// Create a new `MetaData` with only the modifier set.
     pub(crate) fn modifier(modifier: impl Into<SmolStr>) -> Self {
-        Self {
-            raw_value: None,
-            raw_modifier: None,
-            modifier: Some(modifier.into()),
-        }
+        Self { raw_value: None, raw_modifier: None, modifier: Some(modifier.into()) }
     }
 }

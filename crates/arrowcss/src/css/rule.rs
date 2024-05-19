@@ -26,19 +26,11 @@ impl Rule {
     }
 
     pub fn new_with_decls(selector: impl Into<SmolStr>, decls: Vec<Decl>) -> Self {
-        Self {
-            selector: selector.into(),
-            decls,
-            rules: RuleList::default(),
-        }
+        Self { selector: selector.into(), decls, rules: RuleList::default() }
     }
 
     pub fn new_with_rules(selector: impl Into<SmolStr>, rules: RuleList) -> Self {
-        Self {
-            selector: selector.into(),
-            decls: Default::default(),
-            rules,
-        }
+        Self { selector: selector.into(), decls: Default::default(), rules }
     }
 
     pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T) -> Self {
@@ -52,11 +44,7 @@ impl Rule {
     }
 
     pub fn wrap(self, wrapper: SmolStr) -> Self {
-        Self {
-            selector: wrapper,
-            decls: vec![],
-            rules: RuleList::new(self),
-        }
+        Self { selector: wrapper, decls: vec![], rules: RuleList::new(self) }
     }
 
     pub fn to_rule_list(self) -> RuleList {
@@ -73,11 +61,7 @@ impl RuleList {
     }
 
     pub fn wrap(self, wrapper: SmolStr) -> Rule {
-        Rule {
-            selector: wrapper,
-            decls: vec![],
-            rules: self,
-        }
+        Rule { selector: wrapper, decls: vec![], rules: self }
     }
 
     pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T + Clone) -> Self {

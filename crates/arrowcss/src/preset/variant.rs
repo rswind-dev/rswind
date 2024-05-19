@@ -47,10 +47,7 @@ pub fn load_variants(ctx: &mut Context) {
         .add_variant("marker", ["& *::marker", "&::marker"])
         .add_variant("*", ["& > *"])
         // Accessibility
-        .add_variant(
-            "motion-safe",
-            ["@media (prefers-reduced-motion: no-preference)"],
-        )
+        .add_variant("motion-safe", ["@media (prefers-reduced-motion: no-preference)"])
         .add_variant("motion-reduce", ["@media (prefers-reduced-motion: reduce)"])
         .add_variant("contrast-more", ["@media (prefers-contrast: more)"])
         .add_variant("contrast-less", ["@media (prefers-contrast: less)"])
@@ -147,9 +144,7 @@ mod tests {
 
         let rule = css!("display": "flex").to_rule_list();
 
-        let candidate = VariantParser::new("group-hover/aaa")
-            .parse(&ctx.variants)
-            .unwrap();
+        let candidate = VariantParser::new("group-hover/aaa").parse(&ctx.variants).unwrap();
 
         let res = candidate.handle(rule);
 

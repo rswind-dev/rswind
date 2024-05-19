@@ -85,19 +85,15 @@ fn parse_recursive(input: ParseStream) -> Result<Vec<AstNodeExpr>, syn::Error> {
 
 impl Parse for MyMacroInput {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        Ok(MyMacroInput {
-            css: parse_recursive(input)?,
-        })
+        Ok(MyMacroInput { css: parse_recursive(input)? })
     }
 }
 
 #[proc_macro]
 pub fn css(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as MyMacroInput);
-    let (_, rules): (Vec<_>, Vec<_>) = input
-        .css
-        .iter()
-        .partition(|x| matches!(x, AstNodeExpr::Decl(_)));
+    let (_, rules): (Vec<_>, Vec<_>) =
+        input.css.iter().partition(|x| matches!(x, AstNodeExpr::Decl(_)));
 
     TokenStream::from(if rules.is_empty() {
         let generated_code = input.css.iter().map(ToTokens::to_token_stream);

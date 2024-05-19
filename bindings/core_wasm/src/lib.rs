@@ -17,9 +17,7 @@ lazy_static::lazy_static! {
 
 #[wasm_bindgen]
 pub fn generate(css: String, typ: String) -> String {
-    APP.write()
-        .unwrap()
-        .run_with(Extractor::new(&css, &*typ).extract())
+    APP.write().unwrap().run_with(Extractor::new(&css, &*typ).extract())
 }
 
 #[wasm_bindgen(js_name = generateWith)]

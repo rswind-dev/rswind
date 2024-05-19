@@ -86,10 +86,7 @@ mod tests {
 
         let res = UtilityHandler::deserialize(input)?;
 
-        let r = res.call(
-            MetaData::modifier(SmolStr::from("0.5")),
-            SmolStr::from("red"),
-        );
+        let r = res.call(MetaData::modifier(SmolStr::from("0.5")), SmolStr::from("red"));
 
         println!("{}", r.to_css_string());
 

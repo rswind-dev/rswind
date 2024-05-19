@@ -88,11 +88,7 @@ type GenResult<'a> = Vec<(SmolStr, GenerateResult<'a>)>;
 
 impl Application {
     pub fn builder() -> ApplicationBuilder {
-        ApplicationBuilder {
-            presets: Vec::new(),
-            config: None,
-            ctx: Context::default(),
-        }
+        ApplicationBuilder { presets: Vec::new(), config: None, ctx: Context::default() }
     }
 
     #[instrument(skip_all)]
@@ -104,9 +100,7 @@ impl Application {
         let res: GenResult = input
             .into_iter()
             .filter_map(|token| {
-                self.ctx
-                    .generate(token.as_ref())
-                    .map(|rule| (SmolStr::from(token.as_ref()), rule))
+                self.ctx.generate(token.as_ref()).map(|rule| (SmolStr::from(token.as_ref()), rule))
             })
             .collect();
 
@@ -123,9 +117,7 @@ impl Application {
         let res = input
             .into_par_iter()
             .filter_map(|s| {
-                self.ctx
-                    .generate(s.as_ref())
-                    .map(|rule| (SmolStr::from(s.as_ref()), rule))
+                self.ctx.generate(s.as_ref()).map(|rule| (SmolStr::from(s.as_ref()), rule))
             })
             .collect();
 
@@ -138,10 +130,7 @@ impl Application {
         for (name, v) in res.iter() {
             seen_variants.extend(v.variants.clone());
             if let Some(group) = &v.group {
-                groups
-                    .entry(*group)
-                    .or_insert_with(Vec::new)
-                    .push(name.to_owned());
+                groups.entry(*group).or_insert_with(Vec::new).push(name.to_owned());
             }
         }
 

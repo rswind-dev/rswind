@@ -297,13 +297,7 @@ mod tests {
             o.file_type = FileType::Vue;
         });
 
-        let expected = [
-            "hello",
-            "container",
-            "https://google.com",
-            "flex",
-            "bg-red-500",
-        ];
+        let expected = ["hello", "container", "https://google.com", "flex", "bg-red-500"];
 
         assert_eq!(extractor.collect::<Vec<_>>(), expected);
     }
@@ -319,14 +313,7 @@ mod tests {
             o.file_type = FileType::Svelte;
         });
 
-        let expected = [
-            "container",
-            "foo",
-            "red",
-            "blue",
-            "https://google.com",
-            "flex",
-        ];
+        let expected = ["container", "foo", "red", "blue", "https://google.com", "flex"];
 
         assert_eq!(extractor.collect::<Vec<_>>(), expected);
     }

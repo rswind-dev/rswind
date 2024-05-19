@@ -29,10 +29,7 @@ pub struct UtilityCandidate<'a> {
 
 impl<'a> UtilityCandidate<'a> {
     pub fn with_key(key: &'a str) -> Self {
-        Self {
-            key,
-            ..Default::default()
-        }
+        Self { key, ..Default::default() }
     }
 
     // only if value and modifier are both named
@@ -63,10 +60,7 @@ pub struct UtilityParser<'a> {
 impl<'a> UtilityParser<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
-            pos: ParserPosition {
-                start: 0,
-                end: input.len(),
-            },
+            pos: ParserPosition { start: 0, end: input.len() },
             input,
             key: None,
             value: None,
@@ -95,9 +89,7 @@ impl<'a> UtilityParser<'a> {
             self.modifier = Some(MaybeArbitrary::Arbitrary(arbitrary));
             self.cur_arbitrary = None;
         } else {
-            self.modifier = Some(MaybeArbitrary::Named(
-                self.current().get(pos + 1..).unwrap(),
-            ));
+            self.modifier = Some(MaybeArbitrary::Named(self.current().get(pos + 1..).unwrap()));
         }
         self.pos.end = self.pos.start + pos;
     }
@@ -301,11 +293,8 @@ impl UtilityBuilder {
                 handler: self.handler.unwrap(),
                 supports_negative: self.supports_negative,
                 supports_fraction: self.supports_fraction,
-                value_repr: RawValueRepr {
-                    theme_key: self.theme_key,
-                    validator: self.validator,
-                }
-                .parse(theme)?,
+                value_repr: RawValueRepr { theme_key: self.theme_key, validator: self.validator }
+                    .parse(theme)?,
                 modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
                 wrapper: self.wrapper,
                 additional_css: self.additional_css,

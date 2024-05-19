@@ -51,11 +51,9 @@ impl ThemeValue {
 
     pub fn iter<'a>(&'a self) -> Box<dyn Iterator<Item = (&str, SmolStr)> + 'a> {
         match self {
-            Self::Static(map) => Box::new(
-                map.clone()
-                    .into_iter()
-                    .map(|(k, v)| (*k, SmolStr::from(*v))),
-            ),
+            Self::Static(map) => {
+                Box::new(map.clone().into_iter().map(|(k, v)| (*k, SmolStr::from(*v))))
+            }
             Self::Dynamic(map) => Box::new(map.iter().map(|(k, v)| (k.as_str(), v.clone()))),
             Self::RuleList(_) => Box::new(std::iter::empty()),
         }
@@ -89,10 +87,8 @@ impl Theme {
                 }
                 ThemeValue::Static(s) => {
                     value.reserve(s.len());
-                    value.extend(
-                        s.into_iter()
-                            .map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))),
-                    );
+                    value
+                        .extend(s.into_iter().map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))));
                     *entry = ThemeValue::Dynamic(Arc::new(value));
                 }
                 ThemeValue::RuleList(_r) => {

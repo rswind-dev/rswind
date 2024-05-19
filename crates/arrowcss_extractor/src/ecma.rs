@@ -18,12 +18,7 @@ pub struct EcmaExtractor<'a> {
 
 impl<'a> EcmaExtractor<'a> {
     pub fn new(input: &'a str) -> Self {
-        Self {
-            cursor: Cursor::new(input),
-            input,
-            position: 0,
-            at_start_of: None,
-        }
+        Self { cursor: Cursor::new(input), input, position: 0, at_start_of: None }
     }
 
     pub fn str_from(&self, start: usize) -> &'a str {

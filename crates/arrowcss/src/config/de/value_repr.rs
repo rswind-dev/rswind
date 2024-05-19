@@ -11,15 +11,13 @@ impl<'de> Deserialize<'de> for Box<dyn TypeValidator> {
 
         CssDataType::parse_string(s.as_ref())
             .map(|typ| Box::new(typ) as Box<dyn TypeValidator>)
-            .or_else(
-                |_| match CssProperty::from(CowArcStr::from(s).into_owned()) {
-                    PropertyId::Custom(prop) => Err(Error::custom(format!(
-                        "expect css data type or property id, found `{}`",
-                        prop.as_ref()
-                    ))),
-                    prop => Ok(Box::new(prop) as Box<dyn TypeValidator>),
-                },
-            )
+            .or_else(|_| match CssProperty::from(CowArcStr::from(s).into_owned()) {
+                PropertyId::Custom(prop) => Err(Error::custom(format!(
+                    "expect css data type or property id, found `{}`",
+                    prop.as_ref()
+                ))),
+                prop => Ok(Box::new(prop) as Box<dyn TypeValidator>),
+            })
     }
 }
 
