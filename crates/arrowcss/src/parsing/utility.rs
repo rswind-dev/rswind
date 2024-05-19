@@ -6,7 +6,7 @@ use smol_str::{format_smolstr, SmolStr};
 use super::ParserPosition;
 use crate::{
     common::MaybeArbitrary,
-    context::utilities::{UtilityStorage, UtilityStorageImpl},
+    context::utilities::UtilityStorage,
     css::rule::RuleList,
     ordering::OrderingKey,
     process::{
@@ -121,7 +121,7 @@ impl<'a> UtilityParser<'a> {
         }
     }
 
-    pub fn parse(&mut self, utilities: &UtilityStorageImpl) -> Option<UtilityCandidate<'a>> {
+    pub fn parse(&mut self, utilities: &UtilityStorage) -> Option<UtilityCandidate<'a>> {
         // find key
         if utilities.get(self.current()).is_some() {
             self.key = Some(self.current());

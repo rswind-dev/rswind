@@ -9,7 +9,7 @@ use rustc_hash::{FxHashMap as HashMap, FxHasher};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
-use self::utilities::{StaticUtility, UtilityStorage, UtilityStorageImpl};
+use self::utilities::{StaticUtility, UtilityStorage};
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
     css::rule::RuleList,
@@ -27,7 +27,7 @@ pub type VariantStorage = HashMap<SmolStr, Variant>;
 #[derive(Default)]
 pub struct Context {
     /// Storage for utilities
-    pub utilities: UtilityStorageImpl,
+    pub utilities: UtilityStorage,
 
     /// Storage for variants
     pub variants: VariantStorage,
@@ -58,7 +58,7 @@ impl Context {
     pub fn new() -> Self {
         Self {
             variants: HashMap::default(),
-            utilities: UtilityStorageImpl::HashMap(Default::default()),
+            utilities: UtilityStorage::default(),
             theme: Theme::default(),
         }
     }
