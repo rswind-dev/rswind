@@ -21,7 +21,7 @@ pub trait ToCssString {
 impl<T: ToCss> ToCssString for T {
     fn to_css_string(self) -> String {
         let mut s = String::new();
-        let mut writer = Writer::default(&mut s);
+        let mut writer = Writer::new(&mut s);
         let _ = self.to_css(&mut writer);
         s
     }

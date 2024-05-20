@@ -42,8 +42,8 @@ pub struct Writer<'a, W: Write> {
 }
 
 impl<'a, W: Write> Writer<'a, W> {
-    pub fn default(dest: W) -> Self {
-        Self::new(
+    pub fn new(dest: W) -> Self {
+        Self::with_config(
             dest,
             WriterConfig {
                 minify: false,
@@ -55,10 +55,10 @@ impl<'a, W: Write> Writer<'a, W> {
     }
 
     pub fn minify(dest: W) -> Self {
-        Self::new(dest, WriterConfig { minify: true, ..Default::default() })
+        Self::with_config(dest, WriterConfig { minify: true, ..Default::default() })
     }
 
-    pub fn new(dest: W, config: WriterConfig) -> Self {
+    pub fn with_config(dest: W, config: WriterConfig) -> Self {
         let indent = match config.indent_type {
             IndentType::Tab => "\t",
             IndentType::Space => " ",

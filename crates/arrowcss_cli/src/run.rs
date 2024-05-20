@@ -13,17 +13,14 @@ pub trait RunParallel {
 
 impl RunParallel for Application {
     fn run_parallel(&mut self, input: impl IntoParallelIterator<Item = PathBuf>) -> String {
-        self.run_parallel_with(
-            input
-                .into_par_iter()
-                .map(|f| FileInput::from_file(&f))
-                .collect::<Vec<_>>()
-                .par_iter()
-                .map(|f| f.extract())
-                .reduce(HashSet::default, |mut acc, x| {
-                    acc.extend(x);
-                    acc
-                }),
-        )
+        let contents = input.into_par_iter().map(|f| FileInput::from_file(&f)).collect::<Vec<_>>();
+
+        self.run_parallel_with(contents.par_iter().map(Extractable::extract).reduce(
+            HashSet::default,
+            |mut acc, x| {
+                acc.extend(x);
+                acc
+            },
+        ))
     }
 }

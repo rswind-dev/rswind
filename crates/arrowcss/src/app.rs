@@ -92,7 +92,7 @@ impl Application {
     }
 
     #[instrument(skip_all)]
-    pub fn run_with<'a, I>(&mut self, input: I) -> String
+    pub fn run_with<I>(&mut self, input: I) -> String
     where
         I: IntoIterator,
         I::Item: AsRef<str>,
@@ -109,7 +109,7 @@ impl Application {
         Self::run_inner(&mut self.seen_variants, res)
     }
 
-    pub fn run_parallel_with<'a, I>(&mut self, input: I) -> String
+    pub fn run_parallel_with<I>(&mut self, input: I) -> String
     where
         I: IntoParallelIterator,
         I::Item: AsRef<str>,
