@@ -135,7 +135,7 @@ mod tests {
     use arrowcss_css_macro::css;
 
     use super::*;
-    use crate::{context::Context, css::ToCssString, parsing::VariantParser};
+    use crate::{context::Context, css::ToCssString, parsing::candidate::CandidateParser};
 
     #[test]
     fn test_load_variants() {
@@ -144,7 +144,8 @@ mod tests {
 
         let rule = css!("display": "flex").to_rule_list();
 
-        let candidate = VariantParser::new("group-hover/aaa").parse(&ctx.variants).unwrap();
+        let candidate =
+            CandidateParser::new("group-hover/aaa").parse_variant(&ctx.variants).unwrap();
 
         let res = candidate.handle(rule);
 

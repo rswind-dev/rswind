@@ -125,7 +125,7 @@ impl Application {
     }
 
     pub fn run_inner(seen_variants: &mut BTreeSet<u64>, mut res: GenResult) -> String {
-        let mut writer = Writer::default(String::with_capacity(1024));
+        let mut writer = Writer::new(String::with_capacity(1024));
         let mut groups = HashMap::default();
         for (name, v) in res.iter() {
             seen_variants.extend(v.variants.clone());
@@ -147,7 +147,7 @@ impl Application {
         });
 
         for (_, r) in res.iter() {
-            let mut w = Writer::default(String::with_capacity(100));
+            let mut w = Writer::new(String::with_capacity(100));
             let _ = r.rule.to_css(&mut w);
             let _ = writer.write_str(&w.dest);
         }
