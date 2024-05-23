@@ -1,6 +1,8 @@
 pub mod utility;
 pub mod variant;
 
+use std::fmt::Write;
+
 use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
@@ -32,12 +34,33 @@ pub trait ValuePreprocessor {
     fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
         match value {
             Some(MaybeArbitrary::Arbitrary(value)) => {
-                self.validate(value).then(|| SmolStr::from(value))
+                let value = decode_arbitrary_value(value);
+                self.validate(&value).then_some(value)
             }
             Some(MaybeArbitrary::Named(value)) => self.allowed_values()?.get(value),
             None => self.allowed_values()?.get(DEFAULT),
         }
     }
+}
+
+pub fn decode_arbitrary_value(input: &str) -> SmolStr {
+    let mut writer = smol_str::Writer::new();
+    let mut chars = input.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            if let Some(next_char) = chars.peek() {
+                if *next_char == '_' {
+                    chars.next();
+                    let _ = writer.write_str("_");
+                    continue;
+                }
+            }
+        }
+        let _ = writer.write_char(if c == '_' { ' ' } else { c });
+    }
+
+    SmolStr::from(writer)
 }
 
 // TODO: json schema docs below

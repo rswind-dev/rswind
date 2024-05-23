@@ -10,7 +10,6 @@ pub mod preset;
 pub mod process;
 pub mod theme;
 pub mod types;
-pub mod utils;
 pub mod writer;
 
 pub use app::create_app;

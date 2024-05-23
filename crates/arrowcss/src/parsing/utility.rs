@@ -99,12 +99,6 @@ impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for 
     }
 }
 
-impl AdditionalCssHandler for RuleList {
-    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
-        Some(Cow::Borrowed(self))
-    }
-}
-
 impl AdditionalCssHandler for Arc<RuleList> {
     fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
         Some(Cow::Borrowed(self.as_ref()))

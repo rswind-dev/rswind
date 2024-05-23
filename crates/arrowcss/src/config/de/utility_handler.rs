@@ -41,9 +41,9 @@ impl<'de> Deserialize<'de> for UtilityHandler {
                 }
 
                 Ok(UtilityHandler::new(move |meta, value| {
-                    Rule::new_empty(handlers.iter().filter_map(|(k, v)| {
+                    Rule::new(handlers.iter().filter_map(|(k, tpl)| {
                         let mut w = smol_str::Writer::new();
-                        let _ = v.render(
+                        let _ = tpl.render(
                             &mut w,
                             &RenderData::new(&value, meta.modifier.as_ref().map(|m| m.as_str())),
                         );
@@ -92,10 +92,7 @@ impl Template {
                     None => writer.write_str(&data.value)?,
                 },
                 TemplatePart::Placeholder(Placeholder::Modifier) => {
-                    data.modifier
-                        .as_ref()
-                        .map(|v| writer.write_str(&v))
-                        .transpose()?;
+                    data.modifier.as_ref().map(|v| writer.write_str(&v)).transpose()?;
                 }
             }
         }
@@ -150,10 +147,7 @@ struct TemplateParser<'a> {
 
 impl<'a> TemplateParser<'a> {
     fn new(input: &'a str) -> Self {
-        Self {
-            input,
-            cursor: Cursor::new(input),
-        }
+        Self { input, cursor: Cursor::new(input) }
     }
 
     fn consume<R>(&mut self, f: impl FnOnce(&mut Cursor) -> R) -> &'a str {
@@ -179,9 +173,8 @@ impl<'a> TemplateParser<'a> {
                 parts.push(TemplatePart::Literal(SmolStr::from(lit)));
             }
             match self.bump() {
-                '0' => parts.push(TemplatePart::Placeholder(Placeholder::Value(
-                    ModifierType::parse(self),
-                ))),
+                '0' => parts
+                    .push(TemplatePart::Placeholder(Placeholder::Value(ModifierType::parse(self)))),
                 '1' => parts.push(TemplatePart::Placeholder(Placeholder::Modifier)),
                 '\0' => return Template { parts },
                 _ => unreachable!(),
@@ -212,10 +205,7 @@ mod tests {
 
         let res = UtilityHandler::deserialize(input)?;
 
-        let r = res.call(
-            MetaData::modifier(SmolStr::from("0.5")),
-            SmolStr::from("#112233"),
-        );
+        let r = res.call(MetaData::modifier(SmolStr::from("0.5")), SmolStr::from("#112233"));
 
         assert_eq!(
             r.to_css_minified(),

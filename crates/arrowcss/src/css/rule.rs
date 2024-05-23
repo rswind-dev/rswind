@@ -17,7 +17,7 @@ pub struct Rule {
 }
 
 impl Rule {
-    pub fn new_empty(decls: impl IntoIterator<Item = Decl>) -> Self {
+    pub fn new(decls: impl IntoIterator<Item = Decl>) -> Self {
         Self {
             selector: "&".into(),
             decls: decls.into_iter().collect(),
