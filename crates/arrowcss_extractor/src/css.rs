@@ -46,7 +46,7 @@ impl<'a> Iterator for CssExtractor<'a> {
         }
         if let Some(selector) = self.inside_selector {
             if self.inside_apply {
-                self.cursor.eat_whitespace();
+                self.cursor.eat_while(char::is_whitespace);
                 match self.cursor.first() {
                     ';' => {
                         self.cursor.bump();

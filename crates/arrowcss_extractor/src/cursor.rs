@@ -27,13 +27,6 @@ impl<'a> Cursor<'a> {
         iter.next().unwrap_or(EOF_CHAR)
     }
 
-    pub fn third(&self) -> char {
-        let mut iter = self.chars.clone();
-        iter.next();
-        iter.next();
-        iter.next().unwrap_or(EOF_CHAR)
-    }
-
     pub fn is_eof(&self) -> bool {
         self.chars.as_str().is_empty()
     }
@@ -50,10 +43,6 @@ impl<'a> Cursor<'a> {
         self.chars.next().unwrap_or(EOF_CHAR)
     }
 
-    pub fn as_bytes(&self) -> &'a [u8] {
-        self.chars.as_str().as_bytes()
-    }
-
     /// Eat a str if it matches the current cursor position
     ///
     /// Returns a bool indicate whether the str was eaten
@@ -62,12 +51,11 @@ impl<'a> Cursor<'a> {
     /// when not match,
     pub fn eat_str(&mut self, s: &str) -> bool {
         let checkpoint = self.chars.clone();
-        if s.chars().all(|c| self.bump() == c) {
-            true
-        } else {
+        let matches = s.chars().all(|c| self.bump() == c);
+        if !matches {
             self.chars = checkpoint;
-            false
         }
+        matches
     }
 
     pub fn eat_while(&mut self, mut predicate: impl FnMut(char) -> bool) {
@@ -76,18 +64,12 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    pub fn eat_whitespace(&mut self) {
-        self.eat_while(char::is_whitespace);
-    }
-
     pub fn eat_until(&mut self, mut predicate: impl FnMut(char) -> bool) {
-        while !predicate(self.first()) && !self.is_eof() {
-            self.bump();
-        }
+        self.eat_while(|c| !predicate(c));
     }
 
     pub fn eat_until_char(&mut self, c: u8) -> &'a str {
-        let Some(pos) = memchr::memchr(c, self.as_bytes()) else {
+        let Some(pos) = memchr::memchr(c, self.chars.as_str().as_bytes()) else {
             // not found, eat all
             self.chars = "".chars();
             return self.chars.as_str();
