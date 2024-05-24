@@ -44,16 +44,8 @@ impl Span {
         Self { start, end }
     }
 
-    pub fn len(&self) -> usize {
-        self.end - self.start
-    }
-
     pub fn to(&self, other: &Span) -> Span {
         Span { start: self.start, end: other.end }
-    }
-
-    pub fn from_start(&self) -> Span {
-        Span { start: 0, end: self.start }
     }
 }
 
@@ -136,9 +128,14 @@ impl<'a> CandidateParser<'a> {
         let mut state = State::Initial;
 
         while let Some(token) = self.next_token().ok()? {
-            debug!("token: {:?}, state: {:?}", token, state);
-            let new_state = UtilityTransformer::transform(&state, token).ok()?;
+            let new_state = UtilityTransformer::transform(&state, &token)?;
             match (token, state) {
+                (Token::Ident(span), State::Initial | State::AfterIdent) => {
+                    repr.idents.push(span);
+                }
+                (Token::Arbitrary(arb), State::Initial | State::AfterIdent) => {
+                    repr.arbitrary = Some(arb);
+                }
                 (Token::Bang, State::Initial) if !repr.important => {
                     repr.important = true;
                 }
@@ -147,12 +144,6 @@ impl<'a> CandidateParser<'a> {
                 }
                 (Token::Minus, State::Initial) if !repr.negative => {
                     repr.negative = true;
-                }
-                (Token::Ident(span), State::Initial | State::AfterIdent) => {
-                    repr.idents.push(span);
-                }
-                (Token::Arbitrary(arb), State::Initial | State::AfterIdent) => {
-                    repr.arbitrary = Some(arb);
                 }
                 (Token::Ident(span), State::AfterSlash) if repr.modifier.is_none() => {
                     repr.modifier = Some(Either::Left(span));
@@ -245,8 +236,7 @@ impl<'a> CandidateParser<'a> {
         let mut state = State::Initial;
 
         while let Some(token) = self.next_token().ok()? {
-            debug!("token: {:?}, state: {:?}", token, state);
-            let new_state = VariantTransformer::transform(&state, token).ok()?;
+            let new_state = VariantTransformer::transform(&state, &token)?;
 
             match (token, state) {
                 (Token::At, State::Initial) => {
@@ -286,7 +276,7 @@ impl<'a> CandidateParser<'a> {
         // try static match
         if let Some(variant) = v.get(self.input) {
             return (variant.kind == VariantKind::Static)
-                .then(|| VariantCandidate::new(variant.clone(), self.input).into());
+                .then(|| VariantCandidate::new(variant.clone(), self.input));
         }
 
         let repr = self.parse_variant_repr()?;
@@ -298,10 +288,10 @@ impl<'a> CandidateParser<'a> {
 
         let mut layers = smallvec![];
         let slice = &mut repr.idents.as_slice();
-        while let Some((key, variant)) = find_key(&self.input, v, slice) {
+        while let Some((key, variant)) = find_key(self.input, v, slice) {
             match variant.kind {
                 VariantKind::Composable => {
-                    layers.push(variant.take_composable()?.clone());
+                    layers.push(*variant.take_composable()?);
                 }
                 VariantKind::Dynamic => {
                     return VariantCandidate::new(variant, key)
@@ -345,7 +335,7 @@ fn find_key<'a>(
     for (idx, i) in spans.iter().enumerate().rev() {
         let key = &input[first.to(i)];
         if let Some(variant) = v.get(key) {
-            *spans = &mut &spans[(idx + 1)..];
+            *spans = &spans[(idx + 1)..];
             return Some((key, variant.clone()));
         }
     }

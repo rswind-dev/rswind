@@ -71,6 +71,7 @@ impl UtilityStorage {
         self.utilities.get(key)
     }
 
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.utilities.len()
     }

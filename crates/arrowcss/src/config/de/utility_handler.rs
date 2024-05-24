@@ -41,14 +41,14 @@ impl<'de> Deserialize<'de> for UtilityHandler {
                 }
 
                 Ok(UtilityHandler::new(move |meta, value| {
-                    Rule::new(handlers.iter().filter_map(|(k, tpl)| {
+                    Rule::new(handlers.iter().map(|(k, tpl)| {
                         let mut w = smol_str::Writer::new();
                         let _ = tpl.render(
                             &mut w,
                             &RenderData::new(&value, meta.modifier.as_ref().map(|m| m.as_str())),
                         );
 
-                        Some(Decl::new(k.as_str(), SmolStr::from(w)))
+                        Decl::new(k.as_str(), SmolStr::from(w))
                     }))
                 }))
             }
@@ -89,10 +89,10 @@ impl Template {
                 }
                 TemplatePart::Placeholder(Placeholder::Value(m)) => match m {
                     Some(typ) => typ.render(writer, data)?,
-                    None => writer.write_str(&data.value)?,
+                    None => writer.write_str(data.value)?,
                 },
                 TemplatePart::Placeholder(Placeholder::Modifier) => {
-                    data.modifier.as_ref().map(|v| writer.write_str(&v)).transpose()?;
+                    data.modifier.as_ref().map(|v| writer.write_str(v)).transpose()?;
                 }
             }
         }
@@ -120,7 +120,7 @@ impl ModifierType {
 
     pub fn render(&self, writer: &mut impl Write, data: &RenderData) -> fmt::Result {
         match self {
-            Self::Color => writer.write_str(&as_color(&data.value, data.modifier)),
+            Self::Color => writer.write_str(&as_color(data.value, data.modifier)),
         }
     }
 }
