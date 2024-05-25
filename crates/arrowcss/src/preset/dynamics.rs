@@ -298,7 +298,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("spacing")
         .with_wrapper("&:where(& > :not(:last-child))")
         .support_negative()
-        .with_ordering(OrderingKey::MarginAxis)
+        .with_ordering(OrderingKey::SpaceAxis)
         .with_additional_css(SPACE_X_REVERSE.clone());
 
     rules
@@ -312,7 +312,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_theme("spacing")
         .with_wrapper("&:where(& > :not(:last-child))")
         .support_negative()
-        .with_ordering(OrderingKey::MarginAxis)
+        .with_ordering(OrderingKey::SpaceAxis)
         .with_additional_css(SPACE_Y_REVERSE.clone());
 
     rules.add("divide-x", |_, value| {
@@ -900,22 +900,22 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
 /// or
 /// property!(["x", "y"]; "--tw-translate", "<length-percentage>", "0")
 macro_rules! property {
-    ($($name:expr, $syn:expr $(, $initial:expr)? ;)*) => {
+    ($($name:expr, $syn:literal $(, $initial:expr)? ;)*) => {
         rule_list! {
             $(
                 concat!("@property ", $name) {
-                    "syntax": $syn;
+                    "syntax": concat!("\"", $syn, "\"");
                     "inherits": "false";
                     $("initial-value": $initial;)?
                 }
             )*
         }
     };
-    ([$($name:expr),*]; $prop:expr, $syn:expr, $initial:expr) => {
+    ([$($name:expr),*]; $prop:expr, $syn:literal, $initial:expr) => {
         rule_list! {
             $(
                 concat!("@property ", $prop, "-", $name) {
-                    "syntax": $syn;
+                    "syntax": concat!("\"", $syn, "\"");
                     "inherits": "false";
                     "initial-value": $initial;
                 }

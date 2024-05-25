@@ -120,7 +120,7 @@ pub fn load_variants(ctx: &mut Context) {
             ctx.variants.insert(
                 k.into(),
                 Variant::new_static([format_smolstr!("@media (width >= {})", v)])
-                    .with_ordering(VariantOrdering::from_px(&v)),
+                    .with_ordering(VariantOrdering::from_length(&v).unwrap()),
             );
         })
     }

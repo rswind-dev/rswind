@@ -13,7 +13,7 @@ use crate::{
     ordering::OrderingKey,
     process::{
         ComposableHandler, RawValueRepr, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
-        UtilityHandler, Variant, VariantHandlerExt, VariantOrdering,
+        UtilityHandler, Variant, VariantHandlerExt,
     },
     theme::Theme,
     types::TypeValidator,
@@ -212,20 +212,11 @@ pub struct VariantCandidate<'a> {
     pub arbitrary: bool,
     pub processor: Variant,
     pub layers: SmallVec<[ComposableHandler; 1]>,
-    pub ordering_key: Option<VariantOrdering>,
 }
 
 impl<'a> VariantCandidate<'a> {
     pub fn new(processor: Variant, key: &'a str) -> Self {
-        Self {
-            key,
-            value: None,
-            modifier: None,
-            arbitrary: false,
-            ordering_key: processor.ordering,
-            processor,
-            layers: smallvec![],
-        }
+        Self { key, value: None, modifier: None, arbitrary: false, processor, layers: smallvec![] }
     }
 
     pub fn with_value(mut self, value: Option<MaybeArbitrary<'a>>) -> Self {

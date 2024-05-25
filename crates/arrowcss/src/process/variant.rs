@@ -1,5 +1,6 @@
 use smallvec::SmallVec;
 use smol_str::{format_smolstr, SmolStr};
+use thiserror::Error;
 
 use crate::{
     common::StrReplaceExt,
@@ -45,7 +46,7 @@ pub struct Variant {
     pub handler: VariantHandler,
     pub composable: bool,
     pub kind: VariantKind,
-    pub ordering: Option<VariantOrdering>,
+    pub ordering: VariantOrdering,
     pub nested: bool,
 }
 
@@ -71,12 +72,37 @@ pub struct Variant {
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum VariantOrdering {
-    Length(i32),
+    Unset,
+    /// Insert order
+    Insertion(u64),
+    /// Length in pixels
+    Length(u64),
+    Arbitrary,
 }
 
+#[derive(Debug, Error)]
+pub enum OrderingParseError {
+    #[error("Invalid unit, only `px` and `rem` are supported")]
+    InvalidUnit,
+    #[error("Invalid value {0}, expected a u64 integer")]
+    InvalidValue(#[from] std::num::ParseIntError),
+}
+
+static PX_PER_REM: u64 = 16;
+
 impl VariantOrdering {
-    pub fn from_px(s: &str) -> Self {
-        Self::Length(s.strip_suffix("px").unwrap().parse().unwrap())
+    pub fn from_length(s: &str) -> Result<Self, OrderingParseError> {
+        match s {
+            _ if s.ends_with("px") => {
+                let value = s.trim_end_matches("px").parse::<u64>()?;
+                Ok(Self::Length(value))
+            }
+            _ if s.ends_with("rem") => {
+                let value = s.trim_end_matches("rem").parse::<u64>()?;
+                Ok(Self::Length(value * PX_PER_REM))
+            }
+            _ => Err(OrderingParseError::InvalidUnit),
+        }
     }
 }
 
@@ -93,7 +119,7 @@ impl Variant {
             handler: VariantHandler::Static(handler),
             composable: true,
             kind: VariantKind::Static,
-            ordering: None,
+            ordering: VariantOrdering::Unset,
         }
     }
 
@@ -102,7 +128,7 @@ impl Variant {
             handler: VariantHandler::Composable(ComposableHandler::new(handler)),
             composable: true,
             kind: VariantKind::Composable,
-            ordering: None,
+            ordering: VariantOrdering::Unset,
             // composable variants are always nested
             nested: false,
         }
@@ -113,13 +139,13 @@ impl Variant {
             handler: VariantHandler::Dynamic(DynamicHandler::new(handler)),
             composable: true,
             kind: VariantKind::Dynamic,
-            ordering: None,
+            ordering: VariantOrdering::Unset,
             nested,
         }
     }
 
     pub fn with_ordering(self, ordering: VariantOrdering) -> Self {
-        Self { ordering: Some(ordering), ..self }
+        Self { ordering, ..self }
     }
 
     pub fn process(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {

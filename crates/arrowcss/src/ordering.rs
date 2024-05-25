@@ -24,6 +24,8 @@ pub enum OrderingKey {
     PaddingAxis,
     PaddingSide,
 
+    SpaceAxis,
+
     Rounded,
     RoundedSide,
     RoundedCorner,

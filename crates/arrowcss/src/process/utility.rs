@@ -1,5 +1,6 @@
 use std::{borrow::Cow, fmt::Debug};
 
+use cssparser::serialize_name;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
@@ -92,6 +93,19 @@ impl UtilityGroup {
             )],
         }
     }
+}
+pub fn build_group_selector(selectors: impl IntoIterator<Item = SmolStr>) -> String {
+    let mut selector = String::with_capacity(64);
+    selector.push_str(".");
+
+    for (i, s) in selectors.into_iter().enumerate() {
+        if i > 0 {
+            selector.push_str(", ");
+        }
+        let _ = serialize_name(&s, &mut selector);
+    }
+
+    selector
 }
 
 impl ValuePreprocessor for Utility {

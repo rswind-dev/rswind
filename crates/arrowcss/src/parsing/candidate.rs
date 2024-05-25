@@ -12,9 +12,9 @@ use super::{
 };
 use crate::{
     common::MaybeArbitrary,
-    context::{utilities::UtilityStorage, VariantStorage},
+    context::{utilities::UtilityStorage, variants::VariantStorage},
     parsing::state::VariantTransformer,
-    process::{Variant, VariantKind},
+    process::{Variant, VariantKind, VariantOrdering},
 };
 
 #[derive(Deref, DerefMut)]
@@ -160,6 +160,17 @@ impl<'a> CandidateParser<'a> {
     }
 
     pub fn parse_utility(&mut self, ut: &UtilityStorage) -> Option<UtilityCandidate<'a>> {
+        if ut.get(&self.input).is_some() {
+            return Some(UtilityCandidate {
+                key: self.input,
+                value: None,
+                modifier: None,
+                arbitrary: false,
+                important: false,
+                negative: false,
+            });
+        }
+
         let repr = self.parse_utility_repr()?;
 
         if let Some(arb) = repr.arbitrary {
@@ -283,7 +294,13 @@ impl<'a> CandidateParser<'a> {
 
         // full arbitrary
         if let (Some(arb), true) = (repr.arbitrary, repr.idents.is_empty()) {
-            return Some(VariantCandidate::new(Variant::new_static([arb]), arb).arbitrary());
+            return Some(
+                VariantCandidate::new(
+                    Variant::new_static([arb]).with_ordering(VariantOrdering::Arbitrary),
+                    arb,
+                )
+                .arbitrary(),
+            );
         }
 
         let mut layers = smallvec![];

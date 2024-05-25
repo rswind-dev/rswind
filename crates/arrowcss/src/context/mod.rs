@@ -1,30 +1,28 @@
-use std::{
-    borrow::Cow,
-    fmt::Write,
-    hash::{Hash, Hasher},
-};
+use std::{borrow::Cow, cmp::Ordering, fmt::Write};
 
 use cssparser::serialize_name;
-use rustc_hash::{FxHashMap as HashMap, FxHasher};
+use derive_more::{Deref, DerefMut};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 
-use self::utilities::{StaticUtility, UtilityStorage};
+use self::{
+    utilities::{StaticUtility, UtilityStorage},
+    variants::VariantStorage,
+};
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
     css::rule::RuleList,
     ordering::OrderingKey,
-    parsing::{
-        candidate::CandidateParser, UtilityCandidate, VariantCandidate,
-    },
-    process::{Utility, UtilityApplyResult, UtilityGroup, Variant},
+    parsing::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
+    process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
     theme::{Theme, ThemeValue},
 };
 #[macro_use]
 pub mod macros;
 pub mod utilities;
+pub mod variants;
 
-pub type VariantStorage = HashMap<SmolStr, Variant>;
+// pub type VariantStorage = HashMap<SmolStr, Variant>;
 
 #[derive(Default)]
 pub struct Context {
@@ -39,8 +37,9 @@ pub struct Context {
 }
 
 /// The result of a utility generation
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GenerateResult<'a> {
+    pub raw: SmolStr,
     /// The generated rule
     pub rule: RuleList,
 
@@ -51,15 +50,58 @@ pub struct GenerateResult<'a> {
     pub ordering: OrderingKey,
 
     /// The variants in the utility, collect to sort them later
-    pub variants: SmallVec<[u64; 2]>,
+    /// Ordering: len -> variant order
+    pub variants: VariantOrder,
 
     pub additional_css: Option<Cow<'a, RuleList>>,
+}
+
+impl PartialOrd for GenerateResult<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for GenerateResult<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.variants
+            .cmp(&other.variants)
+            .then_with(|| self.ordering.cmp(&other.ordering))
+            .then_with(|| self.raw.cmp(&other.raw))
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Deref, DerefMut)]
+pub struct VariantOrder(Vec<VariantOrdering>);
+
+impl FromIterator<VariantOrdering> for VariantOrder {
+    fn from_iter<T: IntoIterator<Item = VariantOrdering>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
+impl PartialOrd for VariantOrder {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match self.len().partial_cmp(&other.len()) {
+            Some(Ordering::Equal) => self.0.partial_cmp(&other.0),
+            non_eq => non_eq,
+        }
+    }
+}
+
+impl Ord for VariantOrder {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.len().cmp(&other.len()) {
+            Ordering::Equal => self.0.cmp(&other.0),
+            non_eq => non_eq,
+        }
+    }
 }
 
 impl Context {
     pub fn new() -> Self {
         Self {
-            variants: HashMap::default(),
+            variants: VariantStorage::default(),
             utilities: UtilityStorage::default(),
             theme: Theme::default(),
         }
@@ -117,7 +159,7 @@ impl Context {
         T::Item: Into<SmolStr>,
         T::IntoIter: ExactSizeIterator,
     {
-        self.variants.insert(key.into(), Variant::new_static(matcher));
+        self.variants.add_variant(key, matcher);
         self
     }
 
@@ -127,7 +169,7 @@ impl Context {
         func: fn(RuleList, &VariantCandidate) -> RuleList,
         nested: bool,
     ) -> &Self {
-        self.variants.insert(key.into(), Variant::new_dynamic(func, nested));
+        self.variants.add_variant_fn(key, func, nested);
         self
     }
 
@@ -136,7 +178,7 @@ impl Context {
         key: &str,
         handler: fn(RuleList, &VariantCandidate) -> RuleList,
     ) -> &mut Self {
-        self.variants.insert(key.into(), Variant::new_composable(handler));
+        self.variants.add_variant_composable(key, handler);
         self
     }
 
@@ -150,22 +192,22 @@ impl Context {
 
     /// Try generate a utility with the given value
     pub fn generate(&self, value: &str) -> Option<GenerateResult> {
-        let mut parts: SmallVec<[&str; 2]> = value.split_toplevel(b':')?;
-
-        let utility = parts.pop()?;
-
         // Try static utility first
         if let Some(UtilityApplyResult { rule: node, ordering, group, .. }) =
-            self.utilities.try_apply(UtilityCandidate::with_key(utility))
+            self.utilities.try_apply(UtilityCandidate::with_key(value))
         {
             return Some(GenerateResult {
+                raw: SmolStr::from(value),
                 group,
-                rule: fill_selector_placeholder(utility, node.to_rule_list())?,
+                rule: fill_selector_placeholder(value, node.to_rule_list())?,
                 ordering,
-                variants: SmallVec::new(),
+                variants: VariantOrder::default(),
                 additional_css: None,
             });
         }
+
+        let mut parts: SmallVec<[&str; 2]> = value.split_toplevel(b':')?;
+        let utility = parts.pop()?;
 
         let utility_candidate = CandidateParser::new(utility).parse_utility(&self.utilities)?;
 
@@ -174,14 +216,7 @@ impl Context {
             .map(|v| CandidateParser::new(v).parse_variant(&self.variants))
             .collect::<Option<SmallVec<[_; 2]>>>()?;
 
-        let variants = vs
-            .iter()
-            .map(|v| {
-                let mut hasher = FxHasher::default();
-                v.processor.hash(&mut hasher);
-                hasher.finish()
-            })
-            .collect();
+        let variants = vs.iter().map(|v| v.processor.ordering).collect();
 
         let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
             vs.iter().partition(|v| v.processor.nested);
@@ -195,7 +230,14 @@ impl Context {
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
-        Some(GenerateResult { rule: node, ordering, group, variants, additional_css })
+        Some(GenerateResult {
+            raw: SmolStr::from(value),
+            rule: node,
+            ordering,
+            group,
+            variants,
+            additional_css,
+        })
     }
 }
 
