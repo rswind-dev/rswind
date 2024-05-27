@@ -4,7 +4,7 @@ use either::Either::{Left, Right};
 use rayon::{iter::IntoParallelIterator, prelude::*};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
-use tracing::{debug, info, instrument};
+use tracing::{info, instrument};
 
 use crate::{
     cache::{AppCache, Cache, CacheState},
@@ -38,13 +38,6 @@ pub struct ApplicationBuilder {
 impl ApplicationBuilder {
     #[instrument(skip_all)]
     pub fn with_config(mut self, config: ArrowConfig) -> Self {
-        debug!(
-            utilities = ?config.utilities.len(),
-            static_utilities = ?config.static_utilities.len(),
-            dark_mode = ?config.dark_mode,
-            theme = ?config.theme,
-            "Loaded config"
-        );
         self.config = Some(config);
         self
     }
@@ -132,8 +125,6 @@ impl Application {
             })
             .collect::<GenResultList>();
 
-        info!("Generated {} utilities", res.len());
-
         Self::generate_css(&mut self.cache, res)
     }
 
@@ -150,7 +141,6 @@ impl Application {
                     None => Left(SmolStr::from(s)),
                 }
             });
-
         self.cache.mark_invalid_many(invalid);
 
         Self::generate_css(&mut self.cache, valid)
@@ -200,6 +190,8 @@ fn process_result(res: GenResultList, cache: &mut AppCache, writer: &mut Writer<
                 );
             }
         }
+
+        cache.mark_valid(r.raw.clone());
 
         match cache.state {
             CacheState::FirstRun | CacheState::Cached => {

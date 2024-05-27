@@ -4,7 +4,7 @@ use arrowcss_extractor::cursor::Cursor;
 use derive_more::{Deref, DerefMut};
 use either::Either::{self, Left, Right};
 use smallvec::{smallvec, SmallVec};
-use tracing::debug;
+use tracing::{instrument, span};
 
 use super::{
     state::{State, StateTransformer, UtilityTransformer},
@@ -159,6 +159,7 @@ impl<'a> CandidateParser<'a> {
         Some(repr)
     }
 
+    #[instrument(fields(input = self.input), skip_all, level = "trace")]
     pub fn parse_utility(&mut self, ut: &UtilityStorage) -> Option<UtilityCandidate<'a>> {
         if ut.get(&self.input).is_some() {
             return Some(UtilityCandidate {
@@ -202,8 +203,6 @@ impl<'a> CandidateParser<'a> {
                 negative: repr.negative,
             });
         }
-
-        debug!("{:?}", repr);
 
         let mut iter = repr.idents.iter().rev().peekable();
         let mut prev = iter.next();
@@ -289,6 +288,8 @@ impl<'a> CandidateParser<'a> {
             return (variant.kind == VariantKind::Static)
                 .then(|| VariantCandidate::new(variant.clone(), self.input));
         }
+
+        let _span = span!(tracing::Level::TRACE, "parse_variant", input = self.input).entered();
 
         let repr = self.parse_variant_repr()?;
 

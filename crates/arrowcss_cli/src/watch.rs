@@ -3,6 +3,7 @@ use std::{path::Path, sync::mpsc, time::Duration};
 use arrowcss::app::Application;
 use notify::{EventKind, RecursiveMode, Watcher};
 use notify_debouncer_full::new_debouncer;
+use rustc_hash::FxHashSet;
 use tracing::info;
 
 use crate::{
@@ -43,7 +44,7 @@ impl WatchApp for Application {
                 })
                 .flatten()
                 .filter(|e| allowed_files(e))
-                .collect::<Vec<_>>();
+                .collect::<FxHashSet<_>>();
 
             if changes.is_empty() {
                 continue;

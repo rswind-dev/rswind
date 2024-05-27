@@ -1,8 +1,13 @@
 use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString, preset::preset_tailwind};
-use arrowcss_cli::io::write_file;
 use clap::{arg, command, Parser};
-use io::get_files;
+use io::{get_files, write_output};
 use run::RunParallel;
+use tracing_subscriber::{
+    fmt::{self},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+    EnvFilter,
+};
 use watch::WatchApp;
 
 mod io;
@@ -50,7 +55,11 @@ pub struct DebugCommand {
 }
 
 fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_env("RSWIND_LOG"))
+        .init();
+
     let opts = Opts::parse();
     let builder = Application::builder()
         .with_preset(preset_tailwind)
@@ -64,11 +73,7 @@ fn main() {
         None => {
             let mut app = builder.build();
             let res = app.run_parallel(get_files(&opts.input));
-            if let Some(output) = opts.output {
-                write_file(&res, output);
-            } else {
-                println!("{}", res);
-            }
+            write_output(&res, opts.output.as_deref());
         }
         Some(SubCommand::Debug(cmd)) => {
             let app = builder.build();

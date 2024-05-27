@@ -17,13 +17,12 @@ config                = { workspace = true }
 clap                  = { workspace = true, features = ["derive"] }
 cssparser             = { workspace = true }
 notify                = { workspace = true }
-notify-debouncer-mini = { workspace = true }
 rayon                 = { workspace = true }
 walkdir               = { workspace = true }
 rustc-hash            = { workspace = true }
 smol_str              = { workspace = true }
 tracing               = { workspace = true }
-tracing-subscriber    = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 notify-debouncer-full = "0.3.1"
 
 [dev-dependencies]

@@ -9,7 +9,7 @@ use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
-use tracing::{info, instrument};
+use tracing::{debug, info, instrument};
 
 use crate::{parsing::UtilityBuilder, theme::Theme};
 
@@ -82,7 +82,7 @@ impl ArrowConfig {
     pub fn from_file(name: &str) -> Result<Self, config::ConfigError> {
         let config_result = Config::builder().add_source(config::File::with_name(name)).build();
 
-        match config_result {
+        let config = match config_result {
             Ok(config) => config.try_deserialize::<ArrowConfig>(),
             // If the file is not found, use the default configuration
             Err(config::ConfigError::Foreign(err))
@@ -94,7 +94,11 @@ impl ArrowConfig {
                 Ok(ArrowConfig::default())
             }
             Err(e) => Err(e),
-        }
+        };
+
+        debug!(config = ?config,"Loaded configuration");
+
+        config
     }
 
     #[cfg(feature = "wasm")]

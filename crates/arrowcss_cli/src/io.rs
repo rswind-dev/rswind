@@ -13,7 +13,6 @@ use walkdir::WalkDir;
 
 static ALLOWED_EXTENSIONS: [&str; 7] = ["html", "vue", "js", "jsx", "ts", "tsx", "svelte"];
 
-#[derive(Debug)]
 pub struct FileInput {
     content: String,
     kind: InputKind,
@@ -46,11 +45,13 @@ impl<'a> Extractable<'a> for &'a FileInput {
 }
 
 pub fn allowed_files(e: impl AsRef<Path>) -> bool {
-    e.as_ref().extension().map(|e| ALLOWED_EXTENSIONS.contains(&e.to_str().unwrap_or(""))).is_some()
+    e.as_ref()
+        .extension()
+        .map(|e| ALLOWED_EXTENSIONS.contains(&e.to_str().unwrap_or("")))
+        .unwrap_or(false)
 }
 
 pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
-    println!("dir: {:?}", dir.as_ref());
     WalkDir::new(dir)
         .into_iter()
         .filter_entry(|e| {
@@ -58,7 +59,11 @@ pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
                 && e.file_name() != "node_modules"
         })
         .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_file())
+        .filter(|e| {
+            e.file_type().is_file()
+                && ALLOWED_EXTENSIONS
+                    .contains(&e.path().extension().unwrap().to_str().unwrap_or(""))
+        })
         .map(|e| e.into_path())
         .filter(|e| allowed_files(e))
         .collect()

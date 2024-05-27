@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use tracing::debug;
+use tracing::trace;
 
 use super::candidate::Token;
 
@@ -57,7 +57,7 @@ impl StateTransformer for UtilityTransformer {
             (State::AfterSlash, Token::Arbitrary(_)) => Some(State::Eof),
             _ => None,
         };
-        debug!("transform: {:?} to {:?} with token {:?}", state, res, token);
+        trace!(from = ?state, to = ?res, token = ?token, "transform");
         res
     }
 }
@@ -79,7 +79,7 @@ impl StateTransformer for VariantTransformer {
             (State::AfterSlash, Token::Arbitrary(_)) => Some(State::Eof),
             _ => None,
         };
-        debug!("transform: {:?} to {:?} with token {:?}", state, res, token);
+        trace!(from = ?state, to = ?res, token = ?token, "transform");
         res
     }
 }
