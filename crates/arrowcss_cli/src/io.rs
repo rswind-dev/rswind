@@ -1,5 +1,6 @@
 use std::{
-    fs::read_to_string,
+    fs::{read_to_string, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -12,13 +13,14 @@ use walkdir::WalkDir;
 
 static ALLOWED_EXTENSIONS: [&str; 7] = ["html", "vue", "js", "jsx", "ts", "tsx", "svelte"];
 
+#[derive(Debug)]
 pub struct FileInput {
     content: String,
     kind: InputKind,
 }
 
 impl FileInput {
-    pub fn from_file(f: &PathBuf) -> Self {
+    pub fn from_file(f: &Path) -> Self {
         Self {
             content: read_to_string(f).unwrap(),
             kind: InputKind::from(f.extension().unwrap().to_str().unwrap_or_default()),
@@ -43,20 +45,41 @@ impl<'a> Extractable<'a> for &'a FileInput {
     }
 }
 
+pub fn allowed_files(e: impl AsRef<Path>) -> bool {
+    e.as_ref().extension().map(|e| ALLOWED_EXTENSIONS.contains(&e.to_str().unwrap_or(""))).is_some()
+}
+
 pub fn get_files(dir: impl AsRef<Path>) -> Vec<PathBuf> {
+    println!("dir: {:?}", dir.as_ref());
     WalkDir::new(dir)
-        .min_depth(1)
         .into_iter()
         .filter_entry(|e| {
-            e.file_type().is_file()
-                && !e.file_name().to_str().unwrap_or_default().starts_with('.')
+            !e.file_name().to_str().unwrap_or_default().starts_with('.')
                 && e.file_name() != "node_modules"
         })
-        .map(|e| e.unwrap().into_path())
-        .filter(|e| {
-            e.extension()
-                .map(|e| ALLOWED_EXTENSIONS.contains(&e.to_str().unwrap_or("")))
-                .is_some_and(|e| e)
-        })
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .map(|e| e.into_path())
+        .filter(|e| allowed_files(e))
         .collect()
+}
+
+pub fn write_file(content: &str, filename: impl AsRef<Path>) {
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .append(false)
+        .open(filename)
+        .unwrap()
+        .write_all(content.as_bytes())
+        .unwrap();
+}
+
+pub fn write_output(content: &str, output: Option<&str>) {
+    if let Some(output) = output {
+        write_file(content, output);
+    } else {
+        std::io::stdout().write_all(content.as_bytes()).unwrap();
+    }
 }

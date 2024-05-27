@@ -1,28 +1,56 @@
-use std::{sync::mpsc, time::Duration};
+use std::{path::Path, sync::mpsc, time::Duration};
 
 use arrowcss::app::Application;
-use notify::RecursiveMode;
-use notify_debouncer_mini::new_debouncer;
-use rayon::iter::ParallelBridge;
+use notify::{EventKind, RecursiveMode, Watcher};
+use notify_debouncer_full::new_debouncer;
+use tracing::info;
 
-use crate::{read::get_files, run::RunParallel};
+use crate::{
+    io::{allowed_files, get_files, write_output},
+    run::RunParallel,
+};
 
 pub trait WatchApp {
-    fn watch(&mut self, dir: &str);
+    fn watch(&mut self, dir: &str, output: Option<&str>);
 }
 
 impl WatchApp for Application {
-    fn watch(&mut self, dir: &str) {
+    fn watch(&mut self, dir: &str, output: Option<&str>) {
         let (tx, rx) = mpsc::channel();
 
-        let mut debouncer = new_debouncer(Duration::from_millis(10), tx).unwrap();
+        let mut debouncer = new_debouncer(Duration::from_millis(10), None, tx).unwrap();
 
-        debouncer.watcher().watch(std::path::Path::new(dir), RecursiveMode::NonRecursive).unwrap();
+        debouncer.watcher().watch(Path::new(dir), RecursiveMode::Recursive).unwrap();
 
-        self.run_parallel(get_files(dir));
+        let files = get_files(dir);
+
+        info!("Found {} files in {}", files.len(), dir);
+
+        let res = self.run_parallel(files);
+
+        write_output(&res, output);
 
         for change in rx {
-            self.run_parallel(change.unwrap().into_iter().map(|e| e.path).par_bridge());
+            let Ok(changes) = change else {
+                continue;
+            };
+
+            let changes = changes
+                .iter()
+                .filter_map(|e| match e.kind {
+                    EventKind::Create(_) | EventKind::Modify(_) => Some(e.paths.iter()),
+                    _ => None,
+                })
+                .flatten()
+                .filter(|e| allowed_files(e))
+                .collect::<Vec<_>>();
+
+            if changes.is_empty() {
+                continue;
+            }
+
+            let res = self.run_parallel(changes);
+            write_output(&res, output);
         }
     }
 }

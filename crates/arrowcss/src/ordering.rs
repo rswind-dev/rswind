@@ -51,4 +51,7 @@ pub enum OrderingKey {
 
     #[default]
     Disorder,
+
+    Grouped,
+    Property,
 }

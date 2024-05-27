@@ -12,6 +12,7 @@ resolver = "2"
 [profile.release]
 lto           = true
 codegen-units = 1
+debug = true
 
 [profile.bench]
 debug = true
@@ -44,7 +45,6 @@ smallvec                 = "1.11.2"
 config                   = "0.13.4"
 clap                     = "4.5.4"
 notify                   = "6.1.1"
-notify-debouncer-mini    = "0.4.1"
 walkdir                  = "2.5.0"
 criterion                = "0.4"
 proc-macro2              = "1.0.79"

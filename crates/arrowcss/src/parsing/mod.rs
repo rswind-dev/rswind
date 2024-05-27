@@ -1,7 +1,7 @@
 pub mod candidate;
 pub mod state;
 
-use std::{borrow::Cow, fmt::Debug, sync::Arc};
+use std::{fmt::Debug, sync::Arc};
 
 use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
@@ -95,30 +95,24 @@ pub struct UtilityBuilder {
 }
 
 pub trait AdditionalCssHandler: Sync + Send {
-    fn handle(&self, value: SmolStr) -> Option<Cow<RuleList>>;
+    fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>>;
 }
 
 impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for T {
-    fn handle(&self, value: SmolStr) -> Option<Cow<RuleList>> {
-        self(value).map(Cow::Owned)
+    fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>> {
+        self(value).map(Arc::new)
     }
 }
 
 impl AdditionalCssHandler for Arc<RuleList> {
-    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
-        Some(Cow::Borrowed(self.as_ref()))
-    }
-}
-
-impl AdditionalCssHandler for &RuleList {
-    fn handle(&self, _value: SmolStr) -> Option<Cow<RuleList>> {
-        Some(Cow::Borrowed(self))
+    fn handle(&self, _value: SmolStr) -> Option<Arc<RuleList>> {
+        Some(self.clone())
     }
 }
 
 impl Debug for dyn AdditionalCssHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("AdditionalCssHandler {:p}", self))
+        f.debug_struct("AdditionalCssHandler").field("address", &format!("{:p}", self)).finish()
     }
 }
 

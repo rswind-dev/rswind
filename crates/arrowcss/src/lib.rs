@@ -3,6 +3,7 @@ pub mod common;
 pub mod config;
 #[macro_use]
 pub mod context;
+pub mod cache;
 pub mod css;
 pub mod ordering;
 pub mod parsing;

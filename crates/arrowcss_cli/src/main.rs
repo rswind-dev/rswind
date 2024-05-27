@@ -1,12 +1,11 @@
-use std::{fs::OpenOptions, io::Write};
-
 use arrowcss::{app::Application, config::ArrowConfig, css::ToCssString, preset::preset_tailwind};
+use arrowcss_cli::io::write_file;
 use clap::{arg, command, Parser};
-use read::get_files;
+use io::get_files;
 use run::RunParallel;
 use watch::WatchApp;
 
-mod read;
+mod io;
 mod run;
 mod watch;
 
@@ -51,33 +50,28 @@ pub struct DebugCommand {
 }
 
 fn main() {
+    tracing_subscriber::fmt::init();
     let opts = Opts::parse();
-    let mut app = Application::builder()
+    let builder = Application::builder()
         .with_preset(preset_tailwind)
-        .with_config(ArrowConfig::from_file("arrow.config").unwrap())
-        .build();
+        .with_config(ArrowConfig::from_file(&opts.config).unwrap());
 
     match opts.cmd {
         None if opts.watch => {
-            app.watch(&opts.input);
+            let mut app = builder.watch().build();
+            app.watch(&opts.input, opts.output.as_deref());
         }
         None => {
+            let mut app = builder.build();
             let res = app.run_parallel(get_files(&opts.input));
-            if opts.output.is_some() {
-                OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .truncate(true)
-                    .append(false)
-                    .open(opts.output.unwrap())
-                    .unwrap()
-                    .write_all(res.as_bytes())
-                    .unwrap();
+            if let Some(output) = opts.output {
+                write_file(&res, output);
             } else {
                 println!("{}", res);
             }
         }
         Some(SubCommand::Debug(cmd)) => {
+            let app = builder.build();
             let r = app.ctx.generate(&cmd.input).unwrap();
             if cmd.print_ast {
                 println!("{:#?}", r.rule);

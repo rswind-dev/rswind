@@ -50,26 +50,6 @@ pub struct Variant {
     pub nested: bool,
 }
 
-// impl PartialEq for Variant {
-//     fn eq(&self, other: &Self) -> bool {
-//         self.ordering == other.ordering
-//     }
-// }
-
-// impl Eq for Variant {}
-
-// impl PartialOrd for Variant {
-//     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-//         Some(self.cmp(other))
-//     }
-// }
-
-// impl Ord for Variant {
-//     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-//         self.ordering.cmp(&other.ordering)
-//     }
-// }
-
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum VariantOrdering {
     Unset,
@@ -77,6 +57,7 @@ pub enum VariantOrdering {
     Insertion(u64),
     /// Length in pixels
     Length(u64),
+    /// Arbitrary variant, place it at the end
     Arbitrary,
 }
 

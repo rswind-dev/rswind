@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Debug};
+use std::{fmt::Debug, sync::Arc};
 
 use cssparser::serialize_name;
 use smallvec::{smallvec, SmallVec};
@@ -96,12 +96,12 @@ impl UtilityGroup {
 }
 pub fn build_group_selector(selectors: impl IntoIterator<Item = SmolStr>) -> String {
     let mut selector = String::with_capacity(64);
-    selector.push_str(".");
 
     for (i, s) in selectors.into_iter().enumerate() {
         if i > 0 {
             selector.push_str(", ");
         }
+        selector.push_str(".");
         let _ = serialize_name(&s, &mut selector);
     }
 
@@ -124,11 +124,11 @@ impl<F: RuleMatchingFn + 'static> From<F> for Utility {
     }
 }
 
-pub struct UtilityApplyResult<'a> {
+pub struct UtilityApplyResult {
     pub rule: Rule,
     pub ordering: OrderingKey,
     pub group: Option<UtilityGroup>,
-    pub additional_css: Option<Cow<'a, RuleList>>,
+    pub additional_css: Option<Arc<RuleList>>,
 }
 
 impl Utility {

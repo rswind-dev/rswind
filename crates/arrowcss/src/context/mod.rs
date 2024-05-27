@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cmp::Ordering, fmt::Write};
+use std::{cmp::Ordering, fmt::Write, sync::Arc};
 
 use cssparser::serialize_name;
 use derive_more::{Deref, DerefMut};
@@ -38,7 +38,7 @@ pub struct Context {
 
 /// The result of a utility generation
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenerateResult<'a> {
+pub struct GenerateResult {
     pub raw: SmolStr,
     /// The generated rule
     pub rule: RuleList,
@@ -53,16 +53,48 @@ pub struct GenerateResult<'a> {
     /// Ordering: len -> variant order
     pub variants: VariantOrder,
 
-    pub additional_css: Option<Cow<'a, RuleList>>,
+    pub additional_css: Option<Arc<RuleList>>,
 }
 
-impl PartialOrd for GenerateResult<'_> {
+/// We can use the derived `PartialOrd` and `Ord` implementations
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct CacheKey {
+    pub variants: VariantOrder,
+
+    pub ordering: OrderingKey,
+
+    pub raw: SmolStr,
+}
+
+impl CacheKey {
+    pub fn new_grouped(key: SmolStr) -> Self {
+        Self { raw: key, ordering: OrderingKey::Grouped, variants: VariantOrder::default() }
+    }
+
+    pub fn new_property(key: SmolStr) -> Self {
+        Self { raw: key, ordering: OrderingKey::Property, variants: VariantOrder::default() }
+    }
+}
+
+impl From<GenerateResult> for CacheKey {
+    fn from(res: GenerateResult) -> Self {
+        Self { raw: res.raw, ordering: res.ordering, variants: res.variants }
+    }
+}
+
+impl From<&GenerateResult> for CacheKey {
+    fn from(res: &GenerateResult) -> Self {
+        Self { raw: res.raw.clone(), ordering: res.ordering, variants: res.variants.clone() }
+    }
+}
+
+impl PartialOrd for GenerateResult {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for GenerateResult<'_> {
+impl Ord for GenerateResult {
     fn cmp(&self, other: &Self) -> Ordering {
         self.variants
             .cmp(&other.variants)

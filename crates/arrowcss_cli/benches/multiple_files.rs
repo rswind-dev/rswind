@@ -2,7 +2,7 @@ use std::env;
 
 use arrowcss::create_app;
 use arrowcss_cli::{
-    read::{get_files, FileInput},
+    io::{get_files, FileInput},
     run::RunParallel,
 };
 use arrowcss_extractor::Extractable;
