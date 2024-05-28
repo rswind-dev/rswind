@@ -7,8 +7,8 @@ version = "0.0.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-arrowcss = { workspace = true }
-arrowcss_extractor = { workspace = true }
+rswind = { workspace = true }
+rswind_extractor = { workspace = true }
 
 wasm-bindgen             = { workspace = true }
 console_error_panic_hook = { workspace = true }

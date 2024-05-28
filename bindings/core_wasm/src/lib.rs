@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
-use arrowcss::{app::Application, create_app};
-use arrowcss_extractor::{Extractable, Extractor};
+use rswind::{app::Application, create_app};
+use rswind_extractor::{Extractable, Extractor};
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;

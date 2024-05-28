@@ -1,15 +1,15 @@
 {
-  "name": "arrowcss",
+  "name": "rswind",
   "version": "0.0.0",
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
     "index.js",
     "index.d.ts",
-    "arrowcss.darwin-arm64.node"
+    "rswind.darwin-arm64.node"
   ],
   "napi": {
-    "name": "arrowcss",
+    "name": "rswind",
     "triples": {}
   },
   "license": "MIT",

@@ -10,5 +10,5 @@ export default defineConfig({
   minify: true,
   clean: false,
   dts: true,
-  noExternal: ['@arrowcss/binding_core_wasm'],
+  noExternal: ['@rswind/binding_core_wasm'],
 })

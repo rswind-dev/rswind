@@ -1,5 +1,5 @@
 import type { Plugin, ViteDevServer } from 'vite'
-import { createApp } from 'arrowcss'
+import { createApp } from 'rswind'
 
 let app = createApp()
 
@@ -33,12 +33,12 @@ function sendUpdate(server: ViteDevServer) {
 
 const sendUpdateDebounced = debounce(sendUpdate, 10);
 
-export default function arrowcssPlugin(): Plugin[] {
+export default function rswindPlugin(): Plugin[] {
   let modulesQueue: Map<string, string> = new Map();
   let server: ViteDevServer | null = null;
   return [
     {
-      name: "arrowcss:pre",
+      name: "rswind:pre",
       enforce: 'pre',
       configureServer(_server) {
         server = _server;

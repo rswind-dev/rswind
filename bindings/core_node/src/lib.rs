@@ -1,24 +1,24 @@
-use arrowcss::{app::Application, create_app as _create_app};
-use arrowcss_extractor::{Extractable, Extractor};
+use rswind::{app::Application, create_app as _create_app};
+use rswind_extractor::{Extractable, Extractor};
 
 #[macro_use]
 extern crate napi_derive;
 
 #[napi]
-pub struct ArrowCss {
+pub struct RsWindApp {
     app: Application,
 }
 
-impl Default for ArrowCss {
+impl Default for RsWindApp {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[napi]
-impl ArrowCss {
+impl RsWindApp {
     pub fn new() -> Self {
-        ArrowCss { app: _create_app() }
+        RsWindApp { app: _create_app() }
     }
 
     #[napi]
@@ -28,6 +28,6 @@ impl ArrowCss {
 }
 
 #[napi]
-pub fn create_app() -> ArrowCss {
-    ArrowCss::new()
+pub fn create_app() -> RsWindApp {
+    RsWindApp::new()
 }

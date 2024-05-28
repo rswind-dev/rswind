@@ -2,10 +2,10 @@
 members = [
   "bindings/core_node",
   "bindings/core_wasm",
-  "crates/arrowcss",
-  "crates/arrowcss_css_macro",
-  "crates/arrowcss_extractor",
-  "crates/arrowcss_cli",
+  "crates/rswind",
+  "crates/rswind_css_macro",
+  "crates/rswind_extractor",
+  "crates/rswind_cli",
 ]
 resolver = "2"
 
@@ -24,9 +24,9 @@ opt-level = 3
 opt-level = 3
 
 [workspace.dependencies]
-arrowcss           = { path = "crates/arrowcss" }
-arrowcss_css_macro = { path = "crates/arrowcss_css_macro" }
-arrowcss_extractor = { path = "crates/arrowcss_extractor" }
+rswind           = { path = "crates/rswind" }
+rswind_css_macro = { path = "crates/rswind_css_macro" }
+rswind_extractor = { path = "crates/rswind_extractor" }
 
 rayon                    = "1.10.0"
 either                   = "1.10.0"

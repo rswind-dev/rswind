@@ -97,82 +97,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25bdb32cbbdce2b519a9cd7df3a678443100e265d5e25ca763b7572a5104f5f3"
 
 [[package]]
-name = "arrowcss"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "arrowcss_css_macro",
- "arrowcss_extractor",
- "colored",
- "config",
- "criterion",
- "cssparser",
- "cssparser-macros",
- "derive_more",
- "either",
- "enum_dispatch",
- "js-sys",
- "lazy_static",
- "lightningcss",
- "memchr",
- "paste",
- "phf 0.11.2",
- "rayon",
- "rustc-hash",
- "schemars",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "smallvec",
- "smol_str",
- "thiserror",
- "tracing",
- "tracing-subscriber",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "arrowcss_cli"
-version = "0.1.0"
-dependencies = [
- "arrowcss",
- "arrowcss_extractor",
- "clap 4.5.4",
- "config",
- "criterion",
- "cssparser",
- "dotenv",
- "notify",
- "notify-debouncer-full",
- "rayon",
- "rustc-hash",
- "smol_str",
- "tracing",
- "tracing-subscriber",
- "walkdir",
-]
-
-[[package]]
-name = "arrowcss_css_macro"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.63",
-]
-
-[[package]]
-name = "arrowcss_extractor"
-version = "0.1.0"
-dependencies = [
- "criterion",
- "cssparser",
- "cssparser-macros",
- "memchr",
- "rustc-hash",
-]
-
-[[package]]
 name = "async-trait"
 version = "0.1.80"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -219,21 +143,21 @@ dependencies = [
 name = "binding_core_node"
 version = "0.0.0"
 dependencies = [
- "arrowcss",
- "arrowcss_extractor",
  "napi",
  "napi-build",
  "napi-derive",
+ "rswind",
+ "rswind_extractor",
 ]
 
 [[package]]
 name = "binding_core_wasm"
 version = "0.0.0"
 dependencies = [
- "arrowcss",
- "arrowcss_extractor",
  "console_error_panic_hook",
  "lazy_static",
+ "rswind",
+ "rswind_extractor",
  "wasm-bindgen",
 ]
 
@@ -1637,6 +1561,82 @@ dependencies = [
  "base64",
  "bitflags 1.3.2",
  "serde",
+]
+
+[[package]]
+name = "rswind"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "colored",
+ "config",
+ "criterion",
+ "cssparser",
+ "cssparser-macros",
+ "derive_more",
+ "either",
+ "enum_dispatch",
+ "js-sys",
+ "lazy_static",
+ "lightningcss",
+ "memchr",
+ "paste",
+ "phf 0.11.2",
+ "rayon",
+ "rswind_css_macro",
+ "rswind_extractor",
+ "rustc-hash",
+ "schemars",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "smallvec",
+ "smol_str",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "rswind_cli"
+version = "0.1.0"
+dependencies = [
+ "clap 4.5.4",
+ "config",
+ "criterion",
+ "cssparser",
+ "dotenv",
+ "notify",
+ "notify-debouncer-full",
+ "rayon",
+ "rswind",
+ "rswind_extractor",
+ "rustc-hash",
+ "smol_str",
+ "tracing",
+ "tracing-subscriber",
+ "walkdir",
+]
+
+[[package]]
+name = "rswind_css_macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.63",
+]
+
+[[package]]
+name = "rswind_extractor"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "cssparser",
+ "cssparser-macros",
+ "memchr",
+ "rustc-hash",
 ]
 
 [[package]]

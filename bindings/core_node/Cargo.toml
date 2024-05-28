@@ -8,8 +8,8 @@ build   = "build.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-arrowcss           = { workspace = true }
-arrowcss_extractor = { workspace = true }
+rswind           = { workspace = true }
+rswind_extractor = { workspace = true }
 
 napi        = { workspace = true, features = ["napi4"] }
 napi-derive = { workspace = true }

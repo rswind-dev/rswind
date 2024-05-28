@@ -1,15 +1,15 @@
 {
-  "name": "@arrowcss/wasm-web",
+  "name": "@rswind/wasm-web",
   "version": "1.0.0",
   "description": "",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
     "dev": "tsup src/index.ts --no-dts --watch",
-    "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/arrowcss-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
+    "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
     "build": "run-s build:wasm build:js",
     "build:js": "tsup src/index.ts --no-dts",
-    "build:wasm": "wasm-pack build -t web -d ../../packages/arrowcss-wasm-web/src/binding --no-pack ../../bindings/core_wasm"
+    "build:wasm": "wasm-pack build -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm"
   },
   "dependencies": {
     "tsup": "^8.0.1"

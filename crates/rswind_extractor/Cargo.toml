@@ -1,0 +1,23 @@
+[package]
+name    = "rswind_extractor"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+
+[dependencies]
+cssparser-macros = { workspace = true }
+cssparser        = { workspace = true }
+rustc-hash       = { workspace = true }
+memchr           = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true, features = ["html_reports"] }
+
+[[bench]]
+name    = "html_extract"
+harness = false
+
+[[bench]]
+name    = "css_extract"
+harness = false
