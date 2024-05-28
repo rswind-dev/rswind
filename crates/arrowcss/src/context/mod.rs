@@ -114,10 +114,7 @@ impl FromIterator<VariantOrdering> for VariantOrder {
 
 impl PartialOrd for VariantOrder {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match self.len().partial_cmp(&other.len()) {
-            Some(Ordering::Equal) => self.0.partial_cmp(&other.0),
-            non_eq => non_eq,
-        }
+        Some(self.cmp(other))
     }
 }
 

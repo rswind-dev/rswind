@@ -161,7 +161,7 @@ impl<'a> CandidateParser<'a> {
 
     #[instrument(fields(input = self.input), skip_all, level = "trace")]
     pub fn parse_utility(&mut self, ut: &UtilityStorage) -> Option<UtilityCandidate<'a>> {
-        if ut.get(&self.input).is_some() {
+        if ut.get(self.input).is_some() {
             return Some(UtilityCandidate {
                 key: self.input,
                 value: None,

@@ -101,7 +101,7 @@ pub fn build_group_selector(selectors: impl IntoIterator<Item = SmolStr>) -> Str
         if i > 0 {
             selector.push_str(", ");
         }
-        selector.push_str(".");
+        selector.push('.');
         let _ = serialize_name(&s, &mut selector);
     }
 
