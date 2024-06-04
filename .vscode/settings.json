@@ -8,4 +8,9 @@
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
+  "deno.enable": true,
+  "deno.config": "scripts/deno.json",
+  "deno.enablePaths": [
+    "scripts"
+  ]
 }
