@@ -14,5 +14,8 @@
     "node": "^18.0.0 || >=20.0.0"
   },
   "scripts": {},
-  "packageManager": "pnpm@9.1.0-0"
+  "packageManager": "pnpm@9.1.0-0",
+  "dependencies": {
+    "vitest": "^1.6.0"
+  }
 }
