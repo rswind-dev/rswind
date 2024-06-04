@@ -1,5 +1,5 @@
-use rswind_extractor::css::CssExtractor;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use rswind_extractor::css::CssExtractor;
 
 static INPUT: &str = r#".foo {
   color: red;

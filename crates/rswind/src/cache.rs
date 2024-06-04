@@ -30,7 +30,7 @@ pub trait Cache {
 }
 
 #[derive(Debug, Default, Deref, DerefMut)]
-pub struct AppCache {
+pub struct GeneratorCache {
     pub need_cache: bool,
     #[deref]
     #[deref_mut]
@@ -38,7 +38,7 @@ pub struct AppCache {
     pub state: CacheState,
 }
 
-impl AppCache {
+impl GeneratorCache {
     pub fn new(state: CacheState) -> Self {
         let need_cache = state != CacheState::OneShot;
         Self {
@@ -85,7 +85,9 @@ impl CacheState {
         matches!(self, Self::Cached)
     }
     pub fn mark_cached(&mut self) {
-        *self = CacheState::Cached;
+        if *self == Self::FirstRun {
+            *self = Self::Cached;
+        }
     }
 }
 

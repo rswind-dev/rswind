@@ -1,0 +1,20 @@
+{
+  "name": "@rswind/cli",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "rswind": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "bindings"
+  ],
+  "scripts": {
+    "build": "napi build --cargo-cwd ../.. --platform --cargo-name binding_cli -p binding_cli --release bindings",
+    "build:dev": "napi build --cargo-cwd ../.. --platform --cargo-name binding_cli -p binding_cli bindings"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

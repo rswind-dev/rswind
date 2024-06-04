@@ -6,6 +6,7 @@ use crate::cursor::Cursor;
 pub enum StringType {
     SingleQuote,
     DoubleQuote,
+    // TODO: support template string
     // Template,
 }
 
@@ -31,7 +32,11 @@ impl<'a> EcmaExtractor<'a> {
 
     pub(crate) fn consume_until_string(&mut self) -> Result<StringType, ()> {
         while let Some(c) = self.cursor.try_bump() {
-            match_byte! { c,
+            // skip non-ascii characters
+            if c as u32 >= 0x80 {
+                continue;
+            }
+            match_byte! { c as u8,
                 b'/' => {
                     match self.cursor.first() {
                         '/' => self.consume_comment(),
@@ -57,7 +62,6 @@ impl<'a> EcmaExtractor<'a> {
         self.cursor.eat_while(|c| c != '\n');
     }
 
-    // for /* */
     pub fn consume_block_comment(&mut self) -> bool {
         self.cursor.bump();
 

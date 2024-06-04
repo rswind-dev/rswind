@@ -7,11 +7,10 @@ edition = "2021"
 json_schema = []
 wasm        = []
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 rswind_css_macro = { workspace = true }
 rswind_extractor = { workspace = true }
+rswind_common    = { workspace = true }
 
 rayon              = { workspace = true }
 either             = { workspace = true, features = ["serde"] }
@@ -35,24 +34,34 @@ tracing            = { workspace = true }
 tracing-subscriber = { workspace = true }
 js-sys             = { workspace = true }
 serde-wasm-bindgen = { workspace = true }
+napi               = { workspace = true, features = ["napi9"] }
+napi-derive        = { workspace = true }
+derive_more        = "0.99.17"
+scopefn            = { version = "0.0.1", features = ["run_if"] }
+walkdir            = { workspace = true }
 
+globset = { version = "0.4.14", default-features = false, features = [
+    "simd-accel",
+] }
 wasm-bindgen = { version = "0.2.92", features = [
     "serde",
     "serde-serialize",
     "serde_json",
 ] }
+
 # schemars         = { version = "0.8.19", features = ["impl_json_schema", "smallvec"] }
+# TODO: remove this when we wrap `SmolStr` and implement `JsonSchema` for it
 schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f", features = [
     "impl_json_schema",
     "smallvec",
     "either",
     "smol_str02",
 ] }
-derive_more = "0.99.17"
+
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }
-paste = "1.0.15"
+paste     = "1.0.15"
 
 [lib]
 bench = false
@@ -60,7 +69,6 @@ bench = false
 [[bench]]
 name    = "parse"
 harness = false
-
 
 [[bench]]
 name    = "load_rules"

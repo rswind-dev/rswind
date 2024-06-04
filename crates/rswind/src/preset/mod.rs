@@ -30,7 +30,7 @@ where
 }
 
 pub fn preset_tailwind(ctx: &mut Context) {
-    let inital_length = if enabled!(Level::INFO) {
+    let initial_length = if enabled!(Level::INFO) {
         Some((ctx.theme.len(), ctx.utilities.len(), ctx.variants.len()))
     } else {
         None
@@ -42,7 +42,7 @@ pub fn preset_tailwind(ctx: &mut Context) {
     variant::load_variants(ctx);
 
     if enabled!(Level::INFO) {
-        let (theme, utilities, variants) = inital_length.unwrap_or((0, 0, 0));
+        let (theme, utilities, variants) = initial_length.unwrap_or((0, 0, 0));
         info!(
             theme = ctx.theme.len() - theme,
             utilities = ctx.utilities.len() - utilities,

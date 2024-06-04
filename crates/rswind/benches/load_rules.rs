@@ -1,8 +1,8 @@
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rswind::{
     context::Context,
     preset::{dynamics::load_dynamic_utilities, statics::load_static_utilities},
 };
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("Load Static", |b| {

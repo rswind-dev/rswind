@@ -13,6 +13,8 @@ use tracing::{debug, info, instrument};
 
 use crate::{parsing::UtilityBuilder, theme::Theme};
 
+pub static DEFAULT_CONFIG_PATH: &str = "rswind.config.json";
+
 #[derive(Debug, Deserialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[allow(dead_code)]
@@ -44,9 +46,12 @@ fn default_dark_mode() -> SmolStr {
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
-pub struct ArrowConfig {
+pub struct AppConfig {
     /// User define themes, will be merged with the default theme
     pub theme: Theme,
+
+    /// The glob pattern to match input files
+    pub content: Vec<String>,
 
     // TODO: support user defined dark mode, like
     // ['variant', '&:not(.light *)']
@@ -76,14 +81,14 @@ pub enum ArrowConfigError {
     ConfigError(#[from] config::ConfigError),
 }
 
-impl ArrowConfig {
+impl AppConfig {
     #[cfg(not(feature = "wasm"))]
     #[instrument]
     pub fn from_file(name: &str) -> Result<Self, config::ConfigError> {
         let config_result = Config::builder().add_source(config::File::with_name(name)).build();
 
         let config = match config_result {
-            Ok(config) => config.try_deserialize::<ArrowConfig>(),
+            Ok(config) => config.try_deserialize::<AppConfig>(),
             // If the file is not found, use the default configuration
             Err(config::ConfigError::Foreign(err))
                 if err
@@ -91,7 +96,7 @@ impl ArrowConfig {
                     .map_or(false, |io_err| io_err.kind() == io::ErrorKind::NotFound) =>
             {
                 info!("No configuration file found, using default configuration");
-                Ok(ArrowConfig::default())
+                Ok(AppConfig::default())
             }
             Err(e) => Err(e),
         };
@@ -103,12 +108,12 @@ impl ArrowConfig {
 
     #[cfg(feature = "wasm")]
     pub fn from_js(config: wasm_bindgen::JsValue) -> Result<Self, serde_wasm_bindgen::Error> {
-        let config: ArrowConfig = serde_wasm_bindgen::from_value(config)?;
+        let config: AppConfig = serde_wasm_bindgen::from_value(config)?;
         Ok(config)
     }
 }
 
-impl FromStr for ArrowConfig {
+impl FromStr for AppConfig {
     type Err = serde_json::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {

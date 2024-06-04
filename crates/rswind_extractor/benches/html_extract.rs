@@ -1,5 +1,5 @@
-use rswind_extractor::html::HtmlExtractor;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use rswind_extractor::html::HtmlExtractor;
 
 static HTML: &str = include_str!("fixtures/html_input");
 

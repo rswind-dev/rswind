@@ -22,8 +22,10 @@ walkdir               = { workspace = true }
 rustc-hash            = { workspace = true }
 smol_str              = { workspace = true }
 tracing               = { workspace = true }
-tracing-subscriber = { workspace = true, features = ["env-filter"] }
+tracing-subscriber    = { workspace = true, features = ["env-filter"] }
 notify-debouncer-full = "0.3.1"
+globset               = { version = "0.4.14", features = ["serde", "simd-accel"] }
+thiserror             = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

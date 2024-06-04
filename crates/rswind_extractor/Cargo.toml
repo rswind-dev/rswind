@@ -6,10 +6,14 @@ edition = "2021"
 [lib]
 
 [dependencies]
+rswind_common    = { workspace = true }
 cssparser-macros = { workspace = true }
 cssparser        = { workspace = true }
 rustc-hash       = { workspace = true }
 memchr           = { workspace = true }
+rayon            = { workspace = true }
+either           = { workspace = true }
+scopefn          = "0.0.2"
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

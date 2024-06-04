@@ -12,13 +12,6 @@ pub enum StringType {
 /// Extractor for HTML / Vue
 ///
 /// We only care about the attribute value and the JS expressions
-/// e.g.
-/// ```html
-/// <div class="foo" :class="bar"></div>
-/// <div v-bind:style="{ color: 'red' }"></div>
-/// ```
-/// will be extracted as:
-/// [ foo bar red ]
 pub struct HtmlExtractor<'a> {
     input: &'a str,
     cursor: Cursor<'a>,

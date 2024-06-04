@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use rswind_css_macro::{css, rule_list};
 use phf::Map;
+use rswind_css_macro::{css, rule_list};
 
 use crate::{
     preset::{colors::COLORS, spacing::SPACING},

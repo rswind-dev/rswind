@@ -4,11 +4,10 @@ use std::{
     sync::Arc,
 };
 
+use crate::css::rule::RuleList;
 use phf::{phf_map, Map};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
-
-use crate::css::rule::RuleList;
 
 #[derive(Clone)]
 pub enum ThemeValue {

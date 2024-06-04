@@ -21,6 +21,7 @@ impl VariantStorage {
         Self { map: HashMap::default(), order: 0 }
     }
 
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.map.len()
     }

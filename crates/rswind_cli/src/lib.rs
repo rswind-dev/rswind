@@ -1,3 +1,94 @@
-pub mod io;
-pub mod run;
+use std::ffi::OsString;
+
+use clap::{command, Parser};
+
+use rswind::{
+    config::AppConfig, css::ToCssString, generator::Generator, io::write_output,
+    preset::preset_tailwind,
+};
+
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use watch::WatchApp;
+
 pub mod watch;
+
+#[derive(Debug, Parser)]
+#[command(name = "rswind", version, author, about, long_about = None)]
+pub struct Opts {
+    #[command(subcommand)]
+    pub cmd: Option<SubCommand>,
+
+    pub content: Vec<String>,
+
+    #[arg(short, help = "Output path (default: stdout)")]
+    pub output: Option<String>,
+
+    #[arg(short, default_value_t = false, help = "Enable watch mode")]
+    pub watch: bool,
+
+    #[arg(short, long, help = "Enable strict mode")]
+    pub strict: bool,
+
+    #[arg(long, help = "Path to config file", default_value = "arrow.config.json")]
+    pub config: String,
+
+    #[arg(short, long, help = "Path to working directory", default_value = ".")]
+    pub cwd: String,
+}
+
+#[derive(Debug, Parser)]
+pub enum SubCommand {
+    Debug(DebugCommand),
+    Init(InitCommand),
+}
+
+#[derive(Debug, Parser)]
+pub struct DebugCommand {
+    pub input: String,
+
+    #[arg(short, long, default_value_t = false)]
+    pub print_ast: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct InitCommand {}
+
+pub fn cli<I>(args: I)
+where
+    I: IntoIterator,
+    I::Item: Into<OsString> + Clone,
+{
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_env("RSWIND_LOG"))
+        .init();
+
+    let opts = Opts::parse_from(args);
+
+    let mut app = Generator::builder()
+        .with_preset(preset_tailwind)
+        .with_config(AppConfig::from_file(&opts.config).unwrap())
+        .with_watch(opts.watch)
+        .build()
+        .unwrap();
+
+    match opts.cmd {
+        None if opts.watch => {
+            app.watch(opts.output.as_deref());
+        }
+        None => {
+            let res = app.generate_contents();
+            write_output(&res, opts.output.as_deref());
+        }
+        Some(SubCommand::Debug(cmd)) => {
+            let r = app.generator.ctx.generate(&cmd.input).unwrap();
+            if cmd.print_ast {
+                println!("{:#?}", r.rule);
+            }
+            println!("{}", &r.rule.to_css_string());
+        }
+        Some(SubCommand::Init(_)) => {
+            write_output("{}", Some("arrow.config.json"));
+        }
+    }
+}

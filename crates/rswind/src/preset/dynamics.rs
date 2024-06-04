@@ -1009,7 +1009,7 @@ impl<'i> Drop for UtilityAdder<'i> {
                 .get_theme(key)
                 .unwrap_or_else(|| {
                     let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
-                    // TODO: reopen when wbuilder.e have logging, both on stdout and console
+                    // TODO: reopen when we have logging, both on stdout and console
                     // eprintln!("{}", warning);
                     ThemeValue::default()
                 })

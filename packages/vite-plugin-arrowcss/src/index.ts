@@ -1,7 +1,5 @@
 import type { Plugin, ViteDevServer } from 'vite'
-import { createApp } from 'rswind'
-
-let app = createApp()
+import { type GeneratorOptions, createApp } from 'rswind'
 
 function debounce(fn: Function, delay: number) {
   let timer: NodeJS.Timeout;
@@ -33,9 +31,11 @@ function sendUpdate(server: ViteDevServer) {
 
 const sendUpdateDebounced = debounce(sendUpdate, 10);
 
-export default function rswindPlugin(): Plugin[] {
-  let modulesQueue: Map<string, string> = new Map();
+export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
+  let modulesQueue: [string, string][] = [];
   let server: ViteDevServer | null = null;
+  let app = createApp(options);
+
   return [
     {
       name: "rswind:pre",
@@ -43,25 +43,23 @@ export default function rswindPlugin(): Plugin[] {
       configureServer(_server) {
         server = _server;
       },
+      resolveId(id) {
+        if (id.endsWith("arrow.css")) {
+          return '/__arrow.css'
+        }
+      },
       transform(code, id) {
         if (id.includes("arrow.css")) {
           return null
         }
-        if (modulesQueue.get(id) !== code) {
-          modulesQueue.set(id, code);
-          server && sendUpdateDebounced(server);
-        }
+        modulesQueue.push([id, code])
+        server && sendUpdateDebounced(server);
       },
       load(id) {
         if (id.includes("arrow.css")) {
-          let res = app.generate([...modulesQueue.values()].join('\n'));
-          modulesQueue.clear();
+          let res = app.generateWith(modulesQueue);
+          modulesQueue = [];
           return res;
-        }
-      },
-      resolveId(id) {
-        if (id.endsWith("arrow.css")) {
-          return '/__arrow.css'
         }
       },
     },
