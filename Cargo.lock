@@ -140,6 +140,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "binding_cli"
+version = "0.0.0"
+dependencies = [
+ "napi",
+ "napi-build",
+ "napi-derive",
+ "rswind",
+ "rswind_cli",
+ "rswind_extractor",
+]
+
+[[package]]
 name = "binding_core_node"
 version = "0.0.0"
 dependencies = [
@@ -148,6 +160,10 @@ dependencies = [
  "napi-derive",
  "rswind",
  "rswind_extractor",
+ "scopefn 0.0.2",
+ "serde",
+ "serde_json",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -192,6 +208,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "bstr"
+version = "1.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05efc5cfd9110c8416e471df0e96702d58690178e206e61b7173706673c93706"
+dependencies = [
+ "memchr",
+ "serde",
 ]
 
 [[package]]
@@ -637,9 +663,9 @@ checksum = "0d6ef0072f8a535281e4876be788938b528e9a1d43900b82c2569af7da799125"
 
 [[package]]
 name = "either"
-version = "1.11.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
+checksum = "3dca9240753cf90908d7e4aac30f630662b02aebaa1b58a3cadabdb23385b58b"
 dependencies = [
  "serde",
 ]
@@ -720,6 +746,20 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
+]
+
+[[package]]
+name = "globset"
+version = "0.4.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57da3b9b5b85bd66f31093f8c408b90a74431672542466497dcbdfdc02034be1"
+dependencies = [
+ "aho-corasick",
+ "bstr",
+ "log",
+ "regex-automata 0.4.6",
+ "regex-syntax 0.8.3",
+ "serde",
 ]
 
 [[package]]
@@ -973,6 +1013,8 @@ dependencies = [
  "napi-derive",
  "napi-sys",
  "once_cell",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1576,17 +1618,22 @@ dependencies = [
  "derive_more",
  "either",
  "enum_dispatch",
+ "globset",
  "js-sys",
  "lazy_static",
  "lightningcss",
  "memchr",
+ "napi",
+ "napi-derive",
  "paste",
  "phf 0.11.2",
  "rayon",
+ "rswind_common",
  "rswind_css_macro",
  "rswind_extractor",
  "rustc-hash",
  "schemars",
+ "scopefn 0.0.1",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
@@ -1595,6 +1642,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "tracing-subscriber",
+ "walkdir",
  "wasm-bindgen",
 ]
 
@@ -1607,6 +1655,7 @@ dependencies = [
  "criterion",
  "cssparser",
  "dotenv",
+ "globset",
  "notify",
  "notify-debouncer-full",
  "rayon",
@@ -1614,9 +1663,18 @@ dependencies = [
  "rswind_extractor",
  "rustc-hash",
  "smol_str",
+ "thiserror",
  "tracing",
  "tracing-subscriber",
  "walkdir",
+]
+
+[[package]]
+name = "rswind_common"
+version = "0.1.0"
+dependencies = [
+ "either",
+ "rayon",
 ]
 
 [[package]]
@@ -1635,8 +1693,12 @@ dependencies = [
  "criterion",
  "cssparser",
  "cssparser-macros",
+ "either",
  "memchr",
+ "rayon",
+ "rswind_common",
  "rustc-hash",
+ "scopefn 0.0.2",
 ]
 
 [[package]]
@@ -1703,6 +1765,21 @@ dependencies = [
  "serde_derive_internals",
  "syn 1.0.109",
 ]
+
+[[package]]
+name = "scopefn"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24f54b1d7cb4ecdd9d960efa88ebf8df232d44c20219181dc275d73e9a68e198"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "scopefn"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4022a3ceab116c9cbc603b59554fc3446a78d9a68baeea1f24794ac8da18e62"
 
 [[package]]
 name = "scopeguard"
