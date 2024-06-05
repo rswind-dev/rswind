@@ -29,7 +29,7 @@ impl RsWindApp {
     }
 
     #[napi]
-    pub fn generate_contents(&mut self) -> String {
+    pub fn generate(&mut self) -> String {
         self.0.generate_contents()
     }
 
@@ -45,7 +45,7 @@ impl RsWindApp {
     }
 
     #[napi]
-    pub fn generate_candidate(&mut self, input: Vec<String>) -> String {
+    pub fn generate_candidates(&mut self, input: Vec<String>) -> String {
         input.generate_with(&mut self.0.generator)
     }
 }
