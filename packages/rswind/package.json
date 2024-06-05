@@ -1,12 +1,29 @@
 {
   "name": "rswind",
   "version": "0.0.0",
-  "main": "bindings/index.js",
-  "types": "bindings/index.d.ts",
-  "files": [
-    "bindings"
-  ],
   "license": "MIT",
+  "author": "Neo Lyon",
+  "description": "Tailwind CSS JIT Engine in Rust",
+  "keywords": [
+    "tailwind",
+    "atomic-css",
+    "css",
+    "rust"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lzt1008/rswind"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "napi": {
     "binaryName": "rswind",
     "packageName": "@rswind/binding",
@@ -26,16 +43,27 @@
   "devDependencies": {
     "@napi-rs/cli": "^3.0.0-alpha",
     "@types/node": "^20.10.0",
-    "ava": "^5.1.1",
     "typescript": "^5.3.2",
     "npm-run-all2": "^6.1.2"
   },
   "scripts": {
     "artifacts": "napi artifacts",
     "create-npm-dirs": "napi create-npm-dirs",
-    "prepublishOnly": "napi prepublish -t npm",
-    "build-binding:dev": "cd ../.. && napi build -o bindings --platform -p binding_core_node --pipe 'scripts/generate-ts-type.ts'",
-    "build-binding:release": "pnpm run build-binding --release",
+    "prepublish-only": "napi prepublish -t npm --dry-run",
+    "build-binding:dev": "napi build -o ./dist --manifest-path ../../Cargo.toml --platform -p binding_core_node --pipe '../../scripts/generate-ts-type.ts'",
+    "build-binding:release": "pnpm build-binding --release",
     "universal": "napi universalize"
+  },
+  "optionalDependencies": {
+    "@rswind/binding-darwin-x64": "0.0.0",
+    "@rswind/binding-win32-x64-msvc": "0.0.0",
+    "@rswind/binding-linux-x64-gnu": "0.0.0",
+    "@rswind/binding-linux-x64-musl": "0.0.0",
+    "@rswind/binding-win32-ia32-msvc": "0.0.0",
+    "@rswind/binding-linux-arm-gnueabihf": "0.0.0",
+    "@rswind/binding-linux-arm64-gnu": "0.0.0",
+    "@rswind/binding-darwin-arm64": "0.0.0",
+    "@rswind/binding-linux-arm64-musl": "0.0.0",
+    "@rswind/binding-win32-arm64-msvc": "0.0.0"
   }
 }
