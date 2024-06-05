@@ -32,9 +32,6 @@ importers:
       '@types/node':
         specifier: ^20.10.0
         version: 20.12.12
-      ava:
-        specifier: ^5.1.1
-        version: 5.3.1
       npm-run-all2:
         specifier: ^6.1.2
         version: 6.2.0
@@ -42,11 +39,7 @@ importers:
         specifier: ^5.3.2
         version: 5.4.5
 
-  packages/rswind-cli:
-    dependencies:
-      tsup:
-        specifier: ^8.0.1
-        version: 8.0.2(typescript@5.4.5)
+  packages/rswind-cli: {}
 
   packages/rswind-wasm-web:
     dependencies:
