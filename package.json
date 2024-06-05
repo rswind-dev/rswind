@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
+  "packageManager": "pnpm@9.1.0",
   "devDependencies": {
     "@napi-rs/cli": "^2.18.2",
     "@types/node": "^20.10.0",
@@ -16,6 +17,5 @@
   },
   "scripts": {
     "ci:build-binding": "pnpm --filter rswind run build-binding:release"
-  },
-  "packageManager": "pnpm@9.1.0-0"
+  }
 }
