@@ -53,17 +53,5 @@
     "build-binding:dev": "napi build -o ./dist --manifest-path ../../Cargo.toml --platform -p binding_core_node --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding --release",
     "universal": "napi universalize"
-  },
-  "optionalDependencies": {
-    "@rswind/binding-darwin-x64": "0.0.0",
-    "@rswind/binding-win32-x64-msvc": "0.0.0",
-    "@rswind/binding-linux-x64-gnu": "0.0.0",
-    "@rswind/binding-linux-x64-musl": "0.0.0",
-    "@rswind/binding-win32-ia32-msvc": "0.0.0",
-    "@rswind/binding-linux-arm-gnueabihf": "0.0.0",
-    "@rswind/binding-linux-arm64-gnu": "0.0.0",
-    "@rswind/binding-darwin-arm64": "0.0.0",
-    "@rswind/binding-linux-arm64-musl": "0.0.0",
-    "@rswind/binding-win32-arm64-msvc": "0.0.0"
   }
 }
