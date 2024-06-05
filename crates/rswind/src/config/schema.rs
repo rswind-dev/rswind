@@ -1,11 +1,7 @@
 macro_rules! forward_impl {
     (($($impl:tt)+) => $target:ty) => {
         impl $($impl)+ {
-            fn is_referenceable() -> bool {
-                <$target>::is_referenceable()
-            }
-
-            fn schema_name() -> String {
+            fn schema_name() -> std::borrow::Cow<'static, str> {
                 <$target>::schema_name()
             }
 
@@ -13,11 +9,11 @@ macro_rules! forward_impl {
                 <$target>::schema_id()
             }
 
-            fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+            fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::Schema {
                 <$target>::json_schema(gen)
             }
 
-            fn _schemars_private_non_optional_json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+            fn _schemars_private_non_optional_json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::Schema {
                 <$target>::_schemars_private_non_optional_json_schema(gen)
             }
 
