@@ -115,6 +115,10 @@ jobs:
         run: ${{ matrix.build }}
         shell: bash
 
+      - name: List File With Size
+        run: ls -lh packages/rswind/src/*.node
+        shell: bash
+
       - name: Upload Binding Artifact
         uses: actions/upload-artifact@v4
         with:
