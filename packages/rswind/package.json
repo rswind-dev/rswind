@@ -16,6 +16,13 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
   "files": [
     "dist/index.js",
     "dist/index.d.ts"
@@ -43,16 +50,18 @@
   "devDependencies": {
     "@napi-rs/cli": "^3.0.0-alpha",
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.2",
-    "npm-run-all2": "^6.1.2"
+    "npm-run-all2": "^6.1.2",
+    "tsup": "^8.1.0",
+    "typescript": "^5.3.2"
   },
   "scripts": {
     "artifacts": "napi artifacts",
     "create-npm-dirs": "napi create-npm-dirs",
     "prepublish-only": "napi prepublish -t npm --dry-run",
-    "build-binding:dev": "napi build -o ./dist --manifest-path ../../Cargo.toml --platform -p binding_core_node",
+    "build-binding:dev": "napi build -o ./src --manifest-path ../../Cargo.toml --platform -p binding_core_node --js binding.js --dts binding.d.ts",
+    "build-binding:types": "pnpm build-binding:dev --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding:dev --release",
-    "build-node": "napi build -o ./dist --manifest-path ../../Cargo.toml --platform -p binding_core_node --pipe '../../scripts/generate-ts-type.ts'",
+    "build-node": "pnpm build-binding:types && tsup",
     "universal": "napi universalize"
   }
 }

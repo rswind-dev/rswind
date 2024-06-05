@@ -14,7 +14,7 @@ function resolve(path: string) {
   return join(import.meta.dirname!, "..", path);
 }
 
-const files = Deno.args.filter((arg) => arg.endsWith("index.d.ts"));
+const files = Deno.args.filter((arg) => arg.endsWith(".d.ts"));
 
 if (files.length === 0) {
   Deno.exit(0);
