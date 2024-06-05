@@ -1,0 +1,83 @@
+name: Publish Npm Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build bindings and node packages
+    uses: ./.github/workflows/action-release-build.yml
+
+  publish:
+    name: Publish npm Packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # for softprops/action-gh-release@v1
+      id-token: write # for `npm publish --provenance`
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Download Binding Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/rswind/artifacts
+
+      - name: Create Npm Dirs
+        run: pnpm --filter rswind create-npm-dirs
+
+      - name: Move Binding Artifacts
+        run: pnpm --filter rswind artifacts
+
+      - name: PrePublish
+        run: pnpm --filter rswind prepublish-only
+
+      - name: List Rolldown Bindings
+        run: ls -R ./packages/rswind/npm
+        shell: bash
+
+      - name: Download Node Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/rswind/dist
+          name: node-artifact
+
+      - name: Copy Licenses
+        run: find ./packages/ -type d -maxdepth 1 -exec cp LICENSE {};
+
+      - name: Set Publishing Config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish (Dry Run)
+        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --dry-run --tag latest --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
