@@ -25,8 +25,13 @@ smol_str              = { workspace = true }
 tracing               = { workspace = true }
 tracing-subscriber    = { workspace = true, features = ["env-filter"] }
 notify-debouncer-full = "0.3.1"
-globset               = { version = "0.4.14", features = ["serde", "simd-accel"] }
 thiserror             = { workspace = true }
+colored               = { workspace = true }
+
+globset = { version = "0.4.14", default-features = false, features = [
+    "serde",
+    "simd-accel",
+] }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }

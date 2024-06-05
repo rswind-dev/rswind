@@ -1,13 +1,13 @@
 use std::ffi::OsString;
 
 use clap::{command, Parser};
-
+use colored::Colorize;
 use rswind::{
     config::AppConfig, css::ToCssString, generator::Generator, io::write_output,
     preset::preset_tailwind,
 };
-
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
 use watch::WatchApp;
 
 pub mod watch;
@@ -80,13 +80,18 @@ where
             let res = app.generate_contents();
             write_output(&res, opts.output.as_deref());
         }
-        Some(SubCommand::Debug(cmd)) => {
-            let r = app.generator.ctx.generate(&cmd.input).unwrap();
-            if cmd.print_ast {
-                println!("{:#?}", r.rule);
+        Some(SubCommand::Debug(cmd)) => match app.generator.ctx.generate(&cmd.input) {
+            Some(r) => {
+                if cmd.print_ast {
+                    println!("{:#?}", r.rule);
+                }
+                println!("Generated {}:\n", cmd.input.green());
+                println!("{}", &r.rule.to_css_string());
             }
-            println!("{}", &r.rule.to_css_string());
-        }
+            None => {
+                eprintln!("Not a valid utility: {}", cmd.input.red());
+            }
+        },
         Some(SubCommand::Init(_)) => {
             write_output("{}", Some("arrow.config.json"));
         }
