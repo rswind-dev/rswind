@@ -51,7 +51,7 @@
     "create-npm-dirs": "napi create-npm-dirs",
     "prepublish-only": "napi prepublish -t npm --dry-run",
     "build-binding:dev": "napi build -o ./dist --manifest-path ../../Cargo.toml --platform -p binding_core_node --pipe '../../scripts/generate-ts-type.ts'",
-    "build-binding:release": "pnpm build-binding --release",
+    "build-binding:release": "pnpm build-binding:dev --release",
     "universal": "napi universalize"
   }
 }
