@@ -48,6 +48,9 @@ jobs:
       - name: Move Binding Artifacts
         run: pnpm --filter rswind artifacts
 
+      - name: Copy Licenses
+        run: find ./packages/ -type d -maxdepth 1 -exec cp LICENSE {} \;
+
       - name: PrePublish
         run: pnpm --filter rswind prepublish-only
 
@@ -60,9 +63,6 @@ jobs:
         with:
           path: packages/rswind/dist
           name: node-artifact
-
-      - name: Copy Licenses
-        run: find ./packages/ -type d -maxdepth 1 -exec cp LICENSE {};
 
       - name: Set Publishing Config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
