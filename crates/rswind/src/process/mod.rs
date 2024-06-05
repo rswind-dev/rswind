@@ -73,7 +73,9 @@ pub fn decode_arbitrary_value(input: &str) -> SmolStr {
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct RawValueRepr {
+    #[serde(rename = "type")]
     pub validator: Option<Box<dyn TypeValidator>>,
+    #[serde(rename = "theme")]
     pub theme_key: Option<SmolStr>,
 }
 
