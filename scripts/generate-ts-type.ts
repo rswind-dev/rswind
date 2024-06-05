@@ -30,6 +30,9 @@ const command = new Deno.Command("cargo", {
     "--color",
     "always",
   ],
+  env: {
+    SCHEMA_OUT_PATH: resolve("schema.json"),
+  }
 });
 
 const output = await command.output();
@@ -47,4 +50,5 @@ const types = await compileFromFile(resolve("schema.json"));
 // but it's fine for now, as we only run this at though `napi build --pipe` command
 files.map((path) => {
   Deno.writeTextFileSync(path, types, { append: true });
+  console.log(`Generated types to ${bold(path)}`);
 });

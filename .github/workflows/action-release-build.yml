@@ -103,6 +103,11 @@ jobs:
           node-version: 20
           cache: pnpm
 
+      - name: Install deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
       - name: Install dependencies
         run: pnpm install
 
@@ -133,9 +138,17 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+      
+      - name: Install deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Node Package
+        run: pnpm --filter rswind build-node
 
       - name: Upload Node Artifact
         uses: actions/upload-artifact@v4
