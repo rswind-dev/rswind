@@ -7,5 +7,6 @@ license = "MIT"
 [lib]
 
 [dependencies]
-rayon  = { workspace = true }
-either = { workspace = true }
+rayon   = { workspace = true }
+either  = { workspace = true }
+smol_str = { workspace = true }

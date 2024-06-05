@@ -8,7 +8,7 @@ license = "MIT"
 crate-type = ["cdylib"]
 
 [dependencies]
-rswind = { workspace = true }
+rswind           = { workspace = true }
 rswind_extractor = { workspace = true }
 
 wasm-bindgen             = { workspace = true }
