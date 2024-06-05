@@ -50,15 +50,11 @@ wasm-bindgen = { version = "0.2.92", features = [
     "serde_json",
 ] }
 
-# schemars         = { version = "0.8.19", features = ["impl_json_schema", "smallvec"] }
-# TODO: remove this when we wrap `SmolStr` and implement `JsonSchema` for it
-schemars = { git = "https://github.com/GREsau/schemars.git", rev = "3a0ed64cbe06bd2e6b94f4dbd8bd687588a54b3f", features = [
-    "impl_json_schema",
-    "smallvec",
-    "either",
+schemars = { version = "1.0.0-alpha.1", features = [
+    "smallvec1",
+    "either1",
     "smol_str02",
 ] }
-
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }
