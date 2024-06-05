@@ -1,4 +1,4 @@
 packages:
-  - 'packages/*'
+  - packages/*
   - packages/rswind/npm/*
-  - 'playground/*'
+  - playground/*
