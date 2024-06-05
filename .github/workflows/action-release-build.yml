@@ -120,7 +120,7 @@ jobs:
         with:
           if-no-files-found: error
           name: bindings-${{ matrix.target }}
-          path: packages/rswind/dist/rswind.*.node
+          path: packages/rswind/src/rswind.*.node
 
   build-node-packages:
     strategy:
