@@ -30,6 +30,8 @@ const command = new Deno.Command("cargo", {
     "--color",
     "always",
   ],
+  "stdout": "inherit",
+  "stderr": "inherit",
   env: {
     SCHEMA_OUT_PATH: resolve("schema.json"),
   }
