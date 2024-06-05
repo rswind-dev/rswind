@@ -68,16 +68,6 @@ jobs:
               export CC=clang;
               pnpm ci:build-binding --target armv7-unknown-linux-gnueabihf --use-napi-cross
 
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            build: |
-              export CARGO_BUILD_TARGET=aarch64-unknown-linux-musl;
-              pnpm ci:build-binding -x --target aarch64-unknown-linux-musl
-          - os: ubuntu-latest
-            target: wasm32-wasip1-threads
-            build: |
-              export CARGO_BUILD_TARGET=wasm32-wasip1-threads;
-              pnpm --filter rolldown build-binding:wasi:release
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -125,9 +115,7 @@ jobs:
         with:
           if-no-files-found: error
           name: bindings-${{ matrix.target }}
-          path: |
-            packages/rswind/bindings/rswind.*.node
-            packages/rswind/bindings/rswind.*.wasm
+          path: packages/rswind/dist/rswind.*.node
 
   build-node-packages:
     strategy:
