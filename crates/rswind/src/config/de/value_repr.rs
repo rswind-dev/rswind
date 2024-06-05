@@ -35,7 +35,7 @@ mod tests {
           "theme": "colors"
         });
 
-        let res = RawValueRepr::deserialize(&input).unwrap();
+        let res = RawValueRepr::deserialize(input).unwrap();
 
         assert_eq!(res.theme_key, Some("colors".into()));
         // TODO: impl PartialEq for Box<dyn TypeValidator>

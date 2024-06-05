@@ -1,10 +1,12 @@
+use std::str::FromStr;
+
 use either::Either::{self, Left, Right};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 use crate::{
     config::StaticUtilityConfig,
-    css::{DeclList, Rule},
+    css::{Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     process::{Utility, UtilityApplyResult},
@@ -81,10 +83,21 @@ impl UtilityStorage {
     }
 
     pub fn try_apply(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
+        if candidate.arbitrary {
+            return Some(UtilityApplyResult {
+                rule: Rule::new([Decl::new(
+                    candidate.key,
+                    candidate.value.unwrap_or_default().as_str(),
+                )]),
+                ordering: OrderingKey::from_str(candidate.key).unwrap_or(OrderingKey::Disorder),
+                group: None,
+                additional_css: None,
+            });
+        }
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
             Left(value) => Some(UtilityApplyResult {
                 rule: Rule::new_with_decls(
-                    value.selector.as_ref().map(|s| s.as_str()).unwrap_or("&"),
+                    value.selector.as_deref().unwrap_or("&"),
                     value.decls.0.clone(),
                 ),
                 ordering: OrderingKey::Disorder,

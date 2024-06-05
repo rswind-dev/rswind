@@ -4,6 +4,7 @@ use cssparser::serialize_name;
 use derive_more::{Deref, DerefMut};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
+use tracing::debug;
 
 use self::{
     utilities::{StaticUtility, UtilityStorage},
@@ -239,6 +240,8 @@ impl Context {
         let utility = parts.pop()?;
 
         let utility_candidate = CandidateParser::new(utility).parse_utility(&self.utilities)?;
+
+        debug!(?utility_candidate);
 
         let vs = parts
             .into_iter()
