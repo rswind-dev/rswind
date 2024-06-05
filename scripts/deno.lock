@@ -3,12 +3,16 @@
   "packages": {
     "specifiers": {
       "jsr:@std/assert@^0.226.0": "jsr:@std/assert@0.226.0",
+      "jsr:@std/fmt@^0.225.3": "jsr:@std/fmt@0.225.3",
       "jsr:@std/path@^0.225.2": "jsr:@std/path@0.225.2",
       "npm:json-schema-to-typescript": "npm:json-schema-to-typescript@14.0.5"
     },
     "jsr": {
       "@std/assert@0.226.0": {
         "integrity": "0dfb5f7c7723c18cec118e080fec76ce15b4c31154b15ad2bd74822603ef75b3"
+      },
+      "@std/fmt@0.225.3": {
+        "integrity": "cb6ea567155f9865b80b502b2dde7671803eddd6dad743d8851d0de2c40bd349"
       },
       "@std/path@0.225.2": {
         "integrity": "0f2db41d36b50ef048dcb0399aac720a5348638dd3cb5bf80685bf2a745aa506",
@@ -462,6 +466,7 @@
   "remote": {},
   "workspace": {
     "dependencies": [
+      "jsr:@std/fmt@^0.225.3",
       "jsr:@std/path@^0.225.2"
     ]
   }

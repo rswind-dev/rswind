@@ -1,5 +1,6 @@
 {
   "imports": {
+    "@std/fmt": "jsr:@std/fmt@^0.225.3",
     "@std/path": "jsr:@std/path@^0.225.2"
   }
 }
