@@ -3,6 +3,7 @@ edition = "2021"
 name    = "binding_cli"
 version = "0.0.0"
 build   = "build.rs"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib"]
