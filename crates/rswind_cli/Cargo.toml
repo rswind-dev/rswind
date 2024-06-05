@@ -30,7 +30,7 @@ thiserror             = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = ["html_reports"] }
-dotenv    = { workspace = true }
+dotenvy   = { workspace = true }
 
 [[bench]]
 name    = "multiple_files"
