@@ -14,10 +14,10 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 extern crate napi_derive;
 
 #[napi]
-pub struct RsWindApp(App);
+pub struct Application(App);
 
 #[napi]
-impl RsWindApp {
+impl Application {
     #[napi]
     pub fn generate_with(&mut self, candidates: Vec<(String, String)>) -> String {
         candidates
@@ -45,7 +45,7 @@ impl RsWindApp {
     }
 
     #[napi]
-    pub fn generate_candidates(&mut self, input: Vec<String>) -> String {
+    pub fn generate_candidate(&mut self, input: Vec<String>) -> String {
         input.generate_with(&mut self.0.generator)
     }
 }
@@ -81,7 +81,7 @@ pub enum RswindConfig {
 }
 
 #[napi]
-pub fn create_app(options: Option<GeneratorOptions>) -> RsWindApp {
+pub fn create_app(options: Option<GeneratorOptions>) -> Application {
     let options = options.unwrap_or_default();
     let config = match options.config {
         Some(Value::String(path)) => AppConfig::from_file(&path).unwrap(),
@@ -90,7 +90,7 @@ pub fn create_app(options: Option<GeneratorOptions>) -> RsWindApp {
         _ => AppConfig::from_file(DEFAULT_CONFIG_PATH).unwrap(),
     };
 
-    RsWindApp(
+    Application(
         App::builder()
             .with_preset(preset_tailwind)
             .with_config(config)
