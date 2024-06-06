@@ -1,1 +1,6 @@
-export * from './binding'
+import { createApp, RsWindApp } from './binding'
+
+export {
+    createApp,
+    RsWindApp,
+}
