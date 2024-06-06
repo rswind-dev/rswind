@@ -18,6 +18,6 @@
   },
   "scripts": {
     "ci:build-binding": "pnpm --filter rswind run build-binding:release",
-    "bump": "bumpp -r --commit 'release: v%s'"
+    "bump": "bumpp -r --commit 'release: v%s' --tag 'node-v%s'"
   }
 }
