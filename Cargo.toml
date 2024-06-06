@@ -2,6 +2,9 @@
 members  = ["bindings/*", "crates/*"]
 resolver = "2"
 
+[workspace.metadata.release]
+pre-release-commit-message = "release(rust): v{{version}}"
+
 [workspace.package]
 authors     = ["Neo Lyon <lzt1008@live.com>"]
 categories  = ["web-programming"]
