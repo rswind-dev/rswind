@@ -3,7 +3,9 @@ name: Publish Npm Packages
 on:
   push:
     tags:
-      - 'v*'
+      # release(rust): v1.2.3 -> tag: rust-v1.2.3
+      # release(node): v1.2.3 -> tag: node-v1.2.3
+      - 'node-v*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
