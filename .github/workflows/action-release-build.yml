@@ -103,11 +103,6 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - name: Install deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
       - name: Install dependencies
         run: pnpm install
 
