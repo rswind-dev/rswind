@@ -3,13 +3,13 @@ members  = ["bindings/*", "crates/*"]
 resolver = "2"
 
 [workspace.package]
-authors      = ["Neo Lyon <lzt1008@live.com>"]
-categories   = ["web-programming"]
-edition      = "2021"
-keywords     = ["css", "tailwindcss"]
-description  = "Tailwind CSS JIT engine in Rust"
-license      = "MIT"
-repository   = "https://github.com/lzt1008/rswind"
+authors     = ["Neo Lyon <lzt1008@live.com>"]
+categories  = ["web-programming"]
+edition     = "2021"
+keywords    = ["css", "tailwindcss"]
+description = "Tailwind CSS JIT engine in Rust"
+license     = "MIT"
+repository  = "https://github.com/lzt1008/rswind"
 
 [profile.release]
 lto           = true
@@ -27,11 +27,11 @@ opt-level = 3
 opt-level = 3
 
 [workspace.dependencies]
-rswind           = { path = "crates/rswind" }
-rswind_css_macro = { path = "crates/rswind_css_macro" }
-rswind_extractor = { path = "crates/rswind_extractor" }
-rswind_cli       = { path = "crates/rswind_cli" }
-rswind_common    = { path = "crates/rswind_common" }
+rswind           = { version = "0.0.0", path = "crates/rswind" }
+rswind_css_macro = { version = "0.0.0", path = "crates/rswind_css_macro" }
+rswind_extractor = { version = "0.0.0", path = "crates/rswind_extractor" }
+rswind_cli       = { version = "0.0.0", path = "crates/rswind_cli" }
+rswind_common    = { version = "0.0.0", path = "crates/rswind_common" }
 
 rayon                    = "1.10.0"
 either                   = "1.12.0"
