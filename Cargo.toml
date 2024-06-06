@@ -2,6 +2,15 @@
 members  = ["bindings/*", "crates/*"]
 resolver = "2"
 
+[workspace.package]
+authors = ["Neo Lyon <lzt1008@live.com>"]
+categories = ["web-programming"]
+edition = "2021"
+keywords = [ "css", "tailwindcss" ]
+description = "Tailwind CSS JIT engine in Rust"
+license = "MIT"
+repository = "https://github.com/lzt1008/rswind"
+
 [profile.release]
 lto           = true
 codegen-units = 1
