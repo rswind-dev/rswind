@@ -8,19 +8,16 @@ use syn::{
     parse_macro_input, token, Expr, Token,
 };
 
-#[derive(Debug, PartialEq)]
 struct DeclExpr {
     key: Expr,
     value: Expr,
 }
 
-#[derive(Debug, PartialEq)]
 struct RuleExpr {
     selector: Expr,
     nodes: Vec<AstNodeExpr>,
 }
 
-#[derive(Debug, PartialEq)]
 enum AstNodeExpr {
     Decl(DeclExpr),
     Rule(RuleExpr),
@@ -54,7 +51,6 @@ impl ToTokens for AstNodeExpr {
     }
 }
 
-#[derive(Debug)]
 struct MyMacroInput {
     css: Vec<AstNodeExpr>,
 }
