@@ -54,10 +54,10 @@
     "typescript": "^5.3.2"
   },
   "scripts": {
+    "prepublishOnly": "napi prepublish -t npm",
     "artifacts": "napi artifacts",
     "universal": "napi universalize",
     "create-npm-dirs": "napi create-npm-dirs",
-    "prepublish-only": "napi prepublish -t npm",
     "build-binding:dev": "napi build -o ./src --manifest-path ../../Cargo.toml --platform -p binding_core_node --js binding.js --dts binding.d.ts",
     "build-binding:types": "pnpm build-binding:dev --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding:dev --release",

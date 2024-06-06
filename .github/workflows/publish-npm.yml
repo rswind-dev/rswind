@@ -51,11 +51,6 @@ jobs:
       - name: Copy Licenses
         run: find ./packages/ -type d -maxdepth 1 -exec cp LICENSE {} \;
 
-      - name: PrePublish
-        run: pnpm --filter rswind prepublish-only
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: List Rolldown Bindings
         run: ls -R ./packages/rswind/npm
         shell: bash
