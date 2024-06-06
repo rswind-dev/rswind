@@ -27,11 +27,11 @@ opt-level = 3
 opt-level = 3
 
 [workspace.dependencies]
-rswind           = { version = "0.0.0", path = "crates/rswind" }
-rswind_css_macro = { version = "0.0.0", path = "crates/rswind_css_macro" }
-rswind_extractor = { version = "0.0.0", path = "crates/rswind_extractor" }
-rswind_cli       = { version = "0.0.0", path = "crates/rswind_cli" }
-rswind_common    = { version = "0.0.0", path = "crates/rswind_common" }
+rswind           = { version = "0.0.1-alpha.1", path = "crates/rswind" }
+rswind_css_macro = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macro" }
+rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor" }
+rswind_cli       = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
+rswind_common    = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }
 
 rayon                    = "1.10.0"
 either                   = "1.12.0"

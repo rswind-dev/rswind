@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "binding_cli"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "napi",
  "napi-build",
@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "binding_core_node"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "napi",
  "napi-build",
@@ -168,7 +168,7 @@ dependencies = [
 
 [[package]]
 name = "binding_core_wasm"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "console_error_panic_hook",
  "lazy_static",
@@ -1626,7 +1626,7 @@ dependencies = [
 
 [[package]]
 name = "rswind"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "anyhow",
  "colored",
@@ -1667,7 +1667,7 @@ dependencies = [
 
 [[package]]
 name = "rswind_cli"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "clap 4.5.4",
  "colored",
@@ -1691,7 +1691,7 @@ dependencies = [
 
 [[package]]
 name = "rswind_common"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "either",
  "rayon",
@@ -1700,7 +1700,7 @@ dependencies = [
 
 [[package]]
 name = "rswind_css_macro"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1709,7 +1709,7 @@ dependencies = [
 
 [[package]]
 name = "rswind_extractor"
-version = "0.0.0"
+version = "0.0.1-alpha.1"
 dependencies = [
  "criterion",
  "cssparser",
