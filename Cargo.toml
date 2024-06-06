@@ -2,8 +2,10 @@
 members  = ["bindings/*", "crates/*"]
 resolver = "2"
 
+# Configuation for cargo-release
 [workspace.metadata.release]
 pre-release-commit-message = "release(rust): v{{version}}"
+tag-name                   = "rust-v{{version}}"
 
 [workspace.package]
 authors     = ["Neo Lyon <lzt1008@live.com>"]
