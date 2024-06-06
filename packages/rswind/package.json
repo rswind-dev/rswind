@@ -1,6 +1,6 @@
 {
   "name": "rswind",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-alpha.1",
   "license": "MIT",
   "author": "Neo Lyon",
   "description": "Tailwind CSS JIT Engine in Rust",

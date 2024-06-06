@@ -1,6 +1,6 @@
 {
   "name": "@rswind/wasm-web",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-alpha.1",
   "description": "",
   "type": "module",
   "main": "src/index.js",
