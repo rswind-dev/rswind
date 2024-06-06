@@ -4,6 +4,7 @@ name    = "binding_cli"
 version = "0.0.0"
 build   = "build.rs"
 license = "MIT"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
