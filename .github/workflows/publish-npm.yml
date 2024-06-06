@@ -67,7 +67,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish (Dry Run)
-        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --dry-run --tag latest --no-git-checks --force
+        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks --force --ignore-scripts --dry-run
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

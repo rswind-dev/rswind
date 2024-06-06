@@ -54,6 +54,7 @@
     "typescript": "^5.3.2"
   },
   "scripts": {
+    "prepublishOnly": "napi prepublish --no-gh-release -t npm",
     "artifacts": "napi artifacts",
     "universal": "napi universalize",
     "create-npm-dirs": "napi create-npm-dirs",
@@ -61,17 +62,5 @@
     "build-binding:types": "pnpm build-binding:dev --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding:dev --release",
     "build-node": "tsup"
-  },
-  "optionalDependencies": {
-    "@rswind/binding-darwin-x64": "workspace:^",
-    "@rswind/binding-win32-x64-msvc": "workspace:^",
-    "@rswind/binding-linux-x64-gnu": "workspace:^",
-    "@rswind/binding-linux-x64-musl": "workspace:^",
-    "@rswind/binding-win32-ia32-msvc": "workspace:^",
-    "@rswind/binding-linux-arm-gnueabihf": "workspace:^",
-    "@rswind/binding-linux-arm64-gnu": "workspace:^",
-    "@rswind/binding-darwin-arm64": "workspace:^",
-    "@rswind/binding-linux-arm64-musl": "workspace:^",
-    "@rswind/binding-win32-arm64-msvc": "workspace:^"
   }
 }
