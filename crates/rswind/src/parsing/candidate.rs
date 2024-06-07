@@ -4,7 +4,7 @@ use derive_more::{Deref, DerefMut};
 use either::Either::{self, Left, Right};
 use rswind_extractor::cursor::Cursor;
 use smallvec::{smallvec, SmallVec};
-use tracing::{debug, instrument, span};
+use tracing::{instrument, span, trace};
 
 use super::{
     state::{State, StateTransformer, UtilityTransformer},
@@ -173,7 +173,7 @@ impl<'a> CandidateParser<'a> {
         }
 
         let repr = self.parse_utility_repr()?;
-        debug!(input = self.input, ?repr);
+        trace!(input = self.input, ?repr);
 
         if let Some(arb) = repr.arbitrary {
             if repr.idents.is_empty() {

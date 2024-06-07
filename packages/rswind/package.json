@@ -14,13 +14,15 @@
     "type": "git",
     "url": "git+https://github.com/lzt1008/rswind.git"
   },
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     }
   },
   "files": [
@@ -58,9 +60,12 @@
     "artifacts": "napi artifacts",
     "universal": "napi universalize",
     "create-npm-dirs": "napi create-npm-dirs",
-    "build-binding:dev": "napi build -o ./src --manifest-path ../../Cargo.toml --platform -p binding_core_node --js binding.js --dts binding.d.ts",
+    "build-binding:dev": "napi build -o ./src --manifest-path ../../Cargo.toml --platform -p binding_core_node --no-js --dts binding.d.ts",
     "build-binding:types": "pnpm build-binding:dev --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding:dev --release",
     "build-node": "tsup"
+  },
+  "dependencies": {
+    "detect-libc": "^2.0.3"
   }
 }
