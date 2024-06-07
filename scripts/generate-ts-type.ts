@@ -6,19 +6,16 @@
 //
 // Notice: This script should only run though `napi build --pipe`
 
-import { join } from '@std/path'
 import { bold, red } from '@std/fmt/colors'
 import { compileFromFile } from 'npm:json-schema-to-typescript'
-
-function resolve(path: string) {
-  return join(import.meta.dirname!, '..', path)
-}
 
 const files = Deno.args.filter(arg => arg.endsWith('.d.ts'))
 
 if (files.length === 0) {
   Deno.exit(0)
 }
+
+const schemaPath = Deno.makeTempFileSync()
 
 const command = new Deno.Command('cargo', {
   args: [
@@ -33,7 +30,7 @@ const command = new Deno.Command('cargo', {
   stdout: 'inherit',
   stderr: 'inherit',
   env: {
-    SCHEMA_OUT_PATH: resolve('schema.json'),
+    SCHEMA_OUT_PATH: schemaPath,
   },
 })
 
@@ -45,7 +42,7 @@ if (!output.success) {
   Deno.exit(output.code)
 }
 
-const types = await compileFromFile(resolve('schema.json'))
+const types = await compileFromFile(schemaPath)
 
 // We currently just "append" the generated types to the file
 // so this script won't act exactly what we want when running multiple times
