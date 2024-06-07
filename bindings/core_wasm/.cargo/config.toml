@@ -1,5 +1,11 @@
 [target.wasm32-unknown-unknown]
-rustflags = ["-C", "target-feature=+atomics,+bulk-memory,+mutable-globals"]
+rustflags = [
+  "-C",
+  "target-feature=+atomics,+bulk-memory,+mutable-globals"
+]
 
 [unstable]
-build-std = ['std', 'panic_abort']
+build-std = [
+  'std',
+  'panic_abort'
+]

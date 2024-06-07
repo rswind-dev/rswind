@@ -3,6 +3,9 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 4
   },
+  "[javascript,typescript]": {
+    "editor.tabSize": 2
+  },
   "editor.defaultFormatter": "rust-lang.rust-analyzer",
   "rust-analyzer.checkOnSave": true,
   "[toml]": {
@@ -46,6 +49,7 @@
     "json",
     "jsonc",
     "yaml",
+    "toml",
     "css",
     "less",
     "scss"

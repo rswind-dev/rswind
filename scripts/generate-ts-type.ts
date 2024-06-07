@@ -6,51 +6,51 @@
 //
 // Notice: This script should only run though `napi build --pipe`
 
-import { join } from "@std/path";
-import { red, bold } from "@std/fmt/colors"
-import { compileFromFile } from "npm:json-schema-to-typescript";
+import { join } from '@std/path'
+import { bold, red } from '@std/fmt/colors'
+import { compileFromFile } from 'npm:json-schema-to-typescript'
 
 function resolve(path: string) {
-  return join(import.meta.dirname!, "..", path);
+  return join(import.meta.dirname!, '..', path)
 }
 
-const files = Deno.args.filter((arg) => arg.endsWith(".d.ts"));
+const files = Deno.args.filter(arg => arg.endsWith('.d.ts'))
 
 if (files.length === 0) {
-  Deno.exit(0);
+  Deno.exit(0)
 }
 
-const command = new Deno.Command("cargo", {
+const command = new Deno.Command('cargo', {
   args: [
-    "run",
-    "--features",
-    "json_schema",
-    "--bin",
-    "json_schema",
-    "--color",
-    "always",
+    'run',
+    '--features',
+    'json_schema',
+    '--bin',
+    'json_schema',
+    '--color',
+    'always',
   ],
-  "stdout": "inherit",
-  "stderr": "inherit",
+  stdout: 'inherit',
+  stderr: 'inherit',
   env: {
-    SCHEMA_OUT_PATH: resolve("schema.json"),
-  }
-});
+    SCHEMA_OUT_PATH: resolve('schema.json'),
+  },
+})
 
-const output = await command.output();
+const output = await command.output()
 
 if (!output.success) {
-  Deno.stderr.write(output.stderr);
-  console.error(red(bold("Something went wrong while running cargo ↑")))
-  Deno.exit(output.code);
+  Deno.stderr.write(output.stderr)
+  console.error(red(bold('Something went wrong while running cargo ↑')))
+  Deno.exit(output.code)
 }
 
-const types = await compileFromFile(resolve("schema.json"));
+const types = await compileFromFile(resolve('schema.json'))
 
 // We currently just "append" the generated types to the file
 // so this script won't act exactly what we want when running multiple times
 // but it's fine for now, as we only run this at though `napi build --pipe` command
-files.map((path) => {
-  Deno.writeTextFileSync(path, types, { append: true });
-  console.log(`Generated types to ${bold(path)}`);
-});
+files.forEach((path) => {
+  Deno.writeTextFileSync(path, types, { append: true })
+  console.log(`Generated types to ${bold(path)}`)
+})

@@ -1,33 +1,33 @@
 [package]
-name                  = "rswind_extractor"
-version               = "0.0.1-alpha.1"
-authors.workspace     = true
+name = "rswind_extractor"
+version = "0.0.1-alpha.1"
+authors.workspace = true
 description.workspace = true
-edition.workspace     = true
-keywords.workspace    = true
-license.workspace     = true
-repository.workspace  = true
-categories.workspace  = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+categories.workspace = true
 
 [lib]
 
 [dependencies]
-rswind_common    = { workspace = true }
+rswind_common = { workspace = true }
 cssparser-macros = { workspace = true }
-cssparser        = { workspace = true }
-rustc-hash       = { workspace = true }
-memchr           = { workspace = true }
-rayon            = { workspace = true }
-either           = { workspace = true }
-scopefn          = "0.0.2"
+cssparser = { workspace = true }
+rustc-hash = { workspace = true }
+memchr = { workspace = true }
+rayon = { workspace = true }
+either = { workspace = true }
+scopefn = "0.0.2"
 
 [dev-dependencies]
-criterion = { workspace = true, features = ["html_reports"] }
+criterion = { workspace = true, features = [ "html_reports" ] }
 
 [[bench]]
-name    = "html_extract"
+name = "html_extract"
 harness = false
 
 [[bench]]
-name    = "css_extract"
+name = "css_extract"
 harness = false

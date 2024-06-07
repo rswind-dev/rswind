@@ -1,5 +1,5 @@
-import { createRequire } from 'node:module';
+import { createRequire } from 'node:module'
 
 if (TSUP_FORMAT === 'esm') {
-    globalThis.require = createRequire(import.meta.url);
+  globalThis.require = createRequire(import.meta.url)
 }

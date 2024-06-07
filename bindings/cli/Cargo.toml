@@ -1,21 +1,20 @@
 [package]
 edition = "2021"
-name    = "binding_cli"
+name = "binding_cli"
 version = "0.0.1-alpha.1"
-build   = "build.rs"
+build = "build.rs"
 license = "MIT"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = [ "cdylib" ]
 
 [dependencies]
-rswind           = { workspace = true }
+rswind = { workspace = true }
 rswind_extractor = { workspace = true }
-rswind_cli       = { workspace = true }
-
-napi        = { workspace = true, features = ["napi4"] }
+rswind_cli = { workspace = true }
 napi-derive = { workspace = true }
+napi = { workspace = true, features = [ "napi4" ] }
 
 [build-dependencies]
 napi-build = { workspace = true }

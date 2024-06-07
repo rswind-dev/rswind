@@ -1,5 +1,5 @@
 declare global {
-  var TSUP_FORMAT: string;
+  const TSUP_FORMAT: string
 }
 
-export {};
+export {}

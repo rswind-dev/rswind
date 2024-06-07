@@ -1,17 +1,16 @@
 [package]
 edition = "2021"
-name    = "binding_core_wasm"
+name = "binding_core_wasm"
 version = "0.0.1-alpha.1"
 license = "MIT"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = [ "cdylib" ]
 
 [dependencies]
-rswind           = { workspace = true }
+rswind = { workspace = true }
 rswind_extractor = { workspace = true }
-
-wasm-bindgen             = { workspace = true }
+wasm-bindgen = { workspace = true }
 console_error_panic_hook = { workspace = true }
-lazy_static              = { workspace = true }
+lazy_static = { workspace = true }

@@ -1,29 +1,37 @@
-import { MUSL, familySync } from "detect-libc";
-type NativeBinding = typeof import("./binding");
+import process from 'node:process'
+import { MUSL, familySync } from 'detect-libc'
+
+type NativeBinding = typeof import('./binding')
 
 function requireNative(): NativeBinding {
-  let parts: string[] = [process.platform, process.arch];
-  if (process.platform === "linux") {
+  const parts: string[] = [process.platform, process.arch]
+  if (process.platform === 'linux') {
     if (familySync() === MUSL) {
-      parts.push("musl");
-    } else if (process.arch === "arm") {
-      parts.push("gnueabihf");
-    } else {
-      parts.push("gnu");
+      parts.push('musl')
     }
-  } else if (process.platform === "win32") {
-    parts.push("msvc");
+    else if (process.arch === 'arm') {
+      parts.push('gnueabihf')
+    }
+    else {
+      parts.push('gnu')
+    }
+  }
+  else if (process.platform === 'win32') {
+    parts.push('msvc')
   }
 
   try {
-    return require(`@rswind/binding-${parts.join("-")}`);
-  } catch (err) {
-    const binding =`./rswind.${parts.join("-")}.node`;
+    // eslint-disable-next-line ts/no-require-imports -- .node must use require
+    return require(`@rswind/binding-${parts.join('-')}`)
+  }
+  catch (err) {
+    const binding = `./rswind.${parts.join('-')}.node`
     // explicitly extract `binding` to avoid glob import
-    return require(binding);
+    // eslint-disable-next-line ts/no-require-imports -- .node must use require
+    return require(binding)
   }
 }
 
-const binding = requireNative();
+const binding = requireNative()
 
-export default binding;
+export default binding

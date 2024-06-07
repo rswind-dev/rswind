@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "es6",
     "module": "ESNext",
-    "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
     "moduleResolution": "Bundler",
+    "strict": true,
+    "outDir": "dist",
+    "esModuleInterop": true
   },
   "include": ["src", "bindings", "__tests__"],
   "exclude": ["node_modules"]

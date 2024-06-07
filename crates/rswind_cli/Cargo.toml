@@ -1,13 +1,20 @@
 [package]
-name                  = "rswind_cli"
-version               = "0.0.1-alpha.1"
-authors.workspace     = true
+name = "rswind_cli"
+version = "0.0.1-alpha.1"
+
+authors.workspace = true
+
 description.workspace = true
-edition.workspace     = true
-keywords.workspace    = true
-license.workspace     = true
-repository.workspace  = true
-categories.workspace  = true
+
+edition.workspace = true
+
+keywords.workspace = true
+
+license.workspace = true
+
+repository.workspace = true
+
+categories.workspace = true
 
 [lib]
 bench = true
@@ -16,32 +23,30 @@ bench = true
 bench = []
 
 [dependencies]
-rswind           = { workspace = true }
+rswind = { workspace = true }
 rswind_extractor = { workspace = true }
-
-config                = { workspace = true }
-clap                  = { workspace = true, features = ["derive"] }
-cssparser             = { workspace = true }
-notify                = { workspace = true }
-rayon                 = { workspace = true }
-walkdir               = { workspace = true }
-rustc-hash            = { workspace = true }
-smol_str              = { workspace = true }
-tracing               = { workspace = true }
-tracing-subscriber    = { workspace = true, features = ["env-filter"] }
+config = { workspace = true }
+clap = { workspace = true, features = [ "derive" ] }
+cssparser = { workspace = true }
+notify = { workspace = true }
+rayon = { workspace = true }
+walkdir = { workspace = true }
+rustc-hash = { workspace = true }
+smol_str = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
 notify-debouncer-full = "0.3.1"
-thiserror             = { workspace = true }
-colored               = { workspace = true }
-
+thiserror = { workspace = true }
+colored = { workspace = true }
 globset = { version = "0.4.14", default-features = false, features = [
-    "serde",
-    "simd-accel",
+  "serde",
+  "simd-accel",
 ] }
 
 [dev-dependencies]
-criterion = { workspace = true, features = ["html_reports"] }
-dotenvy   = { workspace = true }
+criterion = { workspace = true, features = [ "html_reports" ] }
+dotenvy = { workspace = true }
 
 [[bench]]
-name    = "multiple_files"
+name = "multiple_files"
 harness = false

@@ -1,25 +1,73 @@
 [workspace]
-members  = ["bindings/*", "crates/*"]
+members = [
+  "bindings/*",
+  "crates/*"
+]
 resolver = "2"
 
 # Configuation for cargo-release
 [workspace.metadata.release]
 pre-release-commit-message = "release(rust): v{{version}}"
-tag-name                   = "rust-v{{version}}"
+tag-name = "rust-v{{version}}"
 
 [workspace.package]
-authors     = ["Neo Lyon <lzt1008@live.com>"]
-categories  = ["web-programming"]
-edition     = "2021"
-keywords    = ["css", "tailwindcss"]
+authors = [ "Neo Lyon <lzt1008@live.com>" ]
+categories = [ "web-programming" ]
+edition = "2021"
+keywords = [
+  "css",
+  "tailwindcss"
+]
 description = "Tailwind CSS JIT engine in Rust"
-license     = "MIT"
-repository  = "https://github.com/lzt1008/rswind"
+license = "MIT"
+repository = "https://github.com/lzt1008/rswind"
+
+[workspace.dependencies]
+rswind = { version = "0.0.1-alpha.1", path = "crates/rswind" }
+rswind_css_macro = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macro" }
+rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor" }
+rswind_cli = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
+rswind_common = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }
+rayon = "1.10.0"
+either = "1.12.0"
+enum_dispatch = "0.3.13"
+phf = "0.11.2"
+colored = "2.1.0"
+cssparser-macros = "0.6.1"
+smol_str = "0.2.2"
+anyhow = "1.0.75"
+cssparser = "0.33.0"
+lazy_static = "1.4.0"
+lightningcss = "1.0.0-alpha.55"
+serde = "1.0.193"
+serde_json = "1.0.108"
+smallvec = "1.11.2"
+config = "0.13.4"
+clap = "4.5.4"
+notify = "6.1.1"
+walkdir = "2.5.0"
+criterion = "0.4"
+proc-macro2 = "1.0.79"
+quote = "1.0.35"
+syn = "2.0.57"
+rustc-hash = "1.1.0"
+napi = { version = "2.12.2", default-features = false }
+napi-derive = "2.12.2"
+napi-build = "2.0.1"
+wasm-bindgen = "0.2.92"
+console_error_panic_hook = "0.1.7"
+memchr = "2.7.2"
+dotenvy = "0.15.7"
+thiserror = "1.0.60"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+js-sys = "0.3.69"
+serde-wasm-bindgen = "0.6.5"
 
 [profile.release]
-lto           = true
+lto = true
 codegen-units = 1
-strip         = "symbols"
+strip = "symbols"
 # debug         = true
 
 [profile.bench]
@@ -31,50 +79,7 @@ opt-level = 3
 [profile.dev.package."*"]
 opt-level = 3
 
-[workspace.dependencies]
-rswind           = { version = "0.0.1-alpha.1", path = "crates/rswind" }
-rswind_css_macro = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macro" }
-rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor" }
-rswind_cli       = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
-rswind_common    = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }
-
-rayon                    = "1.10.0"
-either                   = "1.12.0"
-enum_dispatch            = "0.3.13"
-phf                      = "0.11.2"
-colored                  = "2.1.0"
-cssparser-macros         = "0.6.1"
-smol_str                 = "0.2.2"
-anyhow                   = "1.0.75"
-cssparser                = "0.33.0"
-lazy_static              = "1.4.0"
-lightningcss             = "1.0.0-alpha.55"
-serde                    = "1.0.193"
-serde_json               = "1.0.108"
-smallvec                 = "1.11.2"
-config                   = "0.13.4"
-clap                     = "4.5.4"
-notify                   = "6.1.1"
-walkdir                  = "2.5.0"
-criterion                = "0.4"
-proc-macro2              = "1.0.79"
-quote                    = "1.0.35"
-syn                      = "2.0.57"
-rustc-hash               = "1.1.0"
-napi                     = { version = "2.12.2", default-features = false }
-napi-derive              = "2.12.2"
-napi-build               = "2.0.1"
-wasm-bindgen             = "0.2.92"
-console_error_panic_hook = "0.1.7"
-memchr                   = "2.7.2"
-dotenvy                  = "0.15.7"
-thiserror                = "1.0.60"
-tracing                  = "0.1.40"
-tracing-subscriber       = "0.3.18"
-js-sys                   = "0.3.69"
-serde-wasm-bindgen       = "0.6.5"
-
 [workspace.lints.clippy]
 pedantic = "warn"
-nursery  = "warn"
-cargo    = "warn"
+nursery = "warn"
+cargo = "warn"

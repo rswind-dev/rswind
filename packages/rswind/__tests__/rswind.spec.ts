@@ -1,52 +1,52 @@
-import path from "path";
-import { createApp } from "../bindings/index.js";
-import { describe, expect, it } from "vitest";
+import path from 'node:path'
+import { describe, expect, it } from 'vitest'
+import { createApp } from '../bindings/index.js'
 
-describe("rswind", () => {
-  it("should work", () => {
-    const app = createApp();
+describe('rswind', () => {
+  it('should work', () => {
+    const app = createApp()
 
     const res = app.generateWith([
       [
-        path.resolve(process.cwd(), "src/index.html"),
+        path.resolve(process.cwd(), 'src/index.html'),
         '<div class="text-blue-500">Hello World</div>',
       ],
-    ]);
+    ])
 
     expect(res).toMatchInlineSnapshot(`
       ".text-blue-500 {
         color: #3b82f6;
       }
       "
-    `);
-  });
+    `)
+  })
 
-  it("should work with custom utilities", () => {
+  it('should work with custom utilities', () => {
     const app = createApp({
       config: {
         staticUtilities: {
-          "aa": {
-            "color": "red",
+          aa: {
+            color: 'red',
           },
         },
         utilities: [
           {
-            key: "foo",
+            key: 'foo',
             css: {
-              "color": "$0:color",
+              color: '$0:color',
             },
             modifier: {
-              type: "raw",
-              value: "50",
+              type: 'raw',
+              value: '50',
             },
-            theme: "colors",
-            type: "color",
+            theme: 'colors',
+            type: 'color',
           },
         ],
       },
-    });
+    })
 
-    const res = app.generateString("aa foo-red-500 foo-[#123456] foo-[12px]", "unknown");
+    const res = app.generateString('aa foo-red-500 foo-[#123456] foo-[12px]', 'unknown')
 
     expect(res).toMatchInlineSnapshot(`
       ".aa {
@@ -60,15 +60,15 @@ describe("rswind", () => {
       }
       "
     `)
-  });
+  })
 
-  it("should run with array of candidate", () => {
-    const app = createApp();
+  it('should run with array of candidate', () => {
+    const app = createApp()
 
     const res = app.generateCandidate([
-      "text-blue-500",
-      "flex",
-    ]);
+      'text-blue-500',
+      'flex',
+    ])
 
     expect(res).toMatchInlineSnapshot(`
       ".flex {
@@ -78,6 +78,6 @@ describe("rswind", () => {
         color: #3b82f6;
       }
       "
-    `);
+    `)
   })
-});
+})

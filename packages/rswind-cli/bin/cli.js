@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import process from 'node:process'
 import { cliWithArgs } from './index'
 
-cliWithArgs(["rswind", ...process.argv.slice(2)])
+cliWithArgs(['rswind', ...process.argv.slice(2)])
