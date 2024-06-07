@@ -69,7 +69,7 @@ pub fn decode_arbitrary_value(input: &str) -> SmolStr {
 /// This struct is used to store the raw value and modifier of a utility
 /// and will be parse into [`ValueRepr`].
 ///
-/// Used at: preset definitions, config deserializaion.
+/// Used at: preset definitions, config deserialization.
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct RawValueRepr {
