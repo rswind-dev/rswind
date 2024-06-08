@@ -4,7 +4,7 @@ use notify::{EventKind, RecursiveMode, Watcher};
 use notify_debouncer_full::new_debouncer;
 use rayon::prelude::*;
 use rswind::{
-    app::App,
+    app::Generator,
     generator::ParGenerateWith,
     glob::ParallelGlobFilter,
     io::{write_output, FileInput},
@@ -17,7 +17,7 @@ pub trait WatchApp {
     fn watch(&mut self, output: Option<&str>);
 }
 
-impl WatchApp for App {
+impl WatchApp for Generator {
     fn watch(&mut self, output: Option<&str>) {
         let (tx, rx) = mpsc::channel();
 
@@ -55,7 +55,7 @@ impl WatchApp for App {
                 .collect::<Vec<_>>()
                 .par_iter()
                 .collect_extracted()
-                .par_generate_with(&mut self.generator);
+                .par_generate_with(&mut self.processor);
 
             write_output(&res, output);
         }

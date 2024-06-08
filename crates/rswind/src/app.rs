@@ -7,7 +7,7 @@ use std::{
 use crate::{
     cache::{CacheState, GeneratorCache},
     config::AppConfig,
-    generator::{GenOptions, Generator, ParGenerateWith},
+    generator::{GenOptions, GeneratorProcessor, ParGenerateWith},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
     preset::Preset,
@@ -20,13 +20,13 @@ use rswind_extractor::{Extractor, MaybeParCollectExtracted};
 use thiserror::Error;
 use tracing::instrument;
 
-pub struct App {
-    pub generator: Generator,
+pub struct Generator {
+    pub processor: GeneratorProcessor,
     pub glob: GlobMatcher,
 }
 
 #[derive(Default)]
-pub struct AppBuilder {
+pub struct GeneratorBuilder {
     pub(crate) config: Option<AppConfig>,
     pub(crate) ctx: Context,
     pub(crate) presets: Vec<Box<dyn Preset>>,
@@ -44,7 +44,7 @@ pub enum AppBuildError {
     IoError(#[from] std::io::Error),
 }
 
-impl AppBuilder {
+impl GeneratorBuilder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -77,7 +77,7 @@ impl AppBuilder {
     }
 
     #[instrument(skip_all)]
-    pub fn build_generator(mut self) -> Result<Generator, AppBuildError> {
+    pub fn build_processor(mut self) -> Result<GeneratorProcessor, AppBuildError> {
         for preset in self.presets.drain(..) {
             preset.load_preset(&mut self.ctx);
         }
@@ -94,7 +94,7 @@ impl AppBuilder {
             }
         }
 
-        Ok(Generator {
+        Ok(GeneratorProcessor {
             ctx: Arc::new(self.ctx),
             cache: GeneratorCache::new(match self.options.watch {
                 true => CacheState::FirstRun,
@@ -105,7 +105,7 @@ impl AppBuilder {
     }
 
     #[instrument(skip_all)]
-    pub fn build(mut self) -> Result<App, AppBuildError> {
+    pub fn build(mut self) -> Result<Generator, AppBuildError> {
         let base = self.base.take().map_or(env::current_dir()?, PathBuf::from);
 
         let glob = match self.config {
@@ -115,50 +115,50 @@ impl AppBuilder {
             _ => GlobMatcher::default_glob(base)?,
         };
 
-        let generator = self.build_generator()?;
+        let processor = self.build_processor()?;
 
-        Ok(App { generator, glob })
+        Ok(Generator { processor, glob })
     }
 }
 
-pub struct AppInput<'a> {
+pub struct GeneratorInput<'a> {
     path: &'a str,
     content: &'a str,
 }
 
-impl AsRef<Path> for AppInput<'_> {
+impl AsRef<Path> for GeneratorInput<'_> {
     fn as_ref(&self) -> &Path {
         Path::new(self.path)
     }
 }
 
-impl<'a> AppInput<'a> {
+impl<'a> GeneratorInput<'a> {
     pub fn new(path: &'a str, content: &'a str) -> Self {
         Self { path, content }
     }
 }
 
-impl<'a> From<(&'a str, &'a str)> for AppInput<'a> {
+impl<'a> From<(&'a str, &'a str)> for GeneratorInput<'a> {
     fn from((path, content): (&'a str, &'a str)) -> Self {
         Self { path, content }
     }
 }
 
-impl<'a> From<&'a (String, String)> for AppInput<'a> {
+impl<'a> From<&'a (String, String)> for GeneratorInput<'a> {
     fn from(it: &'a (String, String)) -> Self {
         Self { path: it.0.as_str(), content: it.1.as_str() }
     }
 }
 
-impl<'a> From<AppInput<'a>> for Extractor<'a> {
-    fn from(input: AppInput<'a>) -> Self {
+impl<'a> From<GeneratorInput<'a>> for Extractor<'a> {
+    fn from(input: GeneratorInput<'a>) -> Self {
         Extractor::new(input.content, get_extension(input.path))
     }
 }
 
-impl App {
-    pub fn builder() -> AppBuilder {
-        AppBuilder::new()
+impl Generator {
+    pub fn builder() -> GeneratorBuilder {
+        GeneratorBuilder::new()
     }
 
     pub fn base(&self) -> &Path {
@@ -172,9 +172,9 @@ impl App {
             .map(FileInput::from_file)
             .collect::<Vec<_>>()
             .iter_with(IntoIterKind::Parallel)
-            .map(AppInput::from)
+            .map(GeneratorInput::from)
             .collect_extracted()
-            .par_generate_with(&mut self.generator)
+            .par_generate_with(&mut self.processor)
     }
 }
 

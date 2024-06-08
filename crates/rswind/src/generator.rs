@@ -7,7 +7,7 @@ use smol_str::SmolStr;
 use tracing::{info, instrument};
 
 use crate::{
-    app::{App, AppBuilder},
+    app::{Generator, GeneratorBuilder},
     cache::{Cache, CacheState, GeneratorCache},
     context::{CacheKey, Context, GenerateResult},
     css::{Rule, ToCss, ToCssString},
@@ -16,7 +16,7 @@ use crate::{
     writer::Writer,
 };
 
-pub struct Generator {
+pub struct GeneratorProcessor {
     pub ctx: Arc<Context>,
     pub cache: GeneratorCache,
     pub options: GenOptions,
@@ -30,9 +30,9 @@ pub struct GenOptions {
 
 pub type GenResultList = Vec<GenerateResult>;
 
-impl Generator {
-    pub fn builder() -> AppBuilder {
-        AppBuilder {
+impl GeneratorProcessor {
+    pub fn builder() -> GeneratorBuilder {
+        GeneratorBuilder {
             presets: Vec::new(),
             config: None,
             ctx: Context::default(),
@@ -165,16 +165,16 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
     }
 }
 
-pub fn create_generator() -> Generator {
-    AppBuilder::new().with_preset(preset_tailwind).build_generator().unwrap()
+pub fn create_generator() -> GeneratorProcessor {
+    GeneratorBuilder::new().with_preset(preset_tailwind).build_processor().unwrap()
 }
 
-pub fn create_app() -> App {
-    AppBuilder::new().with_preset(preset_tailwind).build().unwrap()
+pub fn create_app() -> Generator {
+    GeneratorBuilder::new().with_preset(preset_tailwind).build().unwrap()
 }
 
 pub trait GeneratorWith {
-    fn generate_with(self, generator: &mut Generator) -> String;
+    fn generate_with(self, generator: &mut GeneratorProcessor) -> String;
 }
 
 impl<'a, T> GeneratorWith for T
@@ -182,13 +182,13 @@ where
     T: IntoIterator + 'a,
     T::Item: AsRef<str>,
 {
-    fn generate_with(self, generator: &mut Generator) -> String {
+    fn generate_with(self, generator: &mut GeneratorProcessor) -> String {
         generator.run_with(self)
     }
 }
 
 pub trait ParGenerateWith {
-    fn par_generate_with(self, generator: &mut Generator) -> String;
+    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> String;
 }
 
 impl<'a, T> ParGenerateWith for T
@@ -196,7 +196,7 @@ where
     T: IntoParallelIterator + 'a,
     T::Item: AsRef<str>,
 {
-    fn par_generate_with(self, generator: &mut Generator) -> String {
+    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> String {
         generator.run_parallel_with(self)
     }
 }

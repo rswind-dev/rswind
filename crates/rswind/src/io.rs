@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::app::AppInput;
+use crate::app::GeneratorInput;
 use rswind_extractor::Extractor;
 use walkdir::WalkDir;
 
@@ -19,9 +19,9 @@ impl FileInput {
     }
 }
 
-impl<'a> From<&'a FileInput> for AppInput<'a> {
+impl<'a> From<&'a FileInput> for GeneratorInput<'a> {
     fn from(f: &'a FileInput) -> Self {
-        AppInput::new(f.path.to_str().unwrap(), &f.content)
+        GeneratorInput::new(f.path.to_str().unwrap(), &f.content)
     }
 }
 

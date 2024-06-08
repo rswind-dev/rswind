@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use rswind::{create_generator, generator::Generator};
+use rswind::{create_generator, generator::GeneratorProcessor};
 use rswind_extractor::{Extractable, Extractor};
 use wasm_bindgen::prelude::*;
 
@@ -12,7 +12,7 @@ pub fn set_panic_hook() {
 }
 
 lazy_static::lazy_static! {
-    static ref APP: Arc<RwLock<Generator>> = Arc::new(RwLock::new(create_generator()));
+    static ref APP: Arc<RwLock<GeneratorProcessor>> = Arc::new(RwLock::new(create_generator()));
 }
 
 #[wasm_bindgen]

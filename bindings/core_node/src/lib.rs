@@ -1,5 +1,5 @@
 use rswind::{
-    app::{App, AppInput},
+    app::{self, GeneratorInput},
     config::{AppConfig, DEFAULT_CONFIG_PATH},
     generator::{GeneratorWith, ParGenerateWith},
     glob::GlobFilter,
@@ -14,18 +14,18 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 extern crate napi_derive;
 
 #[napi]
-pub struct Application(App);
+pub struct Generator(app::Generator);
 
 #[napi]
-impl Application {
+impl Generator {
     #[napi]
     pub fn generate_with(&mut self, candidates: Vec<(String, String)>) -> String {
         candidates
             .iter()
-            .map(AppInput::from)
+            .map(GeneratorInput::from)
             .glob_filter(&self.0.glob)
             .collect_extracted()
-            .par_generate_with(&mut self.0.generator)
+            .par_generate_with(&mut self.0.processor)
     }
 
     #[napi]
@@ -41,12 +41,12 @@ impl Application {
     ) -> String {
         Extractor::new(&input, kind.as_deref().unwrap_or("unknown"))
             .extract()
-            .par_generate_with(&mut self.0.generator)
+            .par_generate_with(&mut self.0.processor)
     }
 
     #[napi]
     pub fn generate_candidate(&mut self, input: Vec<String>) -> String {
-        input.generate_with(&mut self.0.generator)
+        input.generate_with(&mut self.0.processor)
     }
 }
 
@@ -81,7 +81,7 @@ pub enum RswindConfig {
 }
 
 #[napi]
-pub fn create_app(options: Option<GeneratorOptions>) -> Application {
+pub fn create_generator(options: Option<GeneratorOptions>) -> Generator {
     let options = options.unwrap_or_default();
     let config = match options.config {
         Some(Value::String(path)) => AppConfig::from_file(&path).unwrap(),
@@ -90,8 +90,8 @@ pub fn create_app(options: Option<GeneratorOptions>) -> Application {
         _ => AppConfig::from_file(DEFAULT_CONFIG_PATH).unwrap(),
     };
 
-    Application(
-        App::builder()
+    Generator(
+        app::Generator::builder()
             .with_preset(preset_tailwind)
             .with_config(config)
             .with_watch(options.watch.unwrap_or(false))

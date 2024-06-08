@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::AppConfig, css::ToCssString, generator::Generator, io::write_output,
+    config::AppConfig, css::ToCssString, generator::GeneratorProcessor, io::write_output,
     preset::preset_tailwind,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
@@ -65,7 +65,7 @@ where
 
     let opts = Opts::parse_from(args);
 
-    let mut app = Generator::builder()
+    let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
         .with_config(AppConfig::from_file(&opts.config).unwrap())
         .with_watch(opts.watch)
@@ -80,7 +80,7 @@ where
             let res = app.generate_contents();
             write_output(&res, opts.output.as_deref());
         }
-        Some(SubCommand::Debug(cmd)) => match app.generator.ctx.generate(&cmd.input) {
+        Some(SubCommand::Debug(cmd)) => match app.processor.ctx.generate(&cmd.input) {
             Some(r) => {
                 if cmd.print_ast {
                     println!("{:#?}", r.rule);

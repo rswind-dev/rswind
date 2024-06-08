@@ -18,7 +18,7 @@ napi = { workspace = true, features = [
   "napi9",
   "serde-json"
 ] }
-napi-derive = { workspace = true }
+napi-derive = { workspace = true, features = [ "type-def" ] }
 scopefn = "0.0.2"
 tracing-subscriber = { version = "0.3.18", features = [ "env-filter" ] }
 
