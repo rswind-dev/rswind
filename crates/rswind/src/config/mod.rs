@@ -82,7 +82,6 @@ pub enum ArrowConfigError {
 }
 
 impl AppConfig {
-    #[cfg(not(feature = "wasm"))]
     #[instrument]
     pub fn from_file(name: &str) -> Result<Self, config::ConfigError> {
         let config_result = Config::builder().add_source(config::File::with_name(name)).build();
@@ -106,7 +105,6 @@ impl AppConfig {
         config
     }
 
-    #[cfg(feature = "wasm")]
     pub fn from_js(config: wasm_bindgen::JsValue) -> Result<Self, serde_wasm_bindgen::Error> {
         let config: AppConfig = serde_wasm_bindgen::from_value(config)?;
         Ok(config)

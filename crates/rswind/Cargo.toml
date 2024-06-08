@@ -18,7 +18,6 @@ categories.workspace = true
 
 [features]
 json_schema = []
-wasm = []
 
 [dependencies]
 rswind_css_macro = { workspace = true }
