@@ -46,7 +46,7 @@ pub fn bench_all(c: &mut Criterion) {
         });
     });
 
-    c.bench_function("Generate all rules paralle", |b| {
+    c.bench_function("Generate all rules parallel", |b| {
         b.iter(|| {
             let mut app = create_processor();
             let input = Extractor::new(&fixture, InputKind::Html).extract();
