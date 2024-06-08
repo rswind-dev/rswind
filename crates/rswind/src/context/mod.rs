@@ -143,10 +143,10 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::Context;
+    /// use rswind::DesignSystem;
     /// use rswind::css::{Decl, DeclList, ToCssString};
     ///
-    /// let mut design = Context::new();
+    /// let mut design = DesignSystem::new();
     ///
     /// design.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
     ///
@@ -170,10 +170,10 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::Context;
+    /// use rswind::DesignSystem;
     /// use rswind::css::{Decl, DeclList, ToCssString};
     ///
-    /// let mut design = Context::new();
+    /// let mut design = DesignSystem::new();
     ///
     /// design.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
     /// design.add_variant("hover", ["&:hover"]);
