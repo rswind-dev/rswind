@@ -165,7 +165,7 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
     }
 }
 
-pub fn create_generator() -> GeneratorProcessor {
+pub fn create_processor() -> GeneratorProcessor {
     GeneratorBuilder::new().with_preset(preset_tailwind).build_processor().unwrap()
 }
 
@@ -207,7 +207,7 @@ mod tests {
 
     #[test]
     fn test_application() {
-        let mut app = create_generator();
+        let mut app = create_processor();
 
         println!("{}", app.run_with(["flex", "flex-col"]));
     }

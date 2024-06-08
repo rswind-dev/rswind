@@ -7,7 +7,7 @@ use std::{
 use crate::{
     cache::{CacheState, GeneratorCache},
     config::AppConfig,
-    generator::{GenOptions, GeneratorProcessor, ParGenerateWith},
+    processor::{GenOptions, GeneratorProcessor, ParGenerateWith},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
     preset::Preset,

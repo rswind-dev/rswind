@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::AppConfig, css::ToCssString, generator::GeneratorProcessor, io::write_output,
+    config::AppConfig, css::ToCssString, processor::GeneratorProcessor, io::write_output,
     preset::preset_tailwind,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};

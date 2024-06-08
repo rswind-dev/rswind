@@ -5,7 +5,7 @@ use notify_debouncer_full::new_debouncer;
 use rayon::prelude::*;
 use rswind::{
     app::Generator,
-    generator::ParGenerateWith,
+    processor::ParGenerateWith,
     glob::ParallelGlobFilter,
     io::{write_output, FileInput},
 };

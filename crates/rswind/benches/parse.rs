@@ -2,12 +2,12 @@ use std::{iter, rc::Rc};
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use either::Either::{Left, Right};
-use rswind::{create_generator, process::ValuePreprocessor};
+use rswind::{create_processor, process::ValuePreprocessor};
 use rswind_extractor::{Extractable, Extractor, InputKind};
 use smol_str::format_smolstr;
 
 fn gen_fixtures() -> String {
-    let app = create_generator();
+    let app = create_processor();
     let (utilities, variants) = (&app.ctx.utilities, &app.ctx.variants);
 
     let mut combinations = utilities
@@ -40,7 +40,7 @@ pub fn bench_all(c: &mut Criterion) {
     let fixture = gen_fixtures();
     c.bench_function("Generate all rules", |b| {
         b.iter(|| {
-            let mut app = create_generator();
+            let mut app = create_processor();
             let input = Extractor::new(&fixture, InputKind::Html).extract();
             let _a = app.run_with(input);
         });
@@ -48,7 +48,7 @@ pub fn bench_all(c: &mut Criterion) {
 
     c.bench_function("Generate all rules paralle", |b| {
         b.iter(|| {
-            let mut app = create_generator();
+            let mut app = create_processor();
             let input = Extractor::new(&fixture, InputKind::Html).extract();
             let _a = app.run_parallel_with(input);
         });
@@ -58,13 +58,13 @@ pub fn bench_all(c: &mut Criterion) {
 pub fn bench_static(c: &mut Criterion) {
     c.bench_function("create", |b| {
         b.iter(|| {
-            let _app = rswind::create_generator();
+            let _app = rswind::create_processor();
         });
     });
 
     c.bench_function("parse basic", |b| {
         b.iter(|| {
-            let mut app = rswind::create_generator();
+            let mut app = rswind::create_processor();
             let input = Extractor::new(r#"<div class="flex">"#, InputKind::Html);
             let _a = app.run_with(input.extract());
         });
@@ -76,7 +76,7 @@ pub fn bench_static(c: &mut Criterion) {
         let input = include_str!("fixtures/template_html").repeat(*i);
         group.bench_with_input(BenchmarkId::new("Normal", i), i, |b, _| {
             b.iter(|| {
-                let mut app = rswind::create_generator();
+                let mut app = rswind::create_processor();
                 let input = Extractor::new(&input, InputKind::Html);
                 let _a = app.run_with(input.extract());
             });
@@ -84,7 +84,7 @@ pub fn bench_static(c: &mut Criterion) {
 
         group.bench_with_input(BenchmarkId::new("Parallel", i), i, |b, _| {
             b.iter(|| {
-                let mut app = rswind::create_generator();
+                let mut app = rswind::create_processor();
                 let input = Extractor::new(&input, InputKind::Html);
                 let _a = app.run_parallel_with(input.extract());
             });
@@ -95,7 +95,7 @@ pub fn bench_static(c: &mut Criterion) {
             let extracted = Rc::new(extracted.extract());
 
             b.iter(|| {
-                let mut app = rswind::create_generator();
+                let mut app = rswind::create_processor();
                 let _a = app.run_with(Rc::clone(&extracted).iter().copied());
             });
         });

@@ -1,4 +1,4 @@
-use rswind::{config::AppConfig, generator::GeneratorProcessor, preset::preset_tailwind};
+use rswind::{config::AppConfig, processor::GeneratorProcessor, preset::preset_tailwind};
 
 fn main() {
     tracing_subscriber::fmt::fmt().init();

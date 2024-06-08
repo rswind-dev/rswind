@@ -1,7 +1,7 @@
 use rswind::{
     app::{self, GeneratorInput},
     config::{AppConfig, DEFAULT_CONFIG_PATH},
-    generator::{GeneratorWith, ParGenerateWith},
+    processor::{GeneratorWith, ParGenerateWith},
     glob::GlobFilter,
     preset::preset_tailwind,
 };
