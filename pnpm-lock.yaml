@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@rswind/binding-darwin-x64':
+        specifier: 0.0.1-alpha.1
+        version: 0.0.1-alpha.1
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.20.0
@@ -48,6 +52,9 @@ importers:
       npm-run-all2:
         specifier: ^6.1.2
         version: 6.2.0
+      tempfile:
+        specifier: ^5.0.0
+        version: 5.0.0
       tsup:
         specifier: ^8.1.0
         version: 8.1.0(postcss@8.4.38)(typescript@5.4.5)
@@ -66,6 +73,26 @@ importers:
       npm-run-all2:
         specifier: ^6.1.2
         version: 6.2.0
+
+  packages/rswind/npm/darwin-arm64: {}
+
+  packages/rswind/npm/darwin-x64: {}
+
+  packages/rswind/npm/linux-arm-gnueabihf: {}
+
+  packages/rswind/npm/linux-arm64-gnu: {}
+
+  packages/rswind/npm/linux-arm64-musl: {}
+
+  packages/rswind/npm/linux-x64-gnu: {}
+
+  packages/rswind/npm/linux-x64-musl: {}
+
+  packages/rswind/npm/win32-arm64-msvc: {}
+
+  packages/rswind/npm/win32-ia32-msvc: {}
+
+  packages/rswind/npm/win32-x64-msvc: {}
 
   packages/vite-plugin-arrowcss:
     dependencies:
@@ -1141,6 +1168,11 @@ packages:
     resolution: {integrity: sha512-UOo5FdvOL0+eIVTgS4tIdbW+TtnBLWg1YBCcU2KWM7nuNwRz9bksDX1bekJJCpu25N1DVWaCwnT39dVQxzqS8g==}
     cpu: [x64]
     os: [win32]
+
+  '@rswind/binding-darwin-x64@0.0.1-alpha.1':
+    resolution: {integrity: sha512-A2l4CApX/NR1v099NK0W/EjJWr9Hp9vzwsZJfEgPOcjjmBHbYP0kJQGa5EByw1kIzBnLYcdphp9Kpv/xrjyJng==}
+    cpu: [x64]
+    os: [darwin]
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -3064,6 +3096,10 @@ packages:
     resolution: {integrity: sha512-nHc6S/bwIilKHNRgK/3jlhDoIHcp45YgyiwcAk46Tr0LfEqGBVpmiAyuiuxeVE44m3mXnEeVhaipLOEWmH+Njw==}
     engines: {node: '>=14.16'}
 
+  tempfile@5.0.0:
+    resolution: {integrity: sha512-bX655WZI/F7EoTDw9JvQURqAXiPHi8o8+yFxPF2lWYyz1aHnmMRuXWqL6YB6GmeO0o4DIYWHLgGNi/X64T+X4Q==}
+    engines: {node: '>=14.18'}
+
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
@@ -4140,6 +4176,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.18.0':
     optional: true
+
+  '@rswind/binding-darwin-x64@0.0.1-alpha.1': {}
 
   '@sinclair/typebox@0.27.8': {}
 
@@ -6255,6 +6293,10 @@ snapshots:
       yallist: 4.0.0
 
   temp-dir@3.0.0: {}
+
+  tempfile@5.0.0:
+    dependencies:
+      temp-dir: 3.0.0
 
   text-table@0.2.0: {}
 

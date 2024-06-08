@@ -2,6 +2,7 @@
   "imports": {
     "@std/collections": "jsr:@std/collections@^0.224.2",
     "@std/fmt": "jsr:@std/fmt@^0.225.3",
+    "@std/fs": "jsr:@std/fs@^0.229.2",
     "@std/path": "jsr:@std/path@^0.225.2"
   }
 }

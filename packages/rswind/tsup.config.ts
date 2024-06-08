@@ -1,9 +1,11 @@
 import { execSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 import type { Options } from 'tsup'
 import { defineConfig } from 'tsup'
+import tempfile from 'tempfile'
 
 const generateNamedExportPlugin: Required<Options>['esbuildPlugins'][0] = {
   name: 'rswind:generate-named-export',
@@ -16,12 +18,18 @@ const generateNamedExportPlugin: Required<Options>['esbuildPlugins'][0] = {
     const entryRe = new RegExp(`^${entry}$`)
 
     build.onLoad({ filter: entryRe }, async (_args) => {
-      const output = execSync('../../scripts/generate-binding.ts', {
-        stdio: 'pipe',
-      })
+      const tempPath = tempfile()
+      writeFileSync(tempPath, '')
+
+      execSync(`../../scripts/generate-binding.ts ${tempPath}`)
 
       return {
-        contents: `${readFileSync(entry)}\n${output.toString()}`,
+        contents: await Promise.all([
+          readFile(tempPath),
+          readFile(entry),
+        ]).then(([generated, original]) => {
+          return `${generated}\n${original}`
+        }),
         loader: 'ts',
       }
     })

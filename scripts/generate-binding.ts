@@ -2,6 +2,7 @@
 
 import { sortBy } from '@std/collections'
 import { bold, red } from '@std/fmt/colors'
+import { existsSync } from '@std/fs'
 
 enum TypeDefKind {
   Const = 'const',
@@ -128,7 +129,7 @@ export async function processTypeDef(
   return exports
 }
 
-if (import.meta.main) {
+export async function generateBinding() {
   const tempFilePath = await Deno.makeTempFile()
 
   const generateTypeCommand = new Deno.Command('cargo', {
@@ -158,5 +159,16 @@ if (import.meta.main) {
 
   const exports = idents.map(ident => `export const ${ident} = binding.${ident}`).join('\n')
 
-  await Deno.stdout.write(new TextEncoder().encode(exports))
+  return exports
+}
+
+if (import.meta.main) {
+  console.log('Generating binding...')
+  console.log(Deno.args[0])
+  if (!Deno.args[0] ||!existsSync(Deno.args[0])) {
+    console.error(red(bold('Please provide a valid path to write the generated binding')))
+    Deno.exit(1)
+  }
+  const exports = await generateBinding()
+  Deno.writeFileSync(Deno.args[0], new TextEncoder().encode(exports))
 }
