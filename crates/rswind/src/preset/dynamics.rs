@@ -1030,7 +1030,7 @@ impl<'i> Drop for UtilityAdder<'i> {
                 modifier: modifier
                     .map(|m| m.parse(&self.design.theme))
                     .transpose()
-                    .unwrap_or_else(|_| panic!("Invalid modifier for {}", self.builder.key.bold())),
+                    .unwrap_or_else(|e| panic!("Invalid modifier: {:?}", e.to_string())),
                 supports_negative: self.builder.supports_negative,
                 supports_fraction: self.builder.supports_fraction,
                 additional_css: std::mem::take(&mut self.builder.additional_css),
