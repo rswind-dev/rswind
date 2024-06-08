@@ -6,7 +6,7 @@ use std::{
 
 use crate::{
     cache::{CacheState, GeneratorCache},
-    config::AppConfig,
+    config::GeneratorConfig,
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
     preset::Preset,
@@ -27,7 +27,7 @@ pub struct Generator {
 
 #[derive(Default)]
 pub struct GeneratorBuilder {
-    pub(crate) config: Option<AppConfig>,
+    pub(crate) config: Option<GeneratorConfig>,
     pub(crate) design: DesignSystem,
     pub(crate) presets: Vec<Box<dyn Preset>>,
     pub(crate) options: GenOptions,
@@ -50,7 +50,7 @@ impl GeneratorBuilder {
     }
 
     #[instrument(skip_all)]
-    pub fn with_config(mut self, config: AppConfig) -> Self {
+    pub fn with_config(mut self, config: GeneratorConfig) -> Self {
         self.config = Some(config);
         self
     }

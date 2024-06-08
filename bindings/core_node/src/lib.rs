@@ -1,6 +1,6 @@
 use rswind::{
     generator::{self, GeneratorInput},
-    config::{AppConfig, DEFAULT_CONFIG_PATH},
+    config::{GeneratorConfig, DEFAULT_CONFIG_PATH},
     glob::GlobFilter,
     preset::preset_tailwind,
     processor::{GeneratorWith, ParGenerateWith},
@@ -77,17 +77,17 @@ impl Default for GeneratorOptions {
 #[serde(untagged)]
 pub enum RswindConfig {
     Path(String),
-    Object(AppConfig),
+    Object(GeneratorConfig),
 }
 
 #[napi]
 pub fn create_generator(options: Option<GeneratorOptions>) -> Generator {
     let options = options.unwrap_or_default();
     let config = match options.config {
-        Some(Value::String(path)) => AppConfig::from_file(&path).unwrap(),
+        Some(Value::String(path)) => GeneratorConfig::from_file(&path).unwrap(),
         Some(obj @ Value::Object(_)) => from_value(obj).unwrap(),
-        Some(Value::Bool(false)) => AppConfig::default(),
-        _ => AppConfig::from_file(DEFAULT_CONFIG_PATH).unwrap(),
+        Some(Value::Bool(false)) => GeneratorConfig::default(),
+        _ => GeneratorConfig::from_file(DEFAULT_CONFIG_PATH).unwrap(),
     };
 
     Generator(

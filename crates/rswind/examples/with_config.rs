@@ -1,11 +1,11 @@
-use rswind::{config::AppConfig, preset::preset_tailwind, processor::GeneratorProcessor};
+use rswind::{config::GeneratorConfig, preset::preset_tailwind, processor::GeneratorProcessor};
 
 fn main() {
     tracing_subscriber::fmt::fmt().init();
 
     let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
-        .with_config(AppConfig::from_file("arrow.config").unwrap())
+        .with_config(GeneratorConfig::from_file("arrow.config").unwrap())
         .build_processor()
         .unwrap();
 

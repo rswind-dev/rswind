@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::AppConfig, css::ToCssString, io::write_output, preset::preset_tailwind,
+    config::GeneratorConfig, css::ToCssString, io::write_output, preset::preset_tailwind,
     processor::GeneratorProcessor,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
@@ -67,7 +67,7 @@ where
 
     let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
-        .with_config(AppConfig::from_file(&opts.config).unwrap())
+        .with_config(GeneratorConfig::from_file(&opts.config).unwrap())
         .with_watch(opts.watch)
         .build()
         .unwrap();
