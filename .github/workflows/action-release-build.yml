@@ -130,6 +130,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      # need to install rust for generate bindings
+      - name: Install Rust
+        uses: moonrepo/setup-rust@v1
+        with:
+          cache-base: main
+
       - name: Install pnpm
         uses: pnpm/action-setup@v3
 
