@@ -1,4 +1,4 @@
-pub mod app;
+pub mod generator;
 pub mod common;
 pub mod config;
 #[macro_use]

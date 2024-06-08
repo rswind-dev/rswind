@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::app::GeneratorInput;
+use crate::generator::GeneratorInput;
 use rswind_extractor::Extractor;
 use walkdir::WalkDir;
 

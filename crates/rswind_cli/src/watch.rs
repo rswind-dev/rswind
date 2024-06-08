@@ -4,7 +4,7 @@ use notify::{EventKind, RecursiveMode, Watcher};
 use notify_debouncer_full::new_debouncer;
 use rayon::prelude::*;
 use rswind::{
-    app::Generator,
+    generator::Generator,
     glob::ParallelGlobFilter,
     io::{write_output, FileInput},
     processor::ParGenerateWith,

@@ -1,5 +1,5 @@
 use rswind::{
-    app::{self, GeneratorInput},
+    generator::{self, GeneratorInput},
     config::{AppConfig, DEFAULT_CONFIG_PATH},
     glob::GlobFilter,
     preset::preset_tailwind,
@@ -14,7 +14,7 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 extern crate napi_derive;
 
 #[napi]
-pub struct Generator(app::Generator);
+pub struct Generator(generator::Generator);
 
 #[napi]
 impl Generator {
@@ -91,7 +91,7 @@ pub fn create_generator(options: Option<GeneratorOptions>) -> Generator {
     };
 
     Generator(
-        app::Generator::builder()
+        generator::Generator::builder()
             .with_preset(preset_tailwind)
             .with_config(config)
             .with_watch(options.watch.unwrap_or(false))
