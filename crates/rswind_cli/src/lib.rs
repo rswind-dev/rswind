@@ -3,8 +3,8 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::AppConfig, css::ToCssString, processor::GeneratorProcessor, io::write_output,
-    preset::preset_tailwind,
+    config::AppConfig, css::ToCssString, io::write_output, preset::preset_tailwind,
+    processor::GeneratorProcessor,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
@@ -80,7 +80,7 @@ where
             let res = app.generate_contents();
             write_output(&res, opts.output.as_deref());
         }
-        Some(SubCommand::Debug(cmd)) => match app.processor.ctx.generate(&cmd.input) {
+        Some(SubCommand::Debug(cmd)) => match app.processor.design.generate(&cmd.input) {
             Some(r) => {
                 if cmd.print_ast {
                     println!("{:#?}", r.rule);

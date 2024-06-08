@@ -1,7 +1,7 @@
 use smol_str::SmolStr;
 
 use crate::{
-    context::{utilities::StaticUtility, Context},
+    context::{utilities::StaticUtility, DesignSystem},
     css::DeclList,
 };
 
@@ -666,15 +666,15 @@ fn static_utilities_selectored() -> [(SmolStr, StaticUtility); 5] {
     }
 }
 
-pub fn load_static_utilities(ctx: &mut Context) {
+pub fn load_static_utilities(design: &mut DesignSystem) {
     let iter = static_utilities().into_iter();
     let selector_iter = static_utilities_selectored().into_iter();
     let reserve = iter.size_hint().0 + selector_iter.size_hint().0;
-    ctx.utilities.reserve(reserve);
+    design.utilities.reserve(reserve);
     iter.for_each(|(key, value)| {
-        ctx.add_static(key, value);
+        design.add_static(key, value);
     });
     selector_iter.for_each(|(key, value)| {
-        ctx.add_static(key, value);
+        design.add_static(key, value);
     });
 }

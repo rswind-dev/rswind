@@ -2,12 +2,12 @@ use smol_str::format_smolstr;
 
 use crate::{
     common::{MaybeArbitrary, StrReplaceExt},
-    context::Context,
+    context::DesignSystem,
     process::{Variant, VariantOrdering},
 };
 
-pub fn load_variants(ctx: &mut Context) {
-    ctx
+pub fn load_variants(design: &mut DesignSystem) {
+    design
         // Positional
         .add_variant("first", ["&:first-child"])
         .add_variant("last", ["&:last-child"])
@@ -61,7 +61,7 @@ pub fn load_variants(ctx: &mut Context) {
         .add_variant("print", ["@media print"])
         .add_variant("forced-colors", ["@media (forced-colors: active)"]);
 
-    ctx.add_variant_fn(
+    design.add_variant_fn(
         "aria",
         |rule, candidate| match candidate.value {
             Some(MaybeArbitrary::Arbitrary(value)) => {
@@ -75,7 +75,7 @@ pub fn load_variants(ctx: &mut Context) {
         false,
     );
 
-    ctx.add_variant_fn(
+    design.add_variant_fn(
         "data",
         |rule, candidate| {
             rule.modify_with(|s| {
@@ -85,15 +85,15 @@ pub fn load_variants(ctx: &mut Context) {
         false,
     );
 
-    ctx.add_variant_composable("has", |rule, _| {
+    design.add_variant_composable("has", |rule, _| {
         rule.modify_with(|s| format_smolstr!("&:has({})", s.replace_char('&', "*")))
     });
 
-    ctx.add_variant_composable("not", |rule, _| {
+    design.add_variant_composable("not", |rule, _| {
         rule.modify_with(|s| format_smolstr!("&:not({})", s.replace_char('&', "*")))
     });
 
-    ctx.add_variant_composable("group", |rule, candidate| {
+    design.add_variant_composable("group", |rule, candidate| {
         let group_name = take_or_default(&candidate.modifier);
         let selector = format_smolstr!(
             ":where(.group{}{})",
@@ -104,7 +104,7 @@ pub fn load_variants(ctx: &mut Context) {
         rule.modify_with(|s| format_smolstr!("&:is({} *)", s.replace_char('&', &selector)))
     });
 
-    ctx.add_variant_composable("peer", |rule, candidate| {
+    design.add_variant_composable("peer", |rule, candidate| {
         let group_name = take_or_default(&candidate.modifier);
         let selector = format_smolstr!(
             ":where(.peer{}{})",
@@ -115,9 +115,9 @@ pub fn load_variants(ctx: &mut Context) {
         rule.modify_with(|s| format_smolstr!("&:is({} ~ *)", s.replace_char('&', &selector)))
     });
 
-    if let Some(theme) = ctx.get_theme("breakpoints") {
+    if let Some(theme) = design.get_theme("breakpoints") {
         theme.iter().for_each(|(k, v)| {
-            ctx.variants.insert(
+            design.variants.insert(
                 k.into(),
                 Variant::new_static([format_smolstr!("@media (width >= {})", v)])
                     .with_ordering(VariantOrdering::from_length(&v).unwrap()),
@@ -135,17 +135,17 @@ mod tests {
     use rswind_css_macro::css;
 
     use super::*;
-    use crate::{context::Context, css::ToCssString, parsing::candidate::CandidateParser};
+    use crate::{context::DesignSystem, css::ToCssString, parsing::candidate::CandidateParser};
 
     #[test]
     fn test_load_variants() {
-        let mut ctx = Context::default();
-        load_variants(&mut ctx);
+        let mut design = DesignSystem::default();
+        load_variants(&mut design);
 
         let rule = css!("display": "flex").to_rule_list();
 
         let candidate =
-            CandidateParser::new("group-hover/aaa").parse_variant(&ctx.variants).unwrap();
+            CandidateParser::new("group-hover/aaa").parse_variant(&design.variants).unwrap();
 
         let res = candidate.handle(rule);
 

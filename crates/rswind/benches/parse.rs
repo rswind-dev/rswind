@@ -8,7 +8,7 @@ use smol_str::format_smolstr;
 
 fn gen_fixtures() -> String {
     let app = create_processor();
-    let (utilities, variants) = (&app.ctx.utilities, &app.ctx.variants);
+    let (utilities, variants) = (&app.design.utilities, &app.design.variants);
 
     let mut combinations = utilities
         .iter()

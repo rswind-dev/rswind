@@ -7,12 +7,12 @@ use std::{
 use crate::{
     cache::{CacheState, GeneratorCache},
     config::AppConfig,
-    processor::{GenOptions, GeneratorProcessor, ParGenerateWith},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
     preset::Preset,
     process::ThemeParseError,
-    Context,
+    processor::{GenOptions, GeneratorProcessor, ParGenerateWith},
+    DesignSystem,
 };
 use rswind_common::iter::prelude::*;
 use rswind_extractor::{Extractor, MaybeParCollectExtracted};
@@ -28,7 +28,7 @@ pub struct Generator {
 #[derive(Default)]
 pub struct GeneratorBuilder {
     pub(crate) config: Option<AppConfig>,
-    pub(crate) ctx: Context,
+    pub(crate) design: DesignSystem,
     pub(crate) presets: Vec<Box<dyn Preset>>,
     pub(crate) options: GenOptions,
     pub(crate) base: Option<String>,
@@ -79,23 +79,23 @@ impl GeneratorBuilder {
     #[instrument(skip_all)]
     pub fn build_processor(mut self) -> Result<GeneratorProcessor, AppBuildError> {
         for preset in self.presets.drain(..) {
-            preset.load_preset(&mut self.ctx);
+            preset.load_preset(&mut self.design);
         }
 
         if let Some(ref mut config) = self.config {
             for utility in config.utilities.drain(..) {
                 utility
-                    .parse(&self.ctx.theme)
-                    .map(|(key, utility)| self.ctx.utilities.add(key, utility))?;
+                    .parse(&self.design.theme)
+                    .map(|(key, utility)| self.design.utilities.add(key, utility))?;
             }
 
             for (key, value) in config.static_utilities.drain() {
-                self.ctx.add_static(key, value);
+                self.design.add_static(key, value);
             }
         }
 
         Ok(GeneratorProcessor {
-            ctx: Arc::new(self.ctx),
+            design: Arc::new(self.design),
             cache: GeneratorCache::new(match self.options.watch {
                 true => CacheState::FirstRun,
                 false => CacheState::OneShot,

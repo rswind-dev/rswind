@@ -1,6 +1,6 @@
 use tracing::{enabled, info, Level};
 
-use crate::context::Context;
+use crate::context::DesignSystem;
 
 pub mod colors;
 pub mod dynamics;
@@ -9,44 +9,44 @@ pub mod statics;
 pub mod theme;
 pub mod variant;
 
-pub fn load_preset(ctx: &mut Context) {
-    theme::load_theme(ctx);
-    statics::load_static_utilities(ctx);
-    dynamics::load_dynamic_utilities(ctx);
-    variant::load_variants(ctx);
+pub fn load_preset(design: &mut DesignSystem) {
+    theme::load_theme(design);
+    statics::load_static_utilities(design);
+    dynamics::load_dynamic_utilities(design);
+    variant::load_variants(design);
 }
 
 pub trait Preset {
-    fn load_preset(self: Box<Self>, ctx: &mut Context);
+    fn load_preset(self: Box<Self>, design: &mut DesignSystem);
 }
 
 impl<T> Preset for T
 where
-    T: FnOnce(&mut Context) + 'static,
+    T: FnOnce(&mut DesignSystem) + 'static,
 {
-    fn load_preset(self: Box<Self>, ctx: &mut Context) {
-        (*self)(ctx);
+    fn load_preset(self: Box<Self>, design: &mut DesignSystem) {
+        (*self)(design);
     }
 }
 
-pub fn preset_tailwind(ctx: &mut Context) {
+pub fn preset_tailwind(design: &mut DesignSystem) {
     let initial_length = if enabled!(Level::INFO) {
-        Some((ctx.theme.len(), ctx.utilities.len(), ctx.variants.len()))
+        Some((design.theme.len(), design.utilities.len(), design.variants.len()))
     } else {
         None
     };
 
-    theme::load_theme(ctx);
-    statics::load_static_utilities(ctx);
-    dynamics::load_dynamic_utilities(ctx);
-    variant::load_variants(ctx);
+    theme::load_theme(design);
+    statics::load_static_utilities(design);
+    dynamics::load_dynamic_utilities(design);
+    variant::load_variants(design);
 
     if enabled!(Level::INFO) {
         let (theme, utilities, variants) = initial_length.unwrap_or((0, 0, 0));
         info!(
-            theme = ctx.theme.len() - theme,
-            utilities = ctx.utilities.len() - utilities,
-            variants = ctx.variants.len() - variants,
+            theme = design.theme.len() - theme,
+            utilities = design.utilities.len() - utilities,
+            variants = design.variants.len() - variants,
             "Loaded tailwind preset",
         );
     }

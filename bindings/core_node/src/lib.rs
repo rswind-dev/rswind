@@ -1,9 +1,9 @@
 use rswind::{
     app::{self, GeneratorInput},
     config::{AppConfig, DEFAULT_CONFIG_PATH},
-    processor::{GeneratorWith, ParGenerateWith},
     glob::GlobFilter,
     preset::preset_tailwind,
+    processor::{GeneratorWith, ParGenerateWith},
 };
 use rswind_extractor::{CollectExtracted, Extractable, Extractor};
 use serde::Deserialize;

@@ -275,20 +275,20 @@ mod tests {
 
     use super::{DynamicHandler, VariantHandlerExt};
     use crate::{
-        context::Context,
+        context::DesignSystem,
         css::{rule::RuleList, Decl, Rule},
         parsing::candidate::CandidateParser,
     };
 
     #[test]
     fn test_variant_process() {
-        let mut ctx = Context::default();
-        ctx.add_variant("hover", ["&:hover"]);
-        ctx.add_variant("active", ["&:active"]);
+        let mut design = DesignSystem::default();
+        design.add_variant("hover", ["&:hover"]);
+        design.add_variant("active", ["&:active"]);
 
         let candidates = vec![
-            CandidateParser::new("hover").parse_variant(&ctx.variants).unwrap(),
-            CandidateParser::new("active").parse_variant(&ctx.variants).unwrap(),
+            CandidateParser::new("hover").parse_variant(&design.variants).unwrap(),
+            CandidateParser::new("active").parse_variant(&design.variants).unwrap(),
         ];
 
         let _input = css! {
@@ -306,7 +306,7 @@ mod tests {
         let _res = candidates
             .into_iter()
             .map(|candidate| {
-                let processor = ctx.variants.get(candidate.key).unwrap();
+                let processor = design.variants.get(candidate.key).unwrap();
                 (processor, candidate)
             })
             .fold(selector, |acc, (processor, candidate)| processor.process(&candidate, acc));
@@ -314,11 +314,11 @@ mod tests {
 
     #[test]
     fn test_dynamic_process() {
-        let mut ctx = Context::default();
-        ctx.add_variant("hover", ["&:hover"]);
-        ctx.add_variant("active", ["&:active"]);
+        let mut design = DesignSystem::default();
+        design.add_variant("hover", ["&:hover"]);
+        design.add_variant("active", ["&:active"]);
 
-        let candidate = CandidateParser::new("hover").parse_variant(&ctx.variants).unwrap();
+        let candidate = CandidateParser::new("hover").parse_variant(&design.variants).unwrap();
         let input = css! {
             ".flex" {
                 "display": "flex";

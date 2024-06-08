@@ -9,7 +9,7 @@ use tracing::{info, instrument};
 use crate::{
     app::{Generator, GeneratorBuilder},
     cache::{Cache, CacheState, GeneratorCache},
-    context::{CacheKey, Context, GenerateResult},
+    context::{CacheKey, DesignSystem, GenerateResult},
     css::{Rule, ToCss, ToCssString},
     preset::preset_tailwind,
     process::build_group_selector,
@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub struct GeneratorProcessor {
-    pub ctx: Arc<Context>,
+    pub design: Arc<DesignSystem>,
     pub cache: GeneratorCache,
     pub options: GenOptions,
 }
@@ -35,7 +35,7 @@ impl GeneratorProcessor {
         GeneratorBuilder {
             presets: Vec::new(),
             config: None,
-            ctx: Context::default(),
+            design: DesignSystem::default(),
             options: GenOptions::default(),
             base: None,
         }
@@ -54,7 +54,7 @@ impl GeneratorProcessor {
                 if self.cache.has_seen(s) {
                     return None;
                 }
-                let res = self.ctx.generate(s);
+                let res = self.design.generate(s);
                 if res.is_none() {
                     self.cache.mark_invalid(SmolStr::from(s));
                 }
@@ -73,7 +73,7 @@ impl GeneratorProcessor {
         let (invalid, valid): (Vec<_>, Vec<_>) =
             input.into_par_iter().filter(|s| !self.cache.has_seen(s.as_ref())).partition_map(|s| {
                 let s = s.as_ref();
-                match self.ctx.generate(s) {
+                match self.design.generate(s) {
                     Some(r) => Right(r),
                     None => Left(SmolStr::from(s)),
                 }

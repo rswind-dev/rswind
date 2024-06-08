@@ -6,7 +6,7 @@ use rswind_css_macro::{css, rule_list};
 use crate::{
     preset::{colors::COLORS, spacing::SPACING},
     theme::{Theme, ThemeValue},
-    Context,
+    DesignSystem,
 };
 
 macro_rules! create_theme {
@@ -33,8 +33,8 @@ macro_rules! hash_map {
     };
 }
 
-pub fn load_theme(ctx: &mut Context) {
-    ctx.theme = theme();
+pub fn load_theme(design: &mut DesignSystem) {
+    design.theme = theme();
 }
 
 pub fn theme() -> Theme {

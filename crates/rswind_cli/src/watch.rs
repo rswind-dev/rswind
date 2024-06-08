@@ -5,9 +5,9 @@ use notify_debouncer_full::new_debouncer;
 use rayon::prelude::*;
 use rswind::{
     app::Generator,
-    processor::ParGenerateWith,
     glob::ParallelGlobFilter,
     io::{write_output, FileInput},
+    processor::ParGenerateWith,
 };
 use rswind_extractor::ParCollectExtracted;
 use rustc_hash::FxHashSet;

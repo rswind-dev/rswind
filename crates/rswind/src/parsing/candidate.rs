@@ -440,15 +440,15 @@ mod tests {
         use crate::{
             parsing::{candidate::CandidateParser, UtilityCandidate},
             preset::preset_tailwind,
-            Context,
+            DesignSystem,
         };
 
         fn run(input: &str) -> Option<UtilityCandidate> {
-            let mut ctx = Context::default();
-            preset_tailwind(&mut ctx);
+            let mut design = DesignSystem::default();
+            preset_tailwind(&mut design);
             let mut parser = CandidateParser::new(input);
 
-            parser.parse_utility(&ctx.utilities)
+            parser.parse_utility(&design.utilities)
         }
 
         test_group! { utility =>
@@ -470,16 +470,16 @@ mod tests {
         use rswind_css_macro::rule_list;
         use smol_str::SmolStr;
 
-        use crate::{parsing::candidate::CandidateParser, preset::preset_tailwind, Context};
+        use crate::{parsing::candidate::CandidateParser, preset::preset_tailwind, DesignSystem};
 
         fn run_variant(input: &str) -> Option<SmolStr> {
-            let mut ctx = Context::default();
-            preset_tailwind(&mut ctx);
+            let mut design = DesignSystem::default();
+            preset_tailwind(&mut design);
 
             let mut parser = CandidateParser::new(input);
 
             parser
-                .parse_variant(&ctx.variants)?
+                .parse_variant(&design.variants)?
                 .handle(rule_list!("&" {}))
                 .as_single()?
                 .selector

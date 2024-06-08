@@ -26,7 +26,7 @@ pub mod variants;
 // pub type VariantStorage = HashMap<SmolStr, Variant>;
 
 #[derive(Default)]
-pub struct Context {
+pub struct DesignSystem {
     /// Storage for utilities
     pub utilities: UtilityStorage,
 
@@ -128,7 +128,7 @@ impl Ord for VariantOrder {
     }
 }
 
-impl Context {
+impl DesignSystem {
     pub fn new() -> Self {
         Self {
             variants: VariantStorage::default(),
@@ -146,11 +146,11 @@ impl Context {
     /// use rswind::Context;
     /// use rswind::css::{Decl, DeclList, ToCssString};
     ///
-    /// let mut ctx = Context::new();
+    /// let mut design = Context::new();
     ///
-    /// ctx.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
+    /// design.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
     ///
-    /// let res = ctx.generate("flex").unwrap();
+    /// let res = design.generate("flex").unwrap();
     ///
     /// assert_eq!(res.rule.to_css_minified(), ".flex{display:flex;}");
     ///
@@ -173,12 +173,12 @@ impl Context {
     /// use rswind::Context;
     /// use rswind::css::{Decl, DeclList, ToCssString};
     ///
-    /// let mut ctx = Context::new();
+    /// let mut design = Context::new();
     ///
-    /// ctx.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
-    /// ctx.add_variant("hover", ["&:hover"]);
+    /// design.add_static("flex", DeclList::from([Decl::new("display", "flex")]));
+    /// design.add_variant("hover", ["&:hover"]);
     ///
-    /// let res = ctx.generate("hover:flex").unwrap();
+    /// let res = design.generate("hover:flex").unwrap();
     ///
     /// assert_eq!(res.rule.to_css_minified(), ".hover\\:flex:hover{display:flex;}");
     ///

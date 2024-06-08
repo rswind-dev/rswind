@@ -16,6 +16,6 @@ pub mod theme;
 pub mod types;
 pub mod writer;
 
-pub use context::Context;
+pub use context::DesignSystem;
 pub use processor::create_app;
 pub use processor::create_processor;

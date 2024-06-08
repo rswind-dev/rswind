@@ -27,14 +27,14 @@ macro_rules! get_typ(
 
 #[macro_export]
 macro_rules! add_theme_utility {
-    ($ctx:expr, {
+    ($design:expr, {
         $($theme_key:literal => {
             $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
         }),+
     }) => {
         $(
             $(
-                let theme = $ctx
+                let theme = $design
                     .get_theme($theme_key)
                     .unwrap_or_else(|| panic!("Theme {} not found", &$key));
 
@@ -59,7 +59,7 @@ macro_rules! add_theme_utility {
 
                 $(utility.value_repr.validator = get_typ!($typ);)?
 
-                $ctx.utilities.add($key.into(), utility);
+                $design.utilities.add($key.into(), utility);
             )*
         )+
     };

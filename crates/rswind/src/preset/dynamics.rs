@@ -11,7 +11,7 @@ use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     add_theme_utility,
-    context::Context,
+    context::DesignSystem,
     css::{rule::RuleList, Rule},
     ordering::OrderingKey,
     parsing::UtilityBuilder,
@@ -20,11 +20,11 @@ use crate::{
     types::{CssDataType, CssProperty},
 };
 
-pub fn load_dynamic_utilities(ctx: &mut Context) {
-    let font_size_lh = ctx.get_theme("fontSize:lineHeight").unwrap_or_default();
-    let keyframes = ctx.get_theme("keyframes").unwrap_or_default();
+pub fn load_dynamic_utilities(design: &mut DesignSystem) {
+    let font_size_lh = design.get_theme("fontSize:lineHeight").unwrap_or_default();
+    let keyframes = design.get_theme("keyframes").unwrap_or_default();
 
-    let mut rules = RuleAdder::new(ctx);
+    let mut rules = RuleAdder::new(design);
 
     rules
         .add("flex", |_, value| css!("flex": value))
@@ -817,7 +817,7 @@ pub fn load_dynamic_utilities(ctx: &mut Context) {
         .with_additional_css(BORDER_STYLE.clone());
 
     use lightningcss::properties::PropertyId::*;
-    add_theme_utility!(ctx, {
+    add_theme_utility!(design, {
         "spacing" => {
             // TODO: types, order
             "m" : Margin       => ["margin"]                      in OrderingKey::Margin, negative: true fraction: true
@@ -976,7 +976,7 @@ pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
 }
 
 pub struct UtilityAdder<'i> {
-    ctx: &'i mut Context,
+    design: &'i mut DesignSystem,
     builder: UtilityBuilder,
 }
 
@@ -995,8 +995,12 @@ impl DerefMut for UtilityAdder<'_> {
 }
 
 impl<'i> UtilityAdder<'i> {
-    pub fn new(ctx: &'i mut Context, key: &'i str, handler: impl RuleMatchingFn + 'static) -> Self {
-        Self { ctx, builder: UtilityBuilder::new(key, handler) }
+    pub fn new(
+        design: &'i mut DesignSystem,
+        key: &'i str,
+        handler: impl RuleMatchingFn + 'static,
+    ) -> Self {
+        Self { design, builder: UtilityBuilder::new(key, handler) }
     }
 }
 
@@ -1005,7 +1009,7 @@ impl<'i> UtilityAdder<'i> {
 impl<'i> Drop for UtilityAdder<'i> {
     fn drop(&mut self) {
         let allowed_values = self.builder.theme_key.as_ref().map(|key| {
-            self.ctx
+            self.design
                 .get_theme(key)
                 .unwrap_or_else(|| {
                     let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
@@ -1018,13 +1022,13 @@ impl<'i> Drop for UtilityAdder<'i> {
         let validator = std::mem::take(&mut self.builder.validator);
         let modifier = std::mem::take(&mut self.builder.modifier);
 
-        self.ctx.add_utility(
+        self.design.add_utility(
             self.builder.key.as_str(),
             Utility {
                 value_repr: ValueRepr { allowed_values, validator },
                 handler: self.builder.handler.take().unwrap(),
                 modifier: modifier
-                    .map(|m| m.parse(&self.ctx.theme))
+                    .map(|m| m.parse(&self.design.theme))
                     .transpose()
                     .unwrap_or_else(|_| panic!("Invalid modifier for {}", self.builder.key.bold())),
                 supports_negative: self.builder.supports_negative,
@@ -1039,12 +1043,12 @@ impl<'i> Drop for UtilityAdder<'i> {
 }
 
 struct RuleAdder<'a> {
-    ctx: &'a mut Context,
+    design: &'a mut DesignSystem,
 }
 
 impl<'a> RuleAdder<'a> {
-    pub fn new(ctx: &'a mut Context) -> Self {
-        Self { ctx }
+    pub fn new(design: &'a mut DesignSystem) -> Self {
+        Self { design }
     }
 
     pub fn add<'b>(
@@ -1052,6 +1056,6 @@ impl<'a> RuleAdder<'a> {
         key: &'b str,
         handler: impl RuleMatchingFn + 'static,
     ) -> UtilityAdder<'b> {
-        UtilityAdder::new(self.ctx, key, handler)
+        UtilityAdder::new(self.design, key, handler)
     }
 }
