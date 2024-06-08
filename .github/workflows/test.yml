@@ -68,6 +68,11 @@ jobs:
     # Cargo build order. See also
     # https://github.com/jonhoo/fantoccini/blob/fde336472b712bc7ebf5b4e772023a7ba71b2262/Cargo.toml#L47-L49.
     # This action is run on ubuntu with the stable toolchain, as it is not expected to fail
+
+    # Disabled `minimal` for now, as `cssparser v0.33` requires `phf v0.8` and it relies on `proc-macro-hack`
+    # which has a `syn v0.15.14` dependency.
+    # TODO: re-enable this once `lightningcss` updates `cssparser` to `v0.34` or higher.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     name: ubuntu / stable / minimal-versions
     steps:
