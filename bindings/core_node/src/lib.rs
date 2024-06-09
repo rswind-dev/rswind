@@ -1,6 +1,6 @@
 use rswind::{
-    generator::{self, GeneratorInput},
     config::{GeneratorConfig, DEFAULT_CONFIG_PATH},
+    generator::{self, GeneratorInput},
     glob::GlobFilter,
     preset::preset_tailwind,
     processor::{GeneratorWith, ParGenerateWith},

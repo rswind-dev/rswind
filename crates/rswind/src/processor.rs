@@ -7,10 +7,10 @@ use smol_str::SmolStr;
 use tracing::{info, instrument};
 
 use crate::{
-    generator::{Generator, GeneratorBuilder},
     cache::{Cache, CacheState, GeneratorCache},
     context::{CacheKey, DesignSystem, GenerateResult},
     css::{Rule, ToCss, ToCssString},
+    generator::{Generator, GeneratorBuilder},
     preset::preset_tailwind,
     process::build_group_selector,
     writer::Writer,
