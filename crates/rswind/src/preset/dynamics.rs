@@ -1015,7 +1015,7 @@ impl<'i> Drop for UtilityAdder<'i> {
                     let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
                     // TODO: reopen when we have logging, both on stdout and console
                     // eprintln!("{}", warning);
-                    ThemeValue::default()
+                    Arc::new(ThemeValue::default())
                 })
                 .clone()
         });

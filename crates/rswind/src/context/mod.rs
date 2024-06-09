@@ -23,8 +23,6 @@ pub mod macros;
 pub mod utilities;
 pub mod variants;
 
-// pub type VariantStorage = HashMap<SmolStr, Variant>;
-
 #[derive(Default)]
 pub struct DesignSystem {
     /// Storage for utilities
@@ -216,7 +214,7 @@ impl DesignSystem {
         self.utilities.add(key.into(), utility);
     }
 
-    pub fn get_theme(&self, key: &str) -> Option<ThemeValue> {
+    pub fn get_theme(&self, key: &str) -> Option<Arc<ThemeValue>> {
         self.theme.get(key).cloned()
     }
 

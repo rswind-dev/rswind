@@ -1,7 +1,7 @@
 pub mod utility;
 pub mod variant;
 
-use std::fmt::Write;
+use std::{fmt::Write, sync::Arc};
 
 use serde::Deserialize;
 use smol_str::SmolStr;
@@ -117,12 +117,12 @@ impl RawValueRepr {
 #[derive(Debug, Default)]
 pub struct ValueRepr {
     pub validator: Option<Box<dyn TypeValidator>>,
-    pub allowed_values: Option<ThemeValue>,
+    pub allowed_values: Option<Arc<ThemeValue>>,
 }
 
 impl ValueRepr {
     pub fn new(allowed_values: ThemeValue) -> Self {
-        Self { validator: None, allowed_values: Some(allowed_values) }
+        Self { validator: None, allowed_values: Some(Arc::new(allowed_values)) }
     }
 
     pub fn with_validator(self, validator: impl TypeValidator + 'static) -> Self {
@@ -136,7 +136,7 @@ impl ValuePreprocessor for ValueRepr {
     }
 
     fn allowed_values(&self) -> Option<&ThemeValue> {
-        self.allowed_values.as_ref()
+        self.allowed_values.as_deref()
     }
 }
 

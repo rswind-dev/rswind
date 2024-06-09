@@ -14,7 +14,7 @@ macro_rules! create_theme {
         {
             let mut m = rustc_hash::FxHashMap::default();
             $(
-                m.insert($key.into(), $value.into());
+                m.insert($key.into(), Arc::new($value.into()));
             )*
             Theme(m)
         }
@@ -80,7 +80,7 @@ pub fn theme() -> Theme {
 
     theme.insert(
         "keyframes".into(),
-        ThemeValue::RuleList(Arc::new(hash_map! {
+        Arc::new(ThemeValue::RuleList(hash_map! {
             "spin" => css! {
                 "to" {
                     "transform": "rotate(360deg)";
