@@ -168,10 +168,10 @@ pub mod prelude {
 
 #[cfg(test)]
 mod tests {
-    use crate::iter::{IntoIterKind, IntoIteratorWith, MaybeParallelIterator};
+    use crate::iter::{IntoIterKind, IntoIteratorWith, IntoRefIteratorWith, MaybeParallelIterator};
 
     #[test]
-    fn test() {
+    fn test_par() {
         let v = vec![1, 2, 3, 4, 5]
             .into_iter_with(IntoIterKind::Parallel)
             .map(|x| x * 2)
@@ -179,5 +179,64 @@ mod tests {
             .collect::<Vec<_>>();
 
         assert_eq!(v, vec![3, 5, 7, 9, 11]);
+    }
+
+    #[test]
+    fn test_par_reduce() {
+        let v = vec![1, 2, 3, 4, 5]
+            .into_iter_with(IntoIterKind::Parallel)
+            .map(|x| x * 2)
+            .map(|x| x + 1)
+            .reduce(|| 0, |acc, x| acc + x);
+
+        assert_eq!(v, 35);
+    }
+
+    #[test]
+    fn test_seq() {
+        let v = vec![1, 2, 3, 4, 5]
+            .into_iter_with(IntoIterKind::Sequential)
+            .map(|x| x * 2)
+            .map(|x| x + 1)
+            .collect::<Vec<_>>();
+
+        assert_eq!(v, vec![3, 5, 7, 9, 11]);
+    }
+
+    #[test]
+    fn test_seq_reduce() {
+        let v = vec![1, 2, 3, 4, 5]
+            .into_iter_with(IntoIterKind::Sequential)
+            .map(|x| x * 2)
+            .map(|x| x + 1)
+            .reduce(|| 0, |acc, x| acc + x);
+
+        assert_eq!(v, 35);
+    }
+
+    #[test]
+    fn test_ref_par() {
+        let v = vec![1, 2, 3, 4, 5]
+            .iter_with(IntoIterKind::Parallel)
+            .map(|x| x * 2)
+            .map(|x| x + 1)
+            .filter(|x| x > &3)
+            .flat_map(|x| vec![x, x + 100])
+            .collect::<Vec<_>>();
+
+        assert_eq!(v, vec![5, 105, 7, 107, 9, 109, 11, 111]);
+    }
+
+    #[test]
+    fn test_ref_seq() {
+        let v = vec![1, 2, 3, 4, 5]
+            .iter_with(IntoIterKind::Sequential)
+            .map(|x| x * 2)
+            .map(|x| x + 1)
+            .filter(|x| x > &3)
+            .flat_map(|x| vec![x, x + 100])
+            .collect::<Vec<_>>();
+
+        assert_eq!(v, vec![5, 105, 7, 107, 9, 109, 11, 111]);
     }
 }
