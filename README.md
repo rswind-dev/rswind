@@ -6,7 +6,7 @@
 
 <div align="center">
 
-[![Crate][badge-crateio]](url-crateio)
+[![Crate][badge-crateio]][url-crateio]
 [![NPM version][badge-npm-version]][url-npm]
 [![NPM Unpacked Size (with version)](https://img.shields.io/npm/unpacked-size/rswind/latest?label=npm)][url-npm]
 [![Build Status][badge-ci]][url-ci]
@@ -29,7 +29,6 @@
 > 🚧 **Work in Progress** ⚠️
 >
 > Rswind is still in development and not ready for production use.
-
 
 [badge-crateio]: https://img.shields.io/crates/v/rswind?color=blue
 [url-crateio]: https://crates.io/crates/rswind
