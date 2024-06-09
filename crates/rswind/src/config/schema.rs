@@ -1,3 +1,17 @@
+use std::collections::HashMap;
+
+use either::Either;
+
+use crate::{
+    css::{rule::RuleList, DeclList},
+    parsing::AdditionalCssHandler,
+    process::RuleMatchingFn,
+    theme::ThemeValue,
+    types::TypeValidator,
+};
+
+use super::de::theme::FlattenedColors;
+
 macro_rules! forward_impl {
     (($($impl:tt)+) => $target:ty) => {
         impl $($impl)+ {
@@ -27,14 +41,16 @@ macro_rules! forward_impl {
     };
 }
 
-forward_impl!(Box<dyn crate::process::RuleMatchingFn> => std::collections::HashMap<String, String>);
+forward_impl!(dyn RuleMatchingFn => HashMap<String, String>);
 
-forward_impl!(Box<dyn crate::types::TypeValidator> => String);
+forward_impl!(dyn TypeValidator => String);
 
-forward_impl!(crate::css::decl::DeclList => std::collections::HashMap<String, String>);
+forward_impl!(DeclList => HashMap<String, String>);
 
-forward_impl!(crate::css::rule::RuleList => std::collections::HashMap<String, either::Either<String, crate::css::DeclList>>);
+forward_impl!(RuleList => HashMap<String, either::Either<String, DeclList>>);
 
-forward_impl!(Box<dyn crate::parsing::AdditionalCssHandler> => crate::css::rule::RuleList);
+forward_impl!(dyn AdditionalCssHandler => crate::css::rule::RuleList);
 
-forward_impl!(crate::theme::ThemeValue => std::collections::HashMap<String, String>);
+forward_impl!(ThemeValue => HashMap<String, String>);
+
+forward_impl!(FlattenedColors => HashMap<String, Either<String, HashMap<String, String>>>);
