@@ -189,59 +189,6 @@ impl Utility {
     }
 }
 
-pub struct Generator<'a> {
-    utility: &'a Utility,
-    candidate: UtilityCandidate<'a>,
-    value: SmolStr,
-    meta: MetaData<'a>,
-}
-
-impl<'a> Generator<'a> {
-    pub fn new(utility: &'a Utility, candidate: UtilityCandidate<'a>) -> Self {
-        Self {
-            utility,
-            candidate,
-            value: SmolStr::default(),
-            meta: MetaData::from_candidate(&candidate),
-        }
-    }
-
-    pub fn preprocess_value(mut self) -> Option<Self> {
-        self.value = self.utility.preprocess(self.candidate.value)?;
-        if let (Some(modifier), Some(candidate)) = (&self.utility.modifier, self.candidate.modifier)
-        {
-            self.meta.modifier = modifier.preprocess(Some(candidate));
-        }
-        Some(self)
-    }
-
-    pub fn apply_fraction(mut self) -> Self {
-        if self.utility.supports_fraction {
-            if let Some(fraction) = self.candidate.take_fraction() {
-                self.value = format_smolstr!("calc({} * 100%)", fraction);
-            }
-        }
-        self
-    }
-
-    pub fn apply_negative(mut self) -> Self {
-        if self.candidate.negative {
-            self.value = format_smolstr!("calc({} * -1)", self.value)
-        }
-        self
-    }
-
-    pub fn generate_node(self) -> Rule {
-        let mut node = self.utility.handler.call(self.meta, self.value);
-
-        if let Some(wrapper) = &self.utility.wrapper {
-            node.selector.clone_from(wrapper);
-        }
-
-        node
-    }
-}
-
 #[cfg(test)]
 mod tests {
     #[test]
