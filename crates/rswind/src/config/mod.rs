@@ -1,6 +1,7 @@
 pub mod de;
 #[cfg(feature = "json_schema")]
 pub mod schema;
+pub mod user_theme;
 
 use std::{io, str::FromStr};
 
@@ -10,8 +11,9 @@ use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
+use user_theme::UserTheme;
 
-use crate::{parsing::UtilityBuilder, theme::Theme};
+use crate::parsing::UtilityBuilder;
 
 pub static DEFAULT_CONFIG_PATH: &str = "rswind.config.json";
 
@@ -48,7 +50,7 @@ fn default_dark_mode() -> SmolStr {
 #[serde(default)]
 pub struct GeneratorConfig {
     /// User define themes, will be merged with the default theme
-    pub theme: Theme,
+    pub theme: UserTheme,
 
     /// The glob pattern to match input files
     pub content: Vec<String>,
@@ -108,6 +110,10 @@ impl GeneratorConfig {
     pub fn from_js(config: wasm_bindgen::JsValue) -> Result<Self, serde_wasm_bindgen::Error> {
         let config: GeneratorConfig = serde_wasm_bindgen::from_value(config)?;
         Ok(config)
+    }
+
+    pub fn from_value(value: serde_json::Value) -> Result<Self, serde_json::Error> {
+        serde_json::from_value(value)
     }
 }
 

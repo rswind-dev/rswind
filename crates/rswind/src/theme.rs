@@ -31,6 +31,18 @@ impl ThemeValue {
         }
     }
 
+    pub fn len(&self) -> usize {
+        match self {
+            Self::Static(map) => map.len(),
+            Self::Dynamic(map) => map.len(),
+            Self::RuleList(map) => map.len(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn get_rule_list(&self, key: &str) -> Option<&RuleList> {
         match self {
             Self::RuleList(map) => map.get(key),
@@ -59,9 +71,39 @@ impl From<&'static Map<&'static str, &'static str>> for ThemeValue {
     }
 }
 
+impl Extend<(SmolStr, SmolStr)> for ThemeValue {
+    fn extend<T: IntoIterator<Item = (SmolStr, SmolStr)>>(&mut self, iter: T) {
+        match self {
+            Self::Dynamic(map) => map.extend(iter),
+            Self::Static(s) => {
+                *self = Self::Dynamic(
+                    iter.into_iter()
+                        .chain(s.into_iter().map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))))
+                        .collect(),
+                )
+            }
+            _ => {}
+        }
+    }
+}
+
+impl Extend<(SmolStr, RuleList)> for ThemeValue {
+    fn extend<T: IntoIterator<Item = (SmolStr, RuleList)>>(&mut self, iter: T) {
+        if let Self::RuleList(map) = self {
+            map.extend(iter)
+        }
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Theme(pub HashMap<SmolStr, Arc<ThemeValue>>);
+
+impl Theme {
+    pub fn get_value(&self, key: &str, inner_key: &str) -> Option<SmolStr> {
+        self.get(key).and_then(|v| v.get(inner_key))
+    }
+}
 
 impl Deref for Theme {
     type Target = HashMap<SmolStr, Arc<ThemeValue>>;

@@ -12,6 +12,7 @@ use crate::{
     preset::Preset,
     process::ThemeParseError,
     processor::{GenOptions, GeneratorProcessor, ParGenerateWith},
+    theme::Theme,
     DesignSystem,
 };
 use rswind_common::iter::prelude::*;
@@ -83,6 +84,7 @@ impl GeneratorBuilder {
         }
 
         if let Some(ref mut config) = self.config {
+            self.design.theme.merge(config.theme.drain());
             for utility in config.utilities.drain(..) {
                 utility
                     .parse(&self.design.theme)
@@ -159,6 +161,10 @@ impl<'a> From<GeneratorInput<'a>> for Extractor<'a> {
 impl Generator {
     pub fn builder() -> GeneratorBuilder {
         GeneratorBuilder::new()
+    }
+
+    pub fn theme(&self) -> &Theme {
+        &self.processor.design.theme
     }
 
     pub fn base(&self) -> &Path {
