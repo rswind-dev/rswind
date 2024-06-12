@@ -27,6 +27,7 @@
     "source.organizeImports": "never"
   },
   "eslint.rules.customizations": [
+    { "rule": "*", "severity": "warn" },
     { "rule": "style/*", "severity": "off" },
     { "rule": "format/*", "severity": "off" },
     { "rule": "*-indent", "severity": "off" },
