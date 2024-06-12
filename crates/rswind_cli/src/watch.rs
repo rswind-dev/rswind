@@ -26,7 +26,7 @@ impl WatchApp for Generator {
         debouncer.watcher().watch(self.glob.base(), RecursiveMode::Recursive).unwrap();
 
         let res = self.generate_contents();
-        write_output(&res, output);
+        write_output(&res.css, output);
 
         for change in rx {
             let Ok(changes) = change else {
@@ -57,7 +57,7 @@ impl WatchApp for Generator {
                 .collect_extracted()
                 .par_generate_with(&mut self.processor);
 
-            write_output(&res, output);
+            write_output(&res.css, output);
         }
     }
 }

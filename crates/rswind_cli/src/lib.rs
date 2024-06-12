@@ -78,7 +78,7 @@ where
         }
         None => {
             let res = app.generate_contents();
-            write_output(&res, opts.output.as_deref());
+            write_output(&res.css, opts.output.as_deref());
         }
         Some(SubCommand::Debug(cmd)) => match app.processor.design.generate(&cmd.input) {
             Some(r) => {

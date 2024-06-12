@@ -70,6 +70,7 @@ pub struct CacheImpl {
     pub css: BTreeMap<CacheKey, String>,
     pub groups: BTreeMap<CacheKey, String>,
     pub valid: HashMap<SmolStr, bool>,
+    pub generated_css: String,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]

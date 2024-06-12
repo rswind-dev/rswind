@@ -37,7 +37,7 @@ pub struct DesignSystem {
 
 /// The result of a utility generation
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct GenerateResult {
+pub struct GeneratedUtility {
     pub raw: SmolStr,
     /// The generated rule
     pub rule: RuleList,
@@ -75,25 +75,25 @@ impl CacheKey {
     }
 }
 
-impl From<GenerateResult> for CacheKey {
-    fn from(res: GenerateResult) -> Self {
+impl From<GeneratedUtility> for CacheKey {
+    fn from(res: GeneratedUtility) -> Self {
         Self { raw: res.raw, ordering: res.ordering, variants: res.variants }
     }
 }
 
-impl From<&GenerateResult> for CacheKey {
-    fn from(res: &GenerateResult) -> Self {
+impl From<&GeneratedUtility> for CacheKey {
+    fn from(res: &GeneratedUtility) -> Self {
         Self { raw: res.raw.clone(), ordering: res.ordering, variants: res.variants.clone() }
     }
 }
 
-impl PartialOrd for GenerateResult {
+impl PartialOrd for GeneratedUtility {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for GenerateResult {
+impl Ord for GeneratedUtility {
     fn cmp(&self, other: &Self) -> Ordering {
         self.variants
             .cmp(&other.variants)
@@ -219,12 +219,12 @@ impl DesignSystem {
     }
 
     /// Try generate a utility with the given value
-    pub fn generate(&self, value: &str) -> Option<GenerateResult> {
+    pub fn generate(&self, value: &str) -> Option<GeneratedUtility> {
         // Try static utility first
         if let Some(UtilityApplyResult { rule: node, ordering, group, .. }) =
             self.utilities.try_apply(UtilityCandidate::with_key(value))
         {
-            return Some(GenerateResult {
+            return Some(GeneratedUtility {
                 raw: SmolStr::from(value),
                 group,
                 rule: fill_selector_placeholder(value, node.to_rule_list())?,
@@ -260,7 +260,7 @@ impl DesignSystem {
 
         let node = nested.iter().fold(node, |acc, cur| cur.handle(acc));
 
-        Some(GenerateResult {
+        Some(GeneratedUtility {
             raw: SmolStr::from(value),
             rule: node,
             ordering,

@@ -10,5 +10,5 @@ fn main() {
         .unwrap();
 
     let css = app.run_with(["foo-blue-500/80", "foo-bar", "foo-bar-baz"]);
-    println!("{}", css);
+    println!("{}", css.css);
 }

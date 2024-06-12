@@ -1,9 +1,11 @@
+use std::rc::Rc;
+
 use rswind::{
     config::{GeneratorConfig, DEFAULT_CONFIG_PATH},
     generator::{self, GeneratorInput},
     glob::GlobFilter,
     preset::preset_tailwind,
-    processor::{GeneratorWith, ParGenerateWith},
+    processor::{self, GeneratorWith, ParGenerateWith},
 };
 use rswind_extractor::{CollectExtracted, Extractable, Extractor};
 use serde::Deserialize;
@@ -16,21 +18,49 @@ extern crate napi_derive;
 #[napi]
 pub struct Generator(generator::Generator);
 
+#[napi(object)]
+pub struct GenerateResult {
+    pub css: Rc<String>,
+    pub kind: ResultKind,
+}
+
+#[napi(string_enum)]
+pub enum ResultKind {
+    Cached,
+    Generated,
+}
+
+impl From<processor::GenerateResult> for GenerateResult {
+    fn from(result: processor::GenerateResult) -> Self {
+        Self { css: result.css, kind: result.kind.into() }
+    }
+}
+
+impl From<processor::ResultKind> for ResultKind {
+    fn from(kind: processor::ResultKind) -> Self {
+        match kind {
+            processor::ResultKind::Cached => Self::Cached,
+            processor::ResultKind::Generated => Self::Generated,
+        }
+    }
+}
+
 #[napi]
 impl Generator {
     #[napi]
-    pub fn generate_with(&mut self, candidates: Vec<(String, String)>) -> String {
+    pub fn generate_with(&mut self, candidates: Vec<(String, String)>) -> GenerateResult {
         candidates
             .iter()
             .map(GeneratorInput::from)
             .glob_filter(&self.0.glob)
             .collect_extracted()
             .par_generate_with(&mut self.0.processor)
+            .into()
     }
 
     #[napi]
-    pub fn generate(&mut self) -> String {
-        self.0.generate_contents()
+    pub fn generate(&mut self) -> Rc<String> {
+        self.0.generate_contents().css
     }
 
     #[napi]
@@ -38,15 +68,16 @@ impl Generator {
         &mut self,
         input: String,
         #[napi(ts_arg_type = "'html' | 'ecma' | 'unknown'")] kind: Option<String>,
-    ) -> String {
+    ) -> GenerateResult {
         Extractor::new(&input, kind.as_deref().unwrap_or("unknown"))
             .extract()
             .par_generate_with(&mut self.0.processor)
+            .into()
     }
 
     #[napi]
-    pub fn generate_candidate(&mut self, input: Vec<String>) -> String {
-        input.generate_with(&mut self.0.processor)
+    pub fn generate_candidate(&mut self, input: Vec<String>) -> GenerateResult {
+        input.generate_with(&mut self.0.processor).into()
     }
 }
 
@@ -61,7 +92,7 @@ fn init_tracing() {
 #[napi(object)]
 pub struct GeneratorOptions {
     pub base: Option<String>,
-    #[napi(ts_type = "string | false | AppConfig")]
+    #[napi(ts_type = "string | false | GeneratorConfig")]
     pub config: Option<Value>,
     pub watch: Option<bool>,
     pub parallel: Option<bool>,

@@ -1,4 +1,4 @@
-use std::{fmt::Write, sync::Arc};
+use std::{fmt::Write, rc::Rc, sync::Arc};
 
 use either::Either::{Left, Right};
 use rayon::{iter::IntoParallelIterator, prelude::*};
@@ -8,7 +8,7 @@ use tracing::{info, instrument};
 
 use crate::{
     cache::{Cache, CacheState, GeneratorCache},
-    context::{CacheKey, DesignSystem, GenerateResult},
+    context::{CacheKey, DesignSystem, GeneratedUtility},
     css::{Rule, ToCss, ToCssString},
     generator::{Generator, GeneratorBuilder},
     preset::preset_tailwind,
@@ -28,7 +28,20 @@ pub struct GenOptions {
     pub watch: bool,
 }
 
-pub type GenResultList = Vec<GenerateResult>;
+pub type GenResultList = Vec<GeneratedUtility>;
+
+#[derive(Debug)]
+pub enum ResultKind {
+    Cached,
+    /// New utilities generated with length of new utilities
+    Generated,
+}
+
+#[derive(Debug)]
+pub struct GenerateResult {
+    pub css: Rc<String>,
+    pub kind: ResultKind,
+}
 
 impl GeneratorProcessor {
     pub fn builder() -> GeneratorBuilder {
@@ -42,7 +55,7 @@ impl GeneratorProcessor {
     }
 
     #[instrument(skip_all)]
-    pub fn run_with<I>(&mut self, input: I) -> String
+    pub fn run_with<I>(&mut self, input: I) -> GenerateResult
     where
         I: IntoIterator,
         I::Item: AsRef<str>,
@@ -65,7 +78,7 @@ impl GeneratorProcessor {
         self.generate_css(res)
     }
 
-    pub fn run_parallel_with<I>(&mut self, input: I) -> String
+    pub fn run_parallel_with<I>(&mut self, input: I) -> GenerateResult
     where
         I: IntoParallelIterator,
         I::Item: AsRef<str>,
@@ -84,8 +97,9 @@ impl GeneratorProcessor {
         self.generate_css(valid)
     }
 
-    pub fn generate_css(&mut self, mut res: GenResultList) -> String {
-        info!("{} new utilities generated", res.len());
+    pub fn generate_css(&mut self, mut res: GenResultList) -> GenerateResult {
+        let len = res.len();
+        info!("{} new utilities generated", len);
 
         if !self.cache.state.is_cached() {
             match self.options.parallel {
@@ -111,7 +125,7 @@ impl GeneratorProcessor {
 
         self.cache.state.mark_cached();
 
-        writer.dest
+        GenerateResult { css: Rc::new(writer.dest), kind: ResultKind::Generated }
     }
 }
 
@@ -174,7 +188,7 @@ pub fn create_app() -> Generator {
 }
 
 pub trait GeneratorWith {
-    fn generate_with(self, generator: &mut GeneratorProcessor) -> String;
+    fn generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult;
 }
 
 impl<'a, T> GeneratorWith for T
@@ -182,13 +196,13 @@ where
     T: IntoIterator + 'a,
     T::Item: AsRef<str>,
 {
-    fn generate_with(self, generator: &mut GeneratorProcessor) -> String {
+    fn generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult {
         generator.run_with(self)
     }
 }
 
 pub trait ParGenerateWith {
-    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> String;
+    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult;
 }
 
 impl<'a, T> ParGenerateWith for T
@@ -196,7 +210,7 @@ where
     T: IntoParallelIterator + 'a,
     T::Item: AsRef<str>,
 {
-    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> String {
+    fn par_generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult {
         generator.run_parallel_with(self)
     }
 }
@@ -209,6 +223,6 @@ mod tests {
     fn test_application() {
         let mut app = create_processor();
 
-        println!("{}", app.run_with(["flex", "flex-col"]));
+        println!("{:?}", app.run_with(["flex", "flex-col"]));
     }
 }

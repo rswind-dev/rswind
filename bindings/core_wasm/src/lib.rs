@@ -17,10 +17,10 @@ lazy_static::lazy_static! {
 
 #[wasm_bindgen]
 pub fn generate(css: String, typ: String) -> String {
-    APP.write().unwrap().run_with(Extractor::new(&css, &*typ).extract())
+    APP.write().unwrap().run_with(Extractor::new(&css, &*typ).extract()).css.as_str().to_string()
 }
 
 #[wasm_bindgen(js_name = generateWith)]
 pub fn generate_with(candidates: Vec<String>) -> String {
-    APP.write().unwrap().run_with(candidates)
+    APP.write().unwrap().run_with(candidates).css.as_str().to_string()
 }

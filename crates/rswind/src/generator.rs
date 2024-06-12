@@ -11,7 +11,7 @@ use crate::{
     io::{walk, FileInput},
     preset::Preset,
     process::ThemeParseError,
-    processor::{GenOptions, GeneratorProcessor, ParGenerateWith},
+    processor::{GenOptions, GenerateResult, GeneratorProcessor, ParGenerateWith},
     theme::Theme,
     DesignSystem,
 };
@@ -171,7 +171,7 @@ impl Generator {
         self.glob.base()
     }
 
-    pub fn generate_contents(&mut self) -> String {
+    pub fn generate_contents(&mut self) -> GenerateResult {
         walk(self.base())
             .into_iter_with(IntoIterKind::Parallel)
             .glob_filter(&self.glob)
