@@ -2,20 +2,36 @@
   "name": "@rswind/wasm-web",
   "type": "module",
   "version": "0.0.1-alpha.1",
-  "description": "",
-  "author": "",
+  "description": "Wasm Runtime for Rswind",
+  "author": "Neo Lyon",
   "license": "MIT",
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lzt1008/rswind.git"
+  },
+  "keywords": [
+    "tailwind",
+    "atomic-css",
+    "css",
+    "rust"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./api": "./src/api.js"
+  },
   "main": "src/index.js",
   "scripts": {
     "dev": "tsup src/index.ts --no-dts --watch",
     "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
+    "build:wasm": "wasm-pack build -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
     "build": "run-s build:wasm build:js",
-    "build:js": "tsup src/index.ts --no-dts",
-    "build:wasm": "wasm-pack build -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm"
+    "build:api": "tsup src/index.ts --format iife",
+    "build:iife": "tsup src/api.ts --format esm",
+    "build:js": "run-s build:api build:iife"
   },
   "dependencies": {
-    "tsup": "^8.0.1"
+    "tsup": "^8.0.1",
+    "wasm-pack": "^0.12.1"
   },
   "devDependencies": {
     "npm-run-all2": "^6.1.2"

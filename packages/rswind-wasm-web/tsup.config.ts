@@ -1,7 +1,6 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  format: ['esm', 'cjs', 'iife'],
   target: 'es2015',
   loader: { '.wasm': 'file' },
   define: {
@@ -9,6 +8,6 @@ export default defineConfig({
   },
   minify: true,
   clean: false,
-  dts: true,
+  dts: false,
   noExternal: ['@rswind/binding_core_wasm'],
 })
