@@ -7,34 +7,34 @@ import type { Options } from 'tsup'
 import { defineConfig } from 'tsup'
 import tempfile from 'tempfile'
 
-const generateNamedExportPlugin: Required<Options>['esbuildPlugins'][0] = {
-  name: 'rswind:generate-named-export',
-  setup(build) {
-    if (build.initialOptions.entryPoints?.length !== 1) {
-      throw new Error('entryPoints must have exactly one item')
-    }
+// const generateNamedExportPlugin: Required<Options>['esbuildPlugins'][0] = {
+//   name: 'rswind:generate-named-export',
+//   setup(build) {
+//     if (build.initialOptions.entryPoints?.length !== 1) {
+//       throw new Error('entryPoints must have exactly one item')
+//     }
 
-    const entry = resolve(__dirname, build.initialOptions.entryPoints[0])
-    const entryRe = new RegExp(`^${entry}$`)
+//     const entry = resolve(__dirname, build.initialOptions.entryPoints[0])
+//     const entryRe = new RegExp(`^${entry}$`)
 
-    build.onLoad({ filter: entryRe }, async (_args) => {
-      const tempPath = tempfile()
-      writeFileSync(tempPath, '')
+//     build.onLoad({ filter: entryRe }, async (_args) => {
+//       const tempPath = tempfile()
+//       writeFileSync(tempPath, '')
 
-      execSync(`../../scripts/generate-binding.ts ${tempPath}`)
+//       execSync(`../../scripts/generate-binding.ts ${tempPath}`)
 
-      return {
-        contents: await Promise.all([
-          readFile(tempPath),
-          readFile(entry),
-        ]).then(([generated, original]) => {
-          return `${generated}\n${original}`
-        }),
-        loader: 'ts',
-      }
-    })
-  },
-}
+//       return {
+//         contents: await Promise.all([
+//           readFile(tempPath),
+//           readFile(entry),
+//         ]).then(([generated, original]) => {
+//           return `${generated}\n${original}`
+//         }),
+//         loader: 'ts',
+//       }
+//     })
+//   },
+// }
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -42,9 +42,11 @@ export default defineConfig({
   target: 'node16',
   inject: ['src/esm-shims.ts'],
   esbuildPlugins: [
-    generateNamedExportPlugin,
+    // generateNamedExportPlugin,
   ],
   clean: true,
-  dts: true,
+  dts: {
+    entry: 'src/index.ts',
+  },
   shims: true,
 })
