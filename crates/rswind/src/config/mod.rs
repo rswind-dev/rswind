@@ -108,11 +108,6 @@ impl GeneratorConfig {
         config
     }
 
-    pub fn from_js(config: wasm_bindgen::JsValue) -> Result<Self, serde_wasm_bindgen::Error> {
-        let config: GeneratorConfig = serde_wasm_bindgen::from_value(config)?;
-        Ok(config)
-    }
-
     pub fn from_value(value: serde_json::Value) -> Result<Self, serde_json::Error> {
         serde_json::from_value(value)
     }
