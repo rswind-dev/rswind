@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import process from 'node:process'
-import { cliWithArgs } from './index'
+const process = require('node:process')
+const cli = require('../bindings/index.js')
 
-cliWithArgs(['rswind', ...process.argv.slice(2)])
+cli.runCli(['rswind', ...process.argv.slice(2)])

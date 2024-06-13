@@ -1,11 +1,8 @@
 {
   "name": "@rswind/cli",
-  "type": "module",
   "version": "0.0.1-alpha.1",
   "description": "",
   "author": "",
-  "license": "MIT",
-  "keywords": [],
   "bin": {
     "rswind": "bin/cli.js"
   },
@@ -14,12 +11,12 @@
     "bindings"
   ],
   "scripts": {
-    "build": "napi build --cargo-cwd ../.. --platform --cargo-name binding_cli -p binding_cli --release bindings",
-    "build:dev": "napi build --cargo-cwd ../.. --platform --cargo-name binding_cli -p binding_cli bindings"
+    "dev": "napi build -o ./bindings --manifest-path ../../Cargo.toml --platform -p binding_cli",
+    "build": "pnpm dev --release"
   },
   "napi": {
     "binaryName": "rswind-cli",
-    "packageName": "@rolldown/cli-binding",
+    "packageName": "@rswind/cli-binding",
     "targets": [
       "x86_64-apple-darwin",
       "x86_64-pc-windows-msvc",
@@ -32,5 +29,8 @@
       "aarch64-unknown-linux-musl",
       "aarch64-pc-windows-msvc"
     ]
+  },
+  "dependencies": {
+    "@napi-rs/cli": "^3.0.0-alpha"
   }
 }
