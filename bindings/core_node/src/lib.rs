@@ -24,7 +24,7 @@ pub struct GenerateResult {
     pub kind: ResultKind,
 }
 
-#[napi(string_enum)]
+#[napi]
 pub enum ResultKind {
     Cached,
     Generated,
