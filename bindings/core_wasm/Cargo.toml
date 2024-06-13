@@ -5,11 +5,14 @@ version = "0.0.1-alpha.1"
 license = "MIT"
 publish = false
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ['-O', '--enable-threads', '--enable-bulk-memory']
+
 [lib]
 crate-type = [ "cdylib" ]
 
 [dependencies]
-rswind = { workspace = true }
+rswind = { workspace = true, features = [ "wasm" ] }
 rswind_extractor = { workspace = true }
 wasm-bindgen = { workspace = true }
 console_error_panic_hook = { workspace = true }
