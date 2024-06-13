@@ -16,6 +16,7 @@ pub mod theme;
 pub mod types;
 pub mod writer;
 
+pub use config::GeneratorConfig;
 pub use generator::Generator;
 
 pub use context::DesignSystem;
