@@ -46,14 +46,15 @@ fn default_dark_mode() -> SmolStr {
 
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "wasm", derive(tsify::Tsify), tsify(from_wasm_abi))]
 #[serde(rename_all = "camelCase")]
 #[serde(default)]
 pub struct GeneratorConfig {
-    /// User define themes, will be merged with the default theme
-    pub theme: UserTheme,
-
     /// The glob pattern to match input files
     pub content: Vec<String>,
+
+    /// User define themes, will be merged with the default theme
+    pub theme: UserTheme,
 
     // TODO: support user defined dark mode, like
     // ['variant', '&:not(.light *)']
