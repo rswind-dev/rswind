@@ -72,6 +72,7 @@ pub fn decode_arbitrary_value(input: &str) -> SmolStr {
 /// Used at: preset definitions, config deserialization.
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
 pub struct RawValueRepr {
     #[serde(rename = "type")]
     pub validator: Option<Box<dyn TypeValidator>>,
