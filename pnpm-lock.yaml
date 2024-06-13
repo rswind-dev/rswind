@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@rswind/binding-darwin-x64':
-        specifier: 0.0.1-alpha.1
-        version: 0.0.1-alpha.1
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.20.0
@@ -74,27 +70,7 @@ importers:
         specifier: ^6.1.2
         version: 6.2.0
 
-  packages/rswind/npm/darwin-arm64: {}
-
-  packages/rswind/npm/darwin-x64: {}
-
-  packages/rswind/npm/linux-arm-gnueabihf: {}
-
-  packages/rswind/npm/linux-arm64-gnu: {}
-
-  packages/rswind/npm/linux-arm64-musl: {}
-
-  packages/rswind/npm/linux-x64-gnu: {}
-
-  packages/rswind/npm/linux-x64-musl: {}
-
-  packages/rswind/npm/win32-arm64-msvc: {}
-
-  packages/rswind/npm/win32-ia32-msvc: {}
-
-  packages/rswind/npm/win32-x64-msvc: {}
-
-  packages/vite-plugin-arrowcss:
+  packages/vite:
     dependencies:
       rswind:
         specifier: workspace:^
@@ -105,13 +81,13 @@ importers:
         version: 20.12.12
       tsup:
         specifier: ^8.0.1
-        version: 8.0.2(postcss@8.4.38)(typescript@5.4.5)
+        version: 8.1.0(postcss@8.4.38)(typescript@5.4.5)
       typescript:
         specifier: ^5.3.2
         version: 5.4.5
       vite:
         specifier: ^5.0.3
-        version: 5.2.12(@types/node@20.12.12)
+        version: 5.2.13(@types/node@20.12.12)
 
   playground/vite-vue:
     dependencies:
@@ -124,13 +100,13 @@ importers:
     devDependencies:
       '@rswind/vite':
         specifier: workspace:^
-        version: link:../../packages/vite-plugin-arrowcss
+        version: link:../../packages/vite
       '@vitejs/plugin-vue':
         specifier: ^4.5.0
-        version: 4.6.2(vite@5.2.12(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
+        version: 4.6.2(vite@5.2.13(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))
       vite:
-        specifier: ^5.0.0
-        version: 5.2.12(@types/node@20.12.12)
+        specifier: ^5.2.13
+        version: 5.2.13(@types/node@20.12.12)
 
 packages:
 
@@ -1168,11 +1144,6 @@ packages:
     resolution: {integrity: sha512-UOo5FdvOL0+eIVTgS4tIdbW+TtnBLWg1YBCcU2KWM7nuNwRz9bksDX1bekJJCpu25N1DVWaCwnT39dVQxzqS8g==}
     cpu: [x64]
     os: [win32]
-
-  '@rswind/binding-darwin-x64@0.0.1-alpha.1':
-    resolution: {integrity: sha512-A2l4CApX/NR1v099NK0W/EjJWr9Hp9vzwsZJfEgPOcjjmBHbYP0kJQGa5EByw1kIzBnLYcdphp9Kpv/xrjyJng==}
-    cpu: [x64]
-    os: [darwin]
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -3301,6 +3272,34 @@ packages:
       terser:
         optional: true
 
+  vite@5.2.13:
+    resolution: {integrity: sha512-SSq1noJfY9pR3I1TUENL3rQYDQCFqgD+lM6fTRAM8Nv6Lsg5hDLaXkjETVeBt+7vZBCMoibD+6IWnT2mJ+Zb/A==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || >=20.0.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+
   vitest@1.6.0:
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -4177,8 +4176,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.18.0':
     optional: true
 
-  '@rswind/binding-darwin-x64@0.0.1-alpha.1': {}
-
   '@sinclair/typebox@0.27.8': {}
 
   '@stylistic/eslint-plugin-js@2.1.0(eslint@9.4.0)':
@@ -4335,9 +4332,9 @@ snapshots:
       '@typescript-eslint/types': 7.12.0
       eslint-visitor-keys: 3.4.3
 
-  '@vitejs/plugin-vue@4.6.2(vite@5.2.12(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))':
+  '@vitejs/plugin-vue@4.6.2(vite@5.2.13(@types/node@20.12.12))(vue@3.4.27(typescript@5.4.5))':
     dependencies:
-      vite: 5.2.12(@types/node@20.12.12)
+      vite: 5.2.13(@types/node@20.12.12)
       vue: 3.4.27(typescript@5.4.5)
 
   '@vitest/expect@1.6.0':
@@ -6447,7 +6444,7 @@ snapshots:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.1
-      vite: 5.2.12(@types/node@20.12.12)
+      vite: 5.2.13(@types/node@20.12.12)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -6459,6 +6456,15 @@ snapshots:
       - terser
 
   vite@5.2.12(@types/node@20.12.12):
+    dependencies:
+      esbuild: 0.20.2
+      postcss: 8.4.38
+      rollup: 4.18.0
+    optionalDependencies:
+      '@types/node': 20.12.12
+      fsevents: 2.3.3
+
+  vite@5.2.13(@types/node@20.12.12):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
