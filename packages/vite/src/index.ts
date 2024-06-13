@@ -1,6 +1,7 @@
 import type { HookHandler, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import type { GeneratorOptions } from 'rswind'
-import { createGenerator } from 'rswind'
+import type { ObjectHook, TransformResult } from 'rollup'
+import { ResultKind, createGenerator } from 'rswind'
 import { createModulesQueue } from './modules-queue'
 
 const WS_EVENT_PREFIX = 'rswind:hmr'
@@ -14,7 +15,7 @@ export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
 
   const modulesQueue = createModulesQueue(generator, (q) => {
     const res = generator.generateWith([...q.modules.entries()])
-    if (res.kind === 'Cached')
+    if (res.kind === ResultKind.Cached)
       return
     q.css = res.css
     q.modules.clear()
@@ -27,8 +28,19 @@ export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
 
   return [
     {
-      name: 'rswind:module-collector',
+      name: 'rswind:content-collector',
       enforce: 'pre',
+      transform(code, id) {
+        if (id === RSWIND_ID) {
+          return null
+        }
+        modulesQueue.push(id, code)
+      },
+    },
+    {
+      name: 'rswind:post',
+      apply: 'serve',
+      enforce: 'post',
       configureServer(_server) {
         server = _server
         modulesQueue.server = server
@@ -41,17 +53,6 @@ export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
         // warm up the generator
         generator.generateCandidate([])
       },
-      transform(code, id) {
-        if (id === RSWIND_ID) {
-          return null
-        }
-        modulesQueue.push(id, code)
-      },
-    },
-    {
-      name: 'rswind:post',
-      apply: 'serve',
-      enforce: 'post',
       resolveId(id) {
         if (id === 'rswind.css') {
           return RSWIND_ID
@@ -97,13 +98,15 @@ export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
         const fakeCssId = `${viteConfig.root}/${chunk.fileName}-rswind.css`
 
         modulesQueue.flush()
-      
-        const transformHandler = cssPlugin?.transform && getHookHandler(cssPlugin.transform)
-        const postHandler = cssPostPlugin?.transform && getHookHandler(cssPostPlugin.transform)
 
-        const res = transformHandler ? await transformHandler.call(this as any, modulesQueue.css, fakeCssId) : modulesQueue.css
+        const transformHandler = getHookHandler(cssPlugin?.transform)
+        const postHandler = getHookHandler(cssPostPlugin?.transform)
 
-        const css: string = typeof res !== 'string' && res != null ? res.code || modulesQueue.css : modulesQueue.css
+        const res = transformHandler
+          ? await transformHandler.call(this as any, modulesQueue.css, fakeCssId)
+          : modulesQueue.css
+
+        const css: string = getCode(res) || modulesQueue.css
 
         postHandler && await postHandler.call(this as any, css, fakeCssId)
 
@@ -120,12 +123,14 @@ export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
   ]
 }
 
-type ObjectHook<T, O = object> = T | ({ handler: T, order?: 'pre' | 'post' | null } & O)
-
-export function getHookHandler<T extends ObjectHook<Function>>(
+function getHookHandler<T extends ObjectHook<Function> | undefined>(
   hook: T,
 ): HookHandler<T> {
   return (typeof hook === 'object' ? hook.handler : hook) as HookHandler<T>
+}
+
+function getCode(result: TransformResult) {
+  return typeof result === 'string' ? result : result?.code
 }
 
 function sendUpdate(server: ViteDevServer) {
