@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "rswind": "workspace:^",
     "vue": "^3.3.8"
   },
   "devDependencies": {
