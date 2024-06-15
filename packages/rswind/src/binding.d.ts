@@ -21,7 +21,7 @@ export interface GeneratorOptions {
   parallel?: boolean
 }
 
-export const enum ResultKind {
+export enum ResultKind {
   Cached = 0,
   Generated = 1,
 }
