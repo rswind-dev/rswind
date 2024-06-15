@@ -59,7 +59,6 @@
     "build-node": "tsup"
   },
   "dependencies": {
-    "@types/rollup": "^0.54.0",
     "detect-libc": "^2.0.3"
   },
   "devDependencies": {
