@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "dev": "tsup src/index.ts --no-dts --watch",
-    "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
+    "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm --config profile.dev.package.rswind.opt-level=\"'s'\"",
     "build:wasm": "wasm-pack build -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
     "build": "run-s build:wasm build:js",
     "build:api": "tsup src/index.ts --format esm",
