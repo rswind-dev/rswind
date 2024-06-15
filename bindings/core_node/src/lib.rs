@@ -100,7 +100,7 @@ pub struct GeneratorOptions {
 
 impl Default for GeneratorOptions {
     fn default() -> Self {
-        Self { base: None, config: None, watch: Some(false), parallel: Some(true) }
+        Self { base: None, config: None, watch: Some(true), parallel: Some(true) }
     }
 }
 
@@ -125,7 +125,7 @@ pub fn create_generator(options: Option<GeneratorOptions>) -> Generator {
         generator::Generator::builder()
             .with_preset(preset_tailwind)
             .with_config(config)
-            .with_watch(options.watch.unwrap_or(false))
+            .with_watch(options.watch.unwrap_or(true))
             .with_parallel(options.parallel.unwrap_or(true))
             .with_base(options.base)
             .build()
