@@ -16,16 +16,21 @@
     "rust"
   ],
   "exports": {
-    ".": "./src/index.js",
-    "./api": "./src/api.js"
+    ".": "./index.js",
+    "./api": "./api.js"
   },
-  "main": "src/index.js",
+  "main": "index.js",
+  "files": [
+    "*.wasm",
+    "api.js",
+    "index.js"
+  ],
   "scripts": {
     "dev": "tsup src/index.ts --no-dts --watch",
     "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
     "build:wasm": "wasm-pack build -t web -d ../../packages/rswind-wasm-web/src/binding --no-pack ../../bindings/core_wasm",
     "build": "run-s build:wasm build:js",
-    "build:api": "tsup src/index.ts --format iife",
+    "build:api": "tsup src/index.ts --format esm",
     "build:iife": "tsup src/api.ts --format esm",
     "build:js": "run-s build:api build:iife"
   },
@@ -34,6 +39,7 @@
     "wasm-pack": "^0.12.1"
   },
   "devDependencies": {
+    "esbuild-plugin-copy": "^2.1.1",
     "npm-run-all2": "^6.1.2"
   }
 }

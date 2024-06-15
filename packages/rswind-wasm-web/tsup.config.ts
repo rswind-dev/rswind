@@ -1,11 +1,21 @@
 import { defineConfig } from 'tsup'
+import { copy } from 'esbuild-plugin-copy'
 
 export default defineConfig({
-  target: 'es2015',
+  target: 'es2022',
   loader: { '.wasm': 'file' },
-  define: {
-    'import.meta.url': '{}',
-  },
+  outDir: '.',
+  esbuildPlugins: [
+    copy({
+      resolveFrom: 'cwd',
+      assets: [
+        {
+          from: './src/binding/*.wasm',
+          to: '.',
+        },
+      ],
+    }),
+  ],
   minify: true,
   clean: false,
   dts: false,
