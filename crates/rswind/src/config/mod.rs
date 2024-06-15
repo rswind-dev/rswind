@@ -44,37 +44,47 @@ fn default_dark_mode() -> SmolStr {
     "media".into()
 }
 
-#[derive(Debug, Default, Deserialize)]
-#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "wasm", derive(tsify::Tsify), tsify(from_wasm_abi))]
-#[serde(rename_all = "camelCase")]
-#[serde(default)]
-pub struct GeneratorConfig {
-    /// The glob pattern to match input files
-    pub content: Vec<String>,
+// This `wbg_shim` exist because of the following issue:
+// https://github.com/rustwasm/wasm-bindgen/pull/3946
+// TODO: remove this shim when `wasm-bindgen` releases 0.2.93
+// Also, see https://github.com/rust-lang/rust-analyzer/issues/8747
+#[allow(non_snake_case, clippy::empty_docs)]
+mod wbg_shim {
+    use super::*;
+    #[derive(Debug, Default, Deserialize)]
+    #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+    #[cfg_attr(feature = "wasm", derive(tsify::Tsify), tsify(from_wasm_abi))]
+    #[serde(rename_all = "camelCase")]
+    #[serde(default)]
+    pub struct GeneratorConfig {
+        /// The glob pattern to match input files
+        pub content: Vec<String>,
 
-    /// User define themes, will be merged with the default theme
-    pub theme: UserTheme,
+        /// User define themes, will be merged with the default theme
+        pub theme: UserTheme,
 
-    // TODO: support user defined dark mode, like
-    // ['variant', '&:not(.light *)']
-    // ['selector', '[data-mode="dark"]']
-    // ['variant', [
-    //   '@media (prefers-color-scheme: dark) { &:not(.light *) }',
-    //   '&:is(.dark *)',
-    // ]]
-    /// How to handle `dark:` variant, can be `media` or `selector`
-    #[serde(default = "default_dark_mode")]
-    pub dark_mode: SmolStr,
+        // TODO: support user defined dark mode, like
+        // ['variant', '&:not(.light *)']
+        // ['selector', '[data-mode="dark"]']
+        // ['variant', [
+        //   '@media (prefers-color-scheme: dark) { &:not(.light *) }',
+        //   '&:is(.dark *)',
+        // ]]
+        /// How to handle `dark:` variant, can be `media` or `selector`
+        #[serde(default = "default_dark_mode")]
+        pub dark_mode: SmolStr,
 
-    pub features: Features,
+        pub features: Features,
 
-    /// User defined dynamic utilities, e.g. `bg-blue-500`
-    pub utilities: Vec<UtilityBuilder>,
+        /// User defined dynamic utilities, e.g. `bg-blue-500`
+        pub utilities: Vec<UtilityBuilder>,
 
-    /// User defined static utilities e.g. `flex`
-    pub static_utilities: HashMap<SmolStr, StaticUtilityConfig>,
+        /// User defined static utilities e.g. `flex`
+        pub static_utilities: HashMap<SmolStr, StaticUtilityConfig>,
+    }
 }
+
+pub use wbg_shim::GeneratorConfig;
 
 #[derive(Debug, Error)]
 pub enum GeneratorConfigError {
