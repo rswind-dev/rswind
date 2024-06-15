@@ -8,7 +8,7 @@ const WS_EVENT_PREFIX = 'rswind:hmr'
 const RSWIND_PLACEHOLDER = '@rswind-base;'
 const RSWIND_ID = '/__rswind.css'
 
-export default function rswindPlugin(options: GeneratorOptions): Plugin[] {
+export default function rswindPlugin(options?: GeneratorOptions): Plugin[] {
   const generator = createGenerator(options)
 
   let server: ViteDevServer | null = null
