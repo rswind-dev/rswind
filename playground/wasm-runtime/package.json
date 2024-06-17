@@ -1,6 +1,5 @@
 {
-  "name": "@rswind/test-vue",
-  "type": "module",
+  "name": "wasm-runtime",
   "version": "1.0.0",
   "description": "",
   "author": "",
@@ -11,11 +10,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "vue": "^3.3.8"
-  },
-  "devDependencies": {
-    "@rswind/vite": "workspace:^",
-    "@vitejs/plugin-vue": "^4.5.0",
-    "vite": "^5.2.13"
+    "@rswind/wasm-web": "workspace:^"
   }
 }

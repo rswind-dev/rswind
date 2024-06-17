@@ -1,3 +1,3 @@
 <template>
-  <div class="flex text-blue-500">hello</div>
+  <div id="tailwind-div" class="flex text-blue-500">hello</div>
 </template>

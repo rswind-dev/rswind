@@ -1,0 +1,19 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@rswind/vite": "workspace:^",
+    "@types/fs-extra": "^11.0.4",
+    "fs-extra": "^11.2.0",
+    "playwright-chromium": "^1.44.1",
+    "vite": "^5.3.1"
+  }
+}

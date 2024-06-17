@@ -1,5 +1,4 @@
 packages:
   - packages/*
   - packages/rswind/npm/*
-  - playground/*
-  - packages/vite/tests/**
+  - playground/**
