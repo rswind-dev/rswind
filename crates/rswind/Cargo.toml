@@ -19,7 +19,10 @@ categories.workspace = true
 
 [features]
 json_schema = []
-wasm = [ "dep:tsify" ]
+wasm = [
+  "dep:tsify",
+  "dep:wasm-bindgen"
+]
 
 [dependencies]
 rswind_css_macro = { workspace = true }
@@ -30,7 +33,6 @@ either = { workspace = true, features = [ "serde" ] }
 enum_dispatch = { workspace = true }
 phf = { workspace = true, features = [ "macros" ] }
 colored = { workspace = true }
-cssparser-macros = { workspace = true }
 smol_str = { workspace = true, features = [ "serde" ] }
 anyhow = { workspace = true }
 cssparser = { workspace = true }
@@ -48,24 +50,16 @@ config = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-js-sys = { workspace = true }
-napi = { workspace = true, features = [ "napi9" ] }
-napi-derive = { workspace = true }
 derive_more = "0.99.17"
-scopefn = { version = "0.0.1", features = [ "run_if" ] }
 walkdir = { workspace = true }
 globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
-wasm-bindgen = { version = "0.2.92", features = [
-  "serde",
-  "serde-serialize",
-  "serde_json",
-] }
 schemars = { version = "1.0.0-alpha.1", features = [
   "smallvec1",
   "either1",
   "smol_str02",
 ] }
 tsify = { version = "0.4.5", optional = true }
+wasm-bindgen = { version = "0.2.92", optional = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }

@@ -16,4 +16,3 @@ rswind = { workspace = true, features = [ "wasm" ] }
 rswind_extractor = { workspace = true }
 wasm-bindgen = { workspace = true }
 console_error_panic_hook = { workspace = true }
-lazy_static = { workspace = true }

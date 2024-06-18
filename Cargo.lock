@@ -146,9 +146,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
- "rswind",
  "rswind_cli",
- "rswind_extractor",
 ]
 
 [[package]]
@@ -160,7 +158,6 @@ dependencies = [
  "napi-derive",
  "rswind",
  "rswind_extractor",
- "scopefn 0.0.2",
  "serde",
  "serde_json",
  "tracing-subscriber",
@@ -171,7 +168,6 @@ name = "binding_core_wasm"
 version = "0.0.1-alpha.1"
 dependencies = [
  "console_error_panic_hook",
- "lazy_static",
  "rswind",
  "rswind_extractor",
  "wasm-bindgen",
@@ -635,12 +631,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0688c2a7f92e427f44895cd63841bff7b29f8d7a1648b9e7e07a4a365b2e1257"
 
 [[package]]
-name = "dotenvy"
-version = "0.15.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
-
-[[package]]
 name = "dtoa"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -758,7 +748,6 @@ dependencies = [
  "bstr",
  "regex-automata 0.4.6",
  "regex-syntax 0.8.3",
- "serde",
 ]
 
 [[package]]
@@ -1646,17 +1635,13 @@ dependencies = [
  "config",
  "criterion",
  "cssparser",
- "cssparser-macros",
  "derive_more",
  "either",
  "enum_dispatch",
  "globset",
- "js-sys",
  "lazy_static",
  "lightningcss",
  "memchr",
- "napi",
- "napi-derive",
  "paste",
  "phf 0.11.2",
  "rayon",
@@ -1665,7 +1650,6 @@ dependencies = [
  "rswind_extractor",
  "rustc-hash",
  "schemars",
- "scopefn 0.0.1",
  "serde",
  "serde_json",
  "smallvec",
@@ -1684,22 +1668,15 @@ version = "0.0.1-alpha.1"
 dependencies = [
  "clap 4.5.4",
  "colored",
- "config",
  "criterion",
- "cssparser",
- "dotenvy",
- "globset",
  "notify",
  "notify-debouncer-full",
  "rayon",
  "rswind",
  "rswind_extractor",
  "rustc-hash",
- "smol_str",
- "thiserror",
  "tracing",
  "tracing-subscriber",
- "walkdir",
 ]
 
 [[package]]
@@ -1727,12 +1704,10 @@ dependencies = [
  "criterion",
  "cssparser",
  "cssparser-macros",
- "either",
  "memchr",
  "rayon",
  "rswind_common",
  "rustc-hash",
- "scopefn 0.0.2",
 ]
 
 [[package]]
@@ -1802,21 +1777,6 @@ dependencies = [
  "serde_derive_internals 0.29.1",
  "syn 2.0.66",
 ]
-
-[[package]]
-name = "scopefn"
-version = "0.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24f54b1d7cb4ecdd9d960efa88ebf8df232d44c20219181dc275d73e9a68e198"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "scopefn"
-version = "0.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4022a3ceab116c9cbc603b59554fc3446a78d9a68baeea1f24794ac8da18e62"
 
 [[package]]
 name = "scopeguard"
@@ -2236,8 +2196,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4be2531df63900aeb2bca0daaaddec08491ee64ceecbee5076636a3b026795a8"
 dependencies = [
  "cfg-if",
- "serde",
- "serde_json",
  "wasm-bindgen-macro",
 ]
 

@@ -10,8 +10,6 @@ publish = false
 crate-type = [ "cdylib" ]
 
 [dependencies]
-rswind = { workspace = true }
-rswind_extractor = { workspace = true }
 rswind_cli = { workspace = true }
 napi-derive = { workspace = true }
 napi = { workspace = true, features = [ "napi4" ] }
