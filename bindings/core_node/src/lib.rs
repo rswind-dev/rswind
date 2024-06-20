@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use rswind::{
     config::{GeneratorConfig, DEFAULT_CONFIG_PATH},
@@ -20,7 +20,7 @@ pub struct Generator(generator::Generator);
 
 #[napi(object)]
 pub struct GenerateResult {
-    pub css: Rc<String>,
+    pub css: Arc<String>,
     pub kind: ResultKind,
 }
 
@@ -59,7 +59,7 @@ impl Generator {
     }
 
     #[napi]
-    pub fn generate(&mut self) -> Rc<String> {
+    pub fn generate(&mut self) -> Arc<String> {
         self.0.generate_contents().css
     }
 

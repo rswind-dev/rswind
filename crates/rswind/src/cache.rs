@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, sync::Arc};
 
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
@@ -18,7 +18,9 @@ pub trait Cache {
 
     fn mark_invalid_many(&mut self, items: impl IntoIterator<Item = SmolStr>);
 
-    fn store_css(&mut self, key: CacheKey, value: String);
+    fn store_style(&mut self, key: CacheKey, value: String);
+
+    fn style_map(&self) -> &BTreeMap<CacheKey, String>;
 
     fn store_extra_css(&mut self, key: CacheKey, value: String);
 
@@ -26,7 +28,9 @@ pub trait Cache {
 
     fn extra_css(&self) -> &BTreeMap<CacheKey, String>;
 
-    fn css(&self) -> &BTreeMap<CacheKey, String>;
+    fn css(&self) -> Arc<String>;
+
+    fn store_css(&mut self, css: String);
 }
 
 #[derive(Debug, Default, Deref, DerefMut)]
@@ -70,7 +74,7 @@ pub struct CacheImpl {
     pub css: BTreeMap<CacheKey, String>,
     pub groups: BTreeMap<CacheKey, String>,
     pub valid: HashMap<SmolStr, bool>,
-    pub generated_css: String,
+    pub generated_css: Arc<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -93,11 +97,11 @@ impl CacheState {
 }
 
 impl Cache for CacheImpl {
-    fn css(&self) -> &BTreeMap<CacheKey, String> {
+    fn style_map(&self) -> &BTreeMap<CacheKey, String> {
         &self.css
     }
 
-    fn store_css(&mut self, key: CacheKey, value: String) {
+    fn store_style(&mut self, key: CacheKey, value: String) {
         self.css.insert(key, value);
     }
 
@@ -132,6 +136,14 @@ impl Cache for CacheImpl {
             self.valid.insert(item, false);
         }
     }
+
+    fn css(&self) -> Arc<String> {
+        self.generated_css.clone()
+    }
+
+    fn store_css(&mut self, css: String) {
+        self.generated_css = Arc::new(css);
+    }
 }
 
 #[derive(Debug, Default)]
@@ -144,7 +156,7 @@ lazy_static! {
 }
 
 impl Cache for NoopCache {
-    fn css(&self) -> &BTreeMap<CacheKey, String> {
+    fn style_map(&self) -> &BTreeMap<CacheKey, String> {
         &EMPTY_MAP
     }
 
@@ -168,5 +180,11 @@ impl Cache for NoopCache {
 
     fn mark_invalid_many(&mut self, _: impl IntoIterator<Item = SmolStr>) {}
 
-    fn store_css(&mut self, _: CacheKey, _: String) {}
+    fn store_style(&mut self, _: CacheKey, _: String) {}
+
+    fn css(&self) -> Arc<String> {
+        Arc::new(String::new())
+    }
+
+    fn store_css(&mut self, _: String) {}
 }

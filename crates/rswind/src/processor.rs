@@ -1,4 +1,4 @@
-use std::{fmt::Write, rc::Rc, sync::Arc};
+use std::{fmt::Write, sync::Arc};
 
 use either::Either::{Left, Right};
 use rayon::{iter::IntoParallelIterator, prelude::*};
@@ -39,7 +39,7 @@ pub enum ResultKind {
 
 #[derive(Debug)]
 pub struct GenerateResult {
-    pub css: Rc<String>,
+    pub css: Arc<String>,
     pub kind: ResultKind,
 }
 
@@ -101,6 +101,10 @@ impl GeneratorProcessor {
         let len = res.len();
         info!("{} new utilities generated", len);
 
+        if res.is_empty() {
+            return GenerateResult { css: self.cache.css(), kind: ResultKind::Cached };
+        }
+
         if !self.cache.state.is_cached() {
             match self.options.parallel {
                 true => res.par_sort_unstable(),
@@ -115,7 +119,7 @@ impl GeneratorProcessor {
         // and all css during cached run will be written here
         match self.cache.state {
             CacheState::Cached => {
-                Left(self.cache.css().iter().chain(self.cache.extra_css().iter()))
+                Left(self.cache.style_map().iter().chain(self.cache.extra_css().iter()))
             }
             _ => Right(self.cache.extra_css().iter()),
         }
@@ -125,7 +129,7 @@ impl GeneratorProcessor {
 
         self.cache.state.mark_cached();
 
-        GenerateResult { css: Rc::new(writer.dest), kind: ResultKind::Generated }
+        GenerateResult { css: Arc::new(writer.dest), kind: ResultKind::Generated }
     }
 }
 
@@ -161,7 +165,7 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
                     let _ = writer.write_str(&w.dest);
                 }
 
-                cache.store_css(CacheKey::from(r), w.dest);
+                cache.store_style(CacheKey::from(r), w.dest);
             }
             CacheState::OneShot => {
                 // one shot run, we don't need to cache the css, just write to writer
