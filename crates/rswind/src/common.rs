@@ -65,12 +65,6 @@ impl StrSplitExt for str {
     }
 }
 
-pub trait BasicParser {
-    fn advance(&mut self, n: usize);
-    fn is_eof(&self) -> bool;
-    fn next_byte(&self) -> u8;
-}
-
 /// A representation of value
 ///
 /// Either an arbitrary value or a named value
