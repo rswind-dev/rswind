@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createApp } from '../bindings/index.js'
+import { createGenerator } from '../src/index'
 
 describe('rswind', () => {
   it('should work', () => {
-    const app = createApp()
+    const app = createGenerator()
 
     const res = app.generateWith([
       [
@@ -13,7 +13,7 @@ describe('rswind', () => {
       ],
     ])
 
-    expect(res).toMatchInlineSnapshot(`
+    expect(res.css).toMatchInlineSnapshot(`
       ".text-blue-500 {
         color: #3b82f6;
       }
@@ -22,7 +22,7 @@ describe('rswind', () => {
   })
 
   it('should work with custom utilities', () => {
-    const app = createApp({
+    const app = createGenerator({
       config: {
         staticUtilities: {
           aa: {
@@ -36,8 +36,8 @@ describe('rswind', () => {
               color: '$0:color',
             },
             modifier: {
-              type: 'raw',
-              value: '50',
+              type: 'number',
+              theme: 'opacity',
             },
             theme: 'colors',
             type: 'color',
@@ -48,7 +48,7 @@ describe('rswind', () => {
 
     const res = app.generateString('aa foo-red-500 foo-[#123456] foo-[12px]', 'unknown')
 
-    expect(res).toMatchInlineSnapshot(`
+    expect(res.css).toMatchInlineSnapshot(`
       ".aa {
         color: red;
       }
@@ -63,14 +63,14 @@ describe('rswind', () => {
   })
 
   it('should run with array of candidate', () => {
-    const app = createApp()
+    const app = createGenerator()
 
     const res = app.generateCandidate([
       'text-blue-500',
       'flex',
     ])
 
-    expect(res).toMatchInlineSnapshot(`
+    expect(res.css).toMatchInlineSnapshot(`
       ".flex {
         display: flex;
       }
