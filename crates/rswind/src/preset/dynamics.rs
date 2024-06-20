@@ -359,12 +359,11 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("from", |_, value| {
             css! {
                 "--tw-gradient-from": format_smolstr!("{value} var(--tw-gradient-from-position)");
-                // TODO: --tw-gradient-to
-                // TODO: properties
-                "--tw-gradient-stops": "var(--tw-gradient-from), var(--tw-gradient-to)";
+                "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
             }
         })
         .with_theme("colors")
+        .with_ordering(OrderingKey::FromColor)
         .with_validator(CssProperty::Color)
         .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
         .with_additional_css(GRADIENT_PROPERTIES.clone());
@@ -372,6 +371,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     rules
         .add("from", |_, value| css!("--tw-gradient-from-position": value))
         .with_theme("gradientColorStopPositions")
+        .with_ordering(OrderingKey::FromPosition)
         .with_validator(CssDataType::LengthPercentage)
         .with_additional_css(GRADIENT_PROPERTIES.clone());
 
@@ -383,6 +383,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         }
     })
     .with_theme("colors")
+    .with_ordering(OrderingKey::ViaColor)
     .with_validator(CssProperty::Color)
     .with_modifier(
         RawValueDef::new("opacity").with_validator(CssProperty::Opacity),
@@ -392,17 +393,23 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     rules
         .add("via", |_, value| css!("--tw-gradient-via-position": value))
         .with_theme("gradientColorStopPositions")
+        .with_ordering(OrderingKey::ViaPosition)
         .with_validator(CssDataType::LengthPercentage)
         .with_additional_css(GRADIENT_PROPERTIES.clone());
 
-    // TODO: --tw-gradient-to
     rules.add("to", |meta, value| {
         css! {
             "--tw-gradient-to": as_color(&value, meta.modifier.as_deref());
             "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
         }
     })
+    .with_ordering(OrderingKey::ToColor)
     .with_additional_css(GRADIENT_PROPERTIES.clone());
+
+    rules
+        .add("to", |_, value| css!("--tw-gradient-to-position": value))
+        .with_theme("gradientColorStopPositions")
+        .with_validator(CssDataType::LengthPercentage);
 
     rules.add("fill", |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())));
 
@@ -412,11 +419,6 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_validator(CssDataType::LengthPercentage);
 
     rules.add("stroke", |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())));
-
-    rules
-        .add("to", |_, value| css!("--tw-gradient-to-position": value))
-        .with_theme("gradientColorStopPositions")
-        .with_validator(CssDataType::LengthPercentage);
 
     rules
         .add(

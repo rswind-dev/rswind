@@ -46,6 +46,14 @@ pub enum OrderingKey {
     BorderWidthAxis,
     BorderWidthSide,
 
+    BackgroundImage,
+    FromColor,
+    FromPosition,
+    ViaColor,
+    ViaPosition,
+    ToColor,
+    ToPosition,
+
     Size,
     SizeAxis,
 
