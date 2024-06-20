@@ -1,6 +1,13 @@
-<div class="title-block" style="text-align: center;" align="center">
+<br>
 
-# `rswind` <!-- omit in toc -->
+<p align="center">
+<img src="https://raw.githubusercontent.com/rswind-dev/rswind/main/docs/public/logo.png" style="width:100px;" />
+<h1 align="center">Rswind</h1>
+</p>
+
+<p align="center">
+Fast Tailwind CSS JIT Engine in Rust
+</p>
 
 </div>
 
@@ -29,6 +36,11 @@
 > 🚧 **Work in Progress** ⚠️
 >
 > Rswind is still in development and not ready for production use.
+
+
+## Documentation
+
+Read the [documentation](https://rswind.rs/) for more details.
 
 [badge-crateio]: https://img.shields.io/crates/v/rswind?color=blue
 [url-crateio]: https://crates.io/crates/rswind
