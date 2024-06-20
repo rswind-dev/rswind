@@ -5,7 +5,7 @@ fn main() {
 
     let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
-        .with_config(GeneratorConfig::from_file("arrow.config").unwrap())
+        .with_config(GeneratorConfig::from_file("rswind.config").unwrap())
         .build_processor()
         .unwrap();
 

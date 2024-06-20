@@ -93,7 +93,7 @@ where
             }
         },
         Some(SubCommand::Init(_)) => {
-            write_output("{}", Some("arrow.config.json"));
+            write_output("{}", Some("rswind.config.json"));
         }
     }
 }
