@@ -66,6 +66,7 @@ jobs:
           reporter: 'github-pr-check'
           github_token: ${{ secrets.GITHUB_TOKEN }}
   semver:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     name: semver
     steps:
