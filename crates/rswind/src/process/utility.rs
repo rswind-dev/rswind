@@ -4,7 +4,7 @@ use cssparser::serialize_name;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
-use super::{MetaData, ValuePreprocessor, ValueRepr};
+use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     css::{rule::RuleList, Decl, Rule, ToCssString},
     ordering::OrderingKey,
@@ -51,9 +51,9 @@ pub struct Utility {
 
     pub supports_fraction: bool,
 
-    pub value_repr: ValueRepr,
+    pub value_def: ValueDef,
 
-    pub modifier: Option<ValueRepr>,
+    pub modifier: Option<ValueDef>,
 
     /// This will be use as generated Rule selector
     /// default: '&'
@@ -110,11 +110,11 @@ pub fn build_group_selector(selectors: impl IntoIterator<Item = SmolStr>) -> Str
 
 impl ValuePreprocessor for Utility {
     fn validate(&self, value: &str) -> bool {
-        self.value_repr.validate(value)
+        self.value_def.validate(value)
     }
 
     fn allowed_values(&self) -> Option<&ThemeValue> {
-        self.value_repr.allowed_values()
+        self.value_def.allowed_values()
     }
 }
 
@@ -137,7 +137,7 @@ impl Utility {
             handler: UtilityHandler(Box::new(handler)),
             supports_negative: false,
             supports_fraction: false,
-            value_repr: ValueRepr::default(),
+            value_def: ValueDef::default(),
             modifier: None,
             wrapper: None,
             additional_css: None,

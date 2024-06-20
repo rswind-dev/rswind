@@ -26,7 +26,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::process::RawValueRepr;
+    use crate::process::RawValueDef;
 
     #[test]
     fn test_deserialize() {
@@ -35,7 +35,7 @@ mod tests {
           "theme": "colors"
         });
 
-        let res = RawValueRepr::deserialize(input).unwrap();
+        let res = RawValueDef::deserialize(input).unwrap();
 
         assert_eq!(res.theme_key, Some("colors".into()));
         // TODO: impl PartialEq for Box<dyn TypeValidator>

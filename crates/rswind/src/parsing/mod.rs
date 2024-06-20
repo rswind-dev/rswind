@@ -12,7 +12,7 @@ use crate::{
     css::rule::RuleList,
     ordering::OrderingKey,
     process::{
-        ComposableHandler, RawValueRepr, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
+        ComposableHandler, RawValueDef, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
         UtilityHandler, Variant, VariantHandlerExt,
     },
     theme::Theme,
@@ -59,7 +59,7 @@ pub struct UtilityBuilder {
 
     /// The modifier for the utility, e.g. `bg-blue-500/50 <-`
     #[serde(default)]
-    pub modifier: Option<RawValueRepr>,
+    pub modifier: Option<RawValueDef>,
 
     /// The theme key for the utility, will read from `theme` by this key later, e.g. `colors`
     #[serde(rename = "theme")]
@@ -140,7 +140,7 @@ impl UtilityBuilder {
                 handler: self.handler.unwrap(),
                 supports_negative: self.supports_negative,
                 supports_fraction: self.supports_fraction,
-                value_repr: RawValueRepr { theme_key: self.theme_key, validator: self.validator }
+                value_def: RawValueDef { theme_key: self.theme_key, validator: self.validator }
                     .parse(theme)?,
                 modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
                 wrapper: self.wrapper,
@@ -166,7 +166,7 @@ impl UtilityBuilder {
         self
     }
 
-    pub fn with_modifier(&mut self, modifier: RawValueRepr) -> &mut Self {
+    pub fn with_modifier(&mut self, modifier: RawValueDef) -> &mut Self {
         self.modifier = Some(modifier);
         self
     }

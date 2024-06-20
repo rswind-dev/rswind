@@ -73,7 +73,7 @@ pub fn decode_arbitrary_value(input: &str) -> SmolStr {
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[serde(deny_unknown_fields)]
-pub struct RawValueRepr {
+pub struct RawValueDef {
     #[serde(rename = "type")]
     pub validator: Option<Box<dyn TypeValidator>>,
     #[serde(rename = "theme")]
@@ -86,7 +86,7 @@ pub enum ThemeParseError {
     InvalidThemeKey(SmolStr),
 }
 
-impl RawValueRepr {
+impl RawValueDef {
     pub fn new(theme_key: impl Into<SmolStr>) -> Self {
         Self { validator: None, theme_key: Some(theme_key.into()) }
     }
@@ -96,9 +96,9 @@ impl RawValueRepr {
         self
     }
 
-    pub fn parse(self, theme: &Theme) -> Result<ValueRepr, ThemeParseError> {
+    pub fn parse(self, theme: &Theme) -> Result<ValueDef, ThemeParseError> {
         if let Some(key) = self.theme_key {
-            return Ok(ValueRepr {
+            return Ok(ValueDef {
                 validator: self.validator,
                 allowed_values: Some(
                     theme.get(&key).ok_or(ThemeParseError::InvalidThemeKey(key))?.clone(),
@@ -106,7 +106,7 @@ impl RawValueRepr {
             });
         }
 
-        Ok(ValueRepr { validator: self.validator, allowed_values: None })
+        Ok(ValueDef { validator: self.validator, allowed_values: None })
     }
 }
 
@@ -116,12 +116,12 @@ impl RawValueRepr {
 ///
 /// See also: [`ValuePreprocessor`].
 #[derive(Debug, Default)]
-pub struct ValueRepr {
+pub struct ValueDef {
     pub validator: Option<Box<dyn TypeValidator>>,
     pub allowed_values: Option<Arc<ThemeValue>>,
 }
 
-impl ValueRepr {
+impl ValueDef {
     pub fn new(allowed_values: ThemeValue) -> Self {
         Self { validator: None, allowed_values: Some(Arc::new(allowed_values)) }
     }
@@ -131,7 +131,7 @@ impl ValueRepr {
     }
 }
 
-impl ValuePreprocessor for ValueRepr {
+impl ValuePreprocessor for ValueDef {
     fn validate(&self, value: &str) -> bool {
         self.validator.as_ref().map_or(true, |validator| validator.validate(value))
     }

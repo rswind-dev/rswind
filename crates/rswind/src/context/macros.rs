@@ -49,7 +49,7 @@ macro_rules! add_theme_utility {
                     )
                 });
 
-                utility.value_repr.allowed_values = Some(theme);
+                utility.value_def.allowed_values = Some(theme);
 
                 $(utility.supports_negative = get_bool!($($negative)?);)?
 
@@ -57,7 +57,7 @@ macro_rules! add_theme_utility {
 
                 $(utility.ordering_key = get_ord!($ord);)?
 
-                $(utility.value_repr.validator = get_typ!($typ);)?
+                $(utility.value_def.validator = get_typ!($typ);)?
 
                 $design.utilities.add($key.into(), utility);
             )*

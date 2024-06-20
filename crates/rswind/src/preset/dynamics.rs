@@ -15,7 +15,7 @@ use crate::{
     css::{rule::RuleList, Rule},
     ordering::OrderingKey,
     parsing::UtilityBuilder,
-    process::{RawValueRepr, RuleMatchingFn, Utility, UtilityGroup, ValueRepr},
+    process::{RawValueDef, RuleMatchingFn, Utility, UtilityGroup, ValueDef},
     theme::ThemeValue,
     types::{CssDataType, CssProperty},
 };
@@ -62,7 +62,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "--tw-translate-x": value.clone();
                 "--tw-translate-y": value.clone();
                 "--tw-translate-z": value;
-                "transform": "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))";
+                "translate": "translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))";
             }
         })
         .support_fraction()
@@ -75,7 +75,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("translate-x", |_, value| {
             css! {
                 "--tw-translate-x": value;
-                "transform": "var(--tw-translate-x) var(--tw-translate-y)";
+                "translate": "var(--tw-translate-x) var(--tw-translate-y)";
             }
         })
         .with_theme("translate")
@@ -88,7 +88,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("translate-y", |_, value| {
             css! {
                 "--tw-translate-y": value;
-                "transform": "var(--tw-translate-x) var(--tw-translate-y)";
+                "translate": "var(--tw-translate-x) var(--tw-translate-y)";
             }
         })
         .with_theme("translate")
@@ -101,7 +101,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("translate-z", |_, value| {
             css! {
                 "--tw-translate-z": value;
-                "transform": "translateZ(var(--tw-translate-z))";
+                "translate": "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)";
             }
         })
         .with_theme("translate")
@@ -344,7 +344,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("divide", |m, v| css!("border-color": as_color(&v, m.modifier.as_deref())))
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add(
@@ -353,7 +353,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("from", |_, value| {
@@ -366,7 +366,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         })
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity))
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
         .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
@@ -385,7 +385,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     .with_theme("colors")
     .with_validator(CssProperty::Color)
     .with_modifier(
-        RawValueRepr::new("opacity").with_validator(CssProperty::Opacity),
+        RawValueDef::new("opacity").with_validator(CssProperty::Opacity),
     )
     .with_additional_css(GRADIENT_PROPERTIES.clone());
 
@@ -425,7 +425,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("bg", |_, value| css!("background-position": value))
@@ -446,7 +446,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .add("text", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("text", move |meta, value| {
@@ -462,7 +462,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         })
         .with_theme("fontSize")
         .with_validator(CssProperty::FontSize)
-        .with_modifier(RawValueRepr::new("lineHeight").with_validator(CssProperty::LineHeight));
+        .with_modifier(RawValueDef::new("lineHeight").with_validator(CssProperty::LineHeight));
 
     rules
         .add("font", |_, value| css!("font-weight": value))
@@ -478,7 +478,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_wrapper("&::placeholder")
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("decoration", |meta, value| {
@@ -488,7 +488,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         })
         .with_theme("colors")
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueRepr::new("opacity").with_validator(CssProperty::Opacity));
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
         .add("decoration", |_, value| css!("text-decoration-thickness": value))
@@ -1025,7 +1025,7 @@ impl<'i> Drop for UtilityAdder<'i> {
         self.design.add_utility(
             self.builder.key.as_str(),
             Utility {
-                value_repr: ValueRepr { allowed_values, validator },
+                value_def: ValueDef { allowed_values, validator },
                 handler: self.builder.handler.take().unwrap(),
                 modifier: modifier
                     .map(|m| m.parse(&self.design.theme))
