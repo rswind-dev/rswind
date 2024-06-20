@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lzt1008/rswind.git"
+    "url": "git+https://github.com/rswind-dev/rswind.git"
   },
   "keywords": [
     "tailwind",

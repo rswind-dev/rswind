@@ -11,7 +11,7 @@ pre-release-commit-message = "release(rust): v{{version}}"
 tag-name = "rust-v{{version}}"
 
 [workspace.package]
-authors = [ "Neo Lyon <lzt1008@live.com>" ]
+authors = [ "Neo Lyon <rswind-dev@live.com>" ]
 categories = [ "web-programming" ]
 edition = "2021"
 keywords = [
@@ -20,7 +20,7 @@ keywords = [
 ]
 description = "Tailwind CSS JIT engine in Rust"
 license = "MIT"
-repository = "https://github.com/lzt1008/rswind"
+repository = "https://github.com/rswind-dev/rswind"
 
 [workspace.dependencies]
 rswind = { version = "0.0.1-alpha.1", path = "crates/rswind" }

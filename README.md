@@ -32,11 +32,11 @@
 
 [badge-crateio]: https://img.shields.io/crates/v/rswind?color=blue
 [url-crateio]: https://crates.io/crates/rswind
-[url-license]: https://github.com/lzt1008/rswind/blob/main/LICENSE
-[badge-ci]: https://github.com/lzt1008/rswind/actions/workflows/check.yml/badge.svg?event=push&branch=main
-[url-ci]: https://github.com/lzt1008/rswind/actions/workflows/check.yml?query=event%3Apush+branch%3Amain
-[badge-code-coverage]: https://codecov.io/github/lzt1008/rswind/branch/main/graph/badge.svg
-[url-code-coverage]: https://codecov.io/gh/lzt1008/rswind
+[url-license]: https://github.com/rswind-dev/rswind/blob/main/LICENSE
+[badge-ci]: https://github.com/rswind-dev/rswind/actions/workflows/check.yml/badge.svg?event=push&branch=main
+[url-ci]: https://github.com/rswind-dev/rswind/actions/workflows/check.yml?query=event%3Apush+branch%3Amain
+[badge-code-coverage]: https://codecov.io/github/rswind-dev/rswind/branch/main/graph/badge.svg
+[url-code-coverage]: https://codecov.io/gh/rswind-dev/rswind
 [badge-npm-version]: https://img.shields.io/npm/v/rswind/latest?color=brightgreen
 [url-npm]: https://www.npmjs.com/package/rswind/v/latest
 
