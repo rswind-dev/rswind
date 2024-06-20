@@ -197,3 +197,6 @@ Cargo.lock
 *.node
 
 playground-temp-*
+
+docs/.vitepress/dist
+docs/.vitepress/cache
