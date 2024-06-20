@@ -23,7 +23,7 @@ features:
     details: No `tailwind.config.js` or `postcss.config.js` required, work out of box
   - title: It's fast
     icon: 🚀
-    details: With Rust and concurrency, it's 120x faster than Tailwind CSS's JIT engine (3.4)
+    details: With Rust and concurrency, only less than 20ms with 1 million lines of code
   - title: WASM runtime
     icon: 🕸
     details: Run in your browser and html with only one line of code
