@@ -83,7 +83,7 @@ impl<'a> CandidateParser<'a> {
 
         let res = match self.first() {
             'a'..='z' | '0'..='9' => {
-                self.eat_while(|c| c.is_ascii_lowercase() || c.is_ascii_digit());
+                self.eat_while(|c| matches!(c, 'a'..='z' | '0'..='9' | '%' | '.'));
                 let res = Some(Token::Ident(self.span_from(start)));
                 if self.first() == '-' {
                     self.bump();
