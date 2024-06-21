@@ -18,7 +18,7 @@ repository.workspace = true
 categories.workspace = true
 
 [features]
-json_schema = []
+json_schema = [ "rswind_css/json_schema" ]
 wasm = [
   "dep:tsify",
   "dep:wasm-bindgen"

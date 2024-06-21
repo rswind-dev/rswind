@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use either::Either;
 use rswind_common::impl_schemars;
-use rswind_css::{rule::RuleList, DeclList};
+use rswind_css::rule::RuleList;
 
 use crate::{
     parsing::AdditionalCssHandler, process::RuleMatchingFn, theme::ThemeValue, types::TypeValidator,
