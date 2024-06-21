@@ -30,7 +30,7 @@ impl ToTokens for AstNodeExpr {
                 let key = &decl.key;
                 let value = &decl.value;
                 tokens.extend(quote! {
-                    crate::css::Decl {
+                    rswind_css::Decl {
                         name: smol_str::SmolStr::from(#key),
                         value: smol_str::SmolStr::from(#value)
                     }
@@ -40,7 +40,7 @@ impl ToTokens for AstNodeExpr {
                 let selector = &rule.selector;
                 let nodes = &rule.nodes;
                 tokens.extend(quote! {
-                    crate::css::Rule {
+                    rswind_css::Rule {
                         selector: #selector.into(),
                         decls: vec![#(#nodes),*],
                         rules: vec![].into(),
@@ -94,7 +94,7 @@ pub fn css(input: TokenStream) -> TokenStream {
     TokenStream::from(if rules.is_empty() {
         let generated_code = input.css.iter().map(ToTokens::to_token_stream);
         quote! {
-            crate::css::Rule {
+            rswind_css::Rule {
                 selector: "&".into(),
                 decls: vec![#(#generated_code),*],
                 rules: vec![].into(),
@@ -115,6 +115,6 @@ pub fn rule_list(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as MyMacroInput);
     let generated_code = input.css.iter().map(ToTokens::to_token_stream);
     TokenStream::from(quote! {
-        crate::css::rule::RuleList::from(vec![#(#generated_code),*])
+        rswind_css::rule::RuleList::from(vec![#(#generated_code),*])
     })
 }

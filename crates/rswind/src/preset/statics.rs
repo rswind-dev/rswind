@@ -1,9 +1,7 @@
+use rswind_css::DeclList;
 use smol_str::SmolStr;
 
-use crate::{
-    context::{utilities::StaticUtility, DesignSystem},
-    css::DeclList,
-};
+use crate::context::{utilities::StaticUtility, DesignSystem};
 
 // TODO: replace all presets into codegen
 
@@ -18,7 +16,7 @@ macro_rules! static_utilities_macro {
       $(
         (smol_str::SmolStr::new_static($key), DeclList(vec![
           $(
-            $crate::css::Decl {
+            rswind_css::Decl {
                 name: smol_str::SmolStr::new_static($name),
                 value: smol_str::SmolStr::new_static($value),
             },
@@ -633,7 +631,7 @@ macro_rules! selector_static_utilities {
                         smol_str::SmolStr::new_static($selector),
                         DeclList(vec![
                             $(
-                                $crate::css::Decl {
+                                rswind_css::Decl {
                                     name: smol_str::SmolStr::new_static($name),
                                     value: smol_str::SmolStr::new_static($value),
                                 },

@@ -18,7 +18,7 @@ repository.workspace = true
 categories.workspace = true
 
 [features]
-json_schema = []
+json_schema = [ "rswind_css/json_schema" ]
 wasm = [
   "dep:tsify",
   "dep:wasm-bindgen"
@@ -28,6 +28,8 @@ wasm = [
 rswind_css_macro = { workspace = true }
 rswind_extractor = { workspace = true }
 rswind_common = { workspace = true }
+rswind_css = { workspace = true }
+
 rayon = { workspace = true }
 either = { workspace = true, features = [ "serde" ] }
 enum_dispatch = { workspace = true }
@@ -53,7 +55,7 @@ tracing-subscriber = { workspace = true }
 derive_more = "0.99.17"
 walkdir = { workspace = true }
 globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
-schemars = { version = "1.0.0-alpha.1", features = [
+schemars = { workspace = true, features = [
   "smallvec1",
   "either1",
   "smol_str02",

@@ -1,12 +1,12 @@
 use std::{fmt::Debug, sync::Arc};
 
 use cssparser::serialize_name;
+use rswind_css::{rule::RuleList, Decl, Rule, ToCssString};
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
 use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
-    css::{rule::RuleList, Decl, Rule, ToCssString},
     ordering::OrderingKey,
     parsing::{AdditionalCssHandler, UtilityCandidate},
     theme::ThemeValue,

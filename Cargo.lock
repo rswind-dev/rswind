@@ -1646,6 +1646,7 @@ dependencies = [
  "phf 0.11.2",
  "rayon",
  "rswind_common",
+ "rswind_css",
  "rswind_css_macro",
  "rswind_extractor",
  "rustc-hash",
@@ -1673,6 +1674,7 @@ dependencies = [
  "notify-debouncer-full",
  "rayon",
  "rswind",
+ "rswind_css",
  "rswind_extractor",
  "rustc-hash",
  "tracing",
@@ -1685,6 +1687,18 @@ version = "0.0.1-alpha.1"
 dependencies = [
  "either",
  "rayon",
+ "smol_str",
+]
+
+[[package]]
+name = "rswind_css"
+version = "0.0.1-alpha.1"
+dependencies = [
+ "either",
+ "rswind_common",
+ "schemars",
+ "serde",
+ "serde_json",
  "smol_str",
 ]
 

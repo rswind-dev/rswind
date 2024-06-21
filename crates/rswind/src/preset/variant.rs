@@ -135,7 +135,8 @@ mod tests {
     use rswind_css_macro::css;
 
     use super::*;
-    use crate::{context::DesignSystem, css::ToCssString, parsing::candidate::CandidateParser};
+    use crate::{context::DesignSystem, parsing::candidate::CandidateParser};
+    use rswind_css::ToCssString;
 
     #[test]
     fn test_load_variants() {

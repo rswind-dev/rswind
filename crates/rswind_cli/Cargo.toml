@@ -24,7 +24,9 @@ bench = []
 
 [dependencies]
 rswind = { workspace = true }
+rswind_css = { workspace = true }
 rswind_extractor = { workspace = true }
+
 clap = { workspace = true, features = [ "derive" ] }
 notify = { workspace = true }
 rayon = { workspace = true }

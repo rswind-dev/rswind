@@ -3,9 +3,10 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::GeneratorConfig, css::ToCssString, io::write_output, preset::preset_tailwind,
+    config::GeneratorConfig, io::write_output, preset::preset_tailwind,
     processor::GeneratorProcessor,
 };
+use rswind_css::ToCssString;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 use watch::WatchApp;

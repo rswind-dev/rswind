@@ -40,11 +40,11 @@ macro_rules! add_theme_utility {
 
                 #[allow(unused_mut)]
                 let mut utility = $crate::process::Utility::new(move |_meta, input| {
-                    $crate::css::Rule::new_with_decls(
+                    Rule::new_with_decls(
                         "&",
                         [$($decl_key),+].clone()
                             .into_iter()
-                            .map(|k| $crate::css::Decl::new(k, input.clone()))
+                            .map(|k| rswind_css::Decl::new(k, input.clone()))
                             .collect(),
                     )
                 });

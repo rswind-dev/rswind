@@ -2,6 +2,7 @@ use std::{cmp::Ordering, fmt::Write, sync::Arc};
 
 use cssparser::serialize_name;
 use derive_more::{Deref, DerefMut};
+use rswind_css::rule::RuleList;
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 use tracing::debug;
@@ -12,7 +13,6 @@ use self::{
 };
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
-    css::rule::RuleList,
     ordering::OrderingKey,
     parsing::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
@@ -142,7 +142,7 @@ impl DesignSystem {
     ///
     /// ```
     /// use rswind::DesignSystem;
-    /// use rswind::css::{Decl, DeclList, ToCssString};
+    /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
     ///
@@ -169,7 +169,7 @@ impl DesignSystem {
     ///
     /// ```
     /// use rswind::DesignSystem;
-    /// use rswind::css::{Decl, DeclList, ToCssString};
+    /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
     ///

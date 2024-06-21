@@ -1,7 +1,7 @@
 use serde::{de::Visitor, Deserialize, Deserializer};
 use smol_str::SmolStr;
 
-use crate::css::{rule::RuleList, Decl, DeclList, Rule};
+use crate::{rule::RuleList, Decl, DeclList, Rule};
 
 impl<'de> Deserialize<'de> for DeclList {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -84,7 +84,7 @@ impl<'de> Deserialize<'de> for RuleList {
 mod tests {
     use serde_json::json;
 
-    use crate::css::{rule::RuleList, Decl, DeclList};
+    use crate::{rule::RuleList, Decl, DeclList};
 
     #[test]
     fn test_deserialize_decl_list() {
