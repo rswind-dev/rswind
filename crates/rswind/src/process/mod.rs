@@ -11,7 +11,7 @@ pub use self::{utility::*, variant::*};
 use crate::{
     common::MaybeArbitrary,
     parsing::UtilityCandidate,
-    theme::{Theme, ThemeValue},
+    theme::{Theme, ThemeMap},
     types::TypeValidator,
 };
 
@@ -29,7 +29,7 @@ static DEFAULT: &str = "DEFAULT";
 /// To some utilities allow value is `None`, we will use the `DEFAULT` value.
 pub trait ValuePreprocessor {
     fn validate(&self, value: &str) -> bool;
-    fn allowed_values(&self) -> Option<&ThemeValue>;
+    fn allowed_values(&self) -> Option<&ThemeMap>;
 
     fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
         match value {
@@ -118,11 +118,11 @@ impl RawValueDef {
 #[derive(Debug, Default)]
 pub struct ValueDef {
     pub validator: Option<Box<dyn TypeValidator>>,
-    pub allowed_values: Option<Arc<ThemeValue>>,
+    pub allowed_values: Option<Arc<ThemeMap>>,
 }
 
 impl ValueDef {
-    pub fn new(allowed_values: ThemeValue) -> Self {
+    pub fn new(allowed_values: ThemeMap) -> Self {
         Self { validator: None, allowed_values: Some(Arc::new(allowed_values)) }
     }
 
@@ -136,7 +136,7 @@ impl ValuePreprocessor for ValueDef {
         self.validator.as_ref().map_or(true, |validator| validator.validate(value))
     }
 
-    fn allowed_values(&self) -> Option<&ThemeValue> {
+    fn allowed_values(&self) -> Option<&ThemeMap> {
         self.allowed_values.as_deref()
     }
 }

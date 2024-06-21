@@ -5,7 +5,7 @@ use rswind_css_macro::{css, rule_list};
 
 use crate::{
     preset::{colors::COLORS, spacing::SPACING},
-    theme::{Theme, ThemeValue},
+    theme::{Theme, ThemeMap},
     DesignSystem,
 };
 
@@ -81,7 +81,7 @@ pub fn theme() -> Theme {
 
     theme.insert(
         "keyframes".into(),
-        Arc::new(ThemeValue::RuleList(hash_map! {
+        Arc::new(ThemeMap::RuleList(hash_map! {
             "spin" => css! {
                 "to" {
                     "transform": "rotate(360deg)";

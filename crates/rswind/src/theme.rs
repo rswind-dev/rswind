@@ -10,19 +10,19 @@ use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 #[derive(Clone, Debug)]
-pub enum ThemeValue {
+pub enum ThemeMap {
     Dynamic(HashMap<SmolStr, SmolStr>),
     Static(&'static Map<&'static str, &'static str>),
     RuleList(HashMap<SmolStr, RuleList>),
 }
 
-impl Default for ThemeValue {
+impl Default for ThemeMap {
     fn default() -> Self {
         Self::Static(&phf_map! {})
     }
 }
 
-impl ThemeValue {
+impl ThemeMap {
     pub fn get(&self, key: &str) -> Option<SmolStr> {
         match self {
             Self::Static(map) => map.get(key).map(|s| SmolStr::from(*s)),
@@ -59,19 +59,19 @@ impl ThemeValue {
     }
 }
 
-impl From<HashMap<SmolStr, SmolStr>> for ThemeValue {
+impl From<HashMap<SmolStr, SmolStr>> for ThemeMap {
     fn from(map: HashMap<SmolStr, SmolStr>) -> Self {
         Self::Dynamic(map)
     }
 }
 
-impl From<&'static Map<&'static str, &'static str>> for ThemeValue {
+impl From<&'static Map<&'static str, &'static str>> for ThemeMap {
     fn from(map: &'static Map<&'static str, &'static str>) -> Self {
         Self::Static(map)
     }
 }
 
-impl Extend<(SmolStr, SmolStr)> for ThemeValue {
+impl Extend<(SmolStr, SmolStr)> for ThemeMap {
     fn extend<T: IntoIterator<Item = (SmolStr, SmolStr)>>(&mut self, iter: T) {
         match self {
             Self::Dynamic(map) => map.extend(iter),
@@ -87,7 +87,7 @@ impl Extend<(SmolStr, SmolStr)> for ThemeValue {
     }
 }
 
-impl Extend<(SmolStr, RuleList)> for ThemeValue {
+impl Extend<(SmolStr, RuleList)> for ThemeMap {
     fn extend<T: IntoIterator<Item = (SmolStr, RuleList)>>(&mut self, iter: T) {
         if let Self::RuleList(map) = self {
             map.extend(iter)
@@ -97,7 +97,7 @@ impl Extend<(SmolStr, RuleList)> for ThemeValue {
 
 #[derive(Debug, Default, Clone)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
-pub struct Theme(pub HashMap<SmolStr, Arc<ThemeValue>>);
+pub struct Theme(pub HashMap<SmolStr, Arc<ThemeMap>>);
 
 impl Theme {
     pub fn get_value(&self, key: &str, inner_key: &str) -> Option<SmolStr> {
@@ -106,7 +106,7 @@ impl Theme {
 }
 
 impl Deref for Theme {
-    type Target = HashMap<SmolStr, Arc<ThemeValue>>;
+    type Target = HashMap<SmolStr, Arc<ThemeMap>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -119,14 +119,14 @@ impl DerefMut for Theme {
     }
 }
 
-impl From<Theme> for HashMap<SmolStr, Arc<ThemeValue>> {
+impl From<Theme> for HashMap<SmolStr, Arc<ThemeMap>> {
     fn from(map: Theme) -> Self {
         map.0
     }
 }
 
-impl From<HashMap<SmolStr, Arc<ThemeValue>>> for Theme {
-    fn from(map: HashMap<SmolStr, Arc<ThemeValue>>) -> Self {
+impl From<HashMap<SmolStr, Arc<ThemeMap>>> for Theme {
+    fn from(map: HashMap<SmolStr, Arc<ThemeMap>>) -> Self {
         Theme(map)
     }
 }

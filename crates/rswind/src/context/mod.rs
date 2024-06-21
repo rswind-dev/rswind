@@ -16,7 +16,7 @@ use crate::{
     ordering::OrderingKey,
     parsing::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
-    theme::{Theme, ThemeValue},
+    theme::{Theme, ThemeMap},
 };
 #[macro_use]
 pub mod macros;
@@ -214,7 +214,7 @@ impl DesignSystem {
         self.utilities.add(key.into(), utility);
     }
 
-    pub fn get_theme(&self, key: &str) -> Option<Arc<ThemeValue>> {
+    pub fn get_theme(&self, key: &str) -> Option<Arc<ThemeMap>> {
         self.theme.get(key).cloned()
     }
 

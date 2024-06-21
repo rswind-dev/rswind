@@ -9,7 +9,7 @@ use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     ordering::OrderingKey,
     parsing::{AdditionalCssHandler, UtilityCandidate},
-    theme::ThemeValue,
+    theme::ThemeMap,
 };
 
 #[rustfmt::skip]
@@ -113,7 +113,7 @@ impl ValuePreprocessor for Utility {
         self.value_def.validate(value)
     }
 
-    fn allowed_values(&self) -> Option<&ThemeValue> {
+    fn allowed_values(&self) -> Option<&ThemeMap> {
         self.value_def.allowed_values()
     }
 }

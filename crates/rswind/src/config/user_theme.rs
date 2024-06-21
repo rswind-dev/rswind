@@ -6,7 +6,7 @@ use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
 use smol_str::SmolStr;
 
-use crate::theme::{Theme, ThemeValue};
+use crate::theme::{Theme, ThemeMap};
 
 use super::de::theme::FlattenedColors;
 
@@ -59,8 +59,8 @@ fn expand_spread(map: &mut HashMap<SmolStr, SmolStr>, theme: &Theme) {
         // TODO: error handling
         let expand = theme.get(&v).unwrap();
         map.extend(match expand.as_ref() {
-            ThemeValue::Dynamic(map) => Left(map.clone().into_iter()),
-            ThemeValue::Static(map) => {
+            ThemeMap::Dynamic(map) => Left(map.clone().into_iter()),
+            ThemeMap::Static(map) => {
                 Right(map.into_iter().map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))))
             }
             _ => {
@@ -75,13 +75,13 @@ impl Theme {
     pub fn merge(&mut self, user_theme: UserTheme) {
         for (key, mut value) in user_theme.replace.normal {
             expand_spread(&mut value, self);
-            self.insert(key, Arc::new(ThemeValue::Dynamic(value)));
+            self.insert(key, Arc::new(ThemeMap::Dynamic(value)));
         }
         if let Some(colors) = user_theme.replace.colors {
-            self.insert("colors".into(), Arc::new(ThemeValue::Dynamic(colors.0)));
+            self.insert("colors".into(), Arc::new(ThemeMap::Dynamic(colors.0)));
         }
         if let Some(keyframes) = user_theme.replace.keyframes {
-            self.insert("keyframes".into(), Arc::new(ThemeValue::RuleList(keyframes)));
+            self.insert("keyframes".into(), Arc::new(ThemeMap::RuleList(keyframes)));
         }
 
         for (key, mut value) in user_theme.extend.normal {
@@ -89,7 +89,7 @@ impl Theme {
             if let Some(entry) = self.get_mut(&key) {
                 Arc::make_mut(entry).extend(value);
             } else {
-                self.insert(key, Arc::new(ThemeValue::Dynamic(value)));
+                self.insert(key, Arc::new(ThemeMap::Dynamic(value)));
             }
         }
 
@@ -97,7 +97,7 @@ impl Theme {
             if let Some(entry) = self.get_mut("colors") {
                 Arc::make_mut(entry).extend(colors.0);
             } else {
-                self.insert("colors".into(), Arc::new(ThemeValue::Dynamic(colors.0)));
+                self.insert("colors".into(), Arc::new(ThemeMap::Dynamic(colors.0)));
             }
         }
 
@@ -105,7 +105,7 @@ impl Theme {
             if let Some(entry) = self.get_mut("keyframes") {
                 Arc::make_mut(entry).extend(keyframes);
             } else {
-                self.insert("keyframes".into(), Arc::new(ThemeValue::RuleList(keyframes)));
+                self.insert("keyframes".into(), Arc::new(ThemeMap::RuleList(keyframes)));
             }
         }
     }

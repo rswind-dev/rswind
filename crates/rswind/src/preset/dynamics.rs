@@ -16,7 +16,7 @@ use crate::{
     ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{RawValueDef, RuleMatchingFn, Utility, UtilityGroup, ValueDef},
-    theme::ThemeValue,
+    theme::ThemeMap,
     types::{CssDataType, CssProperty},
 };
 
@@ -1018,7 +1018,7 @@ impl<'i> Drop for UtilityAdder<'i> {
                     let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
                     // TODO: reopen when we have logging, both on stdout and console
                     // eprintln!("{}", warning);
-                    Arc::new(ThemeValue::default())
+                    Arc::new(ThemeMap::default())
                 })
                 .clone()
         });
