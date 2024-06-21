@@ -6,13 +6,13 @@ use std::{
 use colored::Colorize;
 use lazy_static::lazy_static;
 use lightningcss::vendor_prefix::VendorPrefix;
+use rswind_css::{rule::RuleList, Rule};
 use rswind_css_macro::{css, rule_list};
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     add_theme_utility,
     context::DesignSystem,
-    css::{rule::RuleList, Rule},
     ordering::OrderingKey,
     parsing::UtilityBuilder,
     process::{RawValueDef, RuleMatchingFn, Utility, UtilityGroup, ValueDef},

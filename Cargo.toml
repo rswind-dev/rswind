@@ -28,6 +28,8 @@ rswind_css_macro = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macro"
 rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor" }
 rswind_cli = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
 rswind_common = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }
+rswind_css = { version = "0.0.1-alpha.1", path = "crates/rswind_css" }
+
 rayon = "1.10.0"
 either = "1.12.0"
 enum_dispatch = "0.3.13"
@@ -60,6 +62,7 @@ memchr = "2.7.2"
 thiserror = "1.0.60"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
+schemars = "1.0.0-alpha.1"
 
 [profile.release]
 lto = true

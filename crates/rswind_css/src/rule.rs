@@ -55,6 +55,9 @@ impl Rule {
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RuleList(pub Vec<Rule>);
 
+#[cfg(feature = "json_schema")]
+rswind_common::impl_schemars!(RuleList => std::collections::HashMap<String, either::Either<String, crate::DeclList>>);
+
 impl RuleList {
     pub fn new(rule: Rule) -> Self {
         Self(vec![rule])

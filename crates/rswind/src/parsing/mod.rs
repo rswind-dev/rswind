@@ -3,13 +3,13 @@ pub mod state;
 
 use std::{fmt::Debug, sync::Arc};
 
+use rswind_css::rule::RuleList;
 use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
     common::MaybeArbitrary,
-    css::rule::RuleList,
     ordering::OrderingKey,
     process::{
         ComposableHandler, RawValueDef, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,

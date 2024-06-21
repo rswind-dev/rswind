@@ -1,9 +1,9 @@
 use derive_more::{Deref, DerefMut};
+use rswind_css::rule::RuleList;
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 use crate::{
-    css::rule::RuleList,
     parsing::VariantCandidate,
     process::{Variant, VariantOrdering},
 };

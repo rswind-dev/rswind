@@ -1,0 +1,32 @@
+[package]
+name = "rswind_css"
+version = "0.0.1-alpha.1"
+
+authors.workspace = true
+
+description.workspace = true
+
+edition.workspace = true
+
+keywords.workspace = true
+
+license.workspace = true
+
+repository.workspace = true
+
+categories.workspace = true
+
+[lib]
+
+[features]
+json_schema = [ "dep:schemars" ]
+
+[dependencies]
+rswind_common = { workspace = true }
+smol_str = { workspace = true }
+serde = { workspace = true }
+schemars = { workspace = true, optional = true, features = [ "either1" ] }
+either = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

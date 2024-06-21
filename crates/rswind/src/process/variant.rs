@@ -1,12 +1,9 @@
+use rswind_css::{rule::RuleList, Rule};
 use smallvec::SmallVec;
 use smol_str::{format_smolstr, SmolStr};
 use thiserror::Error;
 
-use crate::{
-    common::StrReplaceExt,
-    css::{rule::RuleList, Rule},
-    parsing::VariantCandidate,
-};
+use crate::{common::StrReplaceExt, parsing::VariantCandidate};
 
 #[rustfmt::skip]
 pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
@@ -270,15 +267,12 @@ impl VariantHandlerExt for ComposableHandler {
 
 #[cfg(test)]
 mod tests {
+    use rswind_css::{rule::RuleList, Decl, Rule};
     use rswind_css_macro::css;
     use smol_str::format_smolstr;
 
     use super::{DynamicHandler, VariantHandlerExt};
-    use crate::{
-        context::DesignSystem,
-        css::{rule::RuleList, Decl, Rule},
-        parsing::candidate::CandidateParser,
-    };
+    use crate::{context::DesignSystem, parsing::candidate::CandidateParser};
 
     #[test]
     fn test_variant_process() {

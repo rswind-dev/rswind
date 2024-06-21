@@ -4,8 +4,8 @@ use std::{
     sync::Arc,
 };
 
-use crate::css::rule::RuleList;
 use phf::{phf_map, Map};
+use rswind_css::rule::RuleList;
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 

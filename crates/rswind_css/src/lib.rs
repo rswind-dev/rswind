@@ -4,8 +4,10 @@ pub use self::{
 };
 use crate::writer::Writer;
 
+pub mod de;
 pub mod decl;
 pub mod rule;
+pub mod writer;
 
 pub trait ToCss {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>

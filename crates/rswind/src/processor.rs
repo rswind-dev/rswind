@@ -2,6 +2,7 @@ use std::{fmt::Write, sync::Arc};
 
 use either::Either::{Left, Right};
 use rayon::{iter::IntoParallelIterator, prelude::*};
+use rswind_css::{writer::Writer, Rule, ToCss, ToCssString};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 use tracing::{info, instrument};
@@ -9,11 +10,9 @@ use tracing::{info, instrument};
 use crate::{
     cache::{Cache, CacheState, GeneratorCache},
     context::{CacheKey, DesignSystem, GeneratedUtility},
-    css::{Rule, ToCss, ToCssString},
     generator::{Generator, GeneratorBuilder},
     preset::preset_tailwind,
     process::build_group_selector,
-    writer::Writer,
 };
 
 pub struct GeneratorProcessor {

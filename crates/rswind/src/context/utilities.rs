@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
 use either::Either::{self, Left, Right};
+use rswind_css::{Decl, DeclList, Rule};
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 use crate::{
     config::StaticUtilityConfig,
-    css::{Decl, DeclList, Rule},
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     process::{Utility, UtilityApplyResult},

@@ -36,6 +36,9 @@ impl<A: Into<SmolStr>, B: Into<SmolStr>> FromIterator<(A, B)> for DeclList {
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct DeclList(pub Vec<Decl>);
 
+#[cfg(feature = "json_schema")]
+rswind_common::impl_schemars!(DeclList => std::collections::HashMap<String, String>);
+
 impl IntoIterator for DeclList {
     type Item = Decl;
     type IntoIter = std::vec::IntoIter<Decl>;

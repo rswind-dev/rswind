@@ -1,6 +1,7 @@
 use std::fmt::{self, Write};
 
 use derive_more::{Constructor, Deref, DerefMut};
+use rswind_css::{Decl, Rule};
 use rswind_extractor::cursor::Cursor;
 use rustc_hash::FxHashMap;
 use serde::{
@@ -9,11 +10,7 @@ use serde::{
 };
 use smol_str::SmolStr;
 
-use crate::{
-    css::{Decl, Rule},
-    preset::dynamics::as_color,
-    process::UtilityHandler,
-};
+use crate::{preset::dynamics::as_color, process::UtilityHandler};
 
 impl<'de> Deserialize<'de> for UtilityHandler {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -187,14 +184,12 @@ impl<'a> TemplateParser<'a> {
 
 #[cfg(test)]
 mod tests {
+    use rswind_css::ToCssString;
     use serde::Deserialize;
     use serde_json::json;
     use smol_str::SmolStr;
 
-    use crate::{
-        css::ToCssString,
-        process::{MetaData, UtilityHandler},
-    };
+    use crate::process::{MetaData, UtilityHandler};
 
     #[test]
     fn test_css_fn_deserializer() -> anyhow::Result<()> {
