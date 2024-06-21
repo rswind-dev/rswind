@@ -142,7 +142,7 @@ impl DesignSystem {
     ///
     /// ```
     /// use rswind::DesignSystem;
-    /// use rswind::css::{Decl, DeclList, ToCssString};
+    /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
     ///
@@ -169,7 +169,7 @@ impl DesignSystem {
     ///
     /// ```
     /// use rswind::DesignSystem;
-    /// use rswind::css::{Decl, DeclList, ToCssString};
+    /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
     ///
