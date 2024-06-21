@@ -41,6 +41,7 @@ pub fn theme() -> Theme {
     let mut theme = create_theme! {
         "colors" => &COLORS,
         "spacing" => &SPACING,
+        // TODO: height with "...": "$spacing"
         "translate" => &TRANSLATE,
         "blur" => &BLUR,
         "ringWidth" => &RING_WIDTH,

@@ -403,6 +403,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
         }
     })
+    .with_theme("colors")
     .with_ordering(OrderingKey::ToColor)
     .with_additional_css(GRADIENT_PROPERTIES.clone());
 
