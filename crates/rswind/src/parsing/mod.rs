@@ -95,14 +95,16 @@ pub struct UtilityBuilder {
 
     /// The wrapper selector for the utility
     #[serde(default)]
-    pub wrapper: Option<SmolStr>,
+    pub selector: Option<SmolStr>,
 
     /// Whether the utility supports negative values
     #[serde(default)]
+    #[serde(rename = "negative")]
     pub supports_negative: bool,
 
     /// Whether the utility supports fraction values, e.g. `w-1/2`
     #[serde(default)]
+    #[serde(rename = "fraction")]
     pub supports_fraction: bool,
 
     #[serde(default)]
@@ -149,7 +151,7 @@ impl UtilityBuilder {
             modifier: None,
             validator: None,
             additional_css: None,
-            wrapper: None,
+            selector: None,
             ordering_key: None,
             group: None,
         }
@@ -165,7 +167,7 @@ impl UtilityBuilder {
                 value_def: RawValueDef { theme_key: self.theme_key, validator: self.validator }
                     .parse(theme)?,
                 modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
-                wrapper: self.wrapper,
+                selector: self.selector,
                 additional_css: self.additional_css,
                 ordering_key: self.ordering_key,
                 group: self.group,
@@ -203,8 +205,8 @@ impl UtilityBuilder {
         self
     }
 
-    pub fn with_wrapper(&mut self, wrapper: &str) -> &mut Self {
-        self.wrapper = Some(wrapper.into());
+    pub fn with_selector(&mut self, wrapper: &str) -> &mut Self {
+        self.selector = Some(wrapper.into());
         self
     }
 

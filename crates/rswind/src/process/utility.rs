@@ -57,7 +57,7 @@ pub struct Utility {
 
     /// This will be use as generated Rule selector
     /// default: '&'
-    pub wrapper: Option<SmolStr>,
+    pub selector: Option<SmolStr>,
 
     /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
@@ -139,7 +139,7 @@ impl Utility {
             supports_fraction: false,
             value_def: ValueDef::default(),
             modifier: None,
-            wrapper: None,
+            selector: None,
             additional_css: None,
             ordering_key: None,
             group: None,
@@ -185,8 +185,8 @@ impl Utility {
 
         let mut node = self.handler.call(meta, process_result);
 
-        if let Some(wrapper) = &self.wrapper {
-            node.selector.clone_from(wrapper);
+        if let Some(selector) = &self.selector {
+            node.selector.clone_from(selector);
         }
 
         Some(UtilityApplyResult {

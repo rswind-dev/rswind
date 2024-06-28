@@ -294,7 +294,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             }
         })
         .with_theme("spacing")
-        .with_wrapper("&:where(& > :not(:last-child))")
+        .with_selector("&:where(& > :not(:last-child))")
         .support_negative()
         .with_ordering(OrderingKey::SpaceAxis)
         .with_additional_css(SPACE_X_REVERSE.clone());
@@ -308,7 +308,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             }
         })
         .with_theme("spacing")
-        .with_wrapper("&:where(& > :not(:last-child))")
+        .with_selector("&:where(& > :not(:last-child))")
         .support_negative()
         .with_ordering(OrderingKey::SpaceAxis)
         .with_additional_css(SPACE_Y_REVERSE.clone());
@@ -496,7 +496,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
 
     rules
         .add("placeholder", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
-        .with_wrapper("&::placeholder")
+        .with_selector("&::placeholder")
         .with_theme("colors")
         .with_validator(CssProperty::Color)
         .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
