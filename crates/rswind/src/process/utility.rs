@@ -2,6 +2,7 @@ use std::{fmt::Debug, sync::Arc};
 
 use cssparser::serialize_name;
 use rswind_css::{rule::RuleList, Decl, Rule, ToCssString};
+use rswind_theme::ThemeMap;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
@@ -9,7 +10,6 @@ use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     ordering::OrderingKey,
     parsing::{AdditionalCssHandler, UtilityCandidate},
-    theme::ThemeMap,
 };
 
 #[rustfmt::skip]
@@ -151,22 +151,31 @@ impl Utility {
             return None;
         }
 
-        let mut process_result = self.preprocess(candidate.value)?;
-        let mut meta = MetaData::from_candidate(&candidate);
+        let preprocess = self.preprocess(candidate.value)?;
+
+        let process_result = match preprocess.as_str() {
+            Some(plain) => {
+                let mut process_result = SmolStr::from(plain);
+                if self.supports_fraction {
+                    if let Some(fraction) = candidate.take_fraction() {
+                        process_result = format_smolstr!("calc({} * 100%)", fraction);
+                    }
+                }
+
+                if candidate.negative {
+                    process_result = format_smolstr!("calc({} * -1)", process_result);
+                }
+                process_result
+            }
+            None => SmolStr::default(),
+        };
+
+        let mut meta = MetaData::from_candidate(&candidate).theme_value(preprocess);
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
-            meta.modifier = modifier.preprocess(Some(candidate));
-        }
-
-        if self.supports_fraction {
-            if let Some(fraction) = candidate.take_fraction() {
-                process_result = format_smolstr!("calc({} * 100%)", fraction);
-            }
-        }
-
-        if candidate.negative {
-            process_result = format_smolstr!("calc({} * -1)", process_result);
+            meta.modifier =
+                modifier.preprocess(Some(candidate)).and_then(|v| v.as_str().map(Into::into));
         }
 
         let mut css = None;

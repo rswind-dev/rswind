@@ -122,6 +122,13 @@ pub fn load_variants(design: &mut DesignSystem) {
                 Variant::new_static([format_smolstr!("@media (width >= {})", v)])
                     .with_ordering(VariantOrdering::from_length(&v).unwrap()),
             );
+
+            // TODO: ordering
+            design.variants.insert(
+                format_smolstr!("max-{}", k),
+                Variant::new_static([format_smolstr!("@media (width < {})", v)])
+                    .with_ordering(VariantOrdering::from_length(&v).unwrap()),
+            );
         })
     }
 }

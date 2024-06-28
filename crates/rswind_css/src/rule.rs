@@ -3,12 +3,13 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+use instance_code::InstanceCode;
 use smol_str::SmolStr;
 
 use super::{Decl, ToCss};
 use crate::writer::Writer;
 
-#[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Rule {
     pub selector: SmolStr,
@@ -52,7 +53,7 @@ impl Rule {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 pub struct RuleList(pub Vec<Rule>);
 
 #[cfg(feature = "json_schema")]

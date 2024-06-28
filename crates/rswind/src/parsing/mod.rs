@@ -4,6 +4,7 @@ pub mod state;
 use std::{fmt::Debug, sync::Arc};
 
 use rswind_css::rule::RuleList;
+use rswind_theme::Theme;
 use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
@@ -15,7 +16,6 @@ use crate::{
         ComposableHandler, RawValueDef, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
         UtilityHandler, Variant, VariantHandlerExt,
     },
-    theme::Theme,
     types::TypeValidator,
 };
 
@@ -46,7 +46,29 @@ impl<'a> UtilityCandidate<'a> {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum ThemeKey {
+    Single(SmolStr),
+    Multi(Vec<SmolStr>),
+}
+
+impl From<SmolStr> for ThemeKey {
+    fn from(s: SmolStr) -> Self {
+        Self::Single(s)
+    }
+}
+
+impl<const N: usize, T> From<[T; N]> for ThemeKey
+where
+    T: Into<SmolStr>,
+{
+    fn from(v: [T; N]) -> Self {
+        Self::Multi(v.map(Into::into).into())
+    }
+}
+
+#[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {

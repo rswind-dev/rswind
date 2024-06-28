@@ -1,13 +1,17 @@
 use std::{
+    mem,
     ops::{Deref, DerefMut},
     sync::Arc,
 };
 
-use colored::Colorize;
 use lazy_static::lazy_static;
 use lightningcss::vendor_prefix::VendorPrefix;
 use rswind_css::{rule::RuleList, Rule};
 use rswind_css_macro::{css, rule_list};
+use rswind_theme::{
+    values::{FontFamily, FontSize},
+    ThemeValue,
+};
 use smol_str::{format_smolstr, SmolStr};
 
 use crate::{
@@ -15,13 +19,11 @@ use crate::{
     context::DesignSystem,
     ordering::OrderingKey,
     parsing::UtilityBuilder,
-    process::{RawValueDef, RuleMatchingFn, Utility, UtilityGroup, ValueDef},
-    theme::ThemeMap,
+    process::{RawValueDef, RuleMatchingFn, UtilityGroup},
     types::{CssDataType, CssProperty},
 };
 
 pub fn load_dynamic_utilities(design: &mut DesignSystem) {
-    let font_size_lh = design.get_theme("fontSize:lineHeight").unwrap_or_default();
     let keyframes = design.get_theme("keyframes").unwrap_or_default();
 
     let mut rules = RuleAdder::new(design);
@@ -275,12 +277,8 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_additional_css(BORDER_SPACING_XY.clone());
 
     rules
-        .add("animate", |_, value| {
-            css! {
-                "animation": value;
-            }
-        })
-        .with_theme("animate")
+        .add("animate", |_, value| css!("animation": value))
+        .with_theme("animation")
         .with_additional_css(move |value: SmolStr| {
             keyframes.get_rule_list(value.as_str()).cloned().map(|f| {
                 Rule::new_with_rules(format_smolstr!("@keyframes {}", value), f).to_rule_list()
@@ -415,11 +413,15 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     rules.add("fill", |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())));
 
     rules
-        .add("stoke", |_, value| css!("stroke-width": value))
-        .with_theme("stokeWidth")
+        .add("stroke", |_, value| css!("stroke-width": value))
+        .with_theme("strokeWidth")
         .with_validator(CssDataType::LengthPercentage);
 
-    rules.add("stroke", |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())));
+    rules
+        .add("stroke", |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())))
+        .with_validator(CssProperty::Color)
+        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
+        .with_theme("colors");
 
     rules
         .add(
@@ -452,16 +454,18 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
 
     rules
-        .add("text", move |meta, value| {
-            let mut font_size = css!("font-size": value.clone());
-            if let Some(modifier) = meta.modifier {
-                font_size.extend(css!("line-height": modifier));
-            } else if let Some(line_height) =
-                meta.raw_value.and_then(|v| font_size_lh.get(v.take_named()?))
-            {
-                font_size.extend(css!("line-height": line_height.clone()));
-            }
-            font_size
+        .add("text", move |meta, value| match meta.theme_value {
+            ThemeValue::FontSize(font_size) => match font_size {
+                FontSize::Plain(value) => css!("font-family": value.as_str()),
+                FontSize::WithLineHeight((size, line_height)) => css! {
+                    "font-size": size.as_str();
+                    "line-height": line_height.as_str();
+                },
+                FontSize::WithConfig((value, config)) => {
+                    config.apply(css!("font-size": value.as_str()))
+                }
+            },
+            _ => css!("font-size": value),
         })
         .with_theme("fontSize")
         .with_validator(CssProperty::FontSize)
@@ -470,6 +474,20 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     rules
         .add("font", |_, value| css!("font-weight": value))
         .with_theme("fontWeight")
+        .with_validator(CssProperty::FontWeight);
+
+    rules
+        .add("font", |meta, value| match meta.theme_value {
+            ThemeValue::FontFamily(font_family) => match font_family {
+                FontFamily::Plain(value) => css!("font-family": value.as_str()),
+                FontFamily::Multi(value) => css!("font-family": value.join(", ")),
+                FontFamily::WithConfig((value, config)) => {
+                    config.apply(css!("font-family": value.as_str()))
+                }
+            },
+            _ => css!("font-family": value),
+        })
+        .with_theme("fontFamily")
         .with_validator(CssProperty::FontWeight);
 
     rules
@@ -627,11 +645,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_group(UtilityGroup::BackdropFilter);
 
     rules
-        .add(
-            "drop-shadow",
-            // TODO: split by `,`
-            |_, value| css!("--tw-drop-shadow": value),
-        )
+        .add("drop-shadow", |_, value| css!("--tw-drop-shadow": value))
         .with_theme("dropShadow")
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::Filter);
@@ -819,80 +833,99 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_ordering(OrderingKey::BorderWidthSide)
         .with_additional_css(BORDER_STYLE.clone());
 
-    use lightningcss::properties::PropertyId::*;
-    add_theme_utility!(design, {
-        "spacing" => {
-            // TODO: types, order
-            "m" : Margin       => ["margin"]                      in OrderingKey::Margin, negative: true fraction: true
-            "mx": MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
-            "my": MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
-            "mt": MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
-            "mr": MarginRight  => ["margin-right"]                in OrderingKey::MarginSide
-            "mb": MarginBottom => ["margin-bottom"]               in OrderingKey::MarginSide
-            "ml": MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
-            "ms": MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
-            "me": MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
+    {
+        use lightningcss::properties::PropertyId::*;
+        add_theme_utility!(design, {
+            "spacing" => {
+                // TODO: types, order
+                "m" : Margin       => ["margin"]                      in OrderingKey::Margin, negative: true fraction: true
+                "mx": MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
+                "my": MarginTop    => ["margin-top", "margin-bottom"] in OrderingKey::MarginAxis
+                "mt": MarginTop    => ["margin-top"]                  in OrderingKey::MarginSide
+                "mr": MarginRight  => ["margin-right"]                in OrderingKey::MarginSide
+                "mb": MarginBottom => ["margin-bottom"]               in OrderingKey::MarginSide
+                "ml": MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
+                "ms": MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
+                "me": MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
 
-            "p" : Padding    => ["padding"]                       in OrderingKey::Padding
-            "px": PaddingTop => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
-            "py": PaddingTop => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
-            "pt": PaddingTop => ["padding-top"]                   in OrderingKey::PaddingSide
-            "pr": PaddingTop => ["padding-right"]                 in OrderingKey::PaddingSide
-            "pb": PaddingTop => ["padding-bottom"]                in OrderingKey::PaddingSide
-            "pl": PaddingTop => ["padding-left"]                  in OrderingKey::PaddingSide
-            "ps": PaddingTop => ["padding-inline-start"]          in OrderingKey::PaddingSide
-            "pe": PaddingTop => ["padding-inline-end"]            in OrderingKey::PaddingSide
+                "p" : Padding    => ["padding"]                       in OrderingKey::Padding
+                "px": PaddingTop => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
+                "py": PaddingTop => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
+                "pt": PaddingTop => ["padding-top"]                   in OrderingKey::PaddingSide
+                "pr": PaddingTop => ["padding-right"]                 in OrderingKey::PaddingSide
+                "pb": PaddingTop => ["padding-bottom"]                in OrderingKey::PaddingSide
+                "pl": PaddingTop => ["padding-left"]                  in OrderingKey::PaddingSide
+                "ps": PaddingTop => ["padding-inline-start"]          in OrderingKey::PaddingSide
+                "pe": PaddingTop => ["padding-inline-end"]            in OrderingKey::PaddingSide
 
-            "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset, negative: true fraction: true
-            "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis, negative: true fraction: true
-            "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis, negative: true fraction: true
+                "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset, negative: true fraction: true
+                "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis, negative: true fraction: true
+                "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis, negative: true fraction: true
 
-            "top"   : Top => ["top"]    in OrderingKey::InsetSide, negative: true fraction: true
-            "right" : Top => ["right"]  in OrderingKey::InsetSide, negative: true fraction: true
-            "bottom": Top => ["bottom"] in OrderingKey::InsetSide, negative: true fraction: true
-            "left"  : Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
-
-            "size": Width => ["width", "height"] in OrderingKey::Size, fraction: true
-            "w"   : Width => ["width"]           in OrderingKey::SizeAxis, fraction: true
-            "h"   : Width => ["height"]          in OrderingKey::SizeAxis, fraction: true
-        },
-        "borderRadius" => {
-            "rounded"   : BorderRadius(VendorPrefix::None) => ["border-radius"] in OrderingKey::Rounded
-            "rounded-s" : BorderRadius(VendorPrefix::None) => ["border-start-start-radius", "border-end-start-radius"] in OrderingKey::RoundedSide
-            "rounded-e" : BorderRadius(VendorPrefix::None) => ["border-start-end-radius", "border-end-end-radius"] in OrderingKey::RoundedSide
-            "rounded-t" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-top-right-radius"] in OrderingKey::RoundedSide
-            "rounded-r" : BorderRadius(VendorPrefix::None) => ["border-top-right-radius", "border-bottom-right-radius"] in OrderingKey::RoundedSide
-            "rounded-b" : BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
-            "rounded-l" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
-            "rounded-ss": BorderRadius(VendorPrefix::None) => ["border-start-start-radius"] in OrderingKey::RoundedCorner
-            "rounded-se": BorderRadius(VendorPrefix::None) => ["border-start-end-radius"] in OrderingKey::RoundedCorner
-            "rounded-ee": BorderRadius(VendorPrefix::None) => ["border-end-end-radius"] in OrderingKey::RoundedCorner
-            "rounded-es": BorderRadius(VendorPrefix::None) => ["border-end-start-radius"] in OrderingKey::RoundedCorner
-            "rounded-tl": BorderRadius(VendorPrefix::None) => ["border-top-left-radius"] in OrderingKey::RoundedCorner
-            "rounded-tr": BorderRadius(VendorPrefix::None) => ["border-top-right-radius"] in OrderingKey::RoundedCorner
-            "rounded-br": BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius"] in OrderingKey::RoundedCorner
-            "rounded-bl": BorderRadius(VendorPrefix::None) => ["border-bottom-left-radius"] in OrderingKey::RoundedCorner
-        },
-        "lineHeight" => {
-            "leading": LineHeight => ["line-height"]
-        },
-        "colors" => {
-            // TODO: as_color
-            "border"  : BorderColor => ["border-color"]                            in OrderingKey::BorderColor
-            "border-x": BorderColor => ["border-right-color", "border-left-color"] in OrderingKey::BorderColorAxis
-            "border-y": BorderColor => ["border-top-color", "border-bottom-color"] in OrderingKey::BorderColorAxis
-            "border-s": BorderColor => ["border-inline-start-color"]               in OrderingKey::BorderColorSide
-            "border-e": BorderColor => ["border-inline-end-color"]                 in OrderingKey::BorderColorSide
-            "border-t": BorderColor => ["border-top-color"]                        in OrderingKey::BorderColorSide
-            "border-r": BorderColor => ["border-right-color"]                      in OrderingKey::BorderColorSide
-            "border-b": BorderColor => ["border-bottom-color"]                     in OrderingKey::BorderColorSide
-            "border-l": BorderColor => ["border-left-color"]                       in OrderingKey::BorderColorSide
-        },
-        "opacity" => {
-            "opacity": Opacity => ["opacity"]
-            "divide" => ["--tw-divide-opacity"]
-        }
-    });
+                "top"   : Top => ["top"]    in OrderingKey::InsetSide, negative: true fraction: true
+                "right" : Top => ["right"]  in OrderingKey::InsetSide, negative: true fraction: true
+                "bottom": Top => ["bottom"] in OrderingKey::InsetSide, negative: true fraction: true
+                "left"  : Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
+            },
+            "width" => {
+                "w": Width => ["width"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "maxWidth" => {
+                "max-w": MaxWidth => ["max-width"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "minWidth" => {
+                "min-w": MinWidth => ["min-width"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "height" => {
+                "h": Width => ["height"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "maxHeight" => {
+                "max-h": MaxWidth => ["max-height"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "minHeight" => {
+                "min-h": MinWidth => ["min-height"] in OrderingKey::SizeAxis, fraction: true
+            },
+            "size" => {
+                "size": Width => ["width", "height"] in OrderingKey::Size, fraction: true
+            },
+            "borderRadius" => {
+                "rounded"   : BorderRadius(VendorPrefix::None) => ["border-radius"] in OrderingKey::Rounded
+                "rounded-s" : BorderRadius(VendorPrefix::None) => ["border-start-start-radius", "border-end-start-radius"] in OrderingKey::RoundedSide
+                "rounded-e" : BorderRadius(VendorPrefix::None) => ["border-start-end-radius", "border-end-end-radius"] in OrderingKey::RoundedSide
+                "rounded-t" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-top-right-radius"] in OrderingKey::RoundedSide
+                "rounded-r" : BorderRadius(VendorPrefix::None) => ["border-top-right-radius", "border-bottom-right-radius"] in OrderingKey::RoundedSide
+                "rounded-b" : BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
+                "rounded-l" : BorderRadius(VendorPrefix::None) => ["border-top-left-radius", "border-bottom-left-radius"] in OrderingKey::RoundedSide
+                "rounded-ss": BorderRadius(VendorPrefix::None) => ["border-start-start-radius"] in OrderingKey::RoundedCorner
+                "rounded-se": BorderRadius(VendorPrefix::None) => ["border-start-end-radius"] in OrderingKey::RoundedCorner
+                "rounded-ee": BorderRadius(VendorPrefix::None) => ["border-end-end-radius"] in OrderingKey::RoundedCorner
+                "rounded-es": BorderRadius(VendorPrefix::None) => ["border-end-start-radius"] in OrderingKey::RoundedCorner
+                "rounded-tl": BorderRadius(VendorPrefix::None) => ["border-top-left-radius"] in OrderingKey::RoundedCorner
+                "rounded-tr": BorderRadius(VendorPrefix::None) => ["border-top-right-radius"] in OrderingKey::RoundedCorner
+                "rounded-br": BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius"] in OrderingKey::RoundedCorner
+                "rounded-bl": BorderRadius(VendorPrefix::None) => ["border-bottom-left-radius"] in OrderingKey::RoundedCorner
+            },
+            "lineHeight" => {
+                "leading": LineHeight => ["line-height"]
+            },
+            "colors" => {
+                // TODO: as_color
+                "border"  : BorderColor => ["border-color"]                            in OrderingKey::BorderColor
+                "border-x": BorderColor => ["border-right-color", "border-left-color"] in OrderingKey::BorderColorAxis
+                "border-y": BorderColor => ["border-top-color", "border-bottom-color"] in OrderingKey::BorderColorAxis
+                "border-s": BorderColor => ["border-inline-start-color"]               in OrderingKey::BorderColorSide
+                "border-e": BorderColor => ["border-inline-end-color"]                 in OrderingKey::BorderColorSide
+                "border-t": BorderColor => ["border-top-color"]                        in OrderingKey::BorderColorSide
+                "border-r": BorderColor => ["border-right-color"]                      in OrderingKey::BorderColorSide
+                "border-b": BorderColor => ["border-bottom-color"]                     in OrderingKey::BorderColorSide
+                "border-l": BorderColor => ["border-left-color"]                       in OrderingKey::BorderColorSide
+            },
+            "opacity" => {
+                "opacity": Opacity => ["opacity"]
+                "divide" => ["--tw-divide-opacity"]
+            }
+        });
+    }
 }
 
 /// usage: property!(
@@ -1011,37 +1044,11 @@ impl<'i> UtilityAdder<'i> {
 /// This is useful for defining rules in a more declarative way.
 impl<'i> Drop for UtilityAdder<'i> {
     fn drop(&mut self) {
-        let allowed_values = self.builder.theme_key.as_ref().map(|key| {
-            self.design
-                .get_theme(key)
-                .unwrap_or_else(|| {
-                    let _warning = format!("Theme key {} not found", key.bold()).as_str().yellow();
-                    // TODO: reopen when we have logging, both on stdout and console
-                    // eprintln!("{}", warning);
-                    Arc::new(ThemeMap::default())
-                })
-                .clone()
-        });
-        let validator = std::mem::take(&mut self.builder.validator);
-        let modifier = std::mem::take(&mut self.builder.modifier);
+        let builder = mem::take(&mut self.builder);
+        let (key, utility) =
+            builder.parse(&self.design.theme).unwrap_or_else(|e| panic!("{}", e.to_string()));
 
-        self.design.add_utility(
-            self.builder.key.as_str(),
-            Utility {
-                value_def: ValueDef { allowed_values, validator },
-                handler: self.builder.handler.take().unwrap(),
-                modifier: modifier
-                    .map(|m| m.parse(&self.design.theme))
-                    .transpose()
-                    .unwrap_or_else(|e| panic!("Invalid modifier: {:?}", e.to_string())),
-                supports_negative: self.builder.supports_negative,
-                supports_fraction: self.builder.supports_fraction,
-                additional_css: std::mem::take(&mut self.builder.additional_css),
-                wrapper: std::mem::take(&mut self.builder.wrapper),
-                ordering_key: std::mem::take(&mut self.builder.ordering_key),
-                group: self.builder.group,
-            },
-        );
+        self.design.extend(Some((key, utility)));
     }
 }
 

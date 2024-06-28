@@ -72,7 +72,7 @@ pub fn bench_static(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("LargeFile");
 
-    for i in [1, 10, 1000].iter() {
+    for i in [1, 10].iter() {
         let input = include_str!("fixtures/template_html").repeat(*i);
         group.bench_with_input(BenchmarkId::new("Normal", i), i, |b, _| {
             b.iter(|| {
@@ -102,6 +102,6 @@ pub fn bench_static(c: &mut Criterion) {
     }
 }
 
-criterion_group! { benches, bench_all }
+criterion_group!(benches, bench_static);
 
 criterion_main!(benches);

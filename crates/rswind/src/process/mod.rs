@@ -6,12 +6,12 @@ use std::{fmt::Write, sync::Arc};
 use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
+use rswind_theme::{Theme, ThemeMap, ThemeValue};
 
 pub use self::{utility::*, variant::*};
 use crate::{
     common::MaybeArbitrary,
     parsing::UtilityCandidate,
-    theme::{Theme, ThemeMap},
     types::TypeValidator,
 };
 
@@ -31,14 +31,14 @@ pub trait ValuePreprocessor {
     fn validate(&self, value: &str) -> bool;
     fn allowed_values(&self) -> Option<&ThemeMap>;
 
-    fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<SmolStr> {
+    fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<ThemeValue> {
         match value {
             Some(MaybeArbitrary::Arbitrary(value)) => {
                 let value = decode_arbitrary_value(value);
-                self.validate(&value).then_some(value)
+                self.validate(&value).then_some(ThemeValue::Plain(value))
             }
-            Some(MaybeArbitrary::Named(value)) => self.allowed_values()?.get(value),
-            None => self.allowed_values()?.get(DEFAULT),
+            Some(MaybeArbitrary::Named(value)) => self.allowed_values()?.get_value(value),
+            None => self.allowed_values()?.get_value(DEFAULT),
         }
     }
 }
@@ -141,20 +141,26 @@ impl ValuePreprocessor for ValueDef {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct MetaData<'a> {
     pub raw_value: Option<MaybeArbitrary<'a>>,
     pub raw_modifier: Option<MaybeArbitrary<'a>>,
     pub modifier: Option<SmolStr>,
+    pub theme_value: ThemeValue<'a>,
 }
 
 impl<'a> MetaData<'a> {
     pub fn from_candidate(candidate: &UtilityCandidate<'a>) -> Self {
-        Self { raw_value: candidate.value, raw_modifier: candidate.modifier, modifier: None }
+        Self { raw_value: candidate.value, raw_modifier: candidate.modifier, ..Default::default() }
     }
 
     /// Create a new `MetaData` with only the modifier set.
     pub(crate) fn modifier(modifier: impl Into<SmolStr>) -> Self {
-        Self { raw_value: None, raw_modifier: None, modifier: Some(modifier.into()) }
+        Self { modifier: Some(modifier.into()), ..Default::default() }
+    }
+
+    pub(crate) fn theme_value(mut self, theme_value: ThemeValue<'a>) -> Self {
+        self.theme_value = theme_value;
+        self
     }
 }

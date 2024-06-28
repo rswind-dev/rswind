@@ -1,0 +1,32 @@
+[package]
+name = "rswind_theme"
+version = "0.0.1-alpha.1"
+
+authors.workspace = true
+
+description.workspace = true
+
+edition.workspace = true
+
+keywords.workspace = true
+
+license.workspace = true
+
+repository.workspace = true
+
+categories.workspace = true
+
+[dependencies]
+rswind_css.workspace = true
+
+smol_str.workspace = true
+either.workspace = true
+phf = { workspace = true, features = [ "macros" ] }
+rustc-hash.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+itertools = "0.13.0"
+instance_code = { workspace = true }
+
+[dev-dependencies]
+rswind_css_macro.workspace = true

@@ -60,8 +60,8 @@ pub enum VariantOrdering {
 
 #[derive(Debug, Error)]
 pub enum OrderingParseError {
-    #[error("Invalid unit, only `px` and `rem` are supported")]
-    InvalidUnit,
+    #[error("Invalid unit {0}, only `px` and `rem` are supported")]
+    InvalidUnit(SmolStr),
     #[error("Invalid value {0}, expected a u64 integer")]
     InvalidValue(#[from] std::num::ParseIntError),
 }
@@ -79,7 +79,7 @@ impl VariantOrdering {
                 let value = s.trim_end_matches("rem").parse::<u64>()?;
                 Ok(Self::Length(value * PX_PER_REM))
             }
-            _ => Err(OrderingParseError::InvalidUnit),
+            _ => Err(OrderingParseError::InvalidUnit(s.into())),
         }
     }
 }

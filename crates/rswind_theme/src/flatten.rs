@@ -1,6 +1,7 @@
 use core::fmt;
 use std::ops::{Deref, DerefMut};
 
+use instance_code::InstanceCode;
 use rustc_hash::FxHashMap as HashMap;
 use serde::{
     de::{self, MapAccess, Visitor},
@@ -9,7 +10,7 @@ use serde::{
 use serde_json::Value;
 use smol_str::{format_smolstr, SmolStr};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, InstanceCode)]
 pub struct FlattenedColors(pub HashMap<SmolStr, SmolStr>);
 
 impl Deref for FlattenedColors {
