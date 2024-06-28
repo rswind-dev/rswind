@@ -3,7 +3,6 @@ use tracing::{enabled, info, Level};
 use crate::context::DesignSystem;
 
 pub mod dynamics;
-pub mod spacing;
 pub mod statics;
 pub mod theme;
 pub mod variant;
