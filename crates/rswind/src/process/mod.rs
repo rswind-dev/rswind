@@ -3,15 +3,15 @@ pub mod variant;
 
 use std::{fmt::Write, sync::Arc};
 
+use rswind_theme::{Theme, ThemeMap, ThemeValue};
 use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
-use rswind_theme::{Theme, ThemeMap, ThemeValue};
 
 pub use self::{utility::*, variant::*};
 use crate::{
     common::MaybeArbitrary,
-    parsing::UtilityCandidate,
+    parsing::{ThemeKey, UtilityCandidate},
     types::TypeValidator,
 };
 
@@ -77,7 +77,7 @@ pub struct RawValueDef {
     #[serde(rename = "type")]
     pub validator: Option<Box<dyn TypeValidator>>,
     #[serde(rename = "theme")]
-    pub theme_key: Option<SmolStr>,
+    pub theme_key: Option<ThemeKey>,
 }
 
 #[derive(Debug, Error)]
@@ -87,7 +87,7 @@ pub enum ThemeParseError {
 }
 
 impl RawValueDef {
-    pub fn new(theme_key: impl Into<SmolStr>) -> Self {
+    pub fn new(theme_key: impl Into<ThemeKey>) -> Self {
         Self { validator: None, theme_key: Some(theme_key.into()) }
     }
 
@@ -100,9 +100,7 @@ impl RawValueDef {
         if let Some(key) = self.theme_key {
             return Ok(ValueDef {
                 validator: self.validator,
-                allowed_values: Some(
-                    theme.get(&key).ok_or(ThemeParseError::InvalidThemeKey(key))?.clone(),
-                ),
+                allowed_values: Some(key.parse(theme)?),
             });
         }
 

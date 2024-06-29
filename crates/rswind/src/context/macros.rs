@@ -28,15 +28,15 @@ macro_rules! get_typ(
 #[macro_export]
 macro_rules! add_theme_utility {
     ($design:expr, {
-        $($theme_key:literal => {
+        $($theme_key:expr => {
             $( $key:literal $(: $typ:expr)? => [$($decl_key:literal),+] $(in $ord:expr)? $(, $( negative: $negative: literal )? $( fraction: $fraction: literal )? )?  )*
         }),+
     }) => {
         $(
             $(
-                let theme = $design
-                    .get_theme($theme_key)
-                    .unwrap_or_else(|| panic!("Theme {} not found", &$key));
+                let theme = crate::parsing::ThemeKey::from($theme_key)
+                    .parse(& $design.theme)
+                    .unwrap_or_else(|_| panic!("{}", $key));
 
                 #[allow(unused_mut)]
                 let mut utility = $crate::process::Utility::new(move |_meta, input| {

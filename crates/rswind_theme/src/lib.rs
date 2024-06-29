@@ -6,11 +6,11 @@ use std::{
 };
 
 use either::Either::{Left, Right};
+use instance_code::InstanceCode;
 use phf::{phf_map, Map};
 use rswind_css::rule::RuleList;
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
-use instance_code::InstanceCode;
 use values::{FontFamily, FontSize};
 
 pub mod codegen;
@@ -109,13 +109,14 @@ impl ThemeMap {
     pub fn merge(&mut self, other: Self) {
         match (self, other) {
             (s @ Self::Static(_), Self::Dynamic(d)) => s.extend(d),
+            (s @ Self::Static(_), Self::Static(d)) => {
+                s.extend(d.into_iter().map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))))
+            }
             (Self::Dynamic(s), Self::Dynamic(d)) => s.extend(d),
             (Self::KeyFrames(s), Self::KeyFrames(d)) => s.extend(d),
             (Self::FontSize(s), Self::FontSize(d)) => s.extend(d),
             (Self::FontFamily(s), Self::FontFamily(d)) => s.extend(d),
-            _ => {
-                unreachable!()
-            }
+            _ => unreachable!(),
         }
     }
 

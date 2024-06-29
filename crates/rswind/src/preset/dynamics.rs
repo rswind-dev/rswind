@@ -46,7 +46,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
 
     rules
         .add("basis", |_, value| css!("flex-basis": value))
-        .with_theme("flexBasis")
+        .with_theme(["flexBasis", "spacing"])
         .with_validator(CssProperty::FlexBasis(VendorPrefix::None));
 
     rules
@@ -69,7 +69,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         })
         .support_fraction()
         .support_negative()
-        .with_theme("translate")
+        .with_theme(["translate", "spacing"])
         .with_validator(CssDataType::LengthPercentage)
         .with_additional_css(TRANSLATE_XYZ.clone());
 
@@ -248,7 +248,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacing)
-        .with_theme("spacing")
+        .with_theme(["borderSpacing", "spacing"])
         .with_validator(CssDataType::Length)
         .with_additional_css(BORDER_SPACING_XY.clone());
 
@@ -260,7 +260,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacingAxis)
-        .with_theme("spacing")
+        .with_theme(["borderSpacing", "spacing"])
         .with_validator(CssDataType::Length)
         .with_additional_css(BORDER_SPACING_XY.clone());
 
@@ -272,7 +272,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             }
         })
         .with_ordering(OrderingKey::BorderSpacingAxis)
-        .with_theme("spacing")
+        .with_theme(["borderSpacing", "spacing"])
         .with_validator(CssDataType::Length)
         .with_additional_css(BORDER_SPACING_XY.clone());
 
@@ -293,7 +293,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "margin-left":  format_smolstr!("calc({value} * calc(1 - var(--tw-space-x-reverse)))");
             }
         })
-        .with_theme("spacing")
+        .with_theme(["space", "spacing"])
         .with_selector("&:where(& > :not(:last-child))")
         .support_negative()
         .with_ordering(OrderingKey::SpaceAxis)
@@ -307,7 +307,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "margin-bottom": format_smolstr!("calc({value} * var(--tw-space-y-reverse))");
             }
         })
-        .with_theme("spacing")
+        .with_theme(["space", "spacing"])
         .with_selector("&:where(& > :not(:last-child))")
         .support_negative()
         .with_ordering(OrderingKey::SpaceAxis)
@@ -320,7 +320,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "border-left-width": format_smolstr!("calc({value} * calc(1 - var(--tw-divide-x-reverse)))");
         }
     })
-    .with_theme("borderWidth")
+    .with_theme(["divideWidth", "borderWidth"])
     .with_validator(CssProperty::BorderRightWidth)
     .with_ordering(OrderingKey::BorderWidthAxis)
     .with_additional_css(DIVIDE_X_REVERSE.clone());
@@ -333,16 +333,16 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "border-bottom-width": format_smolstr!("calc({value} * var(--tw-divide-y-reverse))");
             }
         })
-        .with_theme("borderWidth")
+        .with_theme(["divideWidth", "borderWidth"])
         .with_validator(CssProperty::BorderTopWidth)
         .with_ordering(OrderingKey::BorderWidthAxis)
         .with_additional_css(DIVIDE_Y_REVERSE.clone());
 
     rules
         .add("divide", |m, v| css!("border-color": as_color(&v, m.modifier.as_deref())))
-        .with_theme("colors")
+        .with_theme(["divideColor", "colors"])
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add(
@@ -351,7 +351,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         )
         .with_theme("colors")
         .with_validator(CssProperty::BorderColor)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add("from", |_, value| {
@@ -360,10 +360,10 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
             }
         })
-        .with_theme("colors")
+        .with_theme(["gradientColorStops", "colors"])
         .with_ordering(OrderingKey::FromColor)
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
+        .with_opacity_modifier()
         .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
@@ -380,12 +380,10 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "--tw-gradient-stops": "var(--tw-gradient-via-stops)";
         }
     })
-    .with_theme("colors")
+    .with_theme(["gradientColorStops", "colors"])
     .with_ordering(OrderingKey::ViaColor)
     .with_validator(CssProperty::Color)
-    .with_modifier(
-        RawValueDef::new("opacity").with_validator(CssProperty::Opacity),
-    )
+    .with_opacity_modifier()
     .with_additional_css(GRADIENT_PROPERTIES.clone());
 
     rules
@@ -401,7 +399,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))";
         }
     })
-    .with_theme("colors")
+    .with_theme(["gradientColorStops", "colors"])
     .with_ordering(OrderingKey::ToColor)
     .with_additional_css(GRADIENT_PROPERTIES.clone());
 
@@ -410,7 +408,10 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_theme("gradientColorStopPositions")
         .with_validator(CssDataType::LengthPercentage);
 
-    rules.add("fill", |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())));
+    rules
+        .add("fill", |meta, value| css!("fill": as_color(&value, meta.modifier.as_deref())))
+        .with_theme(["fill", "colors"])
+        .with_validator(CssProperty::Color);
 
     rules
         .add("stroke", |_, value| css!("stroke-width": value))
@@ -420,17 +421,17 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
     rules
         .add("stroke", |meta, value| css!("stroke": as_color(&value, meta.modifier.as_deref())))
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
-        .with_theme("colors");
+        .with_opacity_modifier()
+        .with_theme(["stroke", "colors"]);
 
     rules
         .add(
             "bg",
             |meta, value| css!("background-color": as_color(&value, meta.modifier.as_deref())),
         )
-        .with_theme("colors")
+        .with_theme(["backgroundColor", "colors"])
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add("bg", |_, value| css!("background-position": value))
@@ -449,9 +450,9 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
 
     rules
         .add("text", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
-        .with_theme("colors")
+        .with_theme(["textColor", "colors"])
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add("text", move |meta, value| match meta.theme_value {
@@ -491,15 +492,20 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_validator(CssProperty::FontWeight);
 
     rules
+        .add("text-ident", |_, value| css!("text-indent": value))
+        .with_theme(["textIndent", "spacing"])
+        .with_validator(CssProperty::TextIndent);
+
+    rules
         .add("font-stretch", |_, value| css!("font-stretch": value))
         .with_validator(CssProperty::FontStretch);
 
     rules
         .add("placeholder", |meta, value| css!("color": as_color(&value, meta.modifier.as_deref())))
         .with_selector("&::placeholder")
-        .with_theme("colors")
+        .with_theme(["placeholderColor", "colors"])
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add("decoration", |meta, value| {
@@ -507,14 +513,31 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "text-decoration-color": as_color(&value, meta.modifier.as_deref());
             }
         })
-        .with_theme("colors")
+        .with_theme(["textDecorationColor", "colors"])
         .with_validator(CssProperty::Color)
-        .with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity));
+        .with_opacity_modifier();
 
     rules
         .add("decoration", |_, value| css!("text-decoration-thickness": value))
         .with_theme("textDecorationThickness")
         .with_validator(CssDataType::LengthPercentage);
+
+    rules
+        .add("shadow", |_, value| css!("box-shadow": value))
+        .with_theme("boxShadow")
+        .with_additional_css(BOX_SHADOW_PROPERTIES.clone())
+        .with_validator(CssProperty::BoxShadow(VendorPrefix::None));
+
+    rules
+        .add("shadow", |_, value| {
+            css! {
+                "--tw-shadow-color": value;
+                "--tw-shadow": "var(--tw-shadow-colored)";
+            }
+        })
+        .with_theme(["boxShadowColor", "colors"])
+        .with_additional_css(BOX_SHADOW_PROPERTIES.clone())
+        .with_validator(CssProperty::Color);
 
     rules
         .add("blur", |_, value| css!("--tw-blur": format_smolstr!("blur({})", value)))
@@ -527,7 +550,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-blur",
             |_, value| css!("--tw-backdrop-blur": format_smolstr!("blur({})", value)),
         )
-        .with_theme("blur")
+        .with_theme(["backdropBlur", "blur"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -545,7 +568,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-brightness",
             |_, value| css!("--tw-backdrop-brightness": format_smolstr!("brightness({})", value)),
         )
-        .with_theme("brightness")
+        .with_theme(["backdropBrightness", "brightness"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -560,7 +583,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-contrast",
             |_, value| css!("--tw-backdrop-contrast": format_smolstr!("contrast({})", value)),
         )
-        .with_theme("contrast")
+        .with_theme(["backdropContrast", "contrast"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -578,7 +601,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-grayscale",
             |_, value| css!("--tw-backdrop-grayscale": format_smolstr!("grayscale({})", value)),
         )
-        .with_theme("grayscale")
+        .with_theme(["backdropGrayscale", "grayscale"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -595,7 +618,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-invert",
             |_, value| css!("--tw-backdrop-invert": format_smolstr!("invert({})", value)),
         )
-        .with_theme("invert")
+        .with_theme(["backdropInvert", "invert"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -610,7 +633,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-invert",
             |_, value| css!("--tw-backdrop-invert": format_smolstr!("invert({})", value)),
         )
-        .with_theme("invert")
+        .with_theme(["backdropInvert", "invert"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -625,7 +648,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-saturate",
             |_, value| css!("--tw-backdrop-saturate": format_smolstr!("saturate({})", value)),
         )
-        .with_theme("saturate")
+        .with_theme(["backdropSaturate", "saturate"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -640,7 +663,7 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "backdrop-sepia",
             |_, value| css!("--tw-backdrop-sepia": format_smolstr!("sepia({})", value)),
         )
-        .with_theme("sepia")
+        .with_theme(["backdropSepia", "sepia"])
         .with_validator(CssDataType::LengthPercentage)
         .with_group(UtilityGroup::BackdropFilter);
 
@@ -683,17 +706,17 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
 
     rules
         .add("gap", |_, value| css!("gap": value))
-        .with_theme("spacing")
+        .with_theme(["gap", "spacing"])
         .with_validator(CssProperty::Gap);
 
     rules
         .add("gap-x", |_, value| css!("column-gap": value))
-        .with_theme("spacing")
+        .with_theme(["gap", "spacing"])
         .with_validator(CssProperty::Gap);
 
     rules
         .add("gap-y", |_, value| css!("row-gap": value))
-        .with_theme("spacing")
+        .with_theme(["gap", "spacing"])
         .with_validator(CssProperty::Gap);
 
     rules
@@ -701,12 +724,12 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
             "accent",
             |meta, value| css!("accent-color": as_color(&value, meta.modifier.as_deref())),
         )
-        .with_theme("colors")
+        .with_theme(["accentColor", "colors"])
         .with_validator(CssProperty::AccentColor);
 
     rules
         .add("caret", |meta, value| css!("caret-color": as_color(&value, meta.modifier.as_deref())))
-        .with_theme("colors")
+        .with_theme(["caretColor", "colors"])
         .with_validator(CssProperty::AccentColor);
 
     rules
@@ -833,10 +856,63 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
         .with_ordering(OrderingKey::BorderWidthSide)
         .with_additional_css(BORDER_STYLE.clone());
 
+    rules
+        .add("outline", |_, value| {
+            css! {
+                "outline-style": "var(--tw-outline-style)";
+                "outline-width": value;
+            }
+        })
+        .with_theme("outlineWidth")
+        .with_validator(CssProperty::OutlineWidth);
+
+    rules
+        .add("outline", |_, value| css!("outline-color": value))
+        .with_theme(["outlineColor", "colors"])
+        .with_validator(CssProperty::OutlineWidth);
+
+    rules
+        .add(
+            "ring",
+            move |meta, value| css!("--tw-ring-color": as_color(&value, meta.modifier.as_deref())),
+        )
+        .with_theme(["ringColor", "colors"])
+        .with_opacity_modifier()
+        .with_additional_css(BOX_SHADOW_PROPERTIES.clone())
+        .with_validator(CssProperty::BoxShadow(VendorPrefix::None));
+
+    let default_ring_color = "currentColor";
+    rules
+        .add("ring", move |_, value| {
+            css! {
+                "--tw-ring-shadow": format!("var(--tw-ring-inset,) 0 0 0 calc(${value} + var(--tw-ring-offset-width)) var(--tw-ring-color, {})", default_ring_color);
+            }
+        })
+        .with_theme(["ringColor", "colors"])
+
+        .with_additional_css(BOX_SHADOW_PROPERTIES.clone())
+        .with_validator(CssDataType::Length);
+
+    rules.add("ring-offset", |_, value| {
+        css! {
+            "--tw-ring-offset-width": value;
+            "--tw-ring-offset-shadow": "var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)";
+        }
+    })
+    .with_theme("ringOffsetWidth")
+    .with_validator(CssDataType::Length);
+
+    rules
+        .add("ring-offset", |_, value| css!("--tw-ring-offset-color": value))
+        // TODO: is this what we want?
+        .with_theme(["ringOffsetColor", "ringColor", "colors"])
+        .with_validator(CssProperty::Color)
+        .with_opacity_modifier();
+
     {
         use lightningcss::properties::PropertyId::*;
         add_theme_utility!(design, {
-            "spacing" => {
+            ["margin", "spacing"] => {
                 // TODO: types, order
                 "m" : Margin       => ["margin"]                      in OrderingKey::Margin, negative: true fraction: true
                 "mx": MarginLeft   => ["margin-left", "margin-right"] in OrderingKey::MarginAxis
@@ -847,7 +923,8 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "ml": MarginRight  => ["margin-left"]                 in OrderingKey::MarginSide
                 "ms": MarginRight  => ["margin-inline-start"]         in OrderingKey::MarginSide
                 "me": MarginRight  => ["margin-inline-end"]           in OrderingKey::MarginSide
-
+            },
+            ["padding", "spacing"] => {
                 "p" : Padding    => ["padding"]                       in OrderingKey::Padding
                 "px": PaddingTop => ["padding-left", "padding-right"] in OrderingKey::PaddingAxis
                 "py": PaddingTop => ["padding-top", "padding-bottom"] in OrderingKey::PaddingAxis
@@ -857,7 +934,8 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "pl": PaddingTop => ["padding-left"]                  in OrderingKey::PaddingSide
                 "ps": PaddingTop => ["padding-inline-start"]          in OrderingKey::PaddingSide
                 "pe": PaddingTop => ["padding-inline-end"]            in OrderingKey::PaddingSide
-
+            },
+            ["inset", "spacing"] => {
                 "inset"   : Inset => ["top", "right", "bottom", "left"] in OrderingKey::Inset, negative: true fraction: true
                 "inset-x" : Left  => ["left", "right"]                  in OrderingKey::InsetAxis, negative: true fraction: true
                 "inset-y" : Top   => ["top", "bottom"]                  in OrderingKey::InsetAxis, negative: true fraction: true
@@ -867,25 +945,25 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "bottom": Top => ["bottom"] in OrderingKey::InsetSide, negative: true fraction: true
                 "left"  : Top => ["left"]   in OrderingKey::InsetSide, negative: true fraction: true
             },
-            "width" => {
+            ["width", "spacing"] => {
                 "w": Width => ["width"] in OrderingKey::SizeAxis, fraction: true
             },
-            "maxWidth" => {
+            ["maxWidth", "spacing"] => {
                 "max-w": MaxWidth => ["max-width"] in OrderingKey::SizeAxis, fraction: true
             },
-            "minWidth" => {
+            ["minWidth", "spacing"] => {
                 "min-w": MinWidth => ["min-width"] in OrderingKey::SizeAxis, fraction: true
             },
-            "height" => {
+            ["height", "spacing"] => {
                 "h": Width => ["height"] in OrderingKey::SizeAxis, fraction: true
             },
-            "maxHeight" => {
+            ["maxHeight", "spacing"] => {
                 "max-h": MaxWidth => ["max-height"] in OrderingKey::SizeAxis, fraction: true
             },
-            "minHeight" => {
+            ["minHeight", "spacing"] => {
                 "min-h": MinWidth => ["min-height"] in OrderingKey::SizeAxis, fraction: true
             },
-            "size" => {
+            ["size", "spacing"] => {
                 "size": Width => ["width", "height"] in OrderingKey::Size, fraction: true
             },
             "borderRadius" => {
@@ -905,10 +983,8 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "rounded-br": BorderRadius(VendorPrefix::None) => ["border-bottom-right-radius"] in OrderingKey::RoundedCorner
                 "rounded-bl": BorderRadius(VendorPrefix::None) => ["border-bottom-left-radius"] in OrderingKey::RoundedCorner
             },
-            "lineHeight" => {
-                "leading": LineHeight => ["line-height"]
-            },
-            "colors" => {
+            "lineHeight" => { "leading": LineHeight => ["line-height"] },
+            ["borderColor", "colors"] => {
                 // TODO: as_color
                 "border"  : BorderColor => ["border-color"]                            in OrderingKey::BorderColor
                 "border-x": BorderColor => ["border-right-color", "border-left-color"] in OrderingKey::BorderColorAxis
@@ -920,9 +996,28 @@ pub fn load_dynamic_utilities(design: &mut DesignSystem) {
                 "border-b": BorderColor => ["border-bottom-color"]                     in OrderingKey::BorderColorSide
                 "border-l": BorderColor => ["border-left-color"]                       in OrderingKey::BorderColorSide
             },
-            "opacity" => {
-                "opacity": Opacity => ["opacity"]
-                "divide" => ["--tw-divide-opacity"]
+            "opacity" => { "opacity": Opacity => ["opacity"] },
+            ["scrollMargin", "spacing"] => {
+                "scroll-m": ScrollMargin => ["scroll-margin"]
+                "scroll-mx": ScrollMargin => ["scroll-margin-left", "scroll-margin-right"]
+                "scroll-my": ScrollMargin => ["scroll-margin-top", "scroll-margin-bottom"]
+                "scroll-ms": ScrollMargin => ["scroll-margin-inline-start"]
+                "scroll-me": ScrollMargin => ["scroll-margin-inline-end"]
+                "scroll-mt": ScrollMargin => ["scroll-margin-top"]
+                "scroll-mr": ScrollMargin => ["scroll-margin-right"]
+                "scroll-mb": ScrollMargin => ["scroll-margin-bottom"]
+                "scroll-ml": ScrollMargin => ["scroll-margin-left"]
+            },
+            ["scrollPadding", "spacing"] => {
+                "scroll-p": ScrollPadding => ["scroll-padding"]
+                "scroll-px": ScrollPadding => ["scroll-padding-left", "scroll-padding-right"]
+                "scroll-py": ScrollPadding => ["scroll-padding-top", "scroll-padding-bottom"]
+                "scroll-ps": ScrollPadding => ["scroll-padding-inline-start"]
+                "scroll-pe": ScrollPadding => ["scroll-padding-inline-end"]
+                "scroll-pt": ScrollPadding => ["scroll-padding-top"]
+                "scroll-pr": ScrollPadding => ["scroll-padding-right"]
+                "scroll-pb": ScrollPadding => ["scroll-padding-bottom"]
+                "scroll-pl": ScrollPadding => ["scroll-padding-left"]
             }
         });
     }
@@ -1001,6 +1096,21 @@ lazy_static! {
     ));
     static ref BORDER_STYLE: Arc<RuleList> = Arc::new(property!(
         "--tw-border-style", "<custom-ident>", "solid";
+    ));
+    static ref BOX_SHADOW_PROPERTIES: Arc<RuleList> = Arc::new(property!(
+        "--tw-shadow", "*", "0 0 #0000";
+        "--tw-shadow-colored", "*", "0 0 #0000";
+        "--tw-inset-shadow", "*", "0 0 #0000";
+        "--tw-inset-shadow-colored", "*", "0 0 #0000";
+        "--tw-ring-color", "*";
+        "--tw-ring-shadow", "*", "0 0 #0000";
+        "--tw-inset-ring-color", "*";
+        "--tw-inset-ring-shadow", "*", "0 0 0 0 #0000";
+
+        "--tw-ring-inset", "*";
+        "--tw-ring-offset-width", "<length>", "0px";
+        "--tw-ring-offset-color", "<color>", "#fff";
+        "--tw-ring-offset-shadow", "*", "0 0 #0000";
     ));
 }
 

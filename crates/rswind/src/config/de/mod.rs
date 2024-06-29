@@ -27,8 +27,8 @@ mod tests {
         let res = UtilityBuilder::deserialize(&input).unwrap();
 
         assert_eq!(res.key, "text");
-        assert_eq!(res.theme_key, Some("colors".into()));
-        assert_eq!(res.modifier.unwrap().theme_key, Some("opacity".into()));
+        assert_eq!(res.theme_key.unwrap(), "colors".into());
+        assert_eq!(res.modifier.unwrap().theme_key.unwrap(), "opacity".into());
 
         // TODO: impl PartialEq for UtilityHandler
         // assert_eq!(res.value_repr.validator, Some(CssDataType::Color.into()));
