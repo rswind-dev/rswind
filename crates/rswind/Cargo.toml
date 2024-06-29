@@ -18,7 +18,10 @@ repository.workspace = true
 categories.workspace = true
 
 [features]
-json_schema = [ "rswind_css/json_schema" ]
+json_schema = [
+  "rswind_css/json_schema",
+  "rswind_theme/json_schema"
+]
 wasm = [
   "dep:tsify",
   "dep:wasm-bindgen"
@@ -29,6 +32,7 @@ rswind_css_macro = { workspace = true }
 rswind_extractor = { workspace = true }
 rswind_common = { workspace = true }
 rswind_css = { workspace = true }
+rswind_theme = { workspace = true }
 
 rayon = { workspace = true }
 either = { workspace = true, features = [ "serde" ] }
@@ -62,10 +66,16 @@ schemars = { workspace = true, features = [
 ] }
 tsify = { version = "0.4.5", optional = true }
 wasm-bindgen = { version = "0.2.92", optional = true }
+itertools = "0.13.0"
+instance_code = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }
 paste = "1.0.15"
+
+[build-dependencies]
+instance_code = { workspace = true }
+rswind_theme = { workspace = true }
 
 [lib]
 bench = false

@@ -1,7 +1,7 @@
 pub mod de;
 #[cfg(feature = "json_schema")]
 pub mod schema;
-pub mod user_theme;
+// pub mod user_theme;
 
 use std::{io, str::FromStr};
 
@@ -11,7 +11,6 @@ use serde::Deserialize;
 use smol_str::SmolStr;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
-use user_theme::UserTheme;
 
 use crate::parsing::UtilityBuilder;
 
@@ -50,6 +49,8 @@ fn default_dark_mode() -> SmolStr {
 // Also, see https://github.com/rust-lang/rust-analyzer/issues/8747
 #[allow(non_snake_case, clippy::empty_docs)]
 mod wbg_shim {
+    use rswind_theme::ThemeConfig;
+
     use super::*;
     #[derive(Debug, Default, Deserialize)]
     #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
@@ -61,7 +62,7 @@ mod wbg_shim {
         pub content: Vec<String>,
 
         /// User define themes, will be merged with the default theme
-        pub theme: UserTheme,
+        pub theme: ThemeConfig,
 
         // TODO: support user defined dark mode, like
         // ['variant', '&:not(.light *)']

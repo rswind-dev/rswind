@@ -90,7 +90,7 @@ export interface UtilityBuilder {
   /**
    * The wrapper selector for the utility
    */
-  wrapper?: string | null
+  selector?: string | null
 }
 
 export interface ValueDefinition {

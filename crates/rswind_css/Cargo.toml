@@ -27,9 +27,13 @@ smol_str = { workspace = true, features = [ "serde" ] }
 serde = { workspace = true, features = [ "derive" ] }
 schemars = { workspace = true, optional = true, features = [
   "either1",
-  "smol_str02"
+  "smol_str02",
 ] }
 either = { workspace = true }
+instance_code = { workspace = true, features = [
+  "smol_str",
+  "phf"
+] }
 
 [dev-dependencies]
 serde_json = { workspace = true }

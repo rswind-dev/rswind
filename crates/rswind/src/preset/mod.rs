@@ -2,19 +2,10 @@ use tracing::{enabled, info, Level};
 
 use crate::context::DesignSystem;
 
-pub mod colors;
 pub mod dynamics;
-pub mod spacing;
 pub mod statics;
 pub mod theme;
 pub mod variant;
-
-pub fn load_preset(design: &mut DesignSystem) {
-    theme::load_theme(design);
-    statics::load_static_utilities(design);
-    dynamics::load_dynamic_utilities(design);
-    variant::load_variants(design);
-}
 
 pub trait Preset {
     fn load_preset(self: Box<Self>, design: &mut DesignSystem);
@@ -36,7 +27,7 @@ pub fn preset_tailwind(design: &mut DesignSystem) {
         None
     };
 
-    theme::load_theme(design);
+    // theme::load_theme(design);
     statics::load_static_utilities(design);
     dynamics::load_dynamic_utilities(design);
     variant::load_variants(design);

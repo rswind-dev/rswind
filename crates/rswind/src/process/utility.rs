@@ -2,6 +2,7 @@ use std::{fmt::Debug, sync::Arc};
 
 use cssparser::serialize_name;
 use rswind_css::{rule::RuleList, Decl, Rule, ToCssString};
+use rswind_theme::ThemeMap;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
@@ -9,13 +10,10 @@ use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     ordering::OrderingKey,
     parsing::{AdditionalCssHandler, UtilityCandidate},
-    theme::ThemeValue,
 };
 
-#[rustfmt::skip]
 pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static {}
 
-#[rustfmt::skip]
 impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
@@ -23,13 +21,8 @@ pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
 
 impl Debug for UtilityHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("UtilityHandler { ")?;
-
-        // Call the function, simply get the css
-        let rule = self.0(MetaData::modifier("$2"), SmolStr::new("$1"));
-        write!(f, "{}", rule.to_css_minified())?;
-
-        f.write_str(" }")
+        let rule = self.0(MetaData::modifier("$1"), SmolStr::new("$0"));
+        f.debug_tuple("UtilityHandler").field(&rule.to_css_minified()).finish()
     }
 }
 
@@ -57,7 +50,7 @@ pub struct Utility {
 
     /// This will be use as generated Rule selector
     /// default: '&'
-    pub wrapper: Option<SmolStr>,
+    pub selector: Option<SmolStr>,
 
     /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
@@ -113,7 +106,7 @@ impl ValuePreprocessor for Utility {
         self.value_def.validate(value)
     }
 
-    fn allowed_values(&self) -> Option<&ThemeValue> {
+    fn allowed_values(&self) -> Option<&ThemeMap> {
         self.value_def.allowed_values()
     }
 }
@@ -139,7 +132,7 @@ impl Utility {
             supports_fraction: false,
             value_def: ValueDef::default(),
             modifier: None,
-            wrapper: None,
+            selector: None,
             additional_css: None,
             ordering_key: None,
             group: None,
@@ -151,22 +144,31 @@ impl Utility {
             return None;
         }
 
-        let mut process_result = self.preprocess(candidate.value)?;
-        let mut meta = MetaData::from_candidate(&candidate);
+        let preprocess = self.preprocess(candidate.value)?;
+
+        let process_result = match preprocess.as_str() {
+            Some(plain) => {
+                let mut process_result = SmolStr::from(plain);
+                if self.supports_fraction {
+                    if let Some(fraction) = candidate.take_fraction() {
+                        process_result = format_smolstr!("calc({} * 100%)", fraction);
+                    }
+                }
+
+                if candidate.negative {
+                    process_result = format_smolstr!("calc({} * -1)", process_result);
+                }
+                process_result
+            }
+            None => SmolStr::default(),
+        };
+
+        let mut meta = MetaData::from_candidate(&candidate).theme_value(preprocess);
 
         // handing modifier
         if let (Some(modifier), Some(candidate)) = (&self.modifier, candidate.modifier) {
-            meta.modifier = modifier.preprocess(Some(candidate));
-        }
-
-        if self.supports_fraction {
-            if let Some(fraction) = candidate.take_fraction() {
-                process_result = format_smolstr!("calc({} * 100%)", fraction);
-            }
-        }
-
-        if candidate.negative {
-            process_result = format_smolstr!("calc({} * -1)", process_result);
+            meta.modifier =
+                modifier.preprocess(Some(candidate)).and_then(|v| v.as_str().map(Into::into));
         }
 
         let mut css = None;
@@ -176,8 +178,8 @@ impl Utility {
 
         let mut node = self.handler.call(meta, process_result);
 
-        if let Some(wrapper) = &self.wrapper {
-            node.selector.clone_from(wrapper);
+        if let Some(selector) = &self.selector {
+            node.selector.clone_from(selector);
         }
 
         Some(UtilityApplyResult {
@@ -191,6 +193,8 @@ impl Utility {
 
 #[cfg(test)]
 mod tests {
+    use rswind_css::ToCssString;
+
     #[test]
     fn test_css_macro() {
         let css = rswind_css_macro::css! {
@@ -200,6 +204,9 @@ mod tests {
                 "initial-value": "0";
             }
         };
-        println!("{:?}", css);
+        assert_eq!(
+            css.to_css_minified(),
+            "@property --tw-translate-x{syntax:<length-percentage>;inherits:false;initial-value:0;}"
+        );
     }
 }

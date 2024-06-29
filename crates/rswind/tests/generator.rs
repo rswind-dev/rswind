@@ -32,7 +32,7 @@ mod generator_tests {
             .unwrap();
         assert_eq!(generator.theme().get_value("colors", "primary").as_deref(), Some("#3490dc"));
 
-        assert_eq!(generator.theme().get_value("colors", "red-500").as_deref(), None);
+        assert_eq!(generator.theme().get_value("colors", "red-500").as_deref(), Some("#ef4444"));
     }
 
     #[test]

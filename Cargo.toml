@@ -29,6 +29,7 @@ rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor"
 rswind_cli = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
 rswind_common = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }
 rswind_css = { version = "0.0.1-alpha.1", path = "crates/rswind_css" }
+rswind_theme = { version = "0.0.1-alpha.1", path = "crates/rswind_theme" }
 
 rayon = "1.10.0"
 either = "1.12.0"
@@ -63,6 +64,7 @@ thiserror = "1.0.60"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 schemars = "1.0.0-alpha.1"
+instance_code = "0.1.2"
 
 [profile.release]
 lto = true

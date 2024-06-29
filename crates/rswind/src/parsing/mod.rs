@@ -1,9 +1,10 @@
 pub mod candidate;
 pub mod state;
 
-use std::{fmt::Debug, sync::Arc};
+use std::{fmt::Debug, ops::Deref, sync::Arc};
 
 use rswind_css::rule::RuleList;
+use rswind_theme::{Theme, ThemeMap};
 use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
@@ -15,8 +16,7 @@ use crate::{
         ComposableHandler, RawValueDef, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
         UtilityHandler, Variant, VariantHandlerExt,
     },
-    theme::Theme,
-    types::TypeValidator,
+    types::{CssProperty, TypeValidator},
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
@@ -46,7 +46,58 @@ impl<'a> UtilityCandidate<'a> {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(test, derive(PartialEq))]
+#[serde(untagged)]
+pub enum ThemeKey {
+    Single(SmolStr),
+    Multi(Vec<SmolStr>),
+}
+
+impl ThemeKey {
+    pub fn parse(self, theme: &Theme) -> Result<Arc<ThemeMap>, ThemeParseError> {
+        match self {
+            Self::Single(key) => {
+                let value = theme.get(&key).ok_or(ThemeParseError::InvalidThemeKey(key))?;
+                Ok(value.clone())
+            }
+            Self::Multi(v) => Ok(v
+                .into_iter()
+                // ignore missing theme keys
+                .filter_map(|k| theme.get(&k))
+                .cloned()
+                .reduce(|mut map, value| {
+                    Arc::make_mut(&mut map).merge(value.deref().clone());
+                    map
+                })
+                .unwrap_or_default()),
+        }
+    }
+}
+
+impl From<SmolStr> for ThemeKey {
+    fn from(s: SmolStr) -> Self {
+        Self::Single(s)
+    }
+}
+
+impl From<&str> for ThemeKey {
+    fn from(s: &str) -> Self {
+        Self::Single(s.into())
+    }
+}
+
+impl<const N: usize, T> From<[T; N]> for ThemeKey
+where
+    T: Into<SmolStr>,
+{
+    fn from(v: [T; N]) -> Self {
+        Self::Multi(v.map(Into::into).into())
+    }
+}
+
+#[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {
@@ -63,7 +114,7 @@ pub struct UtilityBuilder {
 
     /// The theme key for the utility, will read from `theme` by this key later, e.g. `colors`
     #[serde(rename = "theme")]
-    pub theme_key: Option<SmolStr>,
+    pub theme_key: Option<ThemeKey>,
 
     /// The type validator for the utility, only used at `arbitrary values`
     ///
@@ -73,14 +124,16 @@ pub struct UtilityBuilder {
 
     /// The wrapper selector for the utility
     #[serde(default)]
-    pub wrapper: Option<SmolStr>,
+    pub selector: Option<SmolStr>,
 
     /// Whether the utility supports negative values
     #[serde(default)]
+    #[serde(rename = "negative")]
     pub supports_negative: bool,
 
     /// Whether the utility supports fraction values, e.g. `w-1/2`
     #[serde(default)]
+    #[serde(rename = "fraction")]
     pub supports_fraction: bool,
 
     #[serde(default)]
@@ -127,7 +180,7 @@ impl UtilityBuilder {
             modifier: None,
             validator: None,
             additional_css: None,
-            wrapper: None,
+            selector: None,
             ordering_key: None,
             group: None,
         }
@@ -143,7 +196,7 @@ impl UtilityBuilder {
                 value_def: RawValueDef { theme_key: self.theme_key, validator: self.validator }
                     .parse(theme)?,
                 modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
-                wrapper: self.wrapper,
+                selector: self.selector,
                 additional_css: self.additional_css,
                 ordering_key: self.ordering_key,
                 group: self.group,
@@ -151,7 +204,7 @@ impl UtilityBuilder {
         ))
     }
 
-    pub fn with_theme(&mut self, key: impl Into<SmolStr>) -> &mut Self {
+    pub fn with_theme(&mut self, key: impl Into<ThemeKey>) -> &mut Self {
         self.theme_key = Some(key.into());
         self
     }
@@ -181,8 +234,8 @@ impl UtilityBuilder {
         self
     }
 
-    pub fn with_wrapper(&mut self, wrapper: &str) -> &mut Self {
-        self.wrapper = Some(wrapper.into());
+    pub fn with_selector(&mut self, wrapper: &str) -> &mut Self {
+        self.selector = Some(wrapper.into());
         self
     }
 
@@ -194,6 +247,10 @@ impl UtilityBuilder {
     pub fn with_group(&mut self, group: UtilityGroup) -> &mut Self {
         self.group = Some(group);
         self
+    }
+
+    pub fn with_opacity_modifier(&mut self) -> &mut Self {
+        self.with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
     }
 }
 

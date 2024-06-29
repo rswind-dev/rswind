@@ -439,12 +439,13 @@ mod tests {
     mod utility {
         use crate::{
             parsing::{candidate::CandidateParser, UtilityCandidate},
-            preset::preset_tailwind,
+            preset::{preset_tailwind, theme::load_theme},
             DesignSystem,
         };
 
         fn run(input: &str) -> Option<UtilityCandidate> {
             let mut design = DesignSystem::default();
+            load_theme(&mut design);
             preset_tailwind(&mut design);
             let mut parser = CandidateParser::new(input);
 
@@ -470,10 +471,15 @@ mod tests {
         use rswind_css_macro::rule_list;
         use smol_str::SmolStr;
 
-        use crate::{parsing::candidate::CandidateParser, preset::preset_tailwind, DesignSystem};
+        use crate::{
+            parsing::candidate::CandidateParser,
+            preset::{preset_tailwind, theme::load_theme},
+            DesignSystem,
+        };
 
         fn run_variant(input: &str) -> Option<SmolStr> {
             let mut design = DesignSystem::default();
+            load_theme(&mut design);
             preset_tailwind(&mut design);
 
             let mut parser = CandidateParser::new(input);

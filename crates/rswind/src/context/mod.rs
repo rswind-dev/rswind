@@ -3,6 +3,7 @@ use std::{cmp::Ordering, fmt::Write, sync::Arc};
 use cssparser::serialize_name;
 use derive_more::{Deref, DerefMut};
 use rswind_css::rule::RuleList;
+use rswind_theme::{Theme, ThemeMap};
 use smallvec::SmallVec;
 use smol_str::SmolStr;
 use tracing::debug;
@@ -16,8 +17,8 @@ use crate::{
     ordering::OrderingKey,
     parsing::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
-    theme::{Theme, ThemeValue},
 };
+
 #[macro_use]
 pub mod macros;
 pub mod utilities;
@@ -33,6 +34,14 @@ pub struct DesignSystem {
 
     /// Theme values
     pub theme: Theme,
+}
+
+impl Extend<(SmolStr, Utility)> for DesignSystem {
+    fn extend<T: IntoIterator<Item = (SmolStr, Utility)>>(&mut self, iter: T) {
+        for (key, utility) in iter {
+            self.add_utility(&key, utility);
+        }
+    }
 }
 
 /// The result of a utility generation
@@ -214,7 +223,7 @@ impl DesignSystem {
         self.utilities.add(key.into(), utility);
     }
 
-    pub fn get_theme(&self, key: &str) -> Option<Arc<ThemeValue>> {
+    pub fn get_theme(&self, key: &str) -> Option<Arc<ThemeMap>> {
         self.theme.get(key).cloned()
     }
 

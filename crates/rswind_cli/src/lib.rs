@@ -30,7 +30,7 @@ pub struct Opts {
     #[arg(short, long, help = "Enable strict mode")]
     pub strict: bool,
 
-    #[arg(long, help = "Path to config file", default_value = "arrow.config.json")]
+    #[arg(long, help = "Path to config file", default_value = "rswind.config.json")]
     pub config: String,
 
     #[arg(short, long, help = "Path to working directory", default_value = ".")]

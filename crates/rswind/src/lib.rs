@@ -11,7 +11,6 @@ pub mod parsing;
 pub mod preset;
 pub mod process;
 pub mod processor;
-pub mod theme;
 pub mod types;
 
 pub use config::GeneratorConfig;

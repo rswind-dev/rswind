@@ -9,15 +9,15 @@ use crate::{
     config::GeneratorConfig,
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
-    preset::Preset,
+    preset::{theme, Preset},
     process::ThemeParseError,
     processor::{GenOptions, GenerateResult, GeneratorProcessor, ParGenerateWith},
-    theme::Theme,
     DesignSystem,
 };
 use rswind_common::iter::prelude::*;
 use rswind_extractor::{Extractor, MaybeParCollectExtracted};
 
+use rswind_theme::Theme;
 use thiserror::Error;
 use tracing::instrument;
 
@@ -79,12 +79,10 @@ impl GeneratorBuilder {
 
     #[instrument(skip_all)]
     pub fn build_processor(mut self) -> Result<GeneratorProcessor, AppBuildError> {
-        for preset in self.presets.drain(..) {
-            preset.load_preset(&mut self.design);
-        }
+        theme::load_theme(&mut self.design);
 
         if let Some(ref mut config) = self.config {
-            self.design.theme.merge(config.theme.drain());
+            self.design.theme.merge(&mut config.theme);
             for utility in config.utilities.drain(..) {
                 utility
                     .parse(&self.design.theme)
@@ -94,6 +92,10 @@ impl GeneratorBuilder {
             for (key, value) in config.static_utilities.drain() {
                 self.design.add_static(key, value);
             }
+        }
+
+        for preset in self.presets.drain(..) {
+            preset.load_preset(&mut self.design);
         }
 
         Ok(GeneratorProcessor {
