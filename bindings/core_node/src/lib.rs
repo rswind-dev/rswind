@@ -5,7 +5,7 @@ use rswind::{
     generator::{self, GeneratorInput},
     glob::GlobFilter,
     preset::preset_tailwind,
-    processor::{self, GeneratorWith, ParGenerateWith},
+    processor::{self, GenerateWith, ParGenerateWith},
 };
 use rswind_extractor::{CollectExtracted, Extractable, Extractor};
 use serde::Deserialize;
@@ -112,23 +112,22 @@ pub enum RswindConfig {
 }
 
 #[napi]
-pub fn create_generator(options: Option<GeneratorOptions>) -> Generator {
+pub fn create_generator(options: Option<GeneratorOptions>) -> napi::Result<Generator> {
     let options = options.unwrap_or_default();
     let config = match options.config {
-        Some(Value::String(path)) => GeneratorConfig::from_file(&path).unwrap(),
-        Some(obj @ Value::Object(_)) => from_value(obj).unwrap(),
+        Some(Value::String(path)) => GeneratorConfig::from_file(&path)?,
+        Some(obj @ Value::Object(_)) => from_value(obj)?,
         Some(Value::Bool(false)) => GeneratorConfig::default(),
-        _ => GeneratorConfig::from_file(DEFAULT_CONFIG_PATH).unwrap(),
+        _ => GeneratorConfig::from_file(DEFAULT_CONFIG_PATH)?,
     };
 
-    Generator(
+    Ok(Generator(
         generator::Generator::builder()
             .with_preset(preset_tailwind)
             .with_config(config)
             .with_watch(options.watch.unwrap_or(true))
             .with_parallel(options.parallel.unwrap_or(true))
             .with_base(options.base)
-            .build()
-            .unwrap(),
-    )
+            .build()?,
+    ))
 }

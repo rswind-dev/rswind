@@ -190,11 +190,11 @@ pub fn create_app() -> Generator {
     GeneratorBuilder::new().with_preset(preset_tailwind).build().unwrap()
 }
 
-pub trait GeneratorWith {
+pub trait GenerateWith {
     fn generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult;
 }
 
-impl<'a, T> GeneratorWith for T
+impl<'a, T> GenerateWith for T
 where
     T: IntoIterator + 'a,
     T::Item: AsRef<str>,

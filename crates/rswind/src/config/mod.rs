@@ -95,9 +95,16 @@ pub enum GeneratorConfigError {
     ConfigError(#[from] config::ConfigError),
 }
 
+#[cfg(feature = "napi")]
+impl From<GeneratorConfigError> for napi::Error {
+    fn from(err: GeneratorConfigError) -> Self {
+        napi::Error::new(napi::Status::GenericFailure, err.to_string())
+    }
+}
+
 impl GeneratorConfig {
     #[instrument]
-    pub fn from_file(name: &str) -> Result<Self, config::ConfigError> {
+    pub fn from_file(name: &str) -> Result<Self, GeneratorConfigError> {
         let config_result = Config::builder().add_source(config::File::with_name(name)).build();
 
         let config = match config_result {
@@ -116,7 +123,7 @@ impl GeneratorConfig {
 
         debug!(config = ?config,"Loaded configuration");
 
-        config
+        Ok(config?)
     }
 
     pub fn from_value(value: serde_json::Value) -> Result<Self, serde_json::Error> {

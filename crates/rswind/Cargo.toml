@@ -26,6 +26,7 @@ wasm = [
   "dep:tsify",
   "dep:wasm-bindgen"
 ]
+napi = [ "dep:napi" ]
 
 [dependencies]
 rswind_css_macro = { workspace = true }
@@ -68,6 +69,7 @@ tsify = { version = "0.4.5", optional = true }
 wasm-bindgen = { version = "0.2.92", optional = true }
 itertools = "0.13.0"
 instance_code = { workspace = true }
+napi = { workspace = true, optional = true }
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }
