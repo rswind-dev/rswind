@@ -165,7 +165,6 @@ impl Extend<(SmolStr, RuleList)> for ThemeMap {
 }
 
 #[derive(Debug, Default, Clone, InstanceCode)]
-#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct Theme(pub HashMap<SmolStr, Arc<ThemeMap>>);
 
 impl Theme {

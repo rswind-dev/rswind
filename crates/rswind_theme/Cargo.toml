@@ -16,8 +16,15 @@ repository.workspace = true
 
 categories.workspace = true
 
+[features]
+json_schema = [
+  "rswind_css/json_schema",
+  "dep:schemars"
+]
+
 [dependencies]
 rswind_css.workspace = true
+rswind_common.workspace = true
 
 smol_str.workspace = true
 either.workspace = true
@@ -27,6 +34,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 itertools = "0.13.0"
 instance_code = { workspace = true }
+schemars = { workspace = true, optional = true, features = [ "smol_str02" ] }
 
 [dev-dependencies]
 rswind_css_macro.workspace = true

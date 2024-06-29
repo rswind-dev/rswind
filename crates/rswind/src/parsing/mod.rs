@@ -59,6 +59,12 @@ impl From<SmolStr> for ThemeKey {
     }
 }
 
+impl From<&str> for ThemeKey {
+    fn from(s: &str) -> Self {
+        Self::Single(s.into())
+    }
+}
+
 impl<const N: usize, T> From<[T; N]> for ThemeKey
 where
     T: Into<SmolStr>,

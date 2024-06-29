@@ -13,6 +13,9 @@ use smol_str::{format_smolstr, SmolStr};
 #[derive(Debug, Default, Clone, InstanceCode)]
 pub struct FlattenedColors(pub HashMap<SmolStr, SmolStr>);
 
+#[cfg(feature = "json_schema")]
+rswind_common::impl_schemars!(FlattenedColors => HashMap<String, either::Either<String,HashMap<String,String>>>);
+
 impl Deref for FlattenedColors {
     type Target = HashMap<SmolStr, SmolStr>;
 
