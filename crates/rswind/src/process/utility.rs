@@ -12,10 +12,8 @@ use crate::{
     parsing::{AdditionalCssHandler, UtilityCandidate},
 };
 
-#[rustfmt::skip]
 pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static {}
 
-#[rustfmt::skip]
 impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
@@ -23,13 +21,8 @@ pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
 
 impl Debug for UtilityHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("UtilityHandler { ")?;
-
-        // Call the function, simply get the css
-        let rule = self.0(MetaData::modifier("$2"), SmolStr::new("$1"));
-        write!(f, "{}", rule.to_css_minified())?;
-
-        f.write_str(" }")
+        let rule = self.0(MetaData::modifier("$1"), SmolStr::new("$0"));
+        f.debug_tuple("UtilityHandler").field(&rule.to_css_minified()).finish()
     }
 }
 
@@ -200,6 +193,8 @@ impl Utility {
 
 #[cfg(test)]
 mod tests {
+    use rswind_css::ToCssString;
+
     #[test]
     fn test_css_macro() {
         let css = rswind_css_macro::css! {
@@ -209,6 +204,9 @@ mod tests {
                 "initial-value": "0";
             }
         };
-        println!("{:?}", css);
+        assert_eq!(
+            css.to_css_minified(),
+            "@property --tw-translate-x{syntax:<length-percentage>;inherits:false;initial-value:0;}"
+        );
     }
 }
