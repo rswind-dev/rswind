@@ -25,13 +25,22 @@ pub struct ThemeOptions {
 }
 
 impl ThemeOptions {
+    #[allow(clippy::should_implement_trait)] // TODO: can't describe the type of `Iterator`, too complex
     pub fn into_iter(self) -> impl Iterator<Item = (SmolStr, ThemeMap)> {
         let mut iter = put_back_n(self.normal.into_iter().map(|(k, v)| (k, ThemeMap::Dynamic(v))));
 
-        self.colors.map(|v| iter.put_back(("colors".into(), ThemeMap::Dynamic(v.0))));
-        self.keyframes.map(|v| iter.put_back(("keyframes".into(), ThemeMap::KeyFrames(v))));
-        self.font_family.map(|v| iter.put_back(("fontFamily".into(), ThemeMap::FontFamily(v))));
-        self.font_size.map(|v| iter.put_back(("fontSize".into(), ThemeMap::FontSize(v))));
+        if let Some(v) = self.colors {
+            iter.put_back(("colors".into(), ThemeMap::Dynamic(v.0)))
+        }
+        if let Some(v) = self.keyframes {
+            iter.put_back(("keyframes".into(), ThemeMap::KeyFrames(v)))
+        }
+        if let Some(v) = self.font_family {
+            iter.put_back(("fontFamily".into(), ThemeMap::FontFamily(v)))
+        }
+        if let Some(v) = self.font_size {
+            iter.put_back(("fontSize".into(), ThemeMap::FontSize(v)))
+        }
 
         iter
     }

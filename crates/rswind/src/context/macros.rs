@@ -34,7 +34,7 @@ macro_rules! add_theme_utility {
     }) => {
         $(
             $(
-                let theme = crate::parsing::ThemeKey::from($theme_key)
+                let theme = $crate::parsing::ThemeKey::from($theme_key)
                     .parse(& $design.theme)
                     .unwrap_or_else(|_| panic!("{}", $key));
 

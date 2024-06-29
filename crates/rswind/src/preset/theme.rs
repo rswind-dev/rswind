@@ -7,6 +7,7 @@ use rustc_hash::FxHashMap;
 
 use crate::DesignSystem;
 
+#[allow(clippy::disallowed_types)]
 fn theme() -> Theme {
     inject_instance!("theme")
 }
