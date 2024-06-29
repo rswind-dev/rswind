@@ -5,7 +5,6 @@ use std::{
     sync::Arc,
 };
 
-use either::Either::{Left, Right};
 use instance_code::InstanceCode;
 use phf::{phf_map, Map};
 use rswind_css::rule::RuleList;
@@ -185,42 +184,7 @@ impl Theme {
                 self.insert(key, Arc::new(value));
             }
         }
-
-        // self.expand_spread()
     }
-
-    pub fn expand_spread(&mut self) {
-        let clone = self.clone();
-
-        self.0.values_mut().for_each(|v| match Arc::make_mut(v) {
-            map @ (ThemeMap::Static(_) | ThemeMap::Dynamic(_)) => {
-                if let Some(v) =
-                    map.get_ref("...").and_then(|v| v.strip_prefix('$')).map(SmolStr::from)
-                {
-                    if v.starts_with("(") {
-                        return;
-                    }
-                    expand(map, &clone, &v)
-                }
-            }
-            _ => {}
-        });
-    }
-}
-
-pub fn expand(map: &mut ThemeMap, theme: &Theme, v: &str) {
-    let expand = theme.get(v).unwrap_or_else(|| panic!("theme key `{}` not found", v));
-    map.extend(match expand.as_ref() {
-        ThemeMap::Dynamic(map) => Left(map.clone().into_iter()),
-        ThemeMap::Static(map) => {
-            Right(map.into_iter().map(|(k, v)| (SmolStr::from(*k), SmolStr::from(*v))))
-        }
-        _ => {
-            // warn_once
-            Left(HashMap::default().into_iter())
-        }
-    });
-    map.remove("...");
 }
 
 impl Deref for Theme {
