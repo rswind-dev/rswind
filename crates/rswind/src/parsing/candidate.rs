@@ -471,7 +471,11 @@ mod tests {
         use rswind_css_macro::rule_list;
         use smol_str::SmolStr;
 
-        use crate::{parsing::candidate::CandidateParser, preset::{preset_tailwind, theme::load_theme}, DesignSystem};
+        use crate::{
+            parsing::candidate::CandidateParser,
+            preset::{preset_tailwind, theme::load_theme},
+            DesignSystem,
+        };
 
         fn run_variant(input: &str) -> Option<SmolStr> {
             let mut design = DesignSystem::default();
