@@ -6,7 +6,7 @@ use std::{
 
 use crate::{
     cache::{CacheState, GeneratorCache},
-    config::GeneratorConfig,
+    config::{GeneratorConfig, GeneratorConfigError},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
     preset::{theme, Preset},
@@ -43,6 +43,15 @@ pub enum AppBuildError {
     UtilityParingError(#[from] ThemeParseError),
     #[error("Io Error during building app: {0}")]
     IoError(#[from] std::io::Error),
+    #[error("{0}")]
+    ConfigError(#[from] GeneratorConfigError),
+}
+
+#[cfg(feature = "napi")]
+impl From<AppBuildError> for napi::Error {
+    fn from(err: AppBuildError) -> Self {
+        napi::Error::new(napi::Status::GenericFailure, err.to_string())
+    }
 }
 
 impl GeneratorBuilder {

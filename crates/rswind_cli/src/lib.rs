@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use clap::{command, Parser};
 use colored::Colorize;
 use rswind::{
-    config::GeneratorConfig, io::write_output, preset::preset_tailwind,
+    config::GeneratorConfig, generator::AppBuildError, io::write_output, preset::preset_tailwind,
     processor::GeneratorProcessor,
 };
 use rswind_css::ToCssString;
@@ -54,7 +54,7 @@ pub struct DebugCommand {
 #[derive(Debug, Parser)]
 pub struct InitCommand {}
 
-pub fn cli<I>(args: I)
+pub fn cli<I>(args: I) -> Result<(), AppBuildError>
 where
     I: IntoIterator,
     I::Item: Into<OsString> + Clone,
@@ -68,10 +68,9 @@ where
 
     let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
-        .with_config(GeneratorConfig::from_file(&opts.config).unwrap())
+        .with_config(GeneratorConfig::from_file(&opts.config)?)
         .with_watch(opts.watch)
-        .build()
-        .unwrap();
+        .build()?;
 
     match opts.cmd {
         None if opts.watch => {
@@ -96,5 +95,7 @@ where
         Some(SubCommand::Init(_)) => {
             write_output("{}", Some("rswind.config.json"));
         }
-    }
+    };
+
+    Ok(())
 }
