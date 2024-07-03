@@ -1,6 +1,6 @@
 pub use self::{
     decl::{Decl, DeclList},
-    rule::Rule,
+    rule::{Rule, RuleList},
 };
 use crate::writer::Writer;
 
