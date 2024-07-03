@@ -11,6 +11,7 @@ use crate::writer::Writer;
 
 #[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[instance(path = rswind_css)]
 pub struct Rule {
     pub selector: SmolStr,
     pub decls: Vec<Decl>,
@@ -54,6 +55,7 @@ impl Rule {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash, InstanceCode)]
+#[instance(path = rswind_css)]
 pub struct RuleList(pub Vec<Rule>);
 
 #[cfg(feature = "json_schema")]
