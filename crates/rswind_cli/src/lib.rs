@@ -87,6 +87,9 @@ where
                 }
                 println!("Generated {}:\n", cmd.input.green());
                 println!("{}", &r.rule.to_css_string());
+                if let Some(extra) = &r.extra_css {
+                    println!("{}", &extra.to_css_string());
+                }
             }
             None => {
                 eprintln!("Not a valid utility: {}", cmd.input.red());

@@ -140,7 +140,7 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
             groups.entry(*group).or_insert_with(Vec::new).push(r.raw.to_owned());
         }
 
-        if let Some(add) = r.additional_css.take() {
+        if let Some(add) = r.extra_css.take() {
             // Even oneshot run, we still need to write additional css to "cache",
             // for remove duplicates and sort them
             for css in add.iter() {

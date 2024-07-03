@@ -139,9 +139,8 @@ pub struct UtilityBuilder {
     #[serde(default)]
     pub ordering_key: Option<OrderingKey>,
 
-    // TODO: add support for below fields
-    #[serde(skip_deserializing)]
-    pub additional_css: Option<Box<dyn AdditionalCssHandler>>,
+    #[serde(default)]
+    pub extra_css: Option<Box<dyn AdditionalCssHandler>>,
 
     #[serde(skip_deserializing)]
     pub group: Option<UtilityGroup>,
@@ -179,7 +178,7 @@ impl UtilityBuilder {
             supports_fraction: false,
             modifier: None,
             validator: None,
-            additional_css: None,
+            extra_css: None,
             selector: None,
             ordering_key: None,
             group: None,

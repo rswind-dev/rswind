@@ -54,7 +54,7 @@ pub struct Utility {
 
     /// Additional css which append to stylesheet root
     /// useful when utilities like `animate-spin`
-    pub additional_css: Option<Box<dyn AdditionalCssHandler>>,
+    pub extra_css: Option<Box<dyn AdditionalCssHandler>>,
 
     pub ordering_key: Option<OrderingKey>,
 
@@ -121,7 +121,7 @@ pub struct UtilityApplyResult {
     pub rule: Rule,
     pub ordering: OrderingKey,
     pub group: Option<UtilityGroup>,
-    pub additional_css: Option<Arc<RuleList>>,
+    pub extra_css: Option<Arc<RuleList>>,
 }
 
 impl Utility {
@@ -133,7 +133,7 @@ impl Utility {
             value_def: ValueDef::default(),
             modifier: None,
             selector: None,
-            additional_css: None,
+            extra_css: None,
             ordering_key: None,
             group: None,
         }
@@ -172,8 +172,8 @@ impl Utility {
         }
 
         let mut css = None;
-        if let Some(additional_css) = &self.additional_css {
-            css = additional_css.handle(candidate.value.unwrap_or_default().as_str().into());
+        if let Some(extra_css) = &self.extra_css {
+            css = extra_css.handle(candidate.value.unwrap_or_default().as_str().into());
         }
 
         let mut node = self.handler.call(meta, process_result);
@@ -186,7 +186,7 @@ impl Utility {
             rule: node,
             ordering: self.ordering_key.unwrap_or(OrderingKey::Disorder),
             group: self.group,
-            additional_css: css,
+            extra_css: css,
         })
     }
 }
