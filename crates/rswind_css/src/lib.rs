@@ -35,3 +35,7 @@ impl<T: ToCss> ToCssString for T {
         s
     }
 }
+
+pub trait RuleModifier {
+    fn apply(&self, rule: Rule) -> Rule;
+}

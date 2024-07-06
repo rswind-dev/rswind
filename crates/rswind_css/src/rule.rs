@@ -7,7 +7,7 @@ use instance_code::InstanceCode;
 use smol_str::SmolStr;
 
 use super::{Decl, ToCss};
-use crate::writer::Writer;
+use crate::{writer::Writer, RuleModifier};
 
 #[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
@@ -33,6 +33,10 @@ impl Rule {
 
     pub fn new_with_rules(selector: impl Into<SmolStr>, rules: RuleList) -> Self {
         Self { selector: selector.into(), decls: Default::default(), rules }
+    }
+
+    pub fn apply(self, modifier: impl RuleModifier) -> Self {
+        modifier.apply(self)
     }
 
     pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T) -> Self {
