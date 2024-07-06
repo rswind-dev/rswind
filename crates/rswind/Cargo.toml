@@ -1,73 +1,48 @@
 [package]
-name = "rswind_core"
+name = "rswind"
 version = "0.0.1-alpha.1"
-readme = "../../README.md"
-
 authors.workspace = true
-
 description.workspace = true
-
 edition.workspace = true
-
 keywords.workspace = true
-
 license.workspace = true
-
 repository.workspace = true
-
 categories.workspace = true
 
 [features]
-json_schema = [
-  "rswind_css/json_schema",
-  "rswind_theme/json_schema"
-]
-wasm = [
-  "dep:tsify",
-  "dep:wasm-bindgen"
-]
-napi = [ "dep:napi" ]
-build = []
+napi = [ "rswind_core/napi" ]
+wasm = [ "rswind_core/wasm" ]
 
 [dependencies]
-rswind_css_macro = { workspace = true }
-rswind_extractor = { workspace = true }
-rswind_common = { workspace = true }
-rswind_css = { workspace = true }
-rswind_theme = { workspace = true }
+rswind_core.workspace = true
+rswind_css.workspace = true
 
-rayon = { workspace = true }
-either = { workspace = true, features = [ "serde" ] }
-enum_dispatch = { workspace = true }
 phf = { workspace = true, features = [ "macros" ] }
-colored = { workspace = true }
-smol_str = { workspace = true, features = [ "serde" ] }
-anyhow = { workspace = true }
-cssparser = { workspace = true }
-lazy_static = { workspace = true }
-lightningcss = { workspace = true, features = [ "into_owned" ] }
-serde = { workspace = true }
+tracing.workspace = true
+smol_str.workspace = true
+instance_code.workspace = true
+rustc-hash.workspace = true
+lightningcss.workspace = true
+tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
+
+[dev-dependencies]
+criterion = { workspace = true, features = [ "html_reports" ] }
+paste = "1.0.15"
 serde_json = { workspace = true }
-smallvec = { workspace = true, features = [
-  "const_generics",
-  "serde"
-] }
-rustc-hash = { workspace = true }
-memchr = { workspace = true }
-config = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-derive_more = "0.99.17"
-walkdir = { workspace = true }
-globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
-schemars = { workspace = true, features = [
-  "smallvec1",
-  "either1",
-  "smol_str02",
-] }
-tsify = { version = "0.4.5", optional = true }
-wasm-bindgen = { version = "0.2.92", optional = true }
-itertools = "0.13.0"
+either = { workspace = true }
+
+[build-dependencies]
 instance_code = { workspace = true }
-napi = { workspace = true, optional = true }
+rswind_theme = { workspace = true }
+rswind_core = { workspace = true, features = [ "build" ] }
+
+[lib]
+bench = false
+
+[[bench]]
+name = "parse"
+harness = false
+
+[[bench]]
+name = "load_rules"
+harness = false
