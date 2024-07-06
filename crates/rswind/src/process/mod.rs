@@ -12,7 +12,7 @@ pub use self::{utility::*, variant::*};
 use crate::{
     common::MaybeArbitrary,
     parsing::{ThemeKey, UtilityCandidate},
-    types::TypeValidator,
+    types::{CssTypeValidator, TypeValidator},
 };
 
 static DEFAULT: &str = "DEFAULT";
@@ -72,10 +72,11 @@ pub fn decode_arbitrary_value(input: &str) -> SmolStr {
 /// Used at: preset definitions, config deserialization.
 #[derive(Debug, Default, Deserialize)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::process))]
 #[serde(deny_unknown_fields)]
 pub struct RawValueDef {
     #[serde(rename = "type")]
-    pub validator: Option<Box<dyn TypeValidator>>,
+    pub validator: Option<CssTypeValidator>,
     #[serde(rename = "theme")]
     pub theme_key: Option<ThemeKey>,
 }
@@ -91,8 +92,8 @@ impl RawValueDef {
         Self { validator: None, theme_key: Some(theme_key.into()) }
     }
 
-    pub fn with_validator(mut self, validator: impl TypeValidator + 'static) -> Self {
-        self.validator = Some(Box::new(validator));
+    pub fn with_validator(mut self, validator: impl Into<CssTypeValidator>) -> Self {
+        self.validator = Some(validator.into());
         self
     }
 
@@ -115,7 +116,7 @@ impl RawValueDef {
 /// See also: [`ValuePreprocessor`].
 #[derive(Debug, Default)]
 pub struct ValueDef {
-    pub validator: Option<Box<dyn TypeValidator>>,
+    pub validator: Option<CssTypeValidator>,
     pub allowed_values: Option<Arc<ThemeMap>>,
 }
 
@@ -124,8 +125,8 @@ impl ValueDef {
         Self { validator: None, allowed_values: Some(Arc::new(allowed_values)) }
     }
 
-    pub fn with_validator(self, validator: impl TypeValidator + 'static) -> Self {
-        Self { validator: Some(Box::new(validator)), allowed_values: self.allowed_values }
+    pub fn with_validator(self, validator: CssTypeValidator) -> Self {
+        Self { validator: Some(validator), allowed_values: self.allowed_values }
     }
 }
 
@@ -153,7 +154,7 @@ impl<'a> MetaData<'a> {
     }
 
     /// Create a new `MetaData` with only the modifier set.
-    pub(crate) fn modifier(modifier: impl Into<SmolStr>) -> Self {
+    pub fn modifier(modifier: impl Into<SmolStr>) -> Self {
         Self { modifier: Some(modifier.into()), ..Default::default() }
     }
 

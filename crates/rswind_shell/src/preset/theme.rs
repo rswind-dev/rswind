@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
 use instance_code::inject_instance;
-use rswind_css::{rule::RuleList, Decl, Rule};
-use rswind_theme::{values::*, Theme, ThemeMap};
+use rswind_core::theme::{values::*, Theme, ThemeMap};
 use rustc_hash::FxHashMap;
 
-use crate::DesignSystem;
+use rswind_core::DesignSystem;
 
 #[allow(clippy::disallowed_types)]
 fn theme() -> Theme {

@@ -1,8 +1,9 @@
 use std::{fmt::Debug, sync::Arc};
 
 use cssparser::serialize_name;
-use rswind_css::{rule::RuleList, Decl, Rule, ToCssString};
+use rswind_css::{rule::RuleList, Decl, Rule};
 use rswind_theme::ThemeMap;
+use serde::Deserialize;
 use smallvec::{smallvec, SmallVec};
 use smol_str::{format_smolstr, SmolStr};
 
@@ -17,12 +18,60 @@ pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static 
 impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn for T {}
 
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
-pub struct UtilityHandler(Box<dyn RuleMatchingFn>);
+pub struct UtilityHandler(pub Box<dyn RuleMatchingFn>);
 
 impl Debug for UtilityHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let rule = self.0(MetaData::modifier("$1"), SmolStr::new("$0"));
-        f.debug_tuple("UtilityHandler").field(&rule.to_css_minified()).finish()
+        f.debug_tuple("UtilityHandler").field(&rule).finish()
+    }
+}
+
+#[cfg(feature = "build")]
+impl instance_code::InstanceCode for UtilityHandler {
+    fn instance_code(&self) -> instance_code::TokenStream {
+        use instance_code::quote;
+        let color = crate::common::as_color("$0", Some("1"));
+
+        let decls = self.0(MetaData::default(), SmolStr::new("$0")).decls;
+        let with_modifier = self.0(MetaData::modifier("1"), SmolStr::new("$0")).decls;
+
+        let value_count = decls.iter().filter(|d| d.value.contains("$0")).count();
+
+        let decls = decls
+            .into_iter()
+            .zip(with_modifier)
+            .map(|(decl, with_modifier)| {
+                let name = decl.name.as_str();
+                let value = decl.value.as_str();
+                if value.contains("$0") {
+                    let template = value.replace("$0", "{}");
+                    let value = match () {
+                        _ if with_modifier.value.contains(color.as_str()) => {
+                            quote!(rswind_core::common::as_color(&value, _meta.modifier.as_deref()))
+                        }
+                        _ if value_count > 1 => {
+                            quote!(value.clone())
+                        }
+                        _ => {
+                            quote!(value)
+                        }
+                    };
+                    quote!(#name: smol_str::format_smolstr!(#template, #value);)
+                } else {
+                    quote!(#name: #value;)
+                }
+            })
+            .collect::<Vec<_>>();
+        quote! {
+            rswind_core::process::UtilityHandler(
+                Box::new(|_meta, value| {
+                    rswind_core::css::css! {
+                        #(#decls)*
+                    }
+                })
+            )
+        }
     }
 }
 
@@ -62,8 +111,10 @@ pub struct Utility {
 }
 
 // TODO: make this configurable
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::process))]
 pub enum UtilityGroup {
     Transform,
     Filter,

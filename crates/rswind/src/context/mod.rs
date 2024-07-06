@@ -19,8 +19,6 @@ use crate::{
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
 };
 
-#[macro_use]
-pub mod macros;
 pub mod utilities;
 pub mod variants;
 
@@ -150,7 +148,7 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::DesignSystem;
+    /// use rswind_core::DesignSystem;
     /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
@@ -177,7 +175,7 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::DesignSystem;
+    /// use rswind_core::DesignSystem;
     /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();

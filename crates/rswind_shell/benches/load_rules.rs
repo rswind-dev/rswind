@@ -1,7 +1,10 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rswind::{
     context::DesignSystem,
-    preset::{dynamics::load_dynamic_utilities, statics::load_static_utilities, theme::load_theme},
+    preset::{
+        theme::load_theme,
+        utility::{load_dynamic_utilities, load_static_utilities},
+    },
 };
 
 pub fn criterion_benchmark(c: &mut Criterion) {

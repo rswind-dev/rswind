@@ -10,7 +10,7 @@ use serde::{
 };
 use smol_str::SmolStr;
 
-use crate::{preset::dynamics::as_color, process::UtilityHandler};
+use crate::{common::as_color, process::UtilityHandler};
 
 impl<'de> Deserialize<'de> for UtilityHandler {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -40,10 +40,8 @@ impl<'de> Deserialize<'de> for UtilityHandler {
                 Ok(UtilityHandler::new(move |meta, value| {
                     Rule::new(handlers.iter().map(|(k, tpl)| {
                         let mut w = smol_str::Writer::new();
-                        let _ = tpl.render(
-                            &mut w,
-                            &RenderData::new(&value, meta.modifier.as_ref().map(|m| m.as_str())),
-                        );
+                        let _ =
+                            tpl.render(&mut w, &RenderData::new(&value, meta.modifier.as_deref()));
 
                         Decl::new(k.as_str(), SmolStr::from(w))
                     }))

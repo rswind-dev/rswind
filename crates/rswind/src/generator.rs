@@ -6,10 +6,10 @@ use std::{
 
 use crate::{
     cache::{CacheState, GeneratorCache},
+    common::Preset,
     config::{GeneratorConfig, GeneratorConfigError},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
-    preset::{theme, Preset},
     process::ThemeParseError,
     processor::{GenOptions, GenerateResult, GeneratorProcessor, ParGenerateWith},
     DesignSystem,
@@ -88,7 +88,9 @@ impl GeneratorBuilder {
 
     #[instrument(skip_all)]
     pub fn build_processor(mut self) -> Result<GeneratorProcessor, AppBuildError> {
-        theme::load_theme(&mut self.design);
+        for preset in self.presets.drain(..) {
+            preset.load_preset(&mut self.design);
+        }
 
         if let Some(ref mut config) = self.config {
             self.design.theme.merge(&mut config.theme);
@@ -101,10 +103,6 @@ impl GeneratorBuilder {
             for (key, value) in config.static_utilities.drain() {
                 self.design.add_static(key, value);
             }
-        }
-
-        for preset in self.presets.drain(..) {
-            preset.load_preset(&mut self.design);
         }
 
         Ok(GeneratorProcessor {

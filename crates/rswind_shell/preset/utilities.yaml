@@ -1,0 +1,1774 @@
+properties:
+  translate-xy: &translate-xy
+    '@property --tw-translate-x':
+      syntax: <length> | <percentage>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-translate-y':
+      syntax: <length> | <percentage>
+      inherits: 'false'
+      initial-value: '0'
+
+  translate-xyz: &translate-xyz
+    '@property --tw-translate-x':
+      syntax: <length> | <percentage>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-translate-y':
+      syntax: <length> | <percentage>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-translate-z':
+      syntax: <length> | <percentage>
+      inherits: 'false'
+      initial-value: '0'
+
+  scale-xy: &scale-xy
+    '@property --tw-scale-x':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '1'
+    '@property --tw-scale-y':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '1'
+
+  scale-xyz: &scale-xyz
+    '@property --tw-scale-x':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '1'
+    '@property --tw-scale-y':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '1'
+    '@property --tw-scale-z':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '1'
+
+  rotate-xy: &rotate-xy
+    '@property --tw-rotate-x':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-rotate-y':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+
+  rotate-xyz: &rotate-xyz
+    '@property --tw-rotate-x':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-rotate-y':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-rotate-z':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+
+  skew-xy: &skew-xy
+    '@property --tw-skew-x':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-skew-y':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+
+  transform: &transform
+    # <<: [*rotate-xyz, *skew-xy]
+    '@property --tw-rotate-x':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-rotate-y':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-rotate-z':
+      syntax: <angle>
+      inherits: 'false'
+      initial-value: '0'
+    <<: *skew-xy
+
+  border-spacing-xy: &border-spacing-xy
+    '@property --tw-border-spacing-x':
+      syntax: <length>
+      inherits: 'false'
+      initial-value: '0'
+    '@property --tw-border-spacing-y':
+      syntax: <length>
+      inherits: 'false'
+      initial-value: '0'
+
+  space-x-reverse: &space-x-reverse
+    '@property --tw-space-x-reverse':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '0'
+
+  space-y-reverse: &space-y-reverse
+    '@property --tw-space-y-reverse':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '0'
+
+  divide-x-reverse: &divide-x-reverse
+    '@property --tw-divide-x-reverse':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '0'
+
+  divide-y-reverse: &divide-y-reverse
+    '@property --tw-divide-y-reverse':
+      syntax: <number>
+      inherits: 'false'
+      initial-value: '0'
+
+  gradient-properties: &gradient-properties
+    '@property --tw-gradient-from':
+      syntax: <color>
+      inherits: 'false'
+      initial-value: '#0000'
+    '@property --tw-gradient-to':
+      syntax: <color>
+      inherits: 'false'
+      initial-value: '#0000'
+    '@property --tw-gradient-via':
+      syntax: <color>
+      inherits: 'false'
+      initial-value: transparent
+    '@property --tw-gradient-stops':
+      syntax: '*'
+      inherits: 'false'
+    '@property --tw-gradient-via-stops':
+      syntax: '*'
+      inherits: 'false'
+    '@property --tw-gradient-from-position':
+      syntax: '<length> | <percentage>'
+      inherits: 'false'
+      initial-value: 0%
+    '@property --tw-gradient-via-position':
+      syntax: '<length> | <percentage>'
+      inherits: 'false'
+      initial-value: 50%
+    '@property --tw-gradient-to-position':
+      syntax: '<length> | <percentage>'
+      inherits: 'false'
+      initial-value: 100%
+
+  border-style: &border-style
+    '@property --tw-border-style':
+      syntax: <custom-ident>
+      initial-value: solid
+
+  box-shadow-properties: &box-shadow-properties
+    '@property --tw-shadow':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+    '@property --tw-shadow-colored':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+    '@property --tw-inset-shadow':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+    '@property --tw-inset-shadow-colored':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+    '@property --tw-ring-color':
+      syntax: <color>
+      inherits: 'false'
+    '@property --tw-ring-shadow':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+    '@property --tw-inset-ring-color':
+      syntax: <color>
+      inherits: 'false'
+    '@property --tw-inset-ring-shadow':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 0 0 #0000'
+    '@property --tw-ring-inset':
+      syntax: '*'
+      inherits: 'false'
+    '@property --tw-ring-offset-width':
+      syntax: <length>
+      inherits: 'false'
+      initial-value: 0px
+    '@property --tw-ring-offset-color':
+      syntax: <color>
+      inherits: 'false'
+      initial-value: '#fff'
+    '@property --tw-ring-offset-shadow':
+      syntax: '*'
+      inherits: 'false'
+      initial-value: '0 0 #0000'
+
+utilities:
+  - key: flex
+    css:
+      flex: $0
+    theme: flex
+    type: flex
+    fraction: true
+
+  - key: shrink
+    css:
+      flex-shrink: $0
+    theme: flexShrink
+    type: flex-shrink
+
+  - key: grow
+    css:
+      flex-grow: $0
+    theme: flexGrow
+    type: flex-grow
+
+  - key: basis
+    css:
+      flex-basis: $0
+    theme:
+      - flexBasis
+      - spacing
+    type: flex-basis
+
+  - key: origin
+    css:
+      transform-origin: $0
+    theme: transformOrigin
+    type: transform-origin
+
+  - key: perspective
+    css:
+      perspective: $0
+    type: length
+
+  - key: translate
+    css:
+      --tw-translate-x: $0
+      --tw-translate-y: $0
+      --tw-translate-z: $0
+      translate: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))
+    theme:
+      - translate
+      - spacing
+    type: length-percentage
+    negative: true
+    fraction: true
+    extra-css: *translate-xy
+
+  - key: translate-x
+    css:
+      --tw-translate-x: $0
+      translate: var(--tw-translate-x) var(--tw-translate-y)
+    theme: translate
+    type: length-percentage
+    negative: true
+    fraction: true
+    extra-css: *translate-xy
+
+  - key: translate-y
+    css:
+      --tw-translate-y: $0
+      translate: var(--tw-translate-x) var(--tw-translate-y)
+    theme: translate
+    type: length-percentage
+    negative: true
+    fraction: true
+    extra-css: *translate-xy
+
+  - key: translate-z
+    css:
+      --tw-translate-z: $0
+      translate: var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)
+    theme: translate
+    type: length-percentage
+    negative: true
+    extra-css: *translate-xyz
+
+  - key: scale
+    css:
+      --tw-scale-x: $0
+      --tw-scale-y: $0
+      --tw-scale-z: $0
+      scale: var(--tw-scale-x) var(--tw-scale-y)
+    theme: scale
+    type: percentage
+    negative: true
+    extra-css: *scale-xyz
+
+  - key: scale-x
+    css:
+      --tw-scale-x: $0
+      transform: var(--tw-scale-x) var(--tw-scale-y)
+    theme: scale
+    type: percentage
+    negative: true
+    extra-css: *scale-xy
+
+  - key: scale-y
+    css:
+      --tw-scale-y: $0
+      transform: var(--tw-scale-x) var(--tw-scale-y)
+    theme: scale
+    type: percentage
+    negative: true
+    extra-css: *scale-xy
+
+  - key: scale-z
+    css:
+      --tw-scale-z: $0
+      transform: var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)
+    theme: scale
+    type: percentage
+    negative: true
+    extra-css: *scale-xyz
+
+  - key: rotate
+    css:
+      rotate: $0
+    theme: rotate
+    type: rotate
+    negative: true
+
+  - key: rotate-x
+    css:
+      --tw-rotate-x: $0
+    theme: rotate
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: rotate-y
+    css:
+      --tw-rotate-y: $0
+    theme: rotate
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: rotate-z
+    css:
+      --tw-rotate-z: $0
+    theme: rotate
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: skew
+    css:
+      --tw-skew-x: $0
+      --tw-skew-y: $0
+    theme: skew
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: skew-x
+    css:
+      --tw-skew-x: $0
+    theme: skew
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: skew-y
+    css:
+      --tw-skew-y: $0
+    theme: skew
+    type: angle
+    negative: true
+    group: transform
+    extra-css: *transform
+
+  - key: transform
+    css:
+      transform: $0
+    type: transform
+    group: transform
+    extra-css: *transform
+
+  - key: line-clamp
+    css:
+      display: -webkit-box
+      -webkit-line-clamp: $0
+      -webkit-box-orient: vertical
+      overflow: hidden
+    theme: lineClamp
+    type: number
+
+  - key: border-spacing
+    css:
+      --tw-border-spacing-x: $0
+      --tw-border-spacing-y: $0
+      border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y)
+    theme:
+      - borderSpacing
+      - spacing
+    type: length
+    order: border-spacing
+    extra-css: *border-spacing-xy
+
+  - key: border-spacing-x
+    css:
+      --tw-border-spacing-x: $0
+      border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y)
+    theme:
+      - borderSpacing
+      - spacing
+    type: length
+    order: border-spacing-axis
+    extra-css: *border-spacing-xy
+
+  - key: border-spacing-y
+    css:
+      --tw-border-spacing-y: $0
+      border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y)
+    theme:
+      - borderSpacing
+      - spacing
+    type: length
+    order: border-spacing-axis
+    extra-css: *border-spacing-xy
+
+  # TODO: needs manually write
+  # - key: animate
+  #   css:
+  #     animation: $0
+  #   theme: animation
+  #   extra-css: null
+
+  - key: space-x
+    css:
+      --tw-space-x-reverse: 0
+      margin-right: calc($0 * var(--tw-space-x-reverse))
+      margin-left: calc($0 * calc(1 - var(--tw-space-x-reverse)))
+    theme:
+      - space
+      - spacing
+    selector: '&:where(& > :not(:last-child))'
+    negative: true
+    order: space-axis
+    extra-css: *space-x-reverse
+
+  - key: space-y
+    css:
+      --tw-space-y-reverse: 0
+      margin-top: calc($0 * calc(1 - var(--tw-space-y-reverse)))
+      margin-bottom: calc($0 * var(--tw-space-y-reverse))
+    theme:
+      - space
+      - spacing
+    selector: '&:where(& > :not(:last-child))'
+    negative: true
+    order: space-axis
+    extra-css: *space-y-reverse
+
+  - key: divide-x
+    css:
+      --tw-divide-x-reverse: 0
+      border-right-width: calc($0 * var(--tw-divide-x-reverse))
+      border-left-width: calc($0 * calc(1 - var(--tw-divide-x-reverse)))
+    theme:
+      - divideWidth
+      - borderWidth
+    type: border-right-width
+    order: border-width-axis
+    extra-css: *divide-x-reverse
+
+  - key: divide-y
+    css:
+      --tw-divide-y-reverse: 0
+      border-top-width: calc($0 * calc(1 - var(--tw-divide-y-reverse)))
+      border-bottom-width: calc($0 * var(--tw-divide-y-reverse))
+    theme:
+      - divideWidth
+      - borderWidth
+    type: border-top-width
+    order: border-width-axis
+    extra-css: *divide-y-reverse
+
+  - key: divide
+    css:
+      border-color: $0:color
+    theme:
+      - divideColor
+      - colors
+    type: border-color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: border
+    css:
+      border-width: $0:color
+    theme: colors
+    type: border-color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: from
+    css:
+      --tw-gradient-from: $0:color var(--tw-gradient-from-position)
+      --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))
+    theme:
+      - gradientColorStops
+      - colors
+    type: color
+    order: from-color
+    extra-css: *gradient-properties
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: from
+    css:
+      --tw-gradient-from-position: $0
+    theme: gradientColorStopPositions
+    type: length-percentage
+    order: from-position
+    extra-css: *gradient-properties
+
+  - key: via
+    css:
+      --tw-gradient-via: $0
+      --tw-gradient-via-stops: var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)
+      --tw-gradient-stops: var(--tw-gradient-via-stops)
+    theme:
+      - gradientColorStops
+      - colors
+    type: color
+    order: via-color
+    extra-css: *gradient-properties
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: via
+    css:
+      --tw-gradient-via-position: $0
+    theme: gradientColorStopPositions
+    type: length-percentage
+    order: via-position
+    extra-css: *gradient-properties
+
+  - key: to
+    css:
+      --tw-gradient-to: $0
+      --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))
+    theme:
+      - gradientColorStops
+      - colors
+    order: to-color
+    extra-css: *gradient-properties
+
+  - key: to
+    css:
+      --tw-gradient-to-position: $0
+    theme: gradientColorStopPositions
+    type: length-percentage
+    extra-css: *gradient-properties
+
+  - key: fill
+    css:
+      fill: $0
+    theme:
+      - fill
+      - colors
+    type: color
+
+  - key: stroke
+    css:
+      stroke-width: $0
+    theme: strokeWidth
+    type: length-percentage
+
+  - key: stroke
+    css:
+      stroke: $0:color
+    theme:
+      - stroke
+      - colors
+    type: color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: bg
+    css:
+      background-color: $0:color
+    theme:
+      - backgroundColor
+      - colors
+    type: color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: bg
+    css:
+      background-position: $0
+    theme: backgroundPosition
+    type: background-position
+
+  - key: bg
+    css:
+      background-size: $0
+    theme: backgroundSize
+    type: background-size
+
+  - key: bg
+    css:
+      background-image: $0
+    theme: backgroundImage
+    type: background-image
+
+  - key: text
+    css:
+      color: $0:color
+    theme:
+      - textColor
+      - colors
+    type: color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  # - key: text
+  #   css:
+  #     font-size: $0
+  #   theme: fontSize
+  #   type: font-size
+  #   modifier:
+  #     type: line-height
+  #     theme: lineHeight
+
+  - key: font
+    css:
+      font-weight: $0
+    theme: fontWeight
+    type: font-weight
+
+  # - key: font
+  #   css:
+  #     font-family: $0
+  #   theme: fontFamily
+  #   type: font-weight
+
+  - key: text-ident
+    css:
+      text-indent: $0
+    theme:
+      - textIndent
+      - spacing
+    type: text-indent
+
+  - key: font-stretch
+    css:
+      font-stretch: $0
+    type: font-stretch
+
+  - key: placeholder
+    css:
+      color: $0:color
+    theme:
+      - placeholderColor
+      - colors
+    type: color
+    selector: '&::placeholder'
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: decoration
+    css:
+      text-decoration-color: $0:color
+    theme:
+      - textDecorationColor
+      - colors
+    type: color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: decoration
+    css:
+      text-decoration-thickness: $0
+    theme: textDecorationThickness
+    type: length-percentage
+
+  # TODO: implement shadow
+  # - key: shadow
+  #   css:
+  #     box-shadow: $0
+  #   theme: boxShadow
+  #   type: box-shadow
+  #   extra-css: *box-shadow-properties
+
+  # - key: shadow
+  #   css:
+  #     --tw-shadow-color: $0
+  #     --tw-shadow: var(--tw-shadow-colored)
+  #   theme:
+  #     - boxShadowColor
+  #     - colors
+  #   type: color
+  #   extra-css: *box-shadow-properties
+
+  - key: blur
+    css:
+      --tw-blur: blur($0)
+    theme: blur
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-blur
+    css:
+      --tw-backdrop-blur: blur($0)
+    theme:
+      - backdropBlur
+      - blur
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: brightness
+    css:
+      --tw-brightness: brightness($0)
+    theme: brightness
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-brightness
+    css:
+      --tw-backdrop-brightness: brightness($0)
+    theme:
+      - backdropBrightness
+      - brightness
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: contrast
+    css:
+      --tw-contrast: contrast($0)
+    theme: contrast
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-contrast
+    css:
+      --tw-backdrop-contrast: contrast($0)
+    theme:
+      - backdropContrast
+      - contrast
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: grayscale
+    css:
+      --tw-grayscale: grayscale($0)
+    theme: grayscale
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-grayscale
+    css:
+      --tw-backdrop-grayscale: grayscale($0)
+    theme:
+      - backdropGrayscale
+      - grayscale
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: invert
+    css:
+      --tw-invert: invert($0)
+    theme: invert
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-invert
+    css:
+      --tw-backdrop-invert: invert($0)
+    theme:
+      - backdropInvert
+      - invert
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: invert
+    css:
+      --tw-invert: invert($0)
+    theme: invert
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-invert
+    css:
+      --tw-backdrop-invert: invert($0)
+    theme:
+      - backdropInvert
+      - invert
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: saturate
+    css:
+      --tw-saturate: saturate($0)
+    theme: saturate
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-saturate
+    css:
+      --tw-backdrop-saturate: saturate($0)
+    theme:
+      - backdropSaturate
+      - saturate
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: sepia
+    css:
+      --tw-sepia: sepia($0)
+    theme: sepia
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-sepia
+    css:
+      --tw-backdrop-sepia: sepia($0)
+    theme:
+      - backdropSepia
+      - sepia
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: drop-shadow
+    css:
+      --tw-drop-shadow: $0
+    theme: dropShadow
+    type: length-percentage
+    group: filter
+
+  - key: backdrop-opacity
+    css:
+      --tw-backdrop-opacity: $0
+    theme: opacity
+    type: length-percentage
+    group: backdrop-filter
+
+  - key: cursor
+    css:
+      cursor: $0
+    type: cursor
+
+  - key: list
+    css:
+      list-style-type: $0
+    type: list-style-type
+
+  - key: list-image
+    css:
+      list-style-image: $0
+    type: list-style-image
+
+  - key: columns
+    css:
+      columns: $0
+    type: any
+
+  - key: auto-cols
+    css:
+      grid-auto-columns: $0
+    theme: gridAutoColumns
+    type: grid-auto-columns
+
+  - key: auto-rows
+    css:
+      grid-auto-rows: $0
+    theme: gridAutoRows
+    type: grid-auto-rows
+
+  - key: gap
+    css:
+      gap: $0
+    theme:
+      - gap
+      - spacing
+    type: gap
+
+  - key: gap-x
+    css:
+      column-gap: $0
+    theme:
+      - gap
+      - spacing
+    type: gap
+
+  - key: gap-y
+    css:
+      row-gap: $0
+    theme:
+      - gap
+      - spacing
+    type: gap
+
+  - key: accent
+    css:
+      accent-color: $0
+    theme:
+      - accentColor
+      - colors
+    type: accent-color
+
+  - key: caret
+    css:
+      caret-color: $0
+    theme:
+      - caretColor
+      - colors
+    type: accent-color
+
+  - key: border
+    css:
+      border-style: var(--tw-border-style)
+      border-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width
+    extra-css: *border-style
+
+  - key: border-x
+    css:
+      border-left-style: var(--tw-border-style)
+      border-right-style: var(--tw-border-style)
+      border-left-width: $0
+      border-right-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-axis
+    extra-css: *border-style
+
+  - key: border-y
+    css:
+      border-top-style: var(--tw-border-style)
+      border-bottom-style: var(--tw-border-style)
+      border-top-width: $0
+      border-bottom-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-axis
+    extra-css: *border-style
+
+  - key: border-s
+    css:
+      border-inline-start-style: var(--tw-border-style)
+      border-inline-end-style: var(--tw-border-style)
+      border-inline-start-width: $0
+      border-inline-end-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: border-e
+    css:
+      border-inline-start-style: var(--tw-border-style)
+      border-inline-end-style: var(--tw-border-style)
+      border-inline-start-width: $0
+      border-inline-end-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: border-t
+    css:
+      border-top-style: var(--tw-border-style)
+      border-bottom-style: var(--tw-border-style)
+      border-top-width: $0
+      border-bottom-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: border-r
+    css:
+      border-right-style: var(--tw-border-style)
+      border-left-style: var(--tw-border-style)
+      border-right-width: $0
+      border-left-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: border-b
+    css:
+      border-top-style: var(--tw-border-style)
+      border-bottom-style: var(--tw-border-style)
+      border-top-width: $0
+      border-bottom-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: border-l
+    css:
+      border-right-style: var(--tw-border-style)
+      border-left-style: var(--tw-border-style)
+      border-right-width: $0
+      border-left-width: $0
+    theme: borderWidth
+    type: border-width
+    order: border-width-side
+    extra-css: *border-style
+
+  - key: outline
+    css:
+      outline-style: var(--tw-outline-style)
+      outline-width: $0
+    theme: outlineWidth
+    type: outline-width
+
+  - key: outline
+    css:
+      outline-color: $0
+    theme:
+      - outlineColor
+      - colors
+    type: outline-width
+
+  - key: ring
+    css:
+      --tw-ring-color: $0:color
+    theme:
+      - ringColor
+      - colors
+    type: box-shadow
+    extra-css: *box-shadow-properties
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: ring
+    css:
+      --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc($0 + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor)
+    theme:
+      - ringColor
+      - colors
+    type: length
+    extra-css: *box-shadow-properties
+
+  - key: ring-offset
+    css:
+      --tw-ring-offset-width: $0
+      --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)
+    theme: ringOffsetWidth
+    type: length
+
+  - key: ring-offset
+    css:
+      --tw-ring-offset-color: $0:color
+    theme:
+      - ringOffsetColor
+      - ringColor
+      - colors
+    type: color
+    modifier:
+      type: opacity
+      theme: opacity
+
+  - key: m
+    css:
+      margin: $0
+    theme:
+      - margin
+      - spacing
+    type: margin
+    negative: true
+    fraction: true
+    order: margin
+
+  - key: mx
+    css:
+      margin-left: $0
+      margin-right: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-left
+    order: margin-axis
+
+  - key: my
+    css:
+      margin-top: $0
+      margin-bottom: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-top
+    order: margin-axis
+
+  - key: mt
+    css:
+      margin-top: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-top
+    order: margin-side
+
+  - key: mr
+    css:
+      margin-right: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-right
+    order: margin-side
+
+  - key: mb
+    css:
+      margin-bottom: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-bottom
+    order: margin-side
+
+  - key: ml
+    css:
+      margin-left: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-right
+    order: margin-side
+
+  - key: ms
+    css:
+      margin-inline-start: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-right
+    order: margin-side
+
+  - key: me
+    css:
+      margin-inline-end: $0
+    theme:
+      - margin
+      - spacing
+    type: margin-right
+    order: margin-side
+
+  - key: p
+    css:
+      padding: $0
+    theme:
+      - padding
+      - spacing
+    type: padding
+    order: padding
+
+  - key: px
+    css:
+      padding-left: $0
+      padding-right: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-axis
+
+  - key: py
+    css:
+      padding-top: $0
+      padding-bottom: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-axis
+
+  - key: pt
+    css:
+      padding-top: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: pr
+    css:
+      padding-right: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: pb
+    css:
+      padding-bottom: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: pl
+    css:
+      padding-left: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: ps
+    css:
+      padding-inline-start: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: pe
+    css:
+      padding-inline-end: $0
+    theme:
+      - padding
+      - spacing
+    type: padding-top
+    order: padding-side
+
+  - key: inset
+    css:
+      top: $0
+      right: $0
+      bottom: $0
+      left: $0
+    theme:
+      - inset
+      - spacing
+    type: inset
+    negative: true
+    fraction: true
+    order: inset
+
+  - key: inset-x
+    css:
+      left: $0
+      right: $0
+    theme:
+      - inset
+      - spacing
+    type: left
+    negative: true
+    fraction: true
+    order: inset-axis
+
+  - key: inset-y
+    css:
+      top: $0
+      bottom: $0
+    theme:
+      - inset
+      - spacing
+    type: top
+    negative: true
+    fraction: true
+    order: inset-axis
+
+  - key: top
+    css:
+      top: $0
+    theme:
+      - inset
+      - spacing
+    type: top
+    negative: true
+    fraction: true
+    order: inset-side
+
+  - key: right
+    css:
+      right: $0
+    theme:
+      - inset
+      - spacing
+    type: top
+    negative: true
+    fraction: true
+    order: inset-side
+
+  - key: bottom
+    css:
+      bottom: $0
+    theme:
+      - inset
+      - spacing
+    type: top
+    negative: true
+    fraction: true
+    order: inset-side
+
+  - key: left
+    css:
+      left: $0
+    theme:
+      - inset
+      - spacing
+    type: top
+    negative: true
+    fraction: true
+    order: inset-side
+
+  - key: w
+    css:
+      width: $0
+    theme:
+      - width
+      - spacing
+    type: width
+    fraction: true
+    order: size-axis
+
+  - key: max-w
+    css:
+      max-width: $0
+    theme:
+      - maxWidth
+      - spacing
+    type: max-width
+    fraction: true
+    order: size-axis
+
+  - key: min-w
+    css:
+      min-width: $0
+    theme:
+      - minWidth
+      - spacing
+    type: min-width
+    fraction: true
+    order: size-axis
+
+  - key: h
+    css:
+      height: $0
+    theme:
+      - height
+      - spacing
+    type: width
+    fraction: true
+    order: size-axis
+
+  - key: max-h
+    css:
+      max-height: $0
+    theme:
+      - maxHeight
+      - spacing
+    type: max-width
+    fraction: true
+    order: size-axis
+
+  - key: min-h
+    css:
+      min-height: $0
+    theme:
+      - minHeight
+      - spacing
+    type: min-width
+    fraction: true
+    order: size-axis
+
+  - key: size
+    css:
+      width: $0
+      height: $0
+    theme:
+      - size
+      - spacing
+    type: width
+    fraction: true
+    order: size
+
+  - key: rounded
+    css:
+      border-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded
+
+  - key: rounded-s
+    css:
+      border-start-start-radius: $0
+      border-end-start-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-e
+    css:
+      border-start-end-radius: $0
+      border-end-end-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-t
+    css:
+      border-top-left-radius: $0
+      border-top-right-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-r
+    css:
+      border-top-right-radius: $0
+      border-bottom-right-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-b
+    css:
+      border-bottom-right-radius: $0
+      border-bottom-left-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-l
+    css:
+      border-top-left-radius: $0
+      border-bottom-left-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-side
+
+  - key: rounded-ss
+    css:
+      border-start-start-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-se
+    css:
+      border-start-end-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-ee
+    css:
+      border-end-end-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-es
+    css:
+      border-end-start-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-tl
+    css:
+      border-top-left-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-tr
+    css:
+      border-top-right-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-br
+    css:
+      border-bottom-right-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: rounded-bl
+    css:
+      border-bottom-left-radius: $0
+    theme: borderRadius
+    type: border-radius
+    order: rounded-corner
+
+  - key: leading
+    css:
+      line-height: $0
+    theme: lineHeight
+    type: line-height
+
+  - key: border
+    css:
+      border-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color
+
+  - key: border-x
+    css:
+      border-right-color: $0
+      border-left-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-axis
+
+  - key: border-y
+    css:
+      border-top-color: $0
+      border-bottom-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-axis
+
+  - key: border-s
+    css:
+      border-inline-start-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: border-e
+    css:
+      border-inline-end-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: border-t
+    css:
+      border-top-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: border-r
+    css:
+      border-right-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: border-b
+    css:
+      border-bottom-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: border-l
+    css:
+      border-left-color: $0
+    theme:
+      - borderColor
+      - colors
+    type: border-color
+    order: border-color-side
+
+  - key: opacity
+    css:
+      opacity: $0
+    theme: opacity
+    type: opacity
+
+  - key: scroll-m
+    css:
+      scroll-margin: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-mx
+    css:
+      scroll-margin-left: $0
+      scroll-margin-right: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-my
+    css:
+      scroll-margin-top: $0
+      scroll-margin-bottom: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-ms
+    css:
+      scroll-margin-inline-start: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-me
+    css:
+      scroll-margin-inline-end: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-mt
+    css:
+      scroll-margin-top: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-mr
+    css:
+      scroll-margin-right: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-mb
+    css:
+      scroll-margin-bottom: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-ml
+    css:
+      scroll-margin-left: $0
+    theme:
+      - scrollMargin
+      - spacing
+    type: scroll-margin
+
+  - key: scroll-p
+    css:
+      scroll-padding: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-px
+    css:
+      scroll-padding-left: $0
+      scroll-padding-right: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-py
+    css:
+      scroll-padding-top: $0
+      scroll-padding-bottom: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-ps
+    css:
+      scroll-padding-inline-start: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-pe
+    css:
+      scroll-padding-inline-end: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-pt
+    css:
+      scroll-padding-top: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-pr
+    css:
+      scroll-padding-right: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-pb
+    css:
+      scroll-padding-bottom: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding
+
+  - key: scroll-pl
+    css:
+      scroll-padding-left: $0
+    theme:
+      - scrollPadding
+      - spacing
+    type: scroll-padding

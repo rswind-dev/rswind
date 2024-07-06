@@ -16,6 +16,7 @@ mod generator_tests {
     fn test_generator_builder2() {
         let generator = Generator::builder()
             .with_base(Some("src".to_owned()))
+            .with_preset(preset_tailwind)
             .with_config(
                 GeneratorConfig::from_value(json!({
                     "theme": {

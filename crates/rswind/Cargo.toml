@@ -1,5 +1,5 @@
 [package]
-name = "rswind"
+name = "rswind_core"
 version = "0.0.1-alpha.1"
 readme = "../../README.md"
 
@@ -27,6 +27,7 @@ wasm = [
   "dep:wasm-bindgen"
 ]
 napi = [ "dep:napi" ]
+build = []
 
 [dependencies]
 rswind_css_macro = { workspace = true }
@@ -70,22 +71,3 @@ wasm-bindgen = { version = "0.2.92", optional = true }
 itertools = "0.13.0"
 instance_code = { workspace = true }
 napi = { workspace = true, optional = true }
-
-[dev-dependencies]
-criterion = { workspace = true, features = [ "html_reports" ] }
-paste = "1.0.15"
-
-[build-dependencies]
-instance_code = { workspace = true }
-rswind_theme = { workspace = true }
-
-[lib]
-bench = false
-
-[[bench]]
-name = "parse"
-harness = false
-
-[[bench]]
-name = "load_rules"
-harness = false
