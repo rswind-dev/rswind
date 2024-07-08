@@ -18,7 +18,6 @@ pub use lightningcss::{
         time::Time,
     },
 };
-use rswind_common::impl_schemars;
 use serde::{Deserialize, Deserializer};
 
 #[enum_dispatch]
