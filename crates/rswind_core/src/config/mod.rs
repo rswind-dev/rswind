@@ -12,7 +12,7 @@ use smol_str::SmolStr;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
 
-use crate::parsing::UtilityBuilder;
+use crate::parse::UtilityBuilder;
 
 pub static DEFAULT_CONFIG_PATH: &str = "rswind.config.json";
 

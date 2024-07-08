@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rswind::{
-    context::DesignSystem,
+    design::DesignSystem,
     preset::{
         theme::load_theme,
         utility::{load_dynamic_utilities, load_static_utilities},

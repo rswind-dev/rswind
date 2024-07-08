@@ -3,12 +3,10 @@ use smallvec::SmallVec;
 use smol_str::{format_smolstr, SmolStr};
 use thiserror::Error;
 
-use crate::{common::StrReplaceExt, parsing::VariantCandidate};
+use crate::{common::StrReplaceExt, parse::VariantCandidate};
 
-#[rustfmt::skip]
 pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 
-#[rustfmt::skip]
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 pub trait VariantHandlerExt {
@@ -272,7 +270,7 @@ mod tests {
     use smol_str::format_smolstr;
 
     use super::{DynamicHandler, VariantHandlerExt};
-    use crate::{context::DesignSystem, parsing::candidate::CandidateParser};
+    use crate::{design::DesignSystem, parse::candidate::CandidateParser};
 
     #[test]
     fn test_variant_process() {

@@ -8,7 +8,7 @@ use smol_str::SmolStr;
 use crate::{
     config::StaticUtilityValue,
     ordering::OrderingKey,
-    parsing::UtilityCandidate,
+    parse::UtilityCandidate,
     process::{Utility, UtilityApplyResult},
 };
 

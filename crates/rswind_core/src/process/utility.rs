@@ -10,7 +10,7 @@ use smol_str::{format_smolstr, SmolStr};
 use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     ordering::OrderingKey,
-    parsing::{AdditionalCssHandler, UtilityCandidate},
+    parse::{AdditionalCssHandler, UtilityCandidate},
 };
 
 pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static {}
@@ -244,7 +244,7 @@ impl Utility {
 
 #[cfg(test)]
 mod tests {
-    use rswind_css::ToCssString;
+    use crate::css::ToCssString;
 
     #[test]
     fn test_css_macro() {

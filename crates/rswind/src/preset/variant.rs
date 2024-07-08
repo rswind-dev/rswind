@@ -2,7 +2,7 @@ use smol_str::format_smolstr;
 
 use rswind_core::{
     common::{MaybeArbitrary, StrReplaceExt},
-    context::DesignSystem,
+    design::DesignSystem,
     process::{Variant, VariantOrdering},
 };
 
@@ -79,7 +79,7 @@ pub fn load_variants(design: &mut DesignSystem) {
         "data",
         |rule, candidate| {
             rule.modify_with(|s| {
-                format_smolstr!("{}[data-{}]", s, take_or_default(&candidate.value))
+                format_smolstr!("{}[data-{}]", s, candidate.value.as_deref().unwrap_or_default())
             })
         },
         false,
@@ -94,7 +94,7 @@ pub fn load_variants(design: &mut DesignSystem) {
     });
 
     design.add_variant_composable("group", |rule, candidate| {
-        let group_name = take_or_default(&candidate.modifier);
+        let group_name = candidate.modifier.as_deref().unwrap_or_default();
         let selector = format_smolstr!(
             ":where(.group{}{})",
             if group_name.is_empty() { "" } else { r"\/" },
@@ -105,7 +105,7 @@ pub fn load_variants(design: &mut DesignSystem) {
     });
 
     design.add_variant_composable("peer", |rule, candidate| {
-        let group_name = take_or_default(&candidate.modifier);
+        let group_name = candidate.modifier.as_deref().unwrap_or_default();
         let selector = format_smolstr!(
             ":where(.peer{}{})",
             if group_name.is_empty() { "" } else { r"\/" },
@@ -133,15 +133,11 @@ pub fn load_variants(design: &mut DesignSystem) {
     }
 }
 
-fn take_or_default<'b>(value: &'b Option<MaybeArbitrary<'_>>) -> &'b str {
-    value.as_ref().map(|m| m.as_str()).unwrap_or("")
-}
-
 #[cfg(test)]
 mod tests {
 
     use super::*;
-    use crate::{context::DesignSystem, parsing::candidate::CandidateParser};
+    use crate::{design::DesignSystem, parse::candidate::CandidateParser};
     use rswind_core::css::css;
     use rswind_core::css::ToCssString;
 

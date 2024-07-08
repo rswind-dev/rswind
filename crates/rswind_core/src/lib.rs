@@ -1,12 +1,12 @@
 pub mod cache;
 pub mod common;
 pub mod config;
-pub mod context;
+pub mod design;
 pub mod generator;
 pub mod glob;
 pub mod io;
 pub mod ordering;
-pub mod parsing;
+pub mod parse;
 pub mod process;
 pub mod processor;
 pub mod types;
@@ -14,7 +14,7 @@ pub mod types;
 pub use config::GeneratorConfig;
 pub use generator::Generator;
 
-pub use context::DesignSystem;
+pub use design::DesignSystem;
 
 pub mod css {
     pub use rswind_css::*;
@@ -31,5 +31,5 @@ pub mod extract {
 
 pub mod build {
     pub use crate::config::StaticUtilityConfig;
-    pub use crate::parsing::UtilityInput;
+    pub use crate::parse::UtilityInput;
 }

@@ -15,7 +15,7 @@ use self::{
 use crate::{
     common::{StrReplaceExt, StrSplitExt},
     ordering::OrderingKey,
-    parsing::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
+    parse::{candidate::CandidateParser, UtilityCandidate, VariantCandidate},
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
 };
 

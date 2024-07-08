@@ -5,12 +5,12 @@ use rswind_core::process::RawValueDef;
 use rswind_core::theme::values::{FontFamily, FontSize};
 use rswind_core::theme::ThemeValue;
 use rswind_core::types::CssProperty;
-use rswind_core::{config::StaticUtilityConfig, parsing::UtilityBuilder};
+use rswind_core::{config::StaticUtilityConfig, parse::UtilityBuilder};
 use rswind_css::Rule;
 use smol_str::{format_smolstr, SmolStr};
 use std::sync::Arc;
 
-use rswind_core::context::DesignSystem;
+use rswind_core::design::DesignSystem;
 
 #[allow(clippy::disallowed_types)]
 pub fn load_static_utilities(design: &mut DesignSystem) {

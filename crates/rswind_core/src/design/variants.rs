@@ -4,7 +4,7 @@ use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 use crate::{
-    parsing::VariantCandidate,
+    parse::VariantCandidate,
     process::{Variant, VariantOrdering},
 };
 

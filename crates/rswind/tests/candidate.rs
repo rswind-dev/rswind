@@ -71,7 +71,7 @@ macro_rules! test_group {
 
 mod utility {
     use rswind::{
-        parsing::{candidate::CandidateParser, UtilityCandidate},
+        parse::{candidate::CandidateParser, UtilityCandidate},
         preset::preset_tailwind,
         DesignSystem,
     };
@@ -104,7 +104,7 @@ mod variant {
     use smol_str::SmolStr;
 
     use rswind::{
-        parsing::candidate::CandidateParser,
+        parse::candidate::CandidateParser,
         preset::{preset_tailwind, theme::load_theme},
         DesignSystem,
     };

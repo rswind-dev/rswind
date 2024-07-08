@@ -1,6 +1,6 @@
 use tracing::{enabled, info, Level};
 
-use rswind_core::context::DesignSystem;
+use rswind_core::design::DesignSystem;
 
 pub mod theme;
 pub mod utility;

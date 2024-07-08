@@ -12,8 +12,8 @@ use super::{
 };
 use crate::{
     common::MaybeArbitrary,
-    context::{utilities::UtilityStorage, variants::VariantStorage},
-    parsing::state::VariantTransformer,
+    design::{utilities::UtilityStorage, variants::VariantStorage},
+    parse::state::VariantTransformer,
     process::{Variant, VariantKind, VariantOrdering},
 };
 
