@@ -244,11 +244,11 @@ impl Utility {
 
 #[cfg(test)]
 mod tests {
-    use crate::css::ToCssString;
+    use crate::css::{css, ToCssString};
 
     #[test]
     fn test_css_macro() {
-        let css = rswind_css_macro::css! {
+        let css = css! {
             "@property --tw-translate-x" {
                 "syntax": "<length-percentage>";
                 "inherits": "false";
