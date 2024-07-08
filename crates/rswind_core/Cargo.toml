@@ -23,7 +23,7 @@ napi = [ "dep:napi" ]
 build = []
 
 [dependencies]
-rswind_css_macro.workspace = true
+rswind_css_macros.workspace = true
 rswind_extractor.workspace = true
 rswind_common.workspace = true
 rswind_css.workspace = true

@@ -266,7 +266,7 @@ impl VariantHandlerExt for ComposableHandler {
 #[cfg(test)]
 mod tests {
     use rswind_css::{rule::RuleList, Decl, Rule};
-    use rswind_css_macro::css;
+    use rswind_css_macros::css;
     use smol_str::format_smolstr;
 
     use super::{DynamicHandler, VariantHandlerExt};

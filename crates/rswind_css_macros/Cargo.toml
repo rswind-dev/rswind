@@ -1,5 +1,5 @@
 [package]
-name = "rswind_css_macro"
+name = "rswind_css_macros"
 version = "0.0.1-alpha.1"
 authors.workspace = true
 description.workspace = true

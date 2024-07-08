@@ -62,7 +62,7 @@ mod tests {
     use crate::Theme;
 
     use super::*;
-    use rswind_css_macro::rule_list;
+    use rswind_css_macros::rule_list;
     use serde_json::json;
 
     #[test]

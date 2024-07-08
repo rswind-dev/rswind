@@ -30,4 +30,4 @@ instance_code.workspace = true
 schemars = { workspace = true, optional = true, features = [ "smol_str02" ] }
 
 [dev-dependencies]
-rswind_css_macro.workspace = true
+rswind_css_macros.workspace = true

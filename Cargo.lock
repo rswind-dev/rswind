@@ -1787,7 +1787,7 @@ dependencies = [
  "rayon",
  "rswind_common",
  "rswind_css",
- "rswind_css_macro",
+ "rswind_css_macros",
  "rswind_extractor",
  "rswind_theme",
  "rustc-hash",
@@ -1818,7 +1818,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rswind_css_macro"
+name = "rswind_css_macros"
 version = "0.0.1-alpha.1"
 dependencies = [
  "proc-macro2",
@@ -1849,7 +1849,7 @@ dependencies = [
  "phf 0.11.2",
  "rswind_common",
  "rswind_css",
- "rswind_css_macro",
+ "rswind_css_macros",
  "rustc-hash",
  "schemars",
  "serde",
