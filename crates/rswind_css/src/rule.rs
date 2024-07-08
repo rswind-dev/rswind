@@ -7,10 +7,11 @@ use instance_code::InstanceCode;
 use smol_str::SmolStr;
 
 use super::{Decl, ToCss};
-use crate::writer::Writer;
+use crate::{writer::Writer, RuleModifier};
 
 #[derive(Debug, Clone, PartialEq, Default, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[instance(path = rswind_css)]
 pub struct Rule {
     pub selector: SmolStr,
     pub decls: Vec<Decl>,
@@ -34,6 +35,10 @@ impl Rule {
         Self { selector: selector.into(), decls: Default::default(), rules }
     }
 
+    pub fn apply(self, modifier: impl RuleModifier) -> Self {
+        modifier.apply(self)
+    }
+
     pub fn modify_with<T: Into<SmolStr>>(mut self, modifier: impl Fn(&str) -> T) -> Self {
         self.selector = modifier(&self.selector).into();
         self
@@ -54,6 +59,7 @@ impl Rule {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash, InstanceCode)]
+#[instance(path = rswind_css)]
 pub struct RuleList(pub Vec<Rule>);
 
 #[cfg(feature = "json_schema")]

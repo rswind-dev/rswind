@@ -1,5 +1,5 @@
 use instance_code::InstanceCode;
-use rswind_css::{Decl, Rule};
+use rswind_css::{Decl, Rule, RuleModifier};
 use serde::Deserialize;
 use smol_str::SmolStr;
 
@@ -21,8 +21,8 @@ pub struct FontSizeConfig {
     pub font_weight: Option<SmolStr>,
 }
 
-impl FontSizeConfig {
-    pub fn apply(&self, mut rule: Rule) -> Rule {
+impl RuleModifier for &FontSizeConfig {
+    fn apply(&self, mut rule: Rule) -> Rule {
         rule.decls.extend(self.line_height.as_deref().map(|v| Decl::new("line-height", v)));
         rule.decls.extend(self.letter_spacing.as_deref().map(|v| Decl::new("letter-spacing", v)));
         rule.decls.extend(self.font_weight.as_deref().map(|v| Decl::new("font-weight", v)));

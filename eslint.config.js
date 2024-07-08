@@ -4,6 +4,8 @@ export default antfu({
   toml: {
     overrides: {
       'toml/padding-line-between-pairs': 'off',
+      'toml/array-element-newline': 'off',
+      'toml/tables-order': 'off',
     },
   },
   rules: {

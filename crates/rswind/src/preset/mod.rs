@@ -1,24 +1,10 @@
 use tracing::{enabled, info, Level};
 
-use crate::context::DesignSystem;
+use rswind_core::context::DesignSystem;
 
-pub mod dynamics;
-pub mod statics;
 pub mod theme;
+pub mod utility;
 pub mod variant;
-
-pub trait Preset {
-    fn load_preset(self: Box<Self>, design: &mut DesignSystem);
-}
-
-impl<T> Preset for T
-where
-    T: FnOnce(&mut DesignSystem) + 'static,
-{
-    fn load_preset(self: Box<Self>, design: &mut DesignSystem) {
-        (*self)(design);
-    }
-}
 
 pub fn preset_tailwind(design: &mut DesignSystem) {
     let initial_length = if enabled!(Level::INFO) {
@@ -27,9 +13,10 @@ pub fn preset_tailwind(design: &mut DesignSystem) {
         None
     };
 
-    // theme::load_theme(design);
-    statics::load_static_utilities(design);
-    dynamics::load_dynamic_utilities(design);
+    theme::load_theme(design);
+
+    utility::load_static_utilities(design);
+    utility::load_dynamic_utilities(design);
     variant::load_variants(design);
 
     if enabled!(Level::INFO) {

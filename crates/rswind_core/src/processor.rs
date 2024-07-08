@@ -10,8 +10,7 @@ use tracing::{info, instrument};
 use crate::{
     cache::{Cache, CacheState, GeneratorCache},
     context::{CacheKey, DesignSystem, GeneratedUtility},
-    generator::{Generator, GeneratorBuilder},
-    preset::preset_tailwind,
+    generator::GeneratorBuilder,
     process::build_group_selector,
 };
 
@@ -140,7 +139,7 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
             groups.entry(*group).or_insert_with(Vec::new).push(r.raw.to_owned());
         }
 
-        if let Some(add) = r.additional_css.take() {
+        if let Some(add) = r.extra_css.take() {
             // Even oneshot run, we still need to write additional css to "cache",
             // for remove duplicates and sort them
             for css in add.iter() {
@@ -182,14 +181,6 @@ fn process_result(res: GenResultList, cache: &mut GeneratorCache, writer: &mut W
     }
 }
 
-pub fn create_processor() -> GeneratorProcessor {
-    GeneratorBuilder::new().with_preset(preset_tailwind).build_processor().unwrap()
-}
-
-pub fn create_app() -> Generator {
-    GeneratorBuilder::new().with_preset(preset_tailwind).build().unwrap()
-}
-
 pub trait GenerateWith {
     fn generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult;
 }
@@ -215,17 +206,5 @@ where
 {
     fn par_generate_with(self, generator: &mut GeneratorProcessor) -> GenerateResult {
         generator.run_parallel_with(self)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_application() {
-        let mut app = create_processor();
-
-        println!("{:?}", app.run_with(["flex", "flex-col"]));
     }
 }

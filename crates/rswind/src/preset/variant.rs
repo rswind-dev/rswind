@@ -1,6 +1,6 @@
 use smol_str::format_smolstr;
 
-use crate::{
+use rswind_core::{
     common::{MaybeArbitrary, StrReplaceExt},
     context::DesignSystem,
     process::{Variant, VariantOrdering},
@@ -139,11 +139,11 @@ fn take_or_default<'b>(value: &'b Option<MaybeArbitrary<'_>>) -> &'b str {
 
 #[cfg(test)]
 mod tests {
-    use rswind_css_macro::css;
 
     use super::*;
     use crate::{context::DesignSystem, parsing::candidate::CandidateParser};
-    use rswind_css::ToCssString;
+    use rswind_core::css::css;
+    use rswind_core::css::ToCssString;
 
     #[test]
     fn test_load_variants() {

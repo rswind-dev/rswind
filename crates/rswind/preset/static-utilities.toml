@@ -1,0 +1,1105 @@
+[absolute]
+position = "absolute"
+
+[align-baseline]
+vertical-align = "baseline"
+
+[align-bottom]
+vertical-align = "bottom"
+
+[align-middle]
+vertical-align = "middle"
+
+[align-sub]
+vertical-align = "sub"
+
+[align-super]
+vertical-align = "super"
+
+[align-text-bottom]
+vertical-align = "text-bottom"
+
+[align-text-top]
+vertical-align = "text-top"
+
+[align-top]
+vertical-align = "top"
+
+[animate-none]
+animation = "none"
+
+[appearance-auto]
+appearance = "auto"
+
+[appearance-none]
+appearance = "none"
+
+[backdrop-filter-none]
+-webkit-backdrop-filter = "none"
+backdrop-filter = "none"
+
+[backdrop-filter]
+-webkit-backdrop-filter = "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)"
+backdrop-filter = "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)"
+
+[backface-hidden]
+backface-visibility = "hidden"
+
+[backface-visible]
+backface-visibility = "visible"
+
+[bg-fixed]
+background-attachment = "fixed"
+
+[bg-local]
+background-attachment = "local"
+
+[bg-no-repeat]
+background-repeat = "no-repeat"
+
+[bg-none]
+background-image = "none"
+
+[bg-repeat-x]
+background-repeat = "repeat-x"
+
+[bg-repeat-y]
+background-repeat = "repeat-y"
+
+[bg-repeat]
+background-repeat = "repeat"
+
+[bg-round]
+background-repeat = "round"
+
+[bg-scroll]
+background-attachment = "scroll"
+
+[bg-space]
+background-repeat = "space"
+
+[block]
+display = "block"
+
+[border-collapse]
+border-collapse = "collapse"
+
+[border-dashed]
+--tw-border-style = "dashed"
+border-style = "dashed"
+
+[border-dotted]
+--tw-border-style = "dotted"
+border-style = "dotted"
+
+[border-double]
+--tw-border-style = "double"
+border-style = "double"
+
+[border-hidden]
+--tw-border-style = "hidden"
+border-style = "hidden"
+
+[border-none]
+--tw-border-style = "none"
+border-style = "none"
+
+[border-separate]
+border-collapse = "separate"
+
+[border-solid]
+--tw-border-style = "solid"
+border-style = "solid"
+
+[box-border]
+box-sizing = "border-box"
+
+[box-content]
+box-sizing = "content-box"
+
+[break-after-all]
+break-after = "all"
+
+[break-after-always]
+break-after = "always"
+
+[break-after-auto]
+break-after = "auto"
+
+[break-after-avoid-column]
+break-after = "avoid-column"
+
+[break-after-avoid-page]
+break-after = "avoid-page"
+
+[break-after-avoid-region]
+break-after = "avoid-region"
+
+[break-after-avoid]
+break-after = "avoid"
+
+[break-after-column]
+break-after = "column"
+
+[break-after-left]
+break-after = "left"
+
+[break-after-page]
+break-after = "page"
+
+[break-after-recto]
+break-after = "recto"
+
+[break-after-region]
+break-after = "region"
+
+[break-after-right]
+break-after = "right"
+
+[break-after-verso]
+break-after = "verso"
+
+[break-all]
+word-break = "break-all"
+
+[break-before-all]
+break-before = "all"
+
+[break-before-always]
+break-before = "always"
+
+[break-before-auto]
+break-before = "auto"
+
+[break-before-avoid-column]
+break-before = "avoid-column"
+
+[break-before-avoid-page]
+break-before = "avoid-page"
+
+[break-before-avoid-region]
+break-before = "avoid-region"
+
+[break-before-avoid]
+break-before = "avoid"
+
+[break-before-column]
+break-before = "column"
+
+[break-before-left]
+break-before = "left"
+
+[break-before-page]
+break-before = "page"
+
+[break-before-recto]
+break-before = "recto"
+
+[break-before-region]
+break-before = "region"
+
+[break-before-right]
+break-before = "right"
+
+[break-before-verso]
+break-before = "verso"
+
+[break-inside-auto]
+break-inside = "auto"
+
+[break-inside-avoid-column]
+break-inside = "avoid-column"
+
+[break-inside-avoid-page]
+break-inside = "avoid-page"
+
+[break-inside-avoid-region]
+break-inside = "avoid-region"
+
+[break-inside-avoid]
+break-inside = "avoid"
+
+[break-keep]
+word-break = "break-keep"
+
+[break-normal]
+overflow-wrap = "normal"
+word-break = "normal"
+
+[break-words]
+overflow-wrap = "break-word"
+
+[capitalize]
+text-transform = "capitalize"
+
+[caption-bottom]
+caption-side = "bottom"
+
+[caption-top]
+caption-side = "top"
+
+[clear-both]
+clear = "both"
+
+[clear-end]
+clear = "inline-end"
+
+[clear-left]
+clear = "left"
+
+[clear-none]
+clear = "none"
+
+[clear-right]
+clear = "right"
+
+[clear-start]
+clear = "inline-start"
+
+[collapse]
+visibility = "collapse"
+
+[columns-auto]
+columns = "auto"
+
+[content-around]
+align-content = "space-around"
+
+[content-baseline]
+align-content = "baseline"
+
+[content-between]
+align-content = "space-between"
+
+[content-center]
+align-content = "center"
+
+[content-end]
+align-content = "end"
+
+[content-evenly]
+align-content = "space-evenly"
+
+[content-normal]
+align-content = "normal"
+
+[content-start]
+align-content = "start"
+
+[content-stretch]
+align-content = "stretch"
+
+[contents]
+display = "contents"
+
+[cursor-alias]
+cursor = "alias"
+
+[cursor-all-scroll]
+cursor = "all-scroll"
+
+[cursor-auto]
+cursor = "auto"
+
+[cursor-cell]
+cursor = "cell"
+
+[cursor-col-resize]
+cursor = "col-resize"
+
+[cursor-context-menu]
+cursor = "context-menu"
+
+[cursor-copy]
+cursor = "copy"
+
+[cursor-crosshair]
+cursor = "crosshair"
+
+[cursor-default]
+cursor = "default"
+
+[cursor-e-resize]
+cursor = "e-resize"
+
+[cursor-ew-resize]
+cursor = "ew-resize"
+
+[cursor-grab]
+cursor = "grab"
+
+[cursor-grabbing]
+cursor = "grabbing"
+
+[cursor-help]
+cursor = "help"
+
+[cursor-move]
+cursor = "move"
+
+[cursor-n-resize]
+cursor = "n-resize"
+
+[cursor-ne-resize]
+cursor = "ne-resize"
+
+[cursor-nesw-resize]
+cursor = "nesw-resize"
+
+[cursor-no-drop]
+cursor = "no-drop"
+
+[cursor-none]
+cursor = "none"
+
+[cursor-not-allowed]
+cursor = "not-allowed"
+
+[cursor-ns-resize]
+cursor = "ns-resize"
+
+[cursor-nw-resize]
+cursor = "nw-resize"
+
+[cursor-nwse-resize]
+cursor = "nwse-resize"
+
+[cursor-pointer]
+cursor = "pointer"
+
+[cursor-progress]
+cursor = "progress"
+
+[cursor-row-resize]
+cursor = "row-resize"
+
+[cursor-s-resize]
+cursor = "s-resize"
+
+[cursor-se-resize]
+cursor = "se-resize"
+
+[cursor-sw-resize]
+cursor = "sw-resize"
+
+[cursor-text]
+cursor = "text"
+
+[cursor-vertical-text]
+cursor = "vertical-text"
+
+[cursor-w-resize]
+cursor = "w-resize"
+
+[cursor-wait]
+cursor = "wait"
+
+[cursor-zoom-in]
+cursor = "zoom-in"
+
+[cursor-zoom-out]
+cursor = "zoom-out"
+
+[decoration-auto]
+text-decoration-thickness = "auto"
+
+[decoration-dashed]
+text-decoration-style = "dashed"
+
+[decoration-dotted]
+text-decoration-style = "dotted"
+
+[decoration-double]
+text-decoration-style = "double"
+
+[decoration-from-font]
+text-decoration-thickness = "from-font"
+
+[decoration-solid]
+text-decoration-style = "solid"
+
+[decoration-wavy]
+text-decoration-style = "wavy"
+
+# divide-dashed = [
+#   ":where(& > :not(:last-child))",
+#   { border-style = "dashed" }
+# ]
+
+[divide-dotted]
+border-style = "dotted"
+
+[divide-double]
+border-style = "double"
+
+[divide-none]
+border-style = "none"
+
+[divide-solid]
+border-style = "solid"
+
+[filter-none]
+filter = "none"
+
+[filter]
+filter = "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)"
+
+[fixed]
+position = "fixed"
+
+[flex-col-reverse]
+flex-direction = "column-reverse"
+
+[flex-col]
+flex-direction = "column"
+
+[flex-nowrap]
+flex-wrap = "nowrap"
+
+[flex-row-reverse]
+flex-direction = "row-reverse"
+
+[flex-row]
+flex-direction = "row"
+
+[flex-wrap-reverse]
+flex-wrap = "wrap-reverse"
+
+[flex-wrap]
+flex-wrap = "wrap"
+
+[flex]
+display = "flex"
+
+[float-left]
+float = "left"
+
+[float-none]
+float = "none"
+
+[float-right]
+float = "right"
+
+[flow-root]
+display = "flow-root"
+
+[font-stretch-condensed]
+font-stretch = "condensed"
+
+[font-stretch-expanded]
+font-stretch = "expanded"
+
+[font-stretch-extra-condensed]
+font-stretch = "extra-condensed"
+
+[font-stretch-extra-expanded]
+font-stretch = "extra-expanded"
+
+[font-stretch-normal]
+font-stretch = "normal"
+
+[font-stretch-semi-condensed]
+font-stretch = "semi-condensed"
+
+[font-stretch-semi-expanded]
+font-stretch = "semi-expanded"
+
+[font-stretch-ultra-condensed]
+font-stretch = "ultra-condensed"
+
+[font-stretch-ultra-expanded]
+font-stretch = "ultra-expanded"
+
+[grid-flow-col-dense]
+grid-auto-flow = "column dense"
+
+[grid-flow-col]
+grid-auto-flow = "column"
+
+[grid-flow-dense]
+grid-auto-flow = "dense"
+
+[grid-flow-row-dense]
+grid-auto-flow = "row dense"
+
+[grid-flow-row]
+grid-auto-flow = "row"
+
+[grid]
+display = "grid"
+
+[hidden]
+display = "none"
+
+[hyphens-auto]
+-webkit-hyphens = "auto"
+hyphens = "auto"
+
+[hyphens-manual]
+-webkit-hyphens = "manual"
+hyphens = "manual"
+
+[hyphens-none]
+-webkit-hyphens = "none"
+hyphens = "none"
+
+[inline-block]
+display = "inline-block"
+
+[inline-flex]
+display = "inline-flex"
+
+[inline-grid]
+display = "inline-grid"
+
+[inline-table]
+display = "inline-table"
+
+[invisible]
+visibility = "hidden"
+
+[isolate]
+isolation = "isolate"
+
+[isolation-auto]
+isolation = "auto"
+
+[italic]
+font-style = "italic"
+
+[items-baseline]
+align-items = "baseline"
+
+[items-center]
+align-items = "center"
+
+[items-end]
+align-items = "end"
+
+[items-start]
+align-items = "start"
+
+[items-stretch]
+align-items = "stretch"
+
+[justify-around]
+justify-content = "space-around"
+
+[justify-baseline]
+justify-content = "baseline"
+
+[justify-between]
+justify-content = "space-between"
+
+[justify-center]
+justify-content = "center"
+
+[justify-end]
+justify-content = "end"
+
+[justify-evenly]
+justify-content = "space-evenly"
+
+[justify-items-center]
+justify-items = "center"
+
+[justify-items-end]
+justify-items = "end"
+
+[justify-items-start]
+justify-items = "start"
+
+[justify-items-stretch]
+justify-items = "stretch"
+
+[justify-normal]
+justify-content = "normal"
+
+[justify-start]
+justify-content = "start"
+
+[justify-stretch]
+justify-content = "stretch"
+
+[line-through]
+text-decoration = "line-through"
+
+[list-decimal]
+list-style-type = "decimal"
+
+[list-disc]
+list-style-type = "disc"
+
+[list-image-none]
+list-style-image = "none"
+
+[list-inside]
+list-style-position = "inside"
+
+[list-item]
+display = "list-item"
+
+[list-none]
+list-style-type = "none"
+
+[list-outside]
+list-style-position = "outside"
+
+[lowercase]
+text-transform = "lowercase"
+
+[manipulation]
+touch-action = "manipulation"
+
+[no-underline]
+text-decoration = "none"
+
+[normal-case]
+text-transform = "none"
+
+[not-italic]
+font-style = "normal"
+
+[not-sr-only]
+position = "static"
+width = "auto"
+height = "auto"
+padding = "0"
+margin = "0"
+overflow = "visible"
+clip = "auto"
+white-space = "normal"
+
+[object-bottom]
+object-position = "bottom"
+
+[object-center]
+object-position = "center"
+
+[object-contain]
+object-fit = "contain"
+
+[object-cover]
+object-fit = "cover"
+
+[object-fill]
+object-fit = "fill"
+
+[object-left-bottom]
+object-position = "left bottom"
+
+[object-left-top]
+object-position = "left top"
+
+[object-left]
+object-position = "left"
+
+[object-none]
+object-fit = "none"
+
+[object-right-bottom]
+object-position = "right bottom"
+
+[object-right-top]
+object-position = "right top"
+
+[object-right]
+object-position = "right"
+
+[object-scale-down]
+object-fit = "scale-down"
+
+[object-top]
+object-position = "top"
+
+[origin-bottom-left]
+transform-origin = "bottom left"
+
+[origin-bottom-right]
+transform-origin = "bottom right"
+
+[origin-bottom]
+transform-origin = "bottom"
+
+[origin-center]
+transform-origin = "center"
+
+[origin-left]
+transform-origin = "left"
+
+[origin-right]
+transform-origin = "right"
+
+[origin-top-left]
+transform-origin = "top left"
+
+[origin-top-right]
+transform-origin = "top right"
+
+[origin-top]
+transform-origin = "top"
+
+[overflow-auto]
+overflow = "auto"
+
+[overflow-clip]
+overflow = "clip"
+
+[overflow-hidden]
+overflow = "hidden"
+
+[overflow-scroll]
+overflow = "scroll"
+
+[overflow-visible]
+overflow = "visible"
+
+[overline]
+text-decoration = "overline"
+
+[overscroll-auto]
+overscroll-behavior = "auto"
+
+[overscroll-contain]
+overscroll-behavior = "contain"
+
+[overscroll-none]
+overscroll-behavior = "none"
+
+[perspective-none]
+perspective = "none"
+
+[perspective-origin-bottom-left]
+perspective-origin = "bottom left"
+
+[perspective-origin-bottom-right]
+perspective-origin = "bottom right"
+
+[perspective-origin-bottom]
+perspective-origin = "bottom"
+
+[perspective-origin-center]
+perspective-origin = "center"
+
+[perspective-origin-left]
+perspective-origin = "left"
+
+[perspective-origin-right]
+perspective-origin = "right"
+
+[perspective-origin-top-left]
+perspective-origin = "top left"
+
+[perspective-origin-top-right]
+perspective-origin = "top right"
+
+[perspective-origin-top]
+perspective-origin = "top"
+
+[place-content-baseline]
+place-content = "baseline"
+
+[place-content-center]
+place-content = "center"
+
+[place-content-end]
+place-content = "end"
+
+[place-content-space-around]
+place-content = "space-around"
+
+[place-content-space-between]
+place-content = "space-between"
+
+[place-content-space-evenly]
+place-content = "space-evenly"
+
+[place-content-start]
+place-content = "start"
+
+[place-content-stretch]
+place-content = "stretch"
+
+[place-items-baseline]
+place-items = "baseline"
+
+[place-items-center]
+place-items = "center"
+
+[place-items-end]
+place-items = "end"
+
+[place-items-start]
+place-items = "start"
+
+[place-items-stretch]
+place-items = "stretch"
+
+[pointer-events-auto]
+pointer-events = "auto"
+
+[pointer-events-none]
+pointer-events = "none"
+
+[relative]
+position = "relative"
+
+[resize-none]
+resize = "none"
+
+[resize-x]
+resize = "horizontal"
+
+[resize-y]
+resize = "vertical"
+
+[resize]
+resize = "both"
+
+[scale-3d]
+scale = "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)"
+
+[scroll-auto]
+scroll-behavior = "auto"
+
+[scroll-smooth]
+scroll-behavior = "smooth"
+
+[select-all]
+user-select = "all"
+
+[select-auto]
+user-select = "auto"
+
+[select-none]
+user-select = "none"
+
+[select-text]
+user-select = "text"
+
+[snap-align-none]
+scroll-snap-align = "none"
+
+[snap-always]
+scroll-snap-stop = "always"
+
+[snap-both]
+scroll-snap-type = "both var(--tw-scroll-snap-strictness)"
+
+[snap-center]
+scroll-snap-align = "center"
+
+[snap-end]
+scroll-snap-align = "end"
+
+[snap-mandatory]
+scroll-snap-type = "mandatory"
+
+[snap-none]
+scroll-snap-type = "none"
+
+[snap-normal]
+scroll-snap-stop = "normal"
+
+[snap-proximity]
+scroll-snap-type = "proximity"
+
+[snap-start]
+scroll-snap-align = "start"
+
+[snap-x]
+scroll-snap-type = "x var(--tw-scroll-snap-strictness)"
+
+[snap-y]
+scroll-snap-type = "y var(--tw-scroll-snap-strictness)"
+
+[space-x-reverse]
+--tw-space-x-reverse = "0"
+
+[space-y-reverse]
+--tw-space-y-reverse = "0"
+
+[sr-only]
+position = "absolute"
+width = "1px"
+height = "1px"
+padding = "0"
+margin = "-1px"
+overflow = "hidden"
+clip = "rect(0, 0, 0, 0)"
+white-space = "nowrap"
+border-width = "0"
+
+[static]
+position = "static"
+
+[sticky]
+position = "sticky"
+
+[table-auto]
+table-layout = "auto"
+
+[table-caption]
+display = "table-caption"
+
+[table-cell]
+display = "table-cell"
+
+[table-column-group]
+display = "table-column-group"
+
+[table-column]
+display = "table-column"
+
+[table-fixed]
+table-layout = "fixed"
+
+[table-footer-group]
+display = "table-footer-group"
+
+[table-header-group]
+display = "table-header-group"
+
+[table-row-group]
+display = "table-row-group"
+
+[table-row]
+display = "table-row"
+
+[table]
+display = "table"
+
+[text-balance]
+overflow-wrap = "balance"
+
+[text-center]
+text-align = "center"
+
+[text-clip]
+text-overflow = "clip"
+
+[text-ellipsis]
+text-overflow = "ellipsis"
+
+[text-end]
+text-align = "end"
+
+[text-justify]
+text-align = "justify"
+
+[text-left]
+text-align = "left"
+
+[text-nowrap]
+overflow-wrap = "normal"
+
+[text-pretty]
+overflow-wrap = "pretty"
+
+[text-right]
+text-align = "right"
+
+[text-start]
+text-align = "start"
+
+[text-wrap]
+overflow-wrap = "break-word"
+
+[touch-auto]
+touch-action = "auto"
+
+[touch-none]
+touch-action = "none"
+
+[touch-pan-down]
+--tw-pan-y = "pan-down"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pan-left]
+--tw-pan-x = "pan-left"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pan-right]
+--tw-pan-x = "pan-right"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pan-up]
+--tw-pan-y = "pan-up"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pan-x]
+--tw-pan-x = "pan-x"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pan-y]
+--tw-pan-y = "pan-y"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[touch-pinch-zoom]
+--tw-pinch-zoom = "pinch-zoom"
+touch-action = "var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)"
+
+[transform-border]
+transform-box = "border-box"
+
+[transform-content]
+transform-box = "content-box"
+
+[transform-cpu]
+transform = "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"
+
+[transform-fill]
+transform-box = "fill-box"
+
+[transform-flat]
+transform-style = "flat"
+
+[transform-gpu]
+transform = "translateZ(0) var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)"
+
+[transform-none]
+transform = "none"
+
+[transform-preserve-3d]
+transform-style = "preserve-3d"
+
+[transform-stroke]
+transform-box = "stroke-box"
+
+[transform-view]
+transform-box = "view-box"
+
+[translate-3d]
+translate = "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)"
+
+[truncate]
+overflow = "hidden"
+text-overflow = "ellipsis"
+white-space = "nowrap"
+
+[underline]
+text-decoration = "underline"
+
+[uppercase]
+text-transform = "uppercase"
+
+[visible]
+visibility = "visible"
+
+[whitespace-break-spaces]
+white-space = "break-spaces"
+
+[whitespace-normal]
+white-space = "normal"
+
+[whitespace-nowrap]
+white-space = "nowrap"
+
+[whitespace-pre-line]
+white-space = "pre-line"
+
+[whitespace-pre-wrap]
+white-space = "pre-wrap"
+
+[whitespace-pre]
+white-space = "pre"

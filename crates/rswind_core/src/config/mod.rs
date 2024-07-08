@@ -1,11 +1,11 @@
 pub mod de;
 #[cfg(feature = "json_schema")]
 pub mod schema;
-// pub mod user_theme;
 
 use std::{io, str::FromStr};
 
 use config::Config;
+use derive_more::{Deref, DerefMut};
 use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
 use smol_str::SmolStr;
@@ -24,12 +24,18 @@ pub struct CorePlugins {
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[serde(untagged)]
-pub enum StaticUtilityConfig {
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::config))]
+pub enum StaticUtilityValue {
     DeclList(HashMap<SmolStr, SmolStr>),
     WithSelector((SmolStr, HashMap<SmolStr, SmolStr>)),
 }
+
+#[derive(Debug, Default, Deserialize, Deref, DerefMut)]
+#[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::config))]
+pub struct StaticUtilityConfig(pub HashMap<SmolStr, StaticUtilityValue>);
 
 #[derive(Debug, Deserialize, Default)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
@@ -81,7 +87,7 @@ mod wbg_shim {
         pub utilities: Vec<UtilityBuilder>,
 
         /// User defined static utilities e.g. `flex`
-        pub static_utilities: HashMap<SmolStr, StaticUtilityConfig>,
+        pub static_utilities: StaticUtilityConfig,
     }
 }
 

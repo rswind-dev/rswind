@@ -6,7 +6,7 @@ use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
 use crate::{
-    config::StaticUtilityConfig,
+    config::StaticUtilityValue,
     ordering::OrderingKey,
     parsing::UtilityCandidate,
     process::{Utility, UtilityApplyResult},
@@ -14,8 +14,8 @@ use crate::{
 
 #[derive(Debug)]
 pub struct StaticUtility {
-    selector: Option<SmolStr>,
-    decls: DeclList,
+    pub selector: Option<SmolStr>,
+    pub decls: DeclList,
 }
 
 impl StaticUtility {
@@ -36,13 +36,13 @@ impl From<(SmolStr, DeclList)> for StaticUtility {
     }
 }
 
-impl From<StaticUtilityConfig> for StaticUtility {
-    fn from(value: StaticUtilityConfig) -> Self {
+impl From<StaticUtilityValue> for StaticUtility {
+    fn from(value: StaticUtilityValue) -> Self {
         match value {
-            StaticUtilityConfig::DeclList(decl_list) => {
+            StaticUtilityValue::DeclList(decl_list) => {
                 Self { selector: None, decls: decl_list.into_iter().collect() }
             }
-            StaticUtilityConfig::WithSelector(value) => {
+            StaticUtilityValue::WithSelector(value) => {
                 Self { selector: Some(value.0), decls: value.1.into_iter().collect() }
             }
         }
@@ -91,7 +91,7 @@ impl UtilityStorage {
                 )]),
                 ordering: OrderingKey::from_str(candidate.key).unwrap_or(OrderingKey::Disorder),
                 group: None,
-                additional_css: None,
+                extra_css: None,
             });
         }
         self.get(candidate.key)?.iter().find_map(|rule| match rule {
@@ -102,9 +102,25 @@ impl UtilityStorage {
                 ),
                 ordering: OrderingKey::Disorder,
                 group: None,
-                additional_css: None,
+                extra_css: None,
             }),
             Right(handler) => handler.apply_to(candidate),
         })
+    }
+}
+
+impl Extend<(SmolStr, Utility)> for UtilityStorage {
+    fn extend<T: IntoIterator<Item = (SmolStr, Utility)>>(&mut self, iter: T) {
+        for (key, value) in iter {
+            self.add(key, value);
+        }
+    }
+}
+
+impl Extend<(SmolStr, StaticUtilityValue)> for UtilityStorage {
+    fn extend<T: IntoIterator<Item = (SmolStr, StaticUtilityValue)>>(&mut self, iter: T) {
+        for (key, value) in iter {
+            self.add_static(key, value.into());
+        }
     }
 }

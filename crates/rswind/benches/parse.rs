@@ -2,9 +2,16 @@ use std::{iter, rc::Rc};
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use either::Either::{Left, Right};
-use rswind::{create_processor, process::ValuePreprocessor};
-use rswind_extractor::{Extractable, Extractor, InputKind};
+use rswind::extract::{Extractable, Extractor, InputKind};
+use rswind::generator::GeneratorBuilder;
+use rswind::preset::preset_tailwind;
+use rswind::process::ValuePreprocessor;
+use rswind::processor::GeneratorProcessor;
 use smol_str::format_smolstr;
+
+fn create_processor() -> GeneratorProcessor {
+    GeneratorBuilder::new().with_preset(preset_tailwind).build_processor().unwrap()
+}
 
 fn gen_fixtures() -> String {
     let app = create_processor();
@@ -58,13 +65,13 @@ pub fn bench_all(c: &mut Criterion) {
 pub fn bench_static(c: &mut Criterion) {
     c.bench_function("create", |b| {
         b.iter(|| {
-            let _app = rswind::create_processor();
+            let _app = create_processor();
         });
     });
 
     c.bench_function("parse basic", |b| {
         b.iter(|| {
-            let mut app = rswind::create_processor();
+            let mut app = create_processor();
             let input = Extractor::new(r#"<div class="flex">"#, InputKind::Html);
             let _a = app.run_with(input.extract());
         });
@@ -76,7 +83,7 @@ pub fn bench_static(c: &mut Criterion) {
         let input = include_str!("fixtures/template_html").repeat(*i);
         group.bench_with_input(BenchmarkId::new("Normal", i), i, |b, _| {
             b.iter(|| {
-                let mut app = rswind::create_processor();
+                let mut app = create_processor();
                 let input = Extractor::new(&input, InputKind::Html);
                 let _a = app.run_with(input.extract());
             });
@@ -84,7 +91,7 @@ pub fn bench_static(c: &mut Criterion) {
 
         group.bench_with_input(BenchmarkId::new("Parallel", i), i, |b, _| {
             b.iter(|| {
-                let mut app = rswind::create_processor();
+                let mut app = create_processor();
                 let input = Extractor::new(&input, InputKind::Html);
                 let _a = app.run_parallel_with(input.extract());
             });
@@ -95,7 +102,7 @@ pub fn bench_static(c: &mut Criterion) {
             let extracted = Rc::new(extracted.extract());
 
             b.iter(|| {
-                let mut app = rswind::create_processor();
+                let mut app = create_processor();
                 let _a = app.run_with(Rc::clone(&extracted).iter().copied());
             });
         });

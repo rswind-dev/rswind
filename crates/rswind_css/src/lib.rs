@@ -1,6 +1,6 @@
 pub use self::{
     decl::{Decl, DeclList},
-    rule::Rule,
+    rule::{Rule, RuleList},
 };
 use crate::writer::Writer;
 
@@ -34,4 +34,8 @@ impl<T: ToCss> ToCssString for T {
         let _ = self.to_css(&mut writer);
         s
     }
+}
+
+pub trait RuleModifier {
+    fn apply(&self, rule: Rule) -> Rule;
 }

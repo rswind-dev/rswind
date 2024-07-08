@@ -1,7 +1,9 @@
 use std::{fmt::Debug, ops::Deref};
 
 use smallvec::SmallVec;
-use smol_str::format_smolstr;
+use smol_str::{format_smolstr, SmolStr};
+
+use crate::DesignSystem;
 
 /// This trait provides a method to replace a character in a string
 ///
@@ -113,6 +115,26 @@ impl<'a> Deref for MaybeArbitrary<'a> {
             MaybeArbitrary::Arbitrary(s) => s,
             MaybeArbitrary::Named(s) => s,
         }
+    }
+}
+
+pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
+    modifier
+        .and_then(|m| m.parse::<f32>().ok())
+        .map(|n| format_smolstr!("color-mix(in srgb, {} {}%, transparent)", value, n * 100.0))
+        .unwrap_or_else(|| value.into())
+}
+
+pub trait Preset {
+    fn load_preset(self: Box<Self>, design: &mut DesignSystem);
+}
+
+impl<T> Preset for T
+where
+    T: FnOnce(&mut DesignSystem) + 'static,
+{
+    fn load_preset(self: Box<Self>, design: &mut DesignSystem) {
+        (*self)(design);
     }
 }
 

@@ -1,0 +1,73 @@
+[package]
+name = "rswind_core"
+version = "0.0.1-alpha.1"
+readme = "../../README.md"
+
+authors.workspace = true
+
+description.workspace = true
+
+edition.workspace = true
+
+keywords.workspace = true
+
+license.workspace = true
+
+repository.workspace = true
+
+categories.workspace = true
+
+[features]
+json_schema = [
+  "rswind_css/json_schema",
+  "rswind_theme/json_schema"
+]
+wasm = [
+  "dep:tsify",
+  "dep:wasm-bindgen"
+]
+napi = [ "dep:napi" ]
+build = []
+
+[dependencies]
+rswind_css_macro = { workspace = true }
+rswind_extractor = { workspace = true }
+rswind_common = { workspace = true }
+rswind_css = { workspace = true }
+rswind_theme = { workspace = true }
+
+rayon = { workspace = true }
+either = { workspace = true, features = [ "serde" ] }
+enum_dispatch = { workspace = true }
+phf = { workspace = true, features = [ "macros" ] }
+colored = { workspace = true }
+smol_str = { workspace = true, features = [ "serde" ] }
+anyhow = { workspace = true }
+cssparser = { workspace = true }
+lazy_static = { workspace = true }
+lightningcss = { workspace = true, features = [ "into_owned" ] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+smallvec = { workspace = true, features = [
+  "const_generics",
+  "serde"
+] }
+rustc-hash = { workspace = true }
+memchr = { workspace = true }
+config = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+derive_more = "0.99.17"
+walkdir = { workspace = true }
+globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
+schemars = { workspace = true, features = [
+  "smallvec1",
+  "either1",
+  "smol_str02",
+] }
+tsify = { version = "0.4.5", optional = true }
+wasm-bindgen = { version = "0.2.92", optional = true }
+itertools = "0.13.0"
+instance_code = { workspace = true }
+napi = { workspace = true, optional = true }

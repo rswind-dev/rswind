@@ -11,6 +11,7 @@ use crate::writer::Writer;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, InstanceCode)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
+#[instance(path = rswind_css)]
 pub struct Decl {
     pub name: SmolStr,
     pub value: SmolStr,

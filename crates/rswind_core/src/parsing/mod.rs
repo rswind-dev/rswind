@@ -16,7 +16,7 @@ use crate::{
         ComposableHandler, RawValueDef, RuleMatchingFn, ThemeParseError, Utility, UtilityGroup,
         UtilityHandler, Variant, VariantHandlerExt,
     },
-    types::{CssProperty, TypeValidator},
+    types::{CssProperty, CssTypeValidator},
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Default)]
@@ -47,9 +47,10 @@ impl<'a> UtilityCandidate<'a> {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(untagged)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[cfg_attr(test, derive(PartialEq))]
-#[serde(untagged)]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
 pub enum ThemeKey {
     Single(SmolStr),
     Multi(Vec<SmolStr>),
@@ -98,7 +99,8 @@ where
 }
 
 #[derive(Debug, Deserialize, Default)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {
     /// The key of the utility， e.g. `bg`
@@ -120,7 +122,7 @@ pub struct UtilityBuilder {
     ///
     /// e.g. `length-percentage` for `width`
     #[serde(rename = "type")]
-    pub validator: Option<Box<dyn TypeValidator>>,
+    pub validator: Option<CssTypeValidator>,
 
     /// The wrapper selector for the utility
     #[serde(default)]
@@ -137,18 +139,48 @@ pub struct UtilityBuilder {
     pub supports_fraction: bool,
 
     #[serde(default)]
+    #[serde(rename = "order")]
     pub ordering_key: Option<OrderingKey>,
 
-    // TODO: add support for below fields
-    #[serde(skip_deserializing)]
-    pub additional_css: Option<Box<dyn AdditionalCssHandler>>,
+    #[serde(default)]
+    pub extra_css: Option<Box<dyn AdditionalCssHandler>>,
 
-    #[serde(skip_deserializing)]
     pub group: Option<UtilityGroup>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::build))]
+pub struct UtilityInput {
+    pub utilities: Vec<UtilityBuilder>,
 }
 
 pub trait AdditionalCssHandler: Sync + Send {
     fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>>;
+}
+
+impl<'de> Deserialize<'de> for Box<dyn AdditionalCssHandler> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let rule_list: RuleList = serde::Deserialize::deserialize(deserializer)?;
+
+        Ok(Box::new(Arc::new(rule_list)) as Box<dyn AdditionalCssHandler>)
+    }
+}
+
+#[cfg(feature = "build")]
+impl instance_code::InstanceCode for Box<dyn AdditionalCssHandler> {
+    fn instance_code(&self) -> instance_code::TokenStream {
+        let css = self
+            .handle(SmolStr::default())
+            .expect("InstanceCode of AdditionalCssHandler should return Some");
+
+        let rule_list = css.deref().instance_code();
+        instance_code::quote! {
+            std::boxed::Box::new(Arc::new(#rule_list))
+        }
+    }
 }
 
 impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for T {
@@ -179,7 +211,7 @@ impl UtilityBuilder {
             supports_fraction: false,
             modifier: None,
             validator: None,
-            additional_css: None,
+            extra_css: None,
             selector: None,
             ordering_key: None,
             group: None,
@@ -197,59 +229,59 @@ impl UtilityBuilder {
                     .parse(theme)?,
                 modifier: self.modifier.map(|m| m.parse(theme)).transpose()?,
                 selector: self.selector,
-                additional_css: self.additional_css,
+                extra_css: self.extra_css,
                 ordering_key: self.ordering_key,
                 group: self.group,
             },
         ))
     }
 
-    pub fn with_theme(&mut self, key: impl Into<ThemeKey>) -> &mut Self {
+    pub fn with_theme(mut self, key: impl Into<ThemeKey>) -> Self {
         self.theme_key = Some(key.into());
         self
     }
 
-    pub fn support_negative(&mut self) -> &mut Self {
+    pub fn support_negative(mut self) -> Self {
         self.supports_negative = true;
         self
     }
 
-    pub fn support_fraction(&mut self) -> &mut Self {
+    pub fn support_fraction(mut self) -> Self {
         self.supports_fraction = true;
         self
     }
 
-    pub fn with_modifier(&mut self, modifier: RawValueDef) -> &mut Self {
+    pub fn with_modifier(mut self, modifier: RawValueDef) -> Self {
         self.modifier = Some(modifier);
         self
     }
 
-    pub fn with_validator(&mut self, validator: impl TypeValidator + 'static) -> &mut Self {
-        self.validator = Some(Box::new(validator));
+    pub fn with_validator(mut self, validator: impl Into<CssTypeValidator>) -> Self {
+        self.validator = Some(validator.into());
         self
     }
 
-    pub fn with_additional_css(&mut self, css: impl AdditionalCssHandler + 'static) -> &mut Self {
-        self.additional_css = Some(Box::new(css));
+    pub fn with_additional_css(mut self, css: impl AdditionalCssHandler + 'static) -> Self {
+        self.extra_css = Some(Box::new(css));
         self
     }
 
-    pub fn with_selector(&mut self, wrapper: &str) -> &mut Self {
+    pub fn with_selector(mut self, wrapper: &str) -> Self {
         self.selector = Some(wrapper.into());
         self
     }
 
-    pub fn with_ordering(&mut self, key: OrderingKey) -> &mut Self {
+    pub fn with_ordering(mut self, key: OrderingKey) -> Self {
         self.ordering_key = Some(key);
         self
     }
 
-    pub fn with_group(&mut self, group: UtilityGroup) -> &mut Self {
+    pub fn with_group(mut self, group: UtilityGroup) -> Self {
         self.group = Some(group);
         self
     }
 
-    pub fn with_opacity_modifier(&mut self) -> &mut Self {
+    pub fn with_opacity_modifier(self) -> Self {
         self.with_modifier(RawValueDef::new("opacity").with_validator(CssProperty::Opacity))
     }
 }

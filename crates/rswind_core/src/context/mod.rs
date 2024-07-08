@@ -19,8 +19,6 @@ use crate::{
     process::{Utility, UtilityApplyResult, UtilityGroup, VariantOrdering},
 };
 
-#[macro_use]
-pub mod macros;
 pub mod utilities;
 pub mod variants;
 
@@ -61,7 +59,7 @@ pub struct GeneratedUtility {
     /// Ordering: len -> variant order
     pub variants: VariantOrder,
 
-    pub additional_css: Option<Arc<RuleList>>,
+    pub extra_css: Option<Arc<RuleList>>,
 }
 
 /// We can use the derived `PartialOrd` and `Ord` implementations
@@ -150,7 +148,7 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::DesignSystem;
+    /// use rswind_core::DesignSystem;
     /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
@@ -177,7 +175,7 @@ impl DesignSystem {
     /// # Examples
     ///
     /// ```
-    /// use rswind::DesignSystem;
+    /// use rswind_core::DesignSystem;
     /// use rswind_css::{Decl, DeclList, ToCssString};
     ///
     /// let mut design = DesignSystem::new();
@@ -230,7 +228,7 @@ impl DesignSystem {
     /// Try generate a utility with the given value
     pub fn generate(&self, value: &str) -> Option<GeneratedUtility> {
         // Try static utility first
-        if let Some(UtilityApplyResult { rule: node, ordering, group, .. }) =
+        if let Some(UtilityApplyResult { rule: node, ordering, group, extra_css, .. }) =
             self.utilities.try_apply(UtilityCandidate::with_key(value))
         {
             return Some(GeneratedUtility {
@@ -239,7 +237,7 @@ impl DesignSystem {
                 rule: fill_selector_placeholder(value, node.to_rule_list())?,
                 ordering,
                 variants: VariantOrder::default(),
-                additional_css: None,
+                extra_css,
             });
         }
 
@@ -260,7 +258,7 @@ impl DesignSystem {
         let (nested, selector): (SmallVec<[_; 1]>, SmallVec<[_; 1]>) =
             vs.iter().partition(|v| v.processor.nested);
 
-        let UtilityApplyResult { rule: node, ordering, group, additional_css } =
+        let UtilityApplyResult { rule: node, ordering, group, extra_css } =
             self.utilities.try_apply(utility_candidate)?;
 
         let mut node = selector.iter().fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
@@ -275,7 +273,7 @@ impl DesignSystem {
             ordering,
             group,
             variants,
-            additional_css,
+            extra_css,
         })
     }
 }

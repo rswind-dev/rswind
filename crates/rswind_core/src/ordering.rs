@@ -3,8 +3,9 @@ use std::{hash::Hash, str::FromStr};
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Default, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::ordering))]
 pub enum OrderingKey {
     Translate,
     TranslateAxis,

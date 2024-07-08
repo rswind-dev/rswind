@@ -867,17 +867,20 @@ dependencies = [
 
 [[package]]
 name = "instance_code"
-version = "0.1.2"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45116b4af859c112a8e813149a301eabb2297945f4e8647dc72934dea50c902f"
+checksum = "c0b2cb94dabe3fc250812ec518b904c235fa44d9e8743b930899d19c3efcaa2e"
 dependencies = [
  "instance_code_derive",
  "phf 0.11.2",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "serde",
  "serde_json",
+ "serde_yaml",
  "smol_str",
+ "syn 2.0.68",
  "thiserror",
  "toml 0.8.14",
 ]
@@ -1481,6 +1484,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 
 [[package]]
+name = "prettyplease"
+version = "0.2.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f12335488a2f3b0a83b14edad48dca9879ce89b2edd10e80237e4e852dd645e"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.68",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.86"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1709,41 +1722,20 @@ dependencies = [
 name = "rswind"
 version = "0.0.1-alpha.1"
 dependencies = [
- "anyhow",
- "colored",
- "config",
  "criterion",
- "cssparser",
- "derive_more",
  "either",
- "enum_dispatch",
- "globset",
  "instance_code",
- "itertools 0.13.0",
- "lazy_static",
  "lightningcss",
- "memchr",
- "napi",
  "paste",
  "phf 0.11.2",
- "rayon",
- "rswind_common",
+ "rswind_core",
  "rswind_css",
- "rswind_css_macro",
- "rswind_extractor",
  "rswind_theme",
  "rustc-hash",
- "schemars",
- "serde",
  "serde_json",
- "smallvec",
  "smol_str",
- "thiserror",
  "tracing",
  "tracing-subscriber",
- "tsify",
- "walkdir",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1771,6 +1763,45 @@ dependencies = [
  "either",
  "rayon",
  "smol_str",
+]
+
+[[package]]
+name = "rswind_core"
+version = "0.0.1-alpha.1"
+dependencies = [
+ "anyhow",
+ "colored",
+ "config",
+ "cssparser",
+ "derive_more",
+ "either",
+ "enum_dispatch",
+ "globset",
+ "instance_code",
+ "itertools 0.13.0",
+ "lazy_static",
+ "lightningcss",
+ "memchr",
+ "napi",
+ "phf 0.11.2",
+ "rayon",
+ "rswind_common",
+ "rswind_css",
+ "rswind_css_macro",
+ "rswind_extractor",
+ "rswind_theme",
+ "rustc-hash",
+ "schemars",
+ "serde",
+ "serde_json",
+ "smallvec",
+ "smol_str",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "tsify",
+ "walkdir",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1985,6 +2016,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "79e674e01f999af37c49f70a6ede167a8a60b2503e56c5599532a65baa5969a0"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "serde_yaml"
+version = "0.9.34+deprecated"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
+dependencies = [
+ "indexmap 2.2.6",
+ "itoa",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
 ]
 
 [[package]]
@@ -2337,6 +2381,12 @@ name = "unicode-segmentation"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4c87d22b6e3f4a18d4d40ef354e97c90fcb14dd91d7dc0aa9d8a1172ebf7202"
+
+[[package]]
+name = "unsafe-libyaml"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 
 [[package]]
 name = "utf8parse"
