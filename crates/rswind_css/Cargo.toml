@@ -15,18 +15,18 @@ categories.workspace = true
 json_schema = [ "dep:schemars" ]
 
 [dependencies]
-rswind_common = { workspace = true }
+rswind_common.workspace = true
 smol_str = { workspace = true, features = [ "serde" ] }
 serde = { workspace = true, features = [ "derive" ] }
 schemars = { workspace = true, optional = true, features = [
   "either1",
   "smol_str02",
 ] }
-either = { workspace = true }
+either.workspace = true
 instance_code = { workspace = true, features = [
   "smol_str",
   "phf"
 ] }
 
 [dev-dependencies]
-serde_json = { workspace = true }
+serde_json.workspace = true

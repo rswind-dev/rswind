@@ -12,6 +12,6 @@ categories.workspace = true
 [lib]
 
 [dependencies]
-rayon = { workspace = true }
-either = { workspace = true }
-smol_str = { workspace = true }
+rayon.workspace = true
+either.workspace = true
+smol_str.workspace = true

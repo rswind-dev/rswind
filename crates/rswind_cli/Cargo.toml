@@ -16,18 +16,18 @@ bench = true
 bench = []
 
 [dependencies]
-rswind = { workspace = true }
-rswind_css = { workspace = true }
-rswind_extractor = { workspace = true }
+rswind.workspace = true
+rswind_css.workspace = true
+rswind_extractor.workspace = true
 
 clap = { workspace = true, features = [ "derive" ] }
-notify = { workspace = true }
-rayon = { workspace = true }
-rustc-hash = { workspace = true }
-tracing = { workspace = true }
+notify.workspace = true
+rayon.workspace = true
+rustc-hash.workspace = true
+tracing.workspace = true
 tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
 notify-debouncer-full = "0.3.1"
-colored = { workspace = true }
+colored.workspace = true
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }

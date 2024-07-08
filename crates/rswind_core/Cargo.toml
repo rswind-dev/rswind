@@ -23,36 +23,36 @@ napi = [ "dep:napi" ]
 build = []
 
 [dependencies]
-rswind_css_macro = { workspace = true }
-rswind_extractor = { workspace = true }
-rswind_common = { workspace = true }
-rswind_css = { workspace = true }
-rswind_theme = { workspace = true }
+rswind_css_macro.workspace = true
+rswind_extractor.workspace = true
+rswind_common.workspace = true
+rswind_css.workspace = true
+rswind_theme.workspace = true
 
-rayon = { workspace = true }
+rayon.workspace = true
 either = { workspace = true, features = [ "serde" ] }
-enum_dispatch = { workspace = true }
+enum_dispatch.workspace = true
 phf = { workspace = true, features = [ "macros" ] }
-colored = { workspace = true }
+colored.workspace = true
 smol_str = { workspace = true, features = [ "serde" ] }
-anyhow = { workspace = true }
-cssparser = { workspace = true }
-lazy_static = { workspace = true }
+anyhow.workspace = true
+cssparser.workspace = true
+lazy_static.workspace = true
 lightningcss = { workspace = true, features = [ "into_owned" ] }
-serde = { workspace = true }
-serde_json = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
 smallvec = { workspace = true, features = [
   "const_generics",
   "serde"
 ] }
-rustc-hash = { workspace = true }
-memchr = { workspace = true }
-config = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
+rustc-hash.workspace = true
+memchr.workspace = true
+config.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 derive_more = "0.99.17"
-walkdir = { workspace = true }
+walkdir.workspace = true
 globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
 schemars = { workspace = true, features = [
   "smallvec1",
@@ -62,5 +62,5 @@ schemars = { workspace = true, features = [
 tsify = { version = "0.4.5", optional = true }
 wasm-bindgen = { version = "0.2.92", optional = true }
 itertools = "0.13.0"
-instance_code = { workspace = true }
+instance_code.workspace = true
 napi = { workspace = true, optional = true }

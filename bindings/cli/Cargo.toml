@@ -10,12 +10,12 @@ publish = false
 crate-type = [ "cdylib" ]
 
 [dependencies]
-rswind_cli = { workspace = true }
-napi-derive = { workspace = true }
+rswind_cli.workspace = true
+napi-derive.workspace = true
 napi = { workspace = true, features = [ "napi4" ] }
 
 [build-dependencies]
-napi-build = { workspace = true }
+napi-build.workspace = true
 
 # [profile.release]
 # lto = true
