@@ -169,20 +169,6 @@ impl<'de> Deserialize<'de> for Box<dyn AdditionalCssHandler> {
     }
 }
 
-#[cfg(feature = "build")]
-impl instance_code::InstanceCode for Box<dyn AdditionalCssHandler> {
-    fn instance_code(&self) -> instance_code::TokenStream {
-        let css = self
-            .handle(SmolStr::default())
-            .expect("InstanceCode of AdditionalCssHandler should return Some");
-
-        let rule_list = css.deref().instance_code();
-        instance_code::quote! {
-            std::boxed::Box::new(Arc::new(#rule_list))
-        }
-    }
-}
-
 impl<T: Fn(SmolStr) -> Option<RuleList> + Sync + Send> AdditionalCssHandler for T {
     fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>> {
         self(value).map(Arc::new)

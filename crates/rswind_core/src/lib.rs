@@ -29,6 +29,10 @@ pub mod extract {
     pub use rswind_extractor::*;
 }
 
+#[cfg(feature = "build")]
+mod build_impl;
+
+#[cfg(feature = "build")]
 pub mod build {
     pub use crate::config::StaticUtilityConfig;
     pub use crate::parse::UtilityInput;
