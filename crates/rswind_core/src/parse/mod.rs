@@ -50,7 +50,7 @@ impl<'a> UtilityCandidate<'a> {
 #[serde(untagged)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[cfg_attr(test, derive(PartialEq))]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parse))]
 pub enum ThemeKey {
     Single(SmolStr),
     Multi(Vec<SmolStr>),
@@ -100,7 +100,7 @@ where
 
 #[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "kebab-case")]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parse))]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {
     /// The key of the utility， e.g. `bg`

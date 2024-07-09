@@ -25,7 +25,7 @@ macro_rules! get_neg {
 macro_rules! candidate {
         ( $key:literal: $value_ty:ident $value:literal $( / $mod_ty:ident $mod:literal )? $(, neg: $neg:literal)? $(, imp: $imp:literal)? ) => {
 
-            rswind::parsing::UtilityCandidate {
+            rswind::parse::UtilityCandidate {
                 key: $key,
                 value: maybe_arb!($value_ty $value),
                 modifier: maybe_arb!($($mod_ty $mod)?),
@@ -35,7 +35,7 @@ macro_rules! candidate {
             }
         };
         ( [ $key:literal: $value:literal ] $(, neg: $neg:literal)? $(, imp: $imp:literal)? ) => {
-            rswind::parsing::UtilityCandidate {
+            rswind::parse::UtilityCandidate {
                 key: $key,
                 value: maybe_arb!(arb $value),
                 modifier: None,
