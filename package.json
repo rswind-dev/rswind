@@ -28,12 +28,31 @@
     "bumpp": "^9.4.1",
     "eslint": "9.4.0",
     "fs-extra": "^11.2.0",
+    "lint-staged": "^15.2.7",
     "npm-run-all2": "^6.1.2",
     "playwright-chromium": "^1.44.1",
+    "simple-git-hooks": "^2.11.1",
     "sirv": "^2.0.4",
     "typescript": "^5.3.2",
     "vitepress": "^1.2.3",
     "vitest": "^1.6.0",
     "vue": "^3.3.8"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "*.{toml,yml,yaml,json}": [
+      "eslint --cache --fix"
+    ],
+    "crates/**/*.rs": [
+      "cargo fmt --"
+    ],
+    "packages/*/{src,types}/**/*.ts": [
+      "eslint --cache --fix"
+    ],
+    "packages/**/*.d.ts": [
+      "eslint --cache --fix"
+    ]
   }
 }
