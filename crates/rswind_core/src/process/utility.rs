@@ -10,7 +10,7 @@ use smol_str::{format_smolstr, SmolStr};
 use super::{MetaData, ValueDef, ValuePreprocessor};
 use crate::{
     ordering::OrderingKey,
-    parsing::{AdditionalCssHandler, UtilityCandidate},
+    parse::{AdditionalCssHandler, UtilityCandidate},
 };
 
 pub trait RuleMatchingFn: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static {}
@@ -24,54 +24,6 @@ impl Debug for UtilityHandler {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let rule = self.0(MetaData::modifier("$1"), SmolStr::new("$0"));
         f.debug_tuple("UtilityHandler").field(&rule).finish()
-    }
-}
-
-#[cfg(feature = "build")]
-impl instance_code::InstanceCode for UtilityHandler {
-    fn instance_code(&self) -> instance_code::TokenStream {
-        use instance_code::quote;
-        let color = crate::common::as_color("$0", Some("1"));
-
-        let decls = self.0(MetaData::default(), SmolStr::new("$0")).decls;
-        let with_modifier = self.0(MetaData::modifier("1"), SmolStr::new("$0")).decls;
-
-        let value_count = decls.iter().filter(|d| d.value.contains("$0")).count();
-
-        let decls = decls
-            .into_iter()
-            .zip(with_modifier)
-            .map(|(decl, with_modifier)| {
-                let name = decl.name.as_str();
-                let value = decl.value.as_str();
-                if value.contains("$0") {
-                    let template = value.replace("$0", "{}");
-                    let value = match () {
-                        _ if with_modifier.value.contains(color.as_str()) => {
-                            quote!(rswind_core::common::as_color(&value, _meta.modifier.as_deref()))
-                        }
-                        _ if value_count > 1 => {
-                            quote!(value.clone())
-                        }
-                        _ => {
-                            quote!(value)
-                        }
-                    };
-                    quote!(#name: smol_str::format_smolstr!(#template, #value);)
-                } else {
-                    quote!(#name: #value;)
-                }
-            })
-            .collect::<Vec<_>>();
-        quote! {
-            rswind_core::process::UtilityHandler(
-                Box::new(|_meta, value| {
-                    rswind_core::css::css! {
-                        #(#decls)*
-                    }
-                })
-            )
-        }
     }
 }
 
@@ -244,11 +196,11 @@ impl Utility {
 
 #[cfg(test)]
 mod tests {
-    use rswind_css::ToCssString;
+    use crate::css::{css, ToCssString};
 
     #[test]
     fn test_css_macro() {
-        let css = rswind_css_macro::css! {
+        let css = css! {
             "@property --tw-translate-x" {
                 "syntax": "<length-percentage>";
                 "inherits": "false";

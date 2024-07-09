@@ -11,7 +11,7 @@ use thiserror::Error;
 pub use self::{utility::*, variant::*};
 use crate::{
     common::MaybeArbitrary,
-    parsing::{ThemeKey, UtilityCandidate},
+    parse::{ThemeKey, UtilityCandidate},
     types::{CssTypeValidator, TypeValidator},
 };
 
@@ -31,7 +31,7 @@ pub trait ValuePreprocessor {
     fn validate(&self, value: &str) -> bool;
     fn allowed_values(&self) -> Option<&ThemeMap>;
 
-    fn preprocess(&self, value: Option<MaybeArbitrary<'_>>) -> Option<ThemeValue> {
+    fn preprocess(&self, value: Option<MaybeArbitrary>) -> Option<ThemeValue> {
         match value {
             Some(MaybeArbitrary::Arbitrary(value)) => {
                 let value = decode_arbitrary_value(value);

@@ -25,7 +25,7 @@ impl<'de> Deserialize<'de> for Box<dyn TypeValidator> {
 mod tests {
     use serde_json::json;
 
-    use crate::{parsing::ThemeKey, process::RawValueDef};
+    use crate::{parse::ThemeKey, process::RawValueDef};
 
     #[test]
     fn test_deserialize() {

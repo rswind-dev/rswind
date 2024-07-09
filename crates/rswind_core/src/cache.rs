@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use rustc_hash::FxHashMap as HashMap;
 use smol_str::SmolStr;
 
-use crate::context::CacheKey;
+use crate::design::CacheKey;
 
 #[enum_dispatch]
 pub trait Cache {

@@ -25,7 +25,7 @@ repository = "https://github.com/rswind-dev/rswind"
 [workspace.dependencies]
 rswind = { version = "0.0.1-alpha.1", path = "crates/rswind" }
 rswind_core = { version = "0.0.1-alpha.1", path = "crates/rswind_core" }
-rswind_css_macro = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macro" }
+rswind_css_macros = { version = "0.0.1-alpha.1", path = "crates/rswind_css_macros" }
 rswind_extractor = { version = "0.0.1-alpha.1", path = "crates/rswind_extractor" }
 rswind_cli = { version = "0.0.1-alpha.1", path = "crates/rswind_cli" }
 rswind_common = { version = "0.0.1-alpha.1", path = "crates/rswind_common" }

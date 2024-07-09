@@ -9,6 +9,8 @@ pub mod decl;
 pub mod rule;
 pub mod writer;
 
+pub use rswind_css_macros::*;
+
 pub trait ToCss {
     fn to_css<W>(self, writer: &mut Writer<W>) -> Result<(), std::fmt::Error>
     where

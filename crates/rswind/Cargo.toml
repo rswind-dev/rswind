@@ -14,7 +14,7 @@ napi = [ "rswind_core/napi" ]
 wasm = [ "rswind_core/wasm" ]
 
 [dependencies]
-rswind_core.workspace = true
+rswind_core = { workspace = true, features = [ "build" ] }
 rswind_css.workspace = true
 
 phf = { workspace = true, features = [ "macros" ] }
@@ -28,12 +28,12 @@ tracing-subscriber = { workspace = true, features = [ "env-filter" ] }
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }
 paste = "1.0.15"
-serde_json = { workspace = true }
-either = { workspace = true }
+serde_json.workspace = true
+either.workspace = true
 
 [build-dependencies]
-instance_code = { workspace = true }
-rswind_theme = { workspace = true }
+instance_code.workspace = true
+rswind_theme.workspace = true
 rswind_core = { workspace = true, features = [ "build" ] }
 
 [lib]

@@ -2,15 +2,11 @@ use std::path::{Component, Path, PathBuf};
 
 use either::Either;
 use globset::{Glob, GlobSet, GlobSetBuilder};
-use lazy_static::lazy_static;
 use rayon::iter::ParallelIterator;
 use rswind_common::iter::MaybeParallelIterator;
 use thiserror::Error;
 
-lazy_static! {
-    pub static ref DEFAULT_GLOB: &'static [&'static str] =
-        &["./**/*.{html,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,svelte,mdx}"];
-}
+pub static DEFAULT_GLOB: &[&str] = &["./**/*.{html,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,svelte,mdx}"];
 
 #[derive(Debug, Error)]
 pub enum ResolveError {

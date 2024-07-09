@@ -13,6 +13,6 @@ crate-type = [ "cdylib" ]
 
 [dependencies]
 rswind = { workspace = true, features = [ "wasm" ] }
-rswind_extractor = { workspace = true }
-wasm-bindgen = { workspace = true }
-console_error_panic_hook = { workspace = true }
+rswind_extractor .workspace = true
+wasm-bindgen .workspace = true
+console_error_panic_hook .workspace = true

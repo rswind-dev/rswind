@@ -50,7 +50,7 @@ impl<'a> UtilityCandidate<'a> {
 #[serde(untagged)]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[cfg_attr(test, derive(PartialEq))]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parse))]
 pub enum ThemeKey {
     Single(SmolStr),
     Multi(Vec<SmolStr>),
@@ -100,7 +100,7 @@ where
 
 #[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "kebab-case")]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parsing))]
+#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::parse))]
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 pub struct UtilityBuilder {
     /// The key of the utility， e.g. `bg`
@@ -148,12 +148,6 @@ pub struct UtilityBuilder {
     pub group: Option<UtilityGroup>,
 }
 
-#[derive(Debug, Deserialize, Default)]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::build))]
-pub struct UtilityInput {
-    pub utilities: Vec<UtilityBuilder>,
-}
-
 pub trait AdditionalCssHandler: Sync + Send {
     fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>>;
 }
@@ -166,20 +160,6 @@ impl<'de> Deserialize<'de> for Box<dyn AdditionalCssHandler> {
         let rule_list: RuleList = serde::Deserialize::deserialize(deserializer)?;
 
         Ok(Box::new(Arc::new(rule_list)) as Box<dyn AdditionalCssHandler>)
-    }
-}
-
-#[cfg(feature = "build")]
-impl instance_code::InstanceCode for Box<dyn AdditionalCssHandler> {
-    fn instance_code(&self) -> instance_code::TokenStream {
-        let css = self
-            .handle(SmolStr::default())
-            .expect("InstanceCode of AdditionalCssHandler should return Some");
-
-        let rule_list = css.deref().instance_code();
-        instance_code::quote! {
-            std::boxed::Box::new(Arc::new(#rule_list))
-        }
     }
 }
 

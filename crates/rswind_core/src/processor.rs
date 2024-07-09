@@ -9,7 +9,7 @@ use tracing::{info, instrument};
 
 use crate::{
     cache::{Cache, CacheState, GeneratorCache},
-    context::{CacheKey, DesignSystem, GeneratedUtility},
+    design::{CacheKey, DesignSystem, GeneratedUtility},
     generator::GeneratorBuilder,
     process::build_group_selector,
 };

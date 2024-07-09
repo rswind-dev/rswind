@@ -6,7 +6,7 @@ mod tests {
     use serde::Deserialize;
     use serde_json::json;
 
-    use crate::parsing::UtilityBuilder;
+    use crate::parse::UtilityBuilder;
 
     #[test]
     fn test_deserialize() {
