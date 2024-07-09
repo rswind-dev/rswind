@@ -6,8 +6,7 @@ use rayon::iter::ParallelIterator;
 use rswind_common::iter::MaybeParallelIterator;
 use thiserror::Error;
 
-pub static DEFAULT_GLOB: &'static [&'static str] =
-    &["./**/*.{html,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,svelte,mdx}"];
+pub static DEFAULT_GLOB: &[&str] = &["./**/*.{html,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,svelte,mdx}"];
 
 #[derive(Debug, Error)]
 pub enum ResolveError {

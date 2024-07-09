@@ -14,7 +14,7 @@ napi = [ "rswind_core/napi" ]
 wasm = [ "rswind_core/wasm" ]
 
 [dependencies]
-rswind_core.workspace = true
+rswind_core = { workspace = true, features = [ "build" ] }
 rswind_css.workspace = true
 
 phf = { workspace = true, features = [ "macros" ] }
