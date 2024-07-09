@@ -29,10 +29,4 @@ pub mod extract {
 }
 
 #[cfg(feature = "build")]
-mod build_impl;
-
-#[cfg(feature = "build")]
-pub mod build {
-    pub use crate::config::StaticUtilityConfig;
-    pub use crate::parse::UtilityInput;
-}
+pub mod build;

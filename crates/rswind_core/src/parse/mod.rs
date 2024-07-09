@@ -148,12 +148,6 @@ pub struct UtilityBuilder {
     pub group: Option<UtilityGroup>,
 }
 
-#[derive(Debug, Deserialize, Default)]
-#[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::build))]
-pub struct UtilityInput {
-    pub utilities: Vec<UtilityBuilder>,
-}
-
 pub trait AdditionalCssHandler: Sync + Send {
     fn handle(&self, value: SmolStr) -> Option<Arc<RuleList>>;
 }

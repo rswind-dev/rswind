@@ -1,13 +1,24 @@
 use std::ops::Deref;
 
 use lightningcss::properties::PropertyId;
+use serde::Deserialize;
 use smol_str::SmolStr;
 
 use crate::{
-    parse::AdditionalCssHandler,
+    parse::{AdditionalCssHandler, UtilityBuilder},
     process::{MetaData, UtilityHandler},
     types::CssTypeValidator,
 };
+
+pub use crate::config::StaticUtilityConfig;
+
+#[derive(Debug, Deserialize, Default)]
+#[derive(instance_code::InstanceCode)]
+#[instance(path = rswind_core::build)]
+pub struct UtilityInput {
+    pub utilities: Vec<UtilityBuilder>,
+}
+
 
 impl instance_code::InstanceCode for Box<dyn AdditionalCssHandler> {
     fn instance_code(&self) -> instance_code::TokenStream {
