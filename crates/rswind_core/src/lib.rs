@@ -18,7 +18,6 @@ pub use design::DesignSystem;
 
 pub mod css {
     pub use rswind_css::*;
-    pub use rswind_css_macros::*;
 }
 
 pub mod theme {

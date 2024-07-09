@@ -16,6 +16,7 @@ json_schema = [ "dep:schemars" ]
 
 [dependencies]
 rswind_common.workspace = true
+rswind_css_macros.workspace = true
 smol_str = { workspace = true, features = [ "serde" ] }
 serde = { workspace = true, features = [ "derive" ] }
 schemars = { workspace = true, optional = true, features = [
