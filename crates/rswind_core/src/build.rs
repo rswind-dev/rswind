@@ -12,13 +12,11 @@ use crate::{
 
 pub use crate::config::StaticUtilityConfig;
 
-#[derive(Debug, Deserialize, Default)]
-#[derive(instance_code::InstanceCode)]
+#[derive(Debug, Deserialize, Default, instance_code::InstanceCode)]
 #[instance(path = rswind_core::build)]
 pub struct UtilityInput {
     pub utilities: Vec<UtilityBuilder>,
 }
-
 
 impl instance_code::InstanceCode for Box<dyn AdditionalCssHandler> {
     fn instance_code(&self) -> instance_code::TokenStream {
