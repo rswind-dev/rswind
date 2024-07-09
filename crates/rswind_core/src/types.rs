@@ -33,7 +33,7 @@ pub enum CssTypeValidator {
 }
 
 #[cfg(feature = "json_schema")]
-impl_schemars!(CssTypeValidator => String);
+rswind_common::impl_schemars!(CssTypeValidator => String);
 
 impl<'de> Deserialize<'de> for CssTypeValidator {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
