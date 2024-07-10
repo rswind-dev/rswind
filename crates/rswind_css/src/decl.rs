@@ -35,7 +35,8 @@ impl<A: Into<SmolStr>, B: Into<SmolStr>> FromIterator<(A, B)> for DeclList {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq, Default, InstanceCode)]
+#[instance(path = rswind_css)]
 pub struct DeclList(pub Vec<Decl>);
 
 #[cfg(feature = "json_schema")]

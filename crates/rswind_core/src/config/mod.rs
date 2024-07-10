@@ -6,6 +6,7 @@ use std::{io, str::FromStr};
 
 use config::Config;
 use derive_more::{Deref, DerefMut};
+use rswind_css::DeclList;
 use rustc_hash::FxHashMap as HashMap;
 use serde::Deserialize;
 use smol_str::SmolStr;
@@ -28,8 +29,8 @@ pub struct CorePlugins {
 #[cfg_attr(feature = "json_schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::config))]
 pub enum StaticUtilityValue {
-    DeclList(HashMap<SmolStr, SmolStr>),
-    WithSelector((SmolStr, HashMap<SmolStr, SmolStr>)),
+    DeclList(DeclList),
+    WithSelector((SmolStr, DeclList)),
 }
 
 #[derive(Debug, Default, Deserialize, Deref, DerefMut)]
