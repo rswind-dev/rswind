@@ -82,7 +82,7 @@ impl UtilityStorage {
         self.utilities.iter()
     }
 
-    pub fn try_apply(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
+    pub fn try_apply(&self, candidate: UtilityCandidate) -> Option<UtilityApplyResult> {
         if candidate.arbitrary {
             return Some(UtilityApplyResult {
                 rule: Rule::new([Decl::new(

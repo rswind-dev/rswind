@@ -10,7 +10,7 @@ pub trait VariantMatchingFn: Fn(RuleList) -> Option<RuleList> + Sync + Send {}
 impl<T: Fn(RuleList) -> Option<RuleList> + Sync + Send> VariantMatchingFn for T {}
 
 pub trait VariantHandlerExt {
-    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList;
+    fn handle(&self, candidate: &VariantCandidate, rule: RuleList) -> RuleList;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -124,7 +124,7 @@ impl Variant {
         Self { ordering, ..self }
     }
 
-    pub fn process(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    pub fn process(&self, candidate: &VariantCandidate, rule: RuleList) -> RuleList {
         match &self.handler {
             VariantHandler::Static(handler) => handler.handle(candidate, rule),
             VariantHandler::Dynamic(handler) => handler.handle(candidate, rule),
@@ -145,7 +145,7 @@ impl Variant {
 }
 
 impl VariantHandlerExt for Variant {
-    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate, rule: RuleList) -> RuleList {
         self.process(candidate, rule)
     }
 }
@@ -203,7 +203,7 @@ impl StaticHandler {
 }
 
 impl VariantHandlerExt for StaticHandler {
-    fn handle(&self, _candidate: &VariantCandidate<'_>, rules: RuleList) -> RuleList {
+    fn handle(&self, _candidate: &VariantCandidate, rules: RuleList) -> RuleList {
         match self {
             Self::Selector(a) | Self::PseudoElement(a) => rules
                 .into_iter()
@@ -230,7 +230,7 @@ pub struct DynamicHandler {
 }
 
 impl VariantHandlerExt for DynamicHandler {
-    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate, rule: RuleList) -> RuleList {
         (self.handler)(rule, candidate)
     }
 }
@@ -258,7 +258,7 @@ impl ComposableHandler {
 }
 
 impl VariantHandlerExt for ComposableHandler {
-    fn handle(&self, candidate: &VariantCandidate<'_>, rule: RuleList) -> RuleList {
+    fn handle(&self, candidate: &VariantCandidate, rule: RuleList) -> RuleList {
         (self.handler)(rule, candidate)
     }
 }
