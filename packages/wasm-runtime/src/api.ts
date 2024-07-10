@@ -1,5 +1,5 @@
 import init, { createGenerator } from './binding/binding_core_wasm.js'
-import type { Generator, GeneratorConfig } from './binding/binding_core_wasm'
+import type { Generator, GeneratorConfig } from './binding/binding_core_wasm.js'
 
 const STYLE_TAG_ID = '__rswind_style__'
 
