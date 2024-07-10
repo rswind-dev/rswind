@@ -14,6 +14,6 @@ export default antfu({
 }, [
   {
     name: 'disable-generated-wasm-bindings',
-    ignores: ['packages/rswind-wasm-web/src/binding/*'],
+    ignores: ['packages/wasm-runtime/src/binding/*'],
   },
 ])

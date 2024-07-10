@@ -10,6 +10,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@rswind/wasm-web": "workspace:^"
+    "@rswind/wasm-runtime": "workspace:^"
   }
 }
