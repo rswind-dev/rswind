@@ -37,7 +37,6 @@ Fast Tailwind CSS JIT Engine in Rust
 >
 > Rswind is still in development and not ready for production use.
 
-
 ## Documentation
 
 Read the [documentation](https://rswind.rs/) for more details.
