@@ -21,7 +21,7 @@ impl<T: Fn(MetaData, SmolStr) -> Rule + Send + Sync + 'static> RuleMatchingFn fo
 pub struct UtilityHandler(pub Box<dyn RuleMatchingFn>);
 
 impl Debug for UtilityHandler {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let rule = self.0(MetaData::modifier("$1"), SmolStr::new("$0"));
         f.debug_tuple("UtilityHandler").field(&rule).finish()
     }
@@ -142,7 +142,7 @@ impl Utility {
         }
     }
 
-    pub fn apply_to(&self, candidate: UtilityCandidate<'_>) -> Option<UtilityApplyResult> {
+    pub fn apply_to(&self, candidate: UtilityCandidate) -> Option<UtilityApplyResult> {
         if !self.supports_negative && candidate.negative {
             return None;
         }
