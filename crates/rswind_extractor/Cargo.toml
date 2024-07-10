@@ -12,12 +12,12 @@ categories.workspace = true
 [lib]
 
 [dependencies]
-rswind_common .workspace = true
-cssparser-macros .workspace = true
-cssparser .workspace = true
-rustc-hash .workspace = true
-memchr .workspace = true
-rayon .workspace = true
+rswind_common.workspace = true
+cssparser-macros.workspace = true
+cssparser.workspace = true
+rustc-hash.workspace = true
+memchr.workspace = true
+rayon.workspace = true
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }

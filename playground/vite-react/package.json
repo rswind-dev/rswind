@@ -1,8 +1,8 @@
 {
   "name": "vite-react",
-  "private": true,
-  "version": "0.0.1-alpha.2",
   "type": "module",
+  "version": "0.0.1-alpha.2",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

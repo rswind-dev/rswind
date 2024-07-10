@@ -63,7 +63,7 @@ jobs:
       - name: cargo clippy
         uses: giraffate/clippy-action@v1
         with:
-          reporter: 'github-pr-check'
+          reporter: github-pr-check
           github_token: ${{ secrets.GITHUB_TOKEN }}
   semver:
     if: ${{ false }}
@@ -119,7 +119,7 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        msrv: ["1.75.0"]
+        msrv: [1.75.0]
     name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4

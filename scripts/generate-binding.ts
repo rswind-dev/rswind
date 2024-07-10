@@ -165,7 +165,7 @@ export async function generateBinding() {
 if (import.meta.main) {
   console.log('Generating binding...')
   console.log(Deno.args[0])
-  if (!Deno.args[0] ||!existsSync(Deno.args[0])) {
+  if (!Deno.args[0] || !existsSync(Deno.args[0])) {
     console.error(red(bold('Please provide a valid path to write the generated binding')))
     Deno.exit(1)
   }

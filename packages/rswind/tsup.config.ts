@@ -1,11 +1,4 @@
-import { execSync } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
-
-import type { Options } from 'tsup'
 import { defineConfig } from 'tsup'
-import tempfile from 'tempfile'
 
 // const generateNamedExportPlugin: Required<Options>['esbuildPlugins'][0] = {
 //   name: 'rswind:generate-named-export',
