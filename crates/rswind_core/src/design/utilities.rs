@@ -39,11 +39,9 @@ impl From<(SmolStr, DeclList)> for StaticUtility {
 impl From<StaticUtilityValue> for StaticUtility {
     fn from(value: StaticUtilityValue) -> Self {
         match value {
-            StaticUtilityValue::DeclList(decl_list) => {
-                Self { selector: None, decls: decl_list.into_iter().collect() }
-            }
+            StaticUtilityValue::DeclList(decl_list) => Self { selector: None, decls: decl_list },
             StaticUtilityValue::WithSelector(value) => {
-                Self { selector: Some(value.0), decls: value.1.into_iter().collect() }
+                Self { selector: Some(value.0), decls: value.1 }
             }
         }
     }
