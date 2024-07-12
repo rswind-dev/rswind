@@ -1,9 +1,10 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, path::PathBuf};
 
 use clap::{command, Parser};
 use colored::Colorize;
+use fs::write_output;
 use rswind::{
-    config::GeneratorConfig, generator::AppBuildError, io::write_output, preset::preset_tailwind,
+    config::GeneratorConfig, generator::AppBuildError, preset::preset_tailwind,
     processor::GeneratorProcessor,
 };
 use rswind_css::ToCssString;
@@ -11,7 +12,8 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 
 use watch::WatchApp;
 
-pub mod watch;
+mod fs;
+mod watch;
 
 #[derive(Debug, Parser)]
 #[command(name = "rswind", version, author, about, long_about = None)]
@@ -24,7 +26,7 @@ pub struct Opts {
     #[arg(short, help = "Output path (default: stdout)")]
     pub output: Option<String>,
 
-    #[arg(short, default_value_t = false, help = "Enable watch mode")]
+    #[arg(short, long, default_value_t = false, help = "Enable watch mode")]
     pub watch: bool,
 
     #[arg(short, long, help = "Enable strict mode")]
@@ -70,15 +72,18 @@ where
         .with_preset(preset_tailwind)
         .with_config(GeneratorConfig::from_file(&opts.config)?)
         .with_watch(opts.watch)
+        .with_base(Some(opts.cwd.clone()))
         .build()?;
 
+    let output_path = opts.output.as_deref().map(|s| PathBuf::from(&opts.cwd).join(s));
     match opts.cmd {
         None if opts.watch => {
-            app.watch(opts.output.as_deref());
+            app.watch(output_path);
         }
         None => {
             let res = app.generate_contents();
-            write_output(&res.css, opts.output.as_deref());
+            dbg!(&res);
+            write_output(&res.css, output_path);
         }
         Some(SubCommand::Debug(cmd)) => match app.processor.design.generate(&cmd.input) {
             Some(r) => {

@@ -31,6 +31,9 @@ colored.workspace = true
 
 [dev-dependencies]
 criterion = { workspace = true, features = [ "html_reports" ] }
+tempfile = "3.10.1"
+assert_fs = "1.1.1"
+assert_cmd = { version = "2.0.14", features = [ "color" ] }
 
 [[bench]]
 name = "multiple_files"

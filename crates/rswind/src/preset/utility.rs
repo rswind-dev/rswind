@@ -1,5 +1,5 @@
 use instance_code::inject_instance;
-use rswind_core::build::UtilityInput;
+use rswind_core::codegen::UtilityInput;
 use rswind_core::css::css;
 use rswind_core::process::RawValueDef;
 use rswind_core::theme::values::{FontFamily, FontSize};

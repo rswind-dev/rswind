@@ -13,7 +13,7 @@ use crate::{
 pub use crate::config::StaticUtilityConfig;
 
 #[derive(Debug, Deserialize, Default, instance_code::InstanceCode)]
-#[instance(path = rswind_core::build)]
+#[instance(path = rswind_core::codegen)]
 pub struct UtilityInput {
     pub utilities: Vec<UtilityBuilder>,
 }

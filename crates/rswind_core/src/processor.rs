@@ -28,7 +28,7 @@ pub struct GenOptions {
 
 pub type GenResultList = Vec<GeneratedUtility>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ResultKind {
     Cached,
     /// New utilities generated with length of new utilities
@@ -127,7 +127,10 @@ impl GeneratorProcessor {
 
         self.cache.state.mark_cached();
 
-        GenerateResult { css: Arc::new(writer.dest), kind: ResultKind::Generated }
+        let css = Arc::new(writer.dest);
+        self.cache.store_css(css.clone());
+
+        GenerateResult { css, kind: ResultKind::Generated }
     }
 }
 

@@ -52,7 +52,7 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 derive_more = "0.99.17"
 walkdir.workspace = true
-globset = { version = "0.4.14", default-features = false, features = [ "simd-accel", ] }
+globset = { version = "0.4.14", default-features = false, features = [ "simd-accel" ] }
 schemars = { workspace = true, features = [
   "smallvec1",
   "either1",
@@ -63,3 +63,6 @@ wasm-bindgen = { version = "0.2.92", optional = true }
 itertools = "0.13.0"
 instance_code.workspace = true
 napi = { workspace = true, optional = true }
+
+[dev-dependencies]
+tempfile = "3.10.1"

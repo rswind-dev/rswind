@@ -1,6 +1,5 @@
 use std::{
-    fs::{read_to_string, OpenOptions},
-    io::Write,
+    fs::read_to_string,
     path::{Path, PathBuf},
 };
 
@@ -40,26 +39,6 @@ pub fn walk(base: impl AsRef<Path>) -> Vec<PathBuf> {
         })
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
-        .map(|e| e.into_path())
+        .map(|e| e.into_path().canonicalize().unwrap())
         .collect()
-}
-
-pub fn write_file(content: &str, filename: impl AsRef<Path>) {
-    OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .append(false)
-        .open(filename)
-        .unwrap()
-        .write_all(content.as_bytes())
-        .unwrap();
-}
-
-pub fn write_output(content: &str, output: Option<&str>) {
-    if let Some(output) = output {
-        write_file(content, output);
-    } else {
-        std::io::stdout().write_all(content.as_bytes()).unwrap();
-    }
 }

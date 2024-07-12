@@ -87,24 +87,6 @@ impl ThemeMap {
         }
     }
 
-    pub fn remove(&mut self, key: &str) {
-        match self {
-            Self::Dynamic(map) => {
-                map.remove(key);
-            }
-            Self::KeyFrames(map) => {
-                map.remove(key);
-            }
-            Self::FontSize(map) => {
-                map.remove(key);
-            }
-            Self::FontFamily(map) => {
-                map.remove(key);
-            }
-            _ => {}
-        }
-    }
-
     pub fn merge(&mut self, other: Self) {
         match (self, other) {
             (s @ Self::Static(_), Self::Dynamic(d)) => s.extend(d),
