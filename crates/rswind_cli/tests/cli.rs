@@ -1,6 +1,6 @@
 use std::{
     fs::read_to_string,
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::{self, Stdio},
     thread::{self},
     time::{Duration, Instant},
