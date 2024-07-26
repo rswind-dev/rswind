@@ -1,5 +1,6 @@
 use std::{
     fs::read_to_string,
+    path::{Path, PathBuf},
     process::{self, Stdio},
     thread::{self},
     time::{Duration, Instant},
@@ -73,7 +74,7 @@ fn test_cli_with_watch() {
         Some(".flex{display:flex;}")
     );
 
-    cwd.child("fixtures/index.html")
+    cwd.child(PathBuf::from("fixtures").join("index.html"))
         .write_str("<div class=\"text-sm\"></div>")
         .expect("Failed to write to file");
 
