@@ -16,7 +16,10 @@ fn generate_schema(path: impl AsRef<std::path::Path>) {
     let schema = schemars::schema_for!(rswind_core::config::GeneratorConfig);
     let schema_str = serde_json::to_string_pretty(&schema).unwrap();
     let _ = std::fs::write(&path, schema_str);
-    println!("Schema written to: {:?}", Path::new(&path).canonicalize().unwrap());
+    println!(
+        "Schema written to: {:?}",
+        std::path::Path::new(path.as_ref()).canonicalize().unwrap()
+    );
 }
 
 #[cfg(test)]
@@ -24,7 +27,7 @@ fn generate_schema(path: impl AsRef<std::path::Path>) {
 mod tests {
     #[test]
     fn test_main() {
-        let file = tempfile::NamedTempFile::new();
+        let file = tempfile::NamedTempFile::new().unwrap();
         crate::generate_schema(file.path());
     }
 }
