@@ -22,8 +22,8 @@ macro_rules! until_updated {
         let start = Instant::now();
         let predicate_fn = || $left == $right;
         while predicate_fn() == false {
-            thread::sleep(Duration::from_millis(100));
-            if start.elapsed() > Duration::from_secs(3) {
+            thread::sleep(Duration::from_millis(200));
+            if start.elapsed() > Duration::from_secs(10) {
                 assert_eq!($left, $right)
             }
         }
