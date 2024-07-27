@@ -13,7 +13,7 @@ mod generator_tests {
 
         assert_eq!(
             generator.base().canonicalize().unwrap().to_str().unwrap(),
-            current_dir().unwrap().join("src").to_str().unwrap()
+            current_dir().unwrap().join("src").canonicalize().unwrap().to_str().unwrap()
         );
     }
 
