@@ -77,7 +77,7 @@ impl GlobMatcher {
             Ok::<_, BuildGlobError>(acc)
         })?;
 
-        Ok(Self { glob: glob_set.build()?, base })
+        Ok(Self { glob: glob_set.build()?, base: cwd })
     }
 
     pub fn default_glob(base: PathBuf) -> Result<Self, BuildGlobError> {

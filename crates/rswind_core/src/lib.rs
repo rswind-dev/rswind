@@ -29,4 +29,4 @@ pub mod extract {
 }
 
 #[cfg(feature = "build")]
-pub mod build;
+pub mod codegen;

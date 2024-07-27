@@ -30,7 +30,7 @@ pub trait Cache {
 
     fn css(&self) -> Arc<String>;
 
-    fn store_css(&mut self, css: String);
+    fn store_css(&mut self, css: Arc<String>);
 }
 
 #[derive(Debug, Default, Deref, DerefMut)]
@@ -141,8 +141,8 @@ impl Cache for CacheImpl {
         self.generated_css.clone()
     }
 
-    fn store_css(&mut self, css: String) {
-        self.generated_css = Arc::new(css);
+    fn store_css(&mut self, css: Arc<String>) {
+        self.generated_css = css;
     }
 }
 
@@ -186,5 +186,5 @@ impl Cache for NoopCache {
         Arc::new(String::new())
     }
 
-    fn store_css(&mut self, _: String) {}
+    fn store_css(&mut self, _: Arc<String>) {}
 }

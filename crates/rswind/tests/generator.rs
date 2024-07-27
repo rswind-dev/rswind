@@ -1,15 +1,20 @@
 #[cfg(test)]
 mod generator_tests {
-    use std::ops::Deref;
+    use std::{env::current_dir, ops::Deref};
 
-    use rswind::{config::GeneratorConfig, preset::preset_tailwind, Generator};
+    use rswind::{
+        config::GeneratorConfig, preset::preset_tailwind, processor::ResultKind, Generator,
+    };
     use serde_json::json;
 
     #[test]
     fn test_generator_builder() {
         let generator = Generator::builder().with_base(Some("src".to_owned())).build().unwrap();
 
-        assert_eq!(generator.base().to_str().unwrap(), "src");
+        assert_eq!(
+            generator.base().canonicalize().unwrap().to_str().unwrap(),
+            current_dir().unwrap().join("src").canonicalize().unwrap().to_str().unwrap()
+        );
     }
 
     #[test]
@@ -66,5 +71,44 @@ mod generator_tests {
         assert_eq!(generator.theme().get_value("spacing", "1").as_deref(), Some("0.25rem"));
         assert_eq!(generator.theme().get("spacing").unwrap().deref().len(), 1);
         assert!(generator.theme().get("keyframes").unwrap().deref().is_empty());
+    }
+
+    #[test]
+    fn test_generator_with_io() {
+        let mut generator = Generator::builder()
+            .with_base(Some(
+                current_dir().unwrap().join("tests").join("fixtures").to_string_lossy().to_string(),
+            ))
+            .with_preset(preset_tailwind)
+            .with_watch(true)
+            .build()
+            .unwrap();
+
+        let res = generator.generate_contents();
+        assert_eq!(&*res.css, ".flex {\n  display: flex;\n}\n");
+        assert_eq!(res.kind, ResultKind::Generated);
+
+        let res = generator.generate_contents();
+        assert_eq!(&*res.css, ".flex {\n  display: flex;\n}\n");
+        assert_eq!(res.kind, ResultKind::Cached);
+    }
+
+    #[test]
+    fn test_generator_without_cache() {
+        let mut generator = Generator::builder()
+            .with_base(Some(
+                current_dir().unwrap().join("tests").join("fixtures").to_string_lossy().to_string(),
+            ))
+            .with_preset(preset_tailwind)
+            .build()
+            .unwrap();
+
+        let res = generator.generate_contents();
+        assert_eq!(&*res.css, ".flex {\n  display: flex;\n}\n");
+        assert_eq!(res.kind, ResultKind::Generated);
+
+        let res = generator.generate_contents();
+        assert_eq!(&*res.css, ".flex {\n  display: flex;\n}\n");
+        assert_eq!(res.kind, ResultKind::Generated);
     }
 }

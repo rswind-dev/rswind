@@ -30,6 +30,8 @@ criterion = { workspace = true, features = [ "html_reports" ] }
 paste = "1.0.15"
 serde_json.workspace = true
 either.workspace = true
+toml = "0.8.14"
+serde_yaml = "0.9.34"
 
 [build-dependencies]
 instance_code.workspace = true

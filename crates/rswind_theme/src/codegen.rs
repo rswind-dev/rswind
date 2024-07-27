@@ -39,7 +39,7 @@ where
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct ThemeCodegen(ThemeOptions);
+pub struct ThemeCodegen(pub ThemeOptions);
 
 impl InstanceCode for ThemeCodegen {
     fn instance_code(&self) -> TokenStream {

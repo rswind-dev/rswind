@@ -1,5 +1,5 @@
 use instance_code::build::provide_instance;
-use rswind_core::build::{StaticUtilityConfig, UtilityInput};
+use rswind_core::codegen::{StaticUtilityConfig, UtilityInput};
 use rswind_theme::codegen::ThemeCodegen;
 
 fn main() {
