@@ -1,6 +1,7 @@
 #[macro_export]
 macro_rules! impl_schemars {
     (($($impl:tt)+) => $target:ty) => {
+        #[allow(clippy::disallowed_types)]
         impl $($impl)+ {
             fn schema_name() -> std::borrow::Cow<'static, str> {
                 <$target>::schema_name()
