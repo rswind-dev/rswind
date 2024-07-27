@@ -62,6 +62,7 @@ fn test_cli_with_watch() {
         .arg(path)
         .arg("-o")
         .arg("index.css")
+        .env("RSWIND_LOG", "debug")
         .stdout(Stdio::inherit())
         .spawn()
         .unwrap();
