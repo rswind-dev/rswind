@@ -11,7 +11,10 @@ mod generator_tests {
     fn test_generator_builder() {
         let generator = Generator::builder().with_base(Some("src".to_owned())).build().unwrap();
 
-        assert_eq!(generator.base().to_str().unwrap(), "src");
+        assert_eq!(
+            generator.base().to_str().unwrap(),
+            current_dir().unwrap().join("src").to_str().unwrap()
+        );
     }
 
     #[test]
