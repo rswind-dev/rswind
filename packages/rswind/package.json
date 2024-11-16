@@ -56,7 +56,9 @@
     "build-binding:dev": "napi build -o ./src --manifest-path ../../Cargo.toml --platform -p binding_core_node --no-js --dts binding.d.ts --dts-header \"import type { GeneratorConfig } from \"./types\";\n\n\" --no-const-enum",
     "build-binding:types": "pnpm build-binding:dev --pipe '../../scripts/generate-ts-type.ts'",
     "build-binding:release": "pnpm build-binding:dev --release",
-    "build-node": "tsup"
+    "copy-binding": "cp src/*.node dist",
+    "build-node:pre": "tsup",
+    "build-node": "run-s build-node:pre copy-binding"
   },
   "dependencies": {
     "detect-libc": "^2.0.3"
