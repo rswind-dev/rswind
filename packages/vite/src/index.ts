@@ -15,9 +15,9 @@ export default function rswind(options?: GeneratorOptions): Plugin[] {
 
   const modulesQueue = createModulesQueue(generator, (q) => {
     const res = generator.generateWith([...q.modules.entries()])
-    if (res.kind === ResultKind.Cached)
-      return
-    q.css = res.css
+    if (res.kind === ResultKind.Generated) {
+      q.css = res.css
+    }
     q.modules.clear()
     q.server && sendUpdate(q.server)
   })

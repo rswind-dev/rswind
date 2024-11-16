@@ -24,9 +24,7 @@ export function createModulesQueue(
     push(id, code) {
       modules.set(id, code)
       clearTimeout(timer)
-      timer = setTimeout(() => {
-        this.flush()
-      }, 0)
+      timer = setTimeout(() => this.flush(), 0)
     },
     flush(length) {
       if (modules.size === 0 && (length === undefined || length === this.css.length)) {
