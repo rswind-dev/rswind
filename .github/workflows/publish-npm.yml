@@ -53,7 +53,7 @@ jobs:
       - name: Copy Licenses
         run: find ./packages/ -type d -maxdepth 1 -exec cp LICENSE {} \;
 
-      - name: List Rolldown Bindings
+      - name: List Rswind Bindings
         run: ls -R ./packages/rswind/npm
         shell: bash
 
@@ -63,19 +63,39 @@ jobs:
           path: packages/rswind/dist
           name: node-artifact
 
+      - name: Download Rswind Vite Plugin
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/vite/dist
+          name: rswind-vite
+
       - name: Set Publishing Config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish (Dry Run)
+      - name: Publish Rswind (Dry Run)
         run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks --force --ignore-scripts --dry-run
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish
+      - name: Publish Rswind
         run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks --force
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Publish Vite Plugin (Dry Run)
+        run: pnpm publish -r --filter '@rswind/vite' --tag latest --no-git-checks  --dry-run
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Publish Vite Plugin
+        run: pnpm publish -r --filter '@rswind/vite' --tag latest --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
