@@ -2,9 +2,11 @@ use std::{ffi::OsString, path::PathBuf};
 
 use clap::{command, Parser};
 use colored::Colorize;
-use fs::write_output;
 use rswind::{
-    config::GeneratorConfig, generator::AppBuildError, preset::preset_tailwind,
+    config::GeneratorConfig,
+    generator::AppBuildError,
+    io::{write_output, OutputChannel},
+    preset::preset_tailwind,
     processor::GeneratorProcessor,
 };
 use rswind_css::ToCssString;
@@ -12,7 +14,6 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 
 use watch::WatchApp;
 
-mod fs;
 mod watch;
 
 #[derive(Debug, Parser)]
@@ -23,8 +24,8 @@ pub struct Opts {
 
     pub content: Vec<String>,
 
-    #[arg(short, help = "Output path (default: stdout)")]
-    pub output: Option<String>,
+    #[arg(short, help = "Output path", default_value_t = OutputChannel::Stdout)]
+    pub output: OutputChannel,
 
     #[arg(short, long, default_value_t = false, help = "Enable watch mode")]
     pub watch: bool,
@@ -66,7 +67,7 @@ where
         .with(EnvFilter::from_env("RSWIND_LOG"))
         .init();
 
-    let opts = Opts::parse_from(args);
+    let mut opts = Opts::parse_from(args);
 
     let mut app = GeneratorProcessor::builder()
         .with_preset(preset_tailwind)
@@ -75,15 +76,17 @@ where
         .with_base(Some(opts.cwd.clone()))
         .build()?;
 
-    let output_path = opts.output.as_deref().map(|s| PathBuf::from(&opts.cwd).join(s));
+    if let OutputChannel::FileSystem(path) = opts.output {
+        opts.output = OutputChannel::FileSystem(PathBuf::from(&opts.cwd).join(path))
+    }
+
     match opts.cmd {
         None if opts.watch => {
-            app.watch(output_path);
+            app.watch(&opts.output);
         }
         None => {
             let res = app.generate_contents();
-            dbg!(&res);
-            write_output(&res.css, output_path);
+            write_output(&res.css, &opts.output);
         }
         Some(SubCommand::Debug(cmd)) => match app.processor.design.generate(&cmd.input) {
             Some(r) => {
@@ -101,7 +104,7 @@ where
             }
         },
         Some(SubCommand::Init(_)) => {
-            write_output("{}", Some("rswind.config.json"));
+            write_output("{}", &OutputChannel::FileSystem("rswind.config.json".into()));
         }
     };
 

@@ -1,6 +1,10 @@
 use std::{
-    fs::read_to_string,
+    convert::Infallible,
+    fmt::Display,
+    fs::{read_to_string, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 use crate::generator::GeneratorInput;
@@ -41,4 +45,46 @@ pub fn walk(base: impl AsRef<Path>) -> Vec<PathBuf> {
         .filter(|e| e.file_type().is_file())
         .map(|e| e.into_path().canonicalize().unwrap())
         .collect()
+}
+
+pub fn write_file(content: &str, filename: impl AsRef<Path>) {
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .append(false)
+        .open(filename)
+        .unwrap()
+        .write_all(content.as_bytes())
+        .unwrap();
+}
+
+#[derive(Debug, Clone)]
+pub enum OutputChannel {
+    Stdout,
+    FileSystem(PathBuf),
+}
+
+impl Display for OutputChannel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OutputChannel::Stdout => f.write_str("stdout"),
+            OutputChannel::FileSystem(path) => f.write_str(&path.to_string_lossy()),
+        }
+    }
+}
+
+impl FromStr for OutputChannel {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::FileSystem(PathBuf::from(s)))
+    }
+}
+
+pub fn write_output(content: &str, output: &OutputChannel) {
+    match output {
+        OutputChannel::Stdout => std::io::stdout().write_all(content.as_bytes()).unwrap(),
+        OutputChannel::FileSystem(path) => write_file(content, path),
+    }
 }
