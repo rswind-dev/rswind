@@ -170,5 +170,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: node-artifact
+          name: rswind-wasm
           path: packages/wasm-runtime/src/binding/**

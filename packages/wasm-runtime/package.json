@@ -33,7 +33,7 @@
     "build:api": "tsup src/index.ts --format esm",
     "build:iife": "tsup src/api.ts --format esm",
     "build:js": "run-s build:api build:iife",
-    "ci:build": "pnpm build:js"
+    "ci:build": "pnpm build"
   },
   "dependencies": {
     "tsup": "^8.0.1",
