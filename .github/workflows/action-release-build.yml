@@ -162,3 +162,13 @@ jobs:
           if-no-files-found: error
           name: node-artifact
           path: packages/rswind/dist/**
+
+      - name: Build Vite Plugin
+        run: pnpm --filter @rswind/vite ci:build-node
+
+      - name: Upload Vite Plugin
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: rswind-vite
+          path: packages/vite/dist/**

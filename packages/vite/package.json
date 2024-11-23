@@ -1,7 +1,7 @@
 {
   "name": "@rswind/vite",
   "type": "module",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "Rswind's Vite Plugin",
   "author": "Neo Lyon",
   "license": "MIT",
@@ -35,6 +35,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
+    "ci:build-node": "pnpm build",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch --sourcemap inline",
     "test:e2e": "playwright test"
   },
