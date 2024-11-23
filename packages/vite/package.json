@@ -35,9 +35,9 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
-    "ci:build-node": "pnpm build",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch --sourcemap inline",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "ci:build": "pnpm build"
   },
   "dependencies": {
     "rswind": "workspace:^"

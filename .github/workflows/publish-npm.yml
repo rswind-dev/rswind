@@ -63,39 +63,42 @@ jobs:
           path: packages/rswind/dist
           name: node-artifact
 
-      - name: Download Rswind Vite Plugin
+      - name: Download Wasm Binding
         uses: actions/download-artifact@v4
         with:
-          path: packages/vite/dist
-          name: rswind-vite
+          path: packages/wasm-runtime/src/binding
+          name: rswind-wasm
+
+      - name: Build Rswind Packages
+        run: pnpm --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite ci:build
 
       - name: Set Publishing Config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish Rswind (Dry Run)
-        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks --force --ignore-scripts --dry-run
+      - name: Publish Rswind Bindings (Dry Run)
+        run: pnpm publish -r --filter '@rswind/binding-*' --tag latest --no-git-checks --ignore-scripts --dry-run
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish Rswind
-        run: pnpm publish -r --filter rswind --filter '@rswind/binding-*' --tag latest --no-git-checks --force
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish Vite Plugin (Dry Run)
-        run: pnpm publish -r --filter '@rswind/vite' --tag latest --no-git-checks  --dry-run
+      - name: Publish Rswind Bindings
+        run: pnpm publish -r --filter '@rswind/binding-*' --tag latest --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      - name: Publish Vite Plugin
-        run: pnpm publish -r --filter '@rswind/vite' --tag latest --no-git-checks
+      - name: Publish Rswind Packages (Dry Run)
+        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks  --dry-run
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Publish Rswind Packages
+        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
