@@ -58,7 +58,8 @@
     "build-binding:release": "pnpm build-binding:dev --release",
     "copy-binding": "cp src/*.node dist",
     "build-node": "tsup",
-    "build-node:dev": "run-s build-node copy-binding"
+    "build-node:dev": "run-s build-node copy-binding",
+    "ci:build": "tsup"
   },
   "dependencies": {
     "detect-libc": "^2.0.3"
