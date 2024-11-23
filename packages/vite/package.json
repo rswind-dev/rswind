@@ -1,7 +1,7 @@
 {
   "name": "@rswind/vite",
   "type": "module",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "Rswind's Vite Plugin",
   "author": "Neo Lyon",
   "license": "MIT",

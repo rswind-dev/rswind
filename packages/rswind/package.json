@@ -1,7 +1,7 @@
 {
   "name": "rswind",
   "type": "module",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "Tailwind CSS JIT Engine in Rust",
   "author": "Neo Lyon",
   "license": "MIT",
