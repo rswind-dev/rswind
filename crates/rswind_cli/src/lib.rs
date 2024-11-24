@@ -6,7 +6,7 @@ use rswind::{
     config::GeneratorConfig,
     generator::AppBuildError,
     io::{write_output, OutputChannel},
-    preset::preset_tailwind,
+    preset::{tailwind_preset, tailwind_theme},
     processor::GeneratorProcessor,
 };
 use rswind_css::ToCssString;
@@ -70,7 +70,8 @@ where
     let mut opts = Opts::parse_from(args);
 
     let mut app = GeneratorProcessor::builder()
-        .with_preset(preset_tailwind)
+        .with_theme(tailwind_theme)
+        .with_preset(tailwind_preset)
         .with_config(GeneratorConfig::from_file(&opts.config)?)
         .with_watch(opts.watch)
         .with_base(Some(opts.cwd.clone()))

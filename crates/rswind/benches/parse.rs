@@ -4,13 +4,17 @@ use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use either::Either::{Left, Right};
 use rswind::extract::{Extractable, Extractor, InputKind};
 use rswind::generator::GeneratorBuilder;
-use rswind::preset::preset_tailwind;
+use rswind::preset::{tailwind_preset, tailwind_theme};
 use rswind::process::ValuePreprocessor;
 use rswind::processor::GeneratorProcessor;
 use smol_str::format_smolstr;
 
 fn create_processor() -> GeneratorProcessor {
-    GeneratorBuilder::new().with_preset(preset_tailwind).build_processor().unwrap()
+    GeneratorBuilder::new()
+        .with_theme(tailwind_theme)
+        .with_preset(tailwind_preset)
+        .build_processor()
+        .unwrap()
 }
 
 fn gen_fixtures() -> String {

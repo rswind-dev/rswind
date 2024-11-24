@@ -45,6 +45,7 @@ impl GeneratorProcessor {
     pub fn builder() -> GeneratorBuilder {
         GeneratorBuilder {
             presets: Vec::new(),
+            themes: Vec::new(),
             config: None,
             design: DesignSystem::default(),
             options: GenOptions::default(),

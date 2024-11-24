@@ -1,5 +1,7 @@
 use rswind::{
-    generator::GeneratorBuilder, preset::preset_tailwind, processor::GeneratorProcessor,
+    generator::GeneratorBuilder,
+    preset::{tailwind_preset, tailwind_theme},
+    processor::GeneratorProcessor,
     GeneratorConfig,
 };
 use rswind_extractor::{Extractable, Extractor};
@@ -29,7 +31,8 @@ impl Generator {
         Ok(Generator {
             processor: GeneratorBuilder::new()
                 .with_parallel(false)
-                .with_preset(preset_tailwind)
+                .with_theme(tailwind_theme)
+                .with_preset(tailwind_preset)
                 .with_watch(true)
                 .with_config(config.unwrap_or_default())
                 .build_processor()?,

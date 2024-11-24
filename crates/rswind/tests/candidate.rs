@@ -72,13 +72,14 @@ macro_rules! test_group {
 mod utility {
     use rswind::{
         parse::{candidate::CandidateParser, UtilityCandidate},
-        preset::preset_tailwind,
+        preset::{tailwind_preset, tailwind_theme},
         DesignSystem,
     };
 
     fn run(input: &str) -> Option<UtilityCandidate> {
         let mut design = DesignSystem::default();
-        preset_tailwind(&mut design);
+        tailwind_theme(&mut design);
+        tailwind_preset(&mut design);
         let mut parser = CandidateParser::new(input);
 
         parser.parse_utility(&design.utilities)
@@ -100,19 +101,19 @@ mod utility {
 }
 
 mod variant {
-    use rswind::css::rule_list;
+    use rswind::{
+        css::rule_list,
+        preset::{tailwind_preset, tailwind_theme},
+    };
     use smol_str::SmolStr;
 
-    use rswind::{
-        parse::candidate::CandidateParser,
-        preset::{preset_tailwind, theme::load_theme},
-        DesignSystem,
-    };
+    use rswind::{parse::candidate::CandidateParser, preset::theme::load_theme, DesignSystem};
 
     fn run_variant(input: &str) -> Option<SmolStr> {
         let mut design = DesignSystem::default();
         load_theme(&mut design);
-        preset_tailwind(&mut design);
+        tailwind_theme(&mut design);
+        tailwind_preset(&mut design);
 
         let mut parser = CandidateParser::new(input);
 
