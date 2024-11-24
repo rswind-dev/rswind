@@ -1,7 +1,7 @@
 {
   "name": "@rswind/wasm-runtime",
   "type": "module",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.6",
   "description": "Wasm Runtime for Rswind",
   "author": "Neo Lyon",
   "license": "MIT",
@@ -25,6 +25,10 @@
     "api.js",
     "index.js"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "dev": "tsup src/index.ts --no-dts --watch",
     "dev:wasm": "wasm-pack build --dev -t web -d ../../packages/wasm-runtime/src/binding --no-pack ../../bindings/core_wasm --config profile.dev.package.rswind.opt-level=\"'s'\"",
@@ -33,6 +37,7 @@
     "build:api": "tsup src/index.ts --format esm",
     "build:iife": "tsup src/api.ts --format esm",
     "build:js": "run-s build:api build:iife",
+    "ci:build-wasm": "pnpm build:wasm",
     "ci:build": "pnpm build:js"
   },
   "dependencies": {

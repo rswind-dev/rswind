@@ -164,11 +164,11 @@ jobs:
           path: packages/rswind/dist/**
 
       - name: Build Wasm
-        run: pnpm --filter @rswind/wasm-runtime ci:build
+        run: pnpm --filter @rswind/wasm-runtime ci:build-wasm
 
       - name: Upload Wasm
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: node-artifact
+          name: rswind-wasm
           path: packages/wasm-runtime/src/binding/**
