@@ -4,7 +4,7 @@ use rswind::{
     config::{GeneratorConfig, DEFAULT_CONFIG_PATH},
     generator::{self, GeneratorInput},
     glob::GlobFilter,
-    preset::preset_tailwind,
+    preset::{tailwind_preset, tailwind_theme},
     processor::{self, GenerateWith, ParGenerateWith},
 };
 use rswind_extractor::{CollectExtracted, Extractable, Extractor};
@@ -123,7 +123,8 @@ pub fn create_generator(options: Option<GeneratorOptions>) -> napi::Result<Gener
 
     Ok(Generator(
         generator::Generator::builder()
-            .with_preset(preset_tailwind)
+            .with_theme(tailwind_theme)
+            .with_preset(tailwind_preset)
             .with_config(config)
             .with_watch(options.watch.unwrap_or(true))
             .with_parallel(options.parallel.unwrap_or(true))

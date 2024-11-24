@@ -187,7 +187,7 @@ impl Utility {
 
         Some(UtilityApplyResult {
             rule: node,
-            ordering: self.ordering_key.unwrap_or(OrderingKey::Disorder),
+            ordering: self.ordering_key.unwrap_or_default(),
             group: self.group,
             extra_css: css,
         })

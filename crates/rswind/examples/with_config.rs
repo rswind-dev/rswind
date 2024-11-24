@@ -1,10 +1,15 @@
-use rswind::{config::GeneratorConfig, preset::preset_tailwind, processor::GeneratorProcessor};
+use rswind::{
+    config::GeneratorConfig,
+    preset::{tailwind_preset, tailwind_theme},
+    processor::GeneratorProcessor,
+};
 
 fn main() {
     tracing_subscriber::fmt::fmt().init();
 
     let mut app = GeneratorProcessor::builder()
-        .with_preset(preset_tailwind)
+        .with_theme(tailwind_theme)
+        .with_preset(tailwind_preset)
         .with_config(GeneratorConfig::from_file("rswind.config").unwrap())
         .build_processor()
         .unwrap();

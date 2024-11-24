@@ -3,7 +3,10 @@ mod generator_tests {
     use std::{env::current_dir, ops::Deref};
 
     use rswind::{
-        config::GeneratorConfig, preset::preset_tailwind, processor::ResultKind, Generator,
+        config::GeneratorConfig,
+        preset::{tailwind_preset, tailwind_theme},
+        processor::ResultKind,
+        Generator,
     };
     use serde_json::json;
 
@@ -21,7 +24,8 @@ mod generator_tests {
     fn test_generator_builder2() {
         let generator = Generator::builder()
             .with_base(Some("src".to_owned()))
-            .with_preset(preset_tailwind)
+            .with_theme(tailwind_theme)
+            .with_preset(tailwind_preset)
             .with_config(
                 GeneratorConfig::from_value(json!({
                     "theme": {
@@ -45,7 +49,8 @@ mod generator_tests {
     fn test_generator_builder_with_preset() {
         let generator = Generator::builder()
             .with_base(Some("src".to_owned()))
-            .with_preset(preset_tailwind)
+            .with_theme(tailwind_theme)
+            .with_preset(tailwind_preset)
             .with_config(
                 GeneratorConfig::from_value(json!({
                     "theme": {
@@ -79,7 +84,8 @@ mod generator_tests {
             .with_base(Some(
                 current_dir().unwrap().join("tests").join("fixtures").to_string_lossy().to_string(),
             ))
-            .with_preset(preset_tailwind)
+            .with_theme(tailwind_theme)
+            .with_preset(tailwind_preset)
             .with_watch(true)
             .build()
             .unwrap();
@@ -99,7 +105,8 @@ mod generator_tests {
             .with_base(Some(
                 current_dir().unwrap().join("tests").join("fixtures").to_string_lossy().to_string(),
             ))
-            .with_preset(preset_tailwind)
+            .with_theme(tailwind_theme)
+            .with_preset(tailwind_preset)
             .build()
             .unwrap();
 

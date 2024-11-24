@@ -6,7 +6,7 @@ use std::{
 
 use crate::{
     cache::{CacheState, GeneratorCache},
-    common::Preset,
+    common::{LoadPreset, LoadTheme},
     config::{GeneratorConfig, GeneratorConfigError},
     glob::{BuildGlobError, GlobMatcher, MaybeParallelGlobFilter},
     io::{walk, FileInput},
@@ -30,7 +30,8 @@ pub struct Generator {
 pub struct GeneratorBuilder {
     pub(crate) config: Option<GeneratorConfig>,
     pub(crate) design: DesignSystem,
-    pub(crate) presets: Vec<Box<dyn Preset>>,
+    pub(crate) presets: Vec<Box<dyn LoadPreset>>,
+    pub(crate) themes: Vec<Box<dyn LoadTheme>>,
     pub(crate) options: GenOptions,
     pub(crate) base: Option<String>,
 }
@@ -66,8 +67,14 @@ impl GeneratorBuilder {
     }
 
     #[instrument(skip_all)]
-    pub fn with_preset(mut self, preset: impl Preset + 'static) -> Self {
+    pub fn with_preset(mut self, preset: impl LoadPreset + 'static) -> Self {
         self.presets.push(Box::new(preset));
+        self
+    }
+
+    #[instrument(skip_all)]
+    pub fn with_theme(mut self, preset: impl LoadTheme + 'static) -> Self {
+        self.themes.push(Box::new(preset));
         self
     }
 
@@ -88,8 +95,9 @@ impl GeneratorBuilder {
 
     #[instrument(skip_all)]
     pub fn build_processor(mut self) -> Result<GeneratorProcessor, AppBuildError> {
-        for preset in self.presets.drain(..) {
-            preset.load_preset(&mut self.design);
+        // Step 1: load theme
+        for theme in self.themes.drain(..) {
+            theme.load_theme(&mut self.design);
         }
 
         if let Some(ref mut config) = self.config {
@@ -103,6 +111,10 @@ impl GeneratorBuilder {
             for (key, value) in config.static_utilities.drain() {
                 self.design.add_static(key, value);
             }
+        }
+
+        for preset in self.presets.drain(..) {
+            preset.load_preset(&mut self.design);
         }
 
         Ok(GeneratorProcessor {

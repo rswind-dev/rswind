@@ -125,15 +125,28 @@ pub fn as_color(value: &str, modifier: Option<&str>) -> SmolStr {
         .unwrap_or_else(|| value.into())
 }
 
-pub trait Preset {
+pub trait LoadPreset {
     fn load_preset(self: Box<Self>, design: &mut DesignSystem);
 }
 
-impl<T> Preset for T
+impl<T> LoadPreset for T
 where
     T: FnOnce(&mut DesignSystem) + 'static,
 {
     fn load_preset(self: Box<Self>, design: &mut DesignSystem) {
+        (*self)(design);
+    }
+}
+
+pub trait LoadTheme {
+    fn load_theme(self: Box<Self>, design: &mut DesignSystem);
+}
+
+impl<T> LoadTheme for T
+where
+    T: FnOnce(&mut DesignSystem) + 'static,
+{
+    fn load_theme(self: Box<Self>, design: &mut DesignSystem) {
         (*self)(design);
     }
 }
