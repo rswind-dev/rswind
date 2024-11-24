@@ -30,6 +30,7 @@ impl Generator {
             processor: GeneratorBuilder::new()
                 .with_parallel(false)
                 .with_preset(preset_tailwind)
+                .with_watch(true)
                 .with_config(config.unwrap_or_default())
                 .build_processor()?,
         })
