@@ -1,3 +1,18 @@
+transition-none = [
+  { transition-property = "none" },
+  "transition-property"
+]
+
+transition-normal = [
+  { transition-behavior = "normal" },
+  "transition-behavior"
+]
+
+transition-discrete = [
+  { transition-behavior = "allow-discrete" },
+  "transition-behavior"
+]
+
 [absolute]
 position = "absolute"
 
