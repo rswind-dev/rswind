@@ -538,7 +538,7 @@ utilities:
 
   - key: border
     css:
-      border-width: $0:color
+      border-color: $0:color
     theme: colors
     type: border-color
     modifier:
