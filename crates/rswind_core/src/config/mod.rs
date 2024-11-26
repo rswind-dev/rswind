@@ -13,7 +13,7 @@ use smol_str::SmolStr;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
 
-use crate::parse::UtilityBuilder;
+use crate::{ordering::OrderingKey, parse::UtilityBuilder};
 
 pub static DEFAULT_CONFIG_PATH: &str = "rswind.config.json";
 
@@ -30,6 +30,7 @@ pub struct CorePlugins {
 #[cfg_attr(feature = "build", derive(instance_code::InstanceCode), instance(path = rswind_core::config))]
 pub enum StaticUtilityValue {
     DeclList(DeclList),
+    DeclListWithOrder((DeclList, OrderingKey)),
     WithSelector((SmolStr, DeclList)),
 }
 

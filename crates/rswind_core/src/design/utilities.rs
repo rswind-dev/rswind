@@ -16,32 +16,38 @@ use crate::{
 pub struct StaticUtility {
     pub selector: Option<SmolStr>,
     pub decls: DeclList,
+    pub ordering: OrderingKey,
 }
 
 impl StaticUtility {
     pub fn new(selector: SmolStr, decls: DeclList) -> Self {
-        Self { selector: Some(selector), decls }
+        Self { selector: Some(selector), decls, ordering: OrderingKey::default() }
     }
 }
 
 impl From<DeclList> for StaticUtility {
     fn from(value: DeclList) -> Self {
-        Self { selector: None, decls: value }
+        Self { selector: None, decls: value, ordering: OrderingKey::default() }
     }
 }
 
 impl From<(SmolStr, DeclList)> for StaticUtility {
     fn from((selector, decl_list): (SmolStr, DeclList)) -> Self {
-        Self { selector: Some(selector), decls: decl_list }
+        Self { selector: Some(selector), decls: decl_list, ordering: OrderingKey::default() }
     }
 }
 
 impl From<StaticUtilityValue> for StaticUtility {
     fn from(value: StaticUtilityValue) -> Self {
         match value {
-            StaticUtilityValue::DeclList(decl_list) => Self { selector: None, decls: decl_list },
+            StaticUtilityValue::DeclList(decl_list) => {
+                Self { selector: None, decls: decl_list, ordering: OrderingKey::default() }
+            }
             StaticUtilityValue::WithSelector(value) => {
-                Self { selector: Some(value.0), decls: value.1 }
+                Self { selector: Some(value.0), decls: value.1, ordering: OrderingKey::default() }
+            }
+            StaticUtilityValue::DeclListWithOrder((decls, ordering)) => {
+                Self { selector: None, decls, ordering }
             }
         }
     }
@@ -98,7 +104,7 @@ impl UtilityStorage {
                     value.selector.as_deref().unwrap_or("&"),
                     value.decls.0.clone(),
                 ),
-                ordering: OrderingKey::Disorder,
+                ordering: value.ordering,
                 group: None,
                 extra_css: None,
             }),
