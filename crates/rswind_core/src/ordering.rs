@@ -17,6 +17,12 @@ pub enum OrderingKey {
     SkewAxis,
     Transform,
 
+    TransitionProperty,
+    TransitionBehavior,
+    TransitionDelay,
+    TransitionDuration,
+    TransitionTimingFunction,
+
     Margin,
     MarginAxis,
     MarginSide,
@@ -79,6 +85,12 @@ impl FromStr for OrderingKey {
             "skew" => Self::Skew,
             "skew-x" | "skew-y" => Self::SkewAxis,
             "transform" => Self::Transform,
+
+            "transition-property" => Self::TransitionProperty,
+            "transition-behavior" => Self::TransitionBehavior,
+            "transition-delay" => Self::TransitionDelay,
+            "transition-duration" => Self::TransitionDuration,
+            "transition-timing-function" => Self::TransitionTimingFunction,
 
             "margin" => Self::Margin,
             "margin-x" | "margin-y" => Self::MarginAxis,
