@@ -404,6 +404,27 @@ utilities:
     group: transform
     extra-css: *transform
 
+  - key: transition
+    css:
+      transition-property: $0
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    theme: transitionProperty
+    order: transition-property
+
+  - key: ease
+    css:
+      transition-timing-function: $0
+    theme: transitionTimingFunction
+    order: transition-timing-function
+
+  - key: duration
+    css:
+      transition-duration: $0
+    theme: transitionDuration
+    type: time
+    order: transition-duration
+
   - key: line-clamp
     css:
       display: -webkit-box
