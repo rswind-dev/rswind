@@ -1,217 +1,218 @@
 properties:
   translate-xy: &translate-xy
     '@property --tw-translate-x':
-      syntax: <length> | <percentage>
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-translate-y':
-      syntax: <length> | <percentage>
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: '0'
 
   translate-xyz: &translate-xyz
     '@property --tw-translate-x':
-      syntax: <length> | <percentage>
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-translate-y':
-      syntax: <length> | <percentage>
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-translate-z':
-      syntax: <length> | <percentage>
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: '0'
 
   scale-xy: &scale-xy
     '@property --tw-scale-x':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '1'
     '@property --tw-scale-y':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '1'
 
   scale-xyz: &scale-xyz
     '@property --tw-scale-x':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '1'
     '@property --tw-scale-y':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '1'
     '@property --tw-scale-z':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '1'
 
   rotate-xy: &rotate-xy
     '@property --tw-rotate-x':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-rotate-y':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
 
   rotate-xyz: &rotate-xyz
     '@property --tw-rotate-x':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-rotate-y':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-rotate-z':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
 
   skew-xy: &skew-xy
     '@property --tw-skew-x':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-skew-y':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
 
   transform: &transform
     # <<: [*rotate-xyz, *skew-xy]
     '@property --tw-rotate-x':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-rotate-y':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-rotate-z':
-      syntax: <angle>
+      syntax: '"<angle>"'
       inherits: 'false'
       initial-value: '0'
     <<: *skew-xy
 
   border-spacing-xy: &border-spacing-xy
     '@property --tw-border-spacing-x':
-      syntax: <length>
+      syntax: '"<length>"'
       inherits: 'false'
       initial-value: '0'
     '@property --tw-border-spacing-y':
-      syntax: <length>
+      syntax: '"<length>"'
       inherits: 'false'
       initial-value: '0'
 
   space-x-reverse: &space-x-reverse
     '@property --tw-space-x-reverse':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '0'
 
   space-y-reverse: &space-y-reverse
     '@property --tw-space-y-reverse':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '0'
 
   divide-x-reverse: &divide-x-reverse
     '@property --tw-divide-x-reverse':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '0'
 
   divide-y-reverse: &divide-y-reverse
     '@property --tw-divide-y-reverse':
-      syntax: <number>
+      syntax: '"<number>"'
       inherits: 'false'
       initial-value: '0'
 
   gradient-properties: &gradient-properties
     '@property --tw-gradient-from':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
       initial-value: '#0000'
     '@property --tw-gradient-to':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
       initial-value: '#0000'
     '@property --tw-gradient-via':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
       initial-value: transparent
     '@property --tw-gradient-stops':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
     '@property --tw-gradient-via-stops':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
     '@property --tw-gradient-from-position':
-      syntax: '<length> | <percentage>'
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: 0%
     '@property --tw-gradient-via-position':
-      syntax: '<length> | <percentage>'
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: 50%
     '@property --tw-gradient-to-position':
-      syntax: '<length> | <percentage>'
+      syntax: '"<length> | <percentage>"'
       inherits: 'false'
       initial-value: 100%
 
   border-style: &border-style
     '@property --tw-border-style':
-      syntax: <custom-ident>
+      syntax: '"<custom-ident>"'
+      inherits: 'false'
       initial-value: solid
 
   box-shadow-properties: &box-shadow-properties
     '@property --tw-shadow':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
     '@property --tw-shadow-colored':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
     '@property --tw-inset-shadow':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
     '@property --tw-inset-shadow-colored':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
     '@property --tw-ring-color':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
     '@property --tw-ring-shadow':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
     '@property --tw-inset-ring-color':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
     '@property --tw-inset-ring-shadow':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 0 0 #0000'
     '@property --tw-ring-inset':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
     '@property --tw-ring-offset-width':
-      syntax: <length>
+      syntax: '"<length>"'
       inherits: 'false'
       initial-value: 0px
     '@property --tw-ring-offset-color':
-      syntax: <color>
+      syntax: '"<color>"'
       inherits: 'false'
       initial-value: '#fff'
     '@property --tw-ring-offset-shadow':
-      syntax: '*'
+      syntax: '"*"'
       inherits: 'false'
       initial-value: '0 0 #0000'
 
