@@ -12,10 +12,10 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /getting-started
+      link: /guide/getting-started
     - theme: alt
       text: Rust Docs
-      link: /api-examples
+      link: https://docs.rs/rswind
 
 features:
   - title: Zero Configuration
@@ -26,11 +26,11 @@ features:
     details: With Rust and concurrency, only less than 20ms with 1 million lines of code
   - title: WASM runtime
     icon: 🕸
-    details: Run in your browser and html with only one line of code
+    details: Run in browser and html with only one line of code
   - title: Fully customizable
     icon: 🎨
-    details: You can customize whatever you want, even simpler than Tailwind CSS
+    details: customize utilities without writing code, even simpler than Tailwind CSS
   - title: Compatibility
     icon: 📦
-    details: Compatible with Tailwind CSS, you can use it as a drop-in replacement
+    details: Compatible with Tailwind CSS, use it as a drop-in replacement
 ---

@@ -4,11 +4,9 @@ outline: deep
 
 # API Reference
 
-## `rswind` package
-
 `rswind` provide a set of utilities for you to generate css manually.
 
-### `Generator`
+## `createGenerator()`
 
 create a generator instance with `createGenerator` function.
 
@@ -20,7 +18,7 @@ const generator = createGenerator({
 })
 ```
 
-### `generate`
+## `generate()`
 
 `generate` is a common api, which **read from filesystem** and extract candidates from `config.contents` and generate css.
 
@@ -49,7 +47,7 @@ const { css } = generator.generate()
 }
 ```
 
-### `generateWith`
+## `generateWith()`
 
 `generateWith` allows you to pass in a inline string content
 
@@ -73,7 +71,7 @@ const { css } = generator.generateWith(`
 }
 ```
 
-### `generateCandidates`
+## `generateCandidates()`
 
 `generateCandidates` is a low-level api that allows you to pass in a set of **candidates** to generate css.
 
