@@ -77,28 +77,15 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish Rswind Bindings (Dry Run)
-        run: pnpm publish -r --filter '@rswind/binding-*' --tag latest --no-git-checks --ignore-scripts --dry-run
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Rswind Bindings
-        run: pnpm publish -r --filter '@rswind/binding-*' --tag latest --no-git-checks
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-
       - name: Publish Rswind Packages (Dry Run)
-        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks --ignore-scripts --dry-run
+        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks --dry-run
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Publish Rswind Packages
-        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks --ignore-scripts
+        run: pnpm publish -r --filter rswind --filter @rswind/wasm-runtime --filter @rswind/vite --tag latest --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
