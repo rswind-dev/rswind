@@ -5,7 +5,7 @@ const STYLE_TAG_ID = '__rswind_style__'
 
 export function extract(): Set<string> {
   const set = new Set<string>()
-  const nodeList = document.body.querySelectorAll('*')
+  const nodeList = document.querySelectorAll('*')
   for (const node of nodeList) {
     for (const className of node.classList) {
       set.add(className)
