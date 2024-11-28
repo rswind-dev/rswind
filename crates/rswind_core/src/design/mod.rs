@@ -261,6 +261,7 @@ impl DesignSystem {
         let UtilityApplyResult { rule: node, ordering, group, extra_css } =
             self.utilities.try_apply(utility_candidate)?;
 
+        // TODO: rev()? variants order in tailwind v3 and v4 are different
         let mut node = selector.iter().fold(node.to_rule_list(), |acc, cur| cur.handle(acc));
 
         node = fill_selector_placeholder(value, node)?;
