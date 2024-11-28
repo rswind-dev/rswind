@@ -977,6 +977,7 @@ utilities:
     order: border-width
     extra-css: *border-style
 
+  # TODO: border-inline
   - key: border-x
     css:
       border-left-style: var(--tw-border-style)
@@ -1002,9 +1003,7 @@ utilities:
   - key: border-s
     css:
       border-inline-start-style: var(--tw-border-style)
-      border-inline-end-style: var(--tw-border-style)
       border-inline-start-width: $0
-      border-inline-end-width: $0
     theme: borderWidth
     type: border-width
     order: border-width-side
@@ -1012,9 +1011,7 @@ utilities:
 
   - key: border-e
     css:
-      border-inline-start-style: var(--tw-border-style)
       border-inline-end-style: var(--tw-border-style)
-      border-inline-start-width: $0
       border-inline-end-width: $0
     theme: borderWidth
     type: border-width
@@ -1024,9 +1021,7 @@ utilities:
   - key: border-t
     css:
       border-top-style: var(--tw-border-style)
-      border-bottom-style: var(--tw-border-style)
       border-top-width: $0
-      border-bottom-width: $0
     theme: borderWidth
     type: border-width
     order: border-width-side
@@ -1035,9 +1030,7 @@ utilities:
   - key: border-r
     css:
       border-right-style: var(--tw-border-style)
-      border-left-style: var(--tw-border-style)
       border-right-width: $0
-      border-left-width: $0
     theme: borderWidth
     type: border-width
     order: border-width-side
@@ -1045,9 +1038,7 @@ utilities:
 
   - key: border-b
     css:
-      border-top-style: var(--tw-border-style)
       border-bottom-style: var(--tw-border-style)
-      border-top-width: $0
       border-bottom-width: $0
     theme: borderWidth
     type: border-width
@@ -1056,9 +1047,7 @@ utilities:
 
   - key: border-l
     css:
-      border-right-style: var(--tw-border-style)
       border-left-style: var(--tw-border-style)
-      border-right-width: $0
       border-left-width: $0
     theme: borderWidth
     type: border-width
