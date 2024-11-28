@@ -32,7 +32,7 @@ pnpm install @rswind/vite -D
 
 Then, add `@rswind/vite` to your `vite.config.ts`:
 
-```ts
+```ts{2,7}
 import { defineConfig } from 'vite'
 import rswind from '@rswind/vite'
 // other imports
