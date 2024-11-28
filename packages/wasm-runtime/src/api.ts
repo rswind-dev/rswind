@@ -18,7 +18,7 @@ interface HtmlGenerator {
   inner: Generator
   observer: MutationObserver | null
   styleElem: HTMLStyleElement | null
-  watch: () => void
+  watch: (elem?: HTMLElement) => void
 }
 
 function getStyleElement(): HTMLStyleElement {
@@ -57,12 +57,12 @@ export async function createHtmlGenerator(config?: GeneratorConfig): Promise<Htm
     inner,
     observer,
     styleElem,
-    watch() {
+    watch(elem) {
       if (document.readyState !== 'complete') {
         document.addEventListener('DOMContentLoaded', () => updateCss())
       }
       updateCss()
-      observer.observe(document.body, {
+      observer.observe(elem || document.body, {
         childList: true,
         subtree: true,
         attributes: true,
